@@ -1,0 +1,11 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_getConversationMemoryForScope(STRING scopeType, STRING scopeId) FOR GRAPH iperform_insights_coaching_demo {
+  Turns = SELECT t FROM phx_dm_conversation_turn:t
+          WHERE t.scope_type == scopeType AND t.scope_id == scopeId;
+  Memories = SELECT m FROM phx_dm_context_memory:m
+             WHERE m.scope_type == scopeType AND m.scope_id == scopeId
+             AND m.memory_type == "Conversation Memory";
+  PRINT Turns AS conversation_turns;
+  PRINT Memories AS conversation_memories;
+}

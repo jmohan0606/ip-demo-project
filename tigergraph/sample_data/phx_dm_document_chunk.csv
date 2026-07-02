@@ -1,0 +1,10 @@
+chunk_id,document_id,chunk_index,chunk_text,chunk_summary,chroma_collection,status
+DOC001_CHUNK001,DOC001,1,"Demo chunk 1 from Managed Account Growth Playbook.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 1,iperform_knowledge_base,Active
+DOC001_CHUNK002,DOC001,2,"Demo chunk 2 from Managed Account Growth Playbook.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 2,iperform_knowledge_base,Active
+DOC001_CHUNK003,DOC001,3,"Demo chunk 3 from Managed Account Growth Playbook.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 3,iperform_knowledge_base,Active
+DOC002_CHUNK001,DOC002,1,"Demo chunk 1 from AGP Coaching Guide.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 1,iperform_knowledge_base,Active
+DOC002_CHUNK002,DOC002,2,"Demo chunk 2 from AGP Coaching Guide.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 2,iperform_knowledge_base,Active
+DOC002_CHUNK003,DOC002,3,"Demo chunk 3 from AGP Coaching Guide.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 3,iperform_knowledge_base,Active
+DOC003_CHUNK001,DOC003,1,"Demo chunk 1 from Compliance Recommendation Policy.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 1,iperform_knowledge_base,Active
+DOC003_CHUNK002,DOC003,2,"Demo chunk 2 from Compliance Recommendation Policy.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 2,iperform_knowledge_base,Active
+DOC003_CHUNK003,DOC003,3,"Demo chunk 3 from Compliance Recommendation Policy.pdf supporting recommendations, coaching, compliance and explainability.",Summary chunk 3,iperform_knowledge_base,Active

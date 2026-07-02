@@ -1,0 +1,21 @@
+/*
+ * GQ-026 — get_predictions
+ * Purpose: Return predictions with feature snapshots and reasoning evidence.
+ * Outputs: predictions, feature snapshots and reasoning
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_predictions(target_type STRING, target_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_predictions = {phx_dm_prediction_result.*};
+    predictions = SELECT p FROM all_predictions:p
+        WHERE p.target_type == target_type AND p.target_id == target_id
+        ORDER BY p.score DESC, p.generated_at DESC;
+    features = SELECT f FROM predictions:p
+        -(phx_dm_prediction_uses_feature_snapshot)- phx_dm_feature_snapshot:f;
+    reasoning = SELECT r FROM predictions:p
+        -(rev_phx_dm_reasoning_for_prediction)- phx_dm_reasoning_trace:r;
+    PRINT target_type, target_id, predictions, features, reasoning;
+}
+
+INSTALL QUERY get_predictions

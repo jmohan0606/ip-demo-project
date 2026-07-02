@@ -1,0 +1,9 @@
+{
+  "chroma_path": "data/chroma",
+  "fallback_index_count": 4,
+  "real_chroma_created": true,
+  "collection_count": 4,
+  "status": "real_chroma_persistent_collection_ready",
+  "implementation": "sqlite_persistent_vector_collection_fallback",
+  "chromadb_import_error": "No module named 'chromadb'"
+}

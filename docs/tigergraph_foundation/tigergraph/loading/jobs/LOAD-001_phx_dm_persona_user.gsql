@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_persona_user.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_persona_user FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_persona_user
+    VALUES ($"user_id", $"display_name", $"email", $"role_code", $"status", $"default_scope_type", $"default_scope_id")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

@@ -1,0 +1,42 @@
+/*
+ * GQ-011 — get_household_360
+ * Purpose: Return complete household context and AI artifacts.
+ * Outputs: household, accounts, CRM, AI and memory context
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_household_360(household_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_households = {phx_dm_household.*};
+    household = SELECT h FROM all_households:h WHERE h.household_id == household_id;
+    advisors = SELECT a FROM household:h
+        -(rev_phx_dm_advisor_serves_household)- phx_dm_advisor:a;
+    accounts = SELECT ac FROM household:h
+        -(phx_dm_household_owns_account)- phx_dm_account:ac;
+    activities = SELECT x FROM household:h
+        -(rev_phx_dm_activity_for_household)- phx_dm_crm_activity:x;
+    leads = SELECT x FROM household:h
+        -(rev_phx_dm_lead_for_household)- phx_dm_crm_lead:x;
+    referrals = SELECT x FROM household:h
+        -(rev_phx_dm_referral_for_household)- phx_dm_crm_referral:x;
+    crm_opportunities = SELECT x FROM household:h
+        -(rev_phx_dm_crm_opportunity_for_household)- phx_dm_crm_opportunity:x;
+    predictions = SELECT x FROM household:h
+        -(rev_phx_dm_prediction_for_household)- phx_dm_prediction_result:x;
+    opportunities = SELECT x FROM household:h
+        -(rev_phx_dm_opportunity_for_household)- phx_dm_opportunity:x;
+    recommendations = SELECT x FROM household:h
+        -(rev_phx_dm_recommendation_for_household)- phx_dm_recommendation:x;
+    memories = SELECT x FROM household:h
+        -(rev_phx_dm_memory_for_household)- phx_dm_context_memory:x;
+    features = SELECT x FROM household:h
+        -(phx_dm_household_has_feature_snapshot)- phx_dm_feature_snapshot:x;
+    embeddings = SELECT x FROM household:h
+        -(phx_dm_household_has_embedding)- phx_dm_embedding:x;
+
+    PRINT household, advisors, accounts, activities, leads, referrals,
+        crm_opportunities, predictions, opportunities, recommendations,
+        memories, features, embeddings;
+}
+
+INSTALL QUERY get_household_360

@@ -1,0 +1,24 @@
+/*
+ * GQ-032 — get_memory_timeline
+ * Purpose: Return active and historical memory for a subject.
+ * Outputs: memory timeline, source conversation and reasoning use
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_memory_timeline(subject_type STRING, subject_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_memories = {phx_dm_context_memory.*};
+    memories = SELECT m FROM all_memories:m
+        WHERE m.subject_type == subject_type AND m.subject_id == subject_id
+        ORDER BY m.effective_date DESC;
+    conversation_turns = SELECT t FROM memories:m
+        -(rev_phx_dm_conversation_creates_memory)- phx_dm_conversation_turn:t
+        ORDER BY t.created_at DESC;
+    reasoning = SELECT r FROM memories:m
+        -(rev_phx_dm_reasoning_uses_memory)- phx_dm_reasoning_trace:r
+        ORDER BY r.created_at DESC;
+
+    PRINT subject_type, subject_id, memories, conversation_turns, reasoning;
+}
+
+INSTALL QUERY get_memory_timeline

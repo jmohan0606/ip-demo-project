@@ -1,0 +1,137 @@
+memory_id,memory_type,subject_type,subject_id,content,source_type,source_id,confidence,effective_date,expiration_date,status
+MEM_A001,SEMANTIC,ADVISOR,A001,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A001,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A002,EPISODIC,ADVISOR,A002,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A002,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A003,PREFERENCE,ADVISOR,A003,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A003,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A004,OUTCOME,ADVISOR,A004,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A004,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A005,REASONING,ADVISOR,A005,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A005,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A006,SEMANTIC,ADVISOR,A006,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A006,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A007,EPISODIC,ADVISOR,A007,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A007,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A008,PREFERENCE,ADVISOR,A008,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A008,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A009,OUTCOME,ADVISOR,A009,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A009,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A010,REASONING,ADVISOR,A010,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A010,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A011,SEMANTIC,ADVISOR,A011,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A011,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A012,EPISODIC,ADVISOR,A012,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A012,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A013,PREFERENCE,ADVISOR,A013,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A013,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A014,OUTCOME,ADVISOR,A014,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A014,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A015,REASONING,ADVISOR,A015,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A015,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A016,SEMANTIC,ADVISOR,A016,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A016,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A017,EPISODIC,ADVISOR,A017,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A017,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A018,PREFERENCE,ADVISOR,A018,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A018,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A019,OUTCOME,ADVISOR,A019,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A019,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A020,REASONING,ADVISOR,A020,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A020,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A021,SEMANTIC,ADVISOR,A021,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A021,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A022,EPISODIC,ADVISOR,A022,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A022,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A023,PREFERENCE,ADVISOR,A023,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A023,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A024,OUTCOME,ADVISOR,A024,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A024,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A025,REASONING,ADVISOR,A025,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A025,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A026,SEMANTIC,ADVISOR,A026,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A026,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A027,EPISODIC,ADVISOR,A027,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A027,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A028,PREFERENCE,ADVISOR,A028,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A028,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A029,OUTCOME,ADVISOR,A029,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A029,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A030,REASONING,ADVISOR,A030,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A030,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A031,SEMANTIC,ADVISOR,A031,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A031,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A032,EPISODIC,ADVISOR,A032,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A032,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A033,PREFERENCE,ADVISOR,A033,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A033,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A034,OUTCOME,ADVISOR,A034,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A034,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A035,REASONING,ADVISOR,A035,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A035,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A036,SEMANTIC,ADVISOR,A036,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A036,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A037,EPISODIC,ADVISOR,A037,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A037,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A038,PREFERENCE,ADVISOR,A038,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A038,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A039,OUTCOME,ADVISOR,A039,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A039,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A040,REASONING,ADVISOR,A040,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A040,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A041,SEMANTIC,ADVISOR,A041,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A041,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A042,EPISODIC,ADVISOR,A042,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A042,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A043,PREFERENCE,ADVISOR,A043,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A043,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A044,OUTCOME,ADVISOR,A044,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A044,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A045,REASONING,ADVISOR,A045,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A045,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A046,SEMANTIC,ADVISOR,A046,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A046,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A047,EPISODIC,ADVISOR,A047,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A047,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A048,PREFERENCE,ADVISOR,A048,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A048,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A049,OUTCOME,ADVISOR,A049,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A049,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A050,REASONING,ADVISOR,A050,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A050,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A051,SEMANTIC,ADVISOR,A051,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A051,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A052,EPISODIC,ADVISOR,A052,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A052,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A053,PREFERENCE,ADVISOR,A053,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A053,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A054,OUTCOME,ADVISOR,A054,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A054,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A055,REASONING,ADVISOR,A055,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A055,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A056,SEMANTIC,ADVISOR,A056,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A056,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A057,EPISODIC,ADVISOR,A057,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A057,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A058,PREFERENCE,ADVISOR,A058,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A058,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A059,OUTCOME,ADVISOR,A059,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A059,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_A060,REASONING,ADVISOR,A060,Advisor responds best to household-specific actions tied to measurable CRM and revenue impact.,FEEDBACK_HISTORY,REC_A060,0.82,2026-06-01,2027-07-01,ACTIVE
+MEM_F_F001,SEMANTIC,FIRM,F001,Firm performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_D_D01,EPISODIC,DIVISION,D01,Division performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_D_D02,PREFERENCE,DIVISION,D02,Division performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_D_D03,OUTCOME,DIVISION,D03,Division performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R01,REASONING,REGION,R01,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R02,SEMANTIC,REGION,R02,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R03,EPISODIC,REGION,R03,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R04,PREFERENCE,REGION,R04,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R05,OUTCOME,REGION,R05,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_R_R06,REASONING,REGION,R06,Region performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M01,SEMANTIC,MARKET,M01,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M02,EPISODIC,MARKET,M02,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M03,PREFERENCE,MARKET,M03,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M04,OUTCOME,MARKET,M04,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M05,REASONING,MARKET,M05,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M06,SEMANTIC,MARKET,M06,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M07,EPISODIC,MARKET,M07,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M08,PREFERENCE,MARKET,M08,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M09,OUTCOME,MARKET,M09,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M10,REASONING,MARKET,M10,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M11,SEMANTIC,MARKET,M11,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_M_M12,EPISODIC,MARKET,M12,Market performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B001,PREFERENCE,BRANCH,B001,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B002,OUTCOME,BRANCH,B002,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B003,REASONING,BRANCH,B003,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B004,SEMANTIC,BRANCH,B004,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B005,EPISODIC,BRANCH,B005,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B006,PREFERENCE,BRANCH,B006,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B007,OUTCOME,BRANCH,B007,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B008,REASONING,BRANCH,B008,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B009,SEMANTIC,BRANCH,B009,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B010,EPISODIC,BRANCH,B010,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B011,PREFERENCE,BRANCH,B011,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B012,OUTCOME,BRANCH,B012,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B013,REASONING,BRANCH,B013,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B014,SEMANTIC,BRANCH,B014,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B015,EPISODIC,BRANCH,B015,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B016,PREFERENCE,BRANCH,B016,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B017,OUTCOME,BRANCH,B017,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B018,REASONING,BRANCH,B018,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B019,SEMANTIC,BRANCH,B019,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B020,EPISODIC,BRANCH,B020,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B021,PREFERENCE,BRANCH,B021,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B022,OUTCOME,BRANCH,B022,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B023,REASONING,BRANCH,B023,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_B_B024,SEMANTIC,BRANCH,B024,Branch performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0001,EPISODIC,HOUSEHOLD,H0001,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0002,PREFERENCE,HOUSEHOLD,H0002,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0003,OUTCOME,HOUSEHOLD,H0003,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0004,REASONING,HOUSEHOLD,H0004,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0005,SEMANTIC,HOUSEHOLD,H0005,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0006,EPISODIC,HOUSEHOLD,H0006,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0007,PREFERENCE,HOUSEHOLD,H0007,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0008,OUTCOME,HOUSEHOLD,H0008,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0009,REASONING,HOUSEHOLD,H0009,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0010,SEMANTIC,HOUSEHOLD,H0010,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0011,EPISODIC,HOUSEHOLD,H0011,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0012,PREFERENCE,HOUSEHOLD,H0012,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0013,OUTCOME,HOUSEHOLD,H0013,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0014,REASONING,HOUSEHOLD,H0014,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0015,SEMANTIC,HOUSEHOLD,H0015,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0016,EPISODIC,HOUSEHOLD,H0016,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0017,PREFERENCE,HOUSEHOLD,H0017,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0018,OUTCOME,HOUSEHOLD,H0018,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0019,REASONING,HOUSEHOLD,H0019,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0020,SEMANTIC,HOUSEHOLD,H0020,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0021,EPISODIC,HOUSEHOLD,H0021,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0022,PREFERENCE,HOUSEHOLD,H0022,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0023,OUTCOME,HOUSEHOLD,H0023,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0024,REASONING,HOUSEHOLD,H0024,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0025,SEMANTIC,HOUSEHOLD,H0025,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0026,EPISODIC,HOUSEHOLD,H0026,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0027,PREFERENCE,HOUSEHOLD,H0027,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0028,OUTCOME,HOUSEHOLD,H0028,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0029,REASONING,HOUSEHOLD,H0029,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE
+MEM_H_H0030,SEMANTIC,HOUSEHOLD,H0030,Household performance context and prior action history available for scoped agent retrieval.,SYSTEM_DERIVED,SEED_V1_1,0.80,2026-06-01,2027-07-01,ACTIVE

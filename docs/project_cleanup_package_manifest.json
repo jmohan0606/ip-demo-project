@@ -1,0 +1,24 @@
+{
+  "package": "Project Cleanup & Environment Configuration",
+  "base_package": "Part13_18_Final_UI_Runtime_Build_Validation_Screenshot_Review_Package.zip",
+  "removed_items_count": 0,
+  "added_files": [
+    ".env.example",
+    "frontend/.env.local.example",
+    "uv.toml.example",
+    "frontend/.npmrc.example",
+    ".gitignore",
+    ".dockerignore",
+    "app/config/runtime_config.py",
+    "app/api/routers/config_status.py",
+    "frontend/lib/api/config.ts",
+    "scripts/validate_project_cleanup.py",
+    "docs/project_cleanup_and_environment_config.md"
+  ],
+  "validation": {
+    "stdout": "{\n  \"status\": \"passed\",\n  \"missing_required_files\": [],\n  \"unwanted_dirs\": [],\n  \"unwanted_files\": [],\n  \"required_files_validated\": 10\n}\n",
+    "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 720, in _warm_feature_flows\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 704, in _warm_collaboration_flows\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/generated/interface/models.py\", line 30820, in hydrate_crdt_from_proto\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/rpc/remote.py\", line 749, in __call__\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/rpc/client.py\", line 150, in call\nartifact_tool.rpc.client.RemoteError: hydrateCrdtFromProto requires an empty collaborative document.\n",
+    "returncode": 0
+  },
+  "next_step": "Run local backend/frontend validation with the new env files, then capture final UI screenshots."
+}

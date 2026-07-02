@@ -1,0 +1,249 @@
+[
+  {
+    "id": "REQ-001",
+    "requirement": "Local runnable demo with FastAPI and Streamlit",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "run_local_api.py",
+      "app/ui/app_enterprise.py"
+    ]
+  },
+  {
+    "id": "REQ-002",
+    "requirement": "UV package manager support",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "pyproject.toml"
+    ]
+  },
+  {
+    "id": "REQ-003",
+    "requirement": "TigerGraph MCP library-based primary graph access",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/graph/tigergraph/mcp_library_client.py",
+      "app/graph/access/graph_access_client.py"
+    ]
+  },
+  {
+    "id": "REQ-004",
+    "requirement": "TigerGraph REST fallback and mock fallback",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/graph/tigergraph/rest_client.py",
+      "app/graph/mock/mock_graph_data_service.py"
+    ]
+  },
+  {
+    "id": "REQ-005",
+    "requirement": "All TigerGraph objects use phx_dm_ prefix",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "phx_dm_ prefix found.",
+    "artifacts": [
+      "tigergraph/schema/01_vertices.gsql",
+      "tigergraph/schema/02_edges.gsql"
+    ]
+  },
+  {
+    "id": "REQ-006",
+    "requirement": "Preloaded SQLite database exists and is populated",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "SQLite size=4329472",
+    "artifacts": [
+      "data/sqlite/iperform.db"
+    ]
+  },
+  {
+    "id": "REQ-007",
+    "requirement": "Preloaded Chroma folder exists",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "data/chroma/preloaded_chroma_manifest.json",
+      "data/chroma/preloaded_knowledge_index.json"
+    ]
+  },
+  {
+    "id": "REQ-008",
+    "requirement": "True agentic architecture with explicit agents",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/agents/registry/agent_registry.py",
+      "app/agents/workflows/advisor_coaching_graph.py"
+    ]
+  },
+  {
+    "id": "REQ-009",
+    "requirement": "LangGraph/LangChain dependencies present",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "LangGraph/LangChain dependencies found.",
+    "artifacts": [
+      "pyproject.toml"
+    ]
+  },
+  {
+    "id": "REQ-010",
+    "requirement": "AI Assistant Chat as a separate page",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/ui/pages/ai_assistant_chat.py"
+    ]
+  },
+  {
+    "id": "REQ-011",
+    "requirement": "Context Graph and Temporal Memory",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/graph/memory/memory_repository.py",
+      "app/services/context_service.py"
+    ]
+  },
+  {
+    "id": "REQ-012",
+    "requirement": "Feature Store and feature engineering",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/feature_store/feature_store_repository.py",
+      "app/feature_store/feature_engineering.py"
+    ]
+  },
+  {
+    "id": "REQ-013",
+    "requirement": "Graph embeddings and similarity",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/embeddings/embedding_engine.py",
+      "app/embeddings/similarity_engine.py"
+    ]
+  },
+  {
+    "id": "REQ-014",
+    "requirement": "Prediction engine",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/prediction/prediction_engine.py"
+    ]
+  },
+  {
+    "id": "REQ-015",
+    "requirement": "Opportunity engine",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/opportunities/opportunity_engine.py"
+    ]
+  },
+  {
+    "id": "REQ-016",
+    "requirement": "Recommendation engine",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/recommendations/recommendation_engine.py"
+    ]
+  },
+  {
+    "id": "REQ-017",
+    "requirement": "Feedback learning loop",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/feedback/learning_signal_engine.py",
+      "app/services/feedback_learning_service.py"
+    ]
+  },
+  {
+    "id": "REQ-018",
+    "requirement": "AI Insights and Coaching cards",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/ai/insights/insight_generation_engine.py",
+      "app/ui/pages/insights_coaching.py"
+    ]
+  },
+  {
+    "id": "REQ-019",
+    "requirement": "Enterprise UI with persona and hierarchy scope selection",
+    "priority": "High",
+    "status": "passed",
+    "detail": "Persona and Scope controls found.",
+    "artifacts": [
+      "app/ui/components/navigation.py",
+      "app/ui/app_enterprise.py"
+    ]
+  },
+  {
+    "id": "REQ-020",
+    "requirement": "AGP goals and coaching",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/ui/pages/agp_goals_coaching.py",
+      "tigergraph/sample_data/phx_dm_goal.csv",
+      "tigergraph/sample_data/phx_dm_kpi.csv"
+    ]
+  },
+  {
+    "id": "REQ-021",
+    "requirement": "CRM data support",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "tigergraph/sample_data/phx_dm_crm_activity.csv"
+    ]
+  },
+  {
+    "id": "REQ-022",
+    "requirement": "Explainability evidence and reasoning",
+    "priority": "High",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "app/agents/nodes/explainability_agent.py",
+      "app/models/insights_coaching.py"
+    ]
+  },
+  {
+    "id": "REQ-023",
+    "requirement": "Documentation and installation guide",
+    "priority": "Critical",
+    "status": "passed",
+    "detail": "All required artifacts exist.",
+    "artifacts": [
+      "docs/README_OPERATIONS_INDEX.md",
+      "docs/setup/01_fresh_machine_install.md",
+      "runbooks/quick_start.md"
+    ]
+  }
+]

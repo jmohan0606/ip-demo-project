@@ -1,0 +1,422 @@
+// ============================================================
+// Vertices
+// ============================================================
+
+CREATE VERTEX phx_dm_firm (
+  PRIMARY_ID firm_id STRING,
+  firm_name STRING,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_division (
+  PRIMARY_ID division_id STRING,
+  division_name STRING,
+  ddw_id STRING,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_region (
+  PRIMARY_ID region_id STRING,
+  region_name STRING,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_market (
+  PRIMARY_ID market_id STRING,
+  market_name STRING,
+  mdw_id STRING,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_persona_user (
+  PRIMARY_ID user_id STRING,
+  user_name STRING,
+  persona STRING,
+  email STRING,
+  hierarchy_level STRING,
+  hierarchy_id STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_advisor (
+  PRIMARY_ID advisor_id STRING,
+  advisor_name STRING,
+  advisor_level STRING,
+  tenure_years DOUBLE,
+  agp_enrolled BOOL,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_household (
+  PRIMARY_ID household_id STRING,
+  household_name STRING,
+  segment STRING,
+  lifecycle_stage STRING,
+  risk_profile STRING,
+  total_aum DOUBLE,
+  cash_balance DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_account (
+  PRIMARY_ID account_id STRING,
+  account_type STRING,
+  managed_flag BOOL,
+  opened_date DATETIME,
+  account_value DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_product_category (
+  PRIMARY_ID product_category_id STRING,
+  product_category_name STRING,
+  category_group STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_product_subcategory (
+  PRIMARY_ID product_subcategory_id STRING,
+  product_subcategory_name STRING,
+  product_category_id STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_product (
+  PRIMARY_ID product_id STRING,
+  product_name STRING,
+  product_category_id STRING,
+  product_subcategory_id STRING,
+  risk_level STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_time_period (
+  PRIMARY_ID period_id STRING,
+  period_label STRING,
+  month_num INT,
+  quarter_num INT,
+  year_num INT,
+  start_date DATETIME,
+  end_date DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_transaction (
+  PRIMARY_ID transaction_id STRING,
+  trade_date DATETIME,
+  settlement_date DATETIME,
+  transaction_type STRING,
+  buy_sell_flag STRING,
+  quantity DOUBLE,
+  principal_amount DOUBLE,
+  revenue_amount DOUBLE,
+  managed_revenue_amount DOUBLE,
+  net_cash_flow_amount DOUBLE,
+  net_new_money_amount DOUBLE,
+  source_system STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_monthly_aum (
+  PRIMARY_ID aum_id STRING,
+  period_id STRING,
+  aum_amount DOUBLE,
+  aum_growth_pct DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_monthly_ncf (
+  PRIMARY_ID ncf_id STRING,
+  period_id STRING,
+  ncf_amount DOUBLE,
+  ncf_growth_pct DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_monthly_nnm (
+  PRIMARY_ID nnm_id STRING,
+  period_id STRING,
+  nnm_amount DOUBLE,
+  nnm_growth_pct DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_monthly_product_revenue (
+  PRIMARY_ID product_revenue_id STRING,
+  period_id STRING,
+  revenue_amount DOUBLE,
+  revenue_growth_pct DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_monthly_eligibility (
+  PRIMARY_ID eligibility_id STRING,
+  period_id STRING,
+  eligibility_type STRING,
+  eligible_flag BOOL,
+  threshold_value DOUBLE,
+  actual_value DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_crm_activity (
+  PRIMARY_ID activity_id STRING,
+  activity_type STRING,
+  activity_date DATETIME,
+  subject STRING,
+  notes_summary STRING,
+  outcome STRING,
+  next_step STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_agp_program (
+  PRIMARY_ID program_id STRING,
+  program_name STRING,
+  program_year INT,
+  start_date DATETIME,
+  end_date DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_goal (
+  PRIMARY_ID goal_id STRING,
+  goal_name STRING,
+  goal_type STRING,
+  target_value DOUBLE,
+  target_unit STRING,
+  start_date DATETIME,
+  end_date DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_kpi (
+  PRIMARY_ID kpi_id STRING,
+  kpi_name STRING,
+  kpi_type STRING,
+  target_value DOUBLE,
+  current_value DOUBLE,
+  expected_value DOUBLE,
+  attainment_pct DOUBLE,
+  on_track_flag BOOL,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_coaching_session (
+  PRIMARY_ID coaching_session_id STRING,
+  session_date DATETIME,
+  coach_persona STRING,
+  coach_user_id STRING,
+  coaching_summary STRING,
+  action_plan STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_manager_review (
+  PRIMARY_ID review_id STRING,
+  review_date DATETIME,
+  reviewer_persona STRING,
+  reviewer_user_id STRING,
+  review_summary STRING,
+  feedback_text STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_prediction_result (
+  PRIMARY_ID prediction_id STRING,
+  prediction_type STRING,
+  score DOUBLE,
+  label STRING,
+  model_name STRING,
+  model_version STRING,
+  generated_ts DATETIME,
+  confidence DOUBLE,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_opportunity (
+  PRIMARY_ID opportunity_id STRING,
+  opportunity_type STRING,
+  title STRING,
+  description STRING,
+  score DOUBLE,
+  priority STRING,
+  status STRING,
+  created_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_recommendation (
+  PRIMARY_ID recommendation_id STRING,
+  recommendation_type STRING,
+  title STRING,
+  action_text STRING,
+  score DOUBLE,
+  confidence DOUBLE,
+  status STRING,
+  created_ts DATETIME,
+  updated_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_feedback_event (
+  PRIMARY_ID feedback_id STRING,
+  feedback_action STRING,
+  feedback_reason STRING,
+  reward_score DOUBLE,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_outcome_event (
+  PRIMARY_ID outcome_id STRING,
+  outcome_type STRING,
+  outcome_value DOUBLE,
+  outcome_summary STRING,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_learning_signal (
+  PRIMARY_ID learning_signal_id STRING,
+  signal_type STRING,
+  signal_value DOUBLE,
+  signal_summary STRING,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_context_memory (
+  PRIMARY_ID memory_id STRING,
+  memory_type STRING,
+  scope_type STRING,
+  scope_id STRING,
+  title STRING,
+  summary STRING,
+  facts_json STRING,
+  confidence DOUBLE,
+  valid_from DATETIME,
+  valid_to DATETIME,
+  created_ts DATETIME,
+  source STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_conversation_turn (
+  PRIMARY_ID conversation_turn_id STRING,
+  conversation_id STRING,
+  turn_ts DATETIME,
+  user_question STRING,
+  assistant_answer STRING,
+  persona STRING,
+  scope_type STRING,
+  scope_id STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_reasoning_trace (
+  PRIMARY_ID trace_id STRING,
+  trace_type STRING,
+  conclusion STRING,
+  confidence DOUBLE,
+  reasoning_steps_json STRING,
+  evidence_json STRING,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_document (
+  PRIMARY_ID document_id STRING,
+  document_name STRING,
+  document_type STRING,
+  document_category STRING,
+  version STRING,
+  upload_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_document_chunk (
+  PRIMARY_ID chunk_id STRING,
+  document_id STRING,
+  chunk_index INT,
+  chunk_text STRING,
+  chunk_summary STRING,
+  chroma_collection STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_playbook (
+  PRIMARY_ID playbook_id STRING,
+  playbook_name STRING,
+  playbook_type STRING,
+  description STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_best_practice (
+  PRIMARY_ID best_practice_id STRING,
+  best_practice_name STRING,
+  practice_type STRING,
+  description STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_feature_snapshot (
+  PRIMARY_ID feature_snapshot_id STRING,
+  entity_type STRING,
+  entity_id STRING,
+  feature_group STRING,
+  feature_json STRING,
+  feature_version STRING,
+  snapshot_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_embedding (
+  PRIMARY_ID embedding_id STRING,
+  entity_type STRING,
+  entity_id STRING,
+  embedding_type STRING,
+  model_name STRING,
+  vector_preview STRING,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_similarity_match (
+  PRIMARY_ID similarity_id STRING,
+  source_entity_type STRING,
+  source_entity_id STRING,
+  target_entity_type STRING,
+  target_entity_id STRING,
+  similarity_type STRING,
+  similarity_score DOUBLE,
+  explanation STRING,
+  created_ts DATETIME
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_notification (
+  PRIMARY_ID notification_id STRING,
+  notification_type STRING,
+  title STRING,
+  message STRING,
+  severity STRING,
+  created_ts DATETIME,
+  status STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX phx_dm_business_glossary_term (
+  PRIMARY_ID term_id STRING,
+  term_name STRING,
+  definition STRING,
+  formula STRING,
+  example STRING,
+  status STRING
+) WITH primary_id_as_attribute="true"

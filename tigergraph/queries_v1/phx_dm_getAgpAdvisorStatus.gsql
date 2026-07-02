@@ -1,0 +1,17 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_getAgpAdvisorStatus(STRING advisorId) FOR GRAPH iperform_insights_coaching_demo {
+  Advisor = SELECT a FROM phx_dm_advisor:a WHERE a.advisor_id == advisorId;
+  Programs = SELECT p FROM Advisor:a -(phx_dm_advisor_enrolled_in_agp:e)-> phx_dm_agp_program:p;
+  Goals = SELECT g FROM Advisor:a -(phx_dm_advisor_has_goal:e)-> phx_dm_goal:g;
+  Kpis = SELECT k FROM Advisor:a -(phx_dm_advisor_has_kpi:e)-> phx_dm_kpi:k;
+  Reviews = SELECT r FROM phx_dm_manager_review:r -(phx_dm_review_for_advisor:e)-> Advisor:a;
+  Coaching = SELECT c FROM phx_dm_coaching_session:c -(phx_dm_coaching_for_advisor:e)-> Advisor:a;
+
+  PRINT Advisor AS advisor;
+  PRINT Programs AS programs;
+  PRINT Goals AS goals;
+  PRINT Kpis AS kpis;
+  PRINT Reviews AS reviews;
+  PRINT Coaching AS coaching;
+}

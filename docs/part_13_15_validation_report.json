@@ -1,0 +1,22 @@
+{
+  "missing_files": [],
+  "validated_files": [
+    "frontend/components/memory-explainability/memory-explainability-workspace.tsx",
+    "frontend/components/memory-explainability/memory-timeline.tsx",
+    "frontend/components/memory-explainability/explainability-path.tsx",
+    "frontend/components/memory-explainability/agent-trace-panel.tsx",
+    "frontend/components/memory-explainability/tool-call-audit.tsx",
+    "frontend/components/memory-explainability/learning-loop-panel.tsx",
+    "frontend/app/(dashboard)/memory-explainability/page.tsx",
+    "frontend/lib/api/memory_explainability.ts",
+    "frontend/lib/types/memory_explainability.ts"
+  ],
+  "terms": [
+    "Memory Timeline",
+    "Recommendation Explainability Path",
+    "Agent Execution Trace",
+    "Tool Call Explorer",
+    "Memory Learning Loop",
+    "Evidence Coverage"
+  ]
+}

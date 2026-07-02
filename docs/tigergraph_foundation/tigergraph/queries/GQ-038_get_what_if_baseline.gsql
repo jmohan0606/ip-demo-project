@@ -1,0 +1,30 @@
+/*
+ * GQ-038 — get_what_if_baseline
+ * Purpose: Return stored what-if scenarios and current advisor baseline artifacts.
+ * Outputs: stored scenario plus current baseline artifacts
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_what_if_baseline(scenario_type STRING, scope_type STRING, scope_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_scenarios = {phx_dm_simulation_scenario.*};
+    scenarios = SELECT s FROM all_scenarios:s
+        WHERE s.scenario_type == scenario_type
+          AND s.scope_type == scope_type
+          AND s.scope_id == scope_id
+        ORDER BY s.created_at DESC;
+    all_advisors = {phx_dm_advisor.*};
+    advisors = SELECT a FROM all_advisors:a
+        WHERE scope_type == "ADVISOR" AND a.advisor_id == scope_id;
+    features = SELECT f FROM advisors:a
+        -(phx_dm_advisor_has_feature_snapshot)- phx_dm_feature_snapshot:f;
+    predictions = SELECT p FROM advisors:a
+        -(rev_phx_dm_prediction_for_advisor)- phx_dm_prediction_result:p;
+    opportunities = SELECT o FROM advisors:a
+        -(rev_phx_dm_opportunity_for_advisor)- phx_dm_opportunity:o;
+
+    PRINT scenario_type, scope_type, scope_id,
+        scenarios, advisors, features, predictions, opportunities;
+}
+
+INSTALL QUERY get_what_if_baseline

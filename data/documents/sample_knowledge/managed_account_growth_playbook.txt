@@ -1,0 +1,13 @@
+Managed Account Growth Playbook
+
+Purpose: Help advisors identify households with high cash balances, low managed revenue penetration,
+and appropriate risk profile for a managed account review.
+
+Recommended signals:
+- Household AUM above 500,000
+- Cash balance above 75,000
+- Managed revenue percentage below peer average
+- Recent client review meeting completed
+- Moderate, balanced, or growth risk profile
+
+Compliance reminder: Recommendations must be suitable, documented, and aligned to risk profile.

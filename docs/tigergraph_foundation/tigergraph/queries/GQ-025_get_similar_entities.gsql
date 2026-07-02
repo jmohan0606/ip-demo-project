@@ -1,0 +1,33 @@
+/*
+ * GQ-025 — get_similar_entities
+ * Purpose: Return nearest-neighbor similarity records and target entities.
+ * Outputs: similarity matches and typed target sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_similar_entities(entity_type STRING, entity_id STRING, result_limit INT, min_score DOUBLE) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_matches = {phx_dm_similarity_match.*};
+    matches = SELECT s FROM all_matches:s
+        WHERE s.entity_type == entity_type
+          AND s.source_entity_id == entity_id
+          AND s.similarity_score >= min_score
+        ORDER BY s.similarity_score DESC
+        LIMIT result_limit;
+    advisors = SELECT a FROM matches:s
+        -(phx_dm_similarity_match_targets_advisor)- phx_dm_advisor:a;
+    households = SELECT h FROM matches:s
+        -(phx_dm_similarity_match_targets_household)- phx_dm_household:h;
+    accounts = SELECT ac FROM matches:s
+        -(phx_dm_similarity_match_targets_account)- phx_dm_account:ac;
+    products = SELECT p FROM matches:s
+        -(phx_dm_similarity_match_targets_product)- phx_dm_product:p;
+
+    PRINT entity_type, entity_id, matches,
+        advisors AS similar_advisors,
+        households AS similar_households,
+        accounts AS similar_accounts,
+        products AS similar_products;
+}
+
+INSTALL QUERY get_similar_entities

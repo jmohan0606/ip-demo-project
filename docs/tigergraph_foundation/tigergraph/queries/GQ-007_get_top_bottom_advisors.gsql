@@ -1,0 +1,105 @@
+/*
+ * GQ-007 — get_top_bottom_advisors
+ * Purpose: Rank advisors by revenue within an authorized scope.
+ * Outputs: top_advisors or bottom_advisors with revenue
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_top_bottom_advisors(scope_type STRING, scope_id STRING, start_date DATETIME, end_date DATETIME, direction STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    SumAccum<DOUBLE> @revenue;
+    SumAccum<INT> @transaction_count;
+
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    direct_advisors = SELECT a
+        FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+
+    selected_branches = SELECT b
+        FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a
+        FROM selected_branches:b
+            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+
+    selected_markets = SELECT m
+        FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a
+        FROM selected_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_regions = SELECT r
+        FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m
+        FROM selected_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    region_advisors = SELECT a
+        FROM region_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_divisions = SELECT d
+        FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r
+        FROM selected_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    division_markets = SELECT m
+        FROM division_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    division_advisors = SELECT a
+        FROM division_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_firms = SELECT f
+        FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d
+        FROM selected_firms:f
+            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    firm_regions = SELECT r
+        FROM firm_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    firm_markets = SELECT m
+        FROM firm_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    firm_advisors = SELECT a
+        FROM firm_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+
+    scored = SELECT a FROM advisors:a
+        -(rev_phx_dm_transaction_for_advisor)- phx_dm_revenue_transaction:tx
+        WHERE tx.transaction_date >= start_date AND tx.transaction_date <= end_date
+        ACCUM a.@revenue += tx.revenue_amount,
+              a.@transaction_count += 1;
+
+    top_results = SELECT a FROM scored:a
+        WHERE direction == "TOP"
+        ORDER BY a.@revenue DESC
+        LIMIT result_limit;
+    bottom_results = SELECT a FROM scored:a
+        WHERE direction == "BOTTOM"
+        ORDER BY a.@revenue ASC
+        LIMIT result_limit;
+
+    PRINT direction,
+        top_results[top_results.advisor_id, top_results.advisor_name,
+            top_results.@revenue AS revenue,
+            top_results.@transaction_count AS transaction_count] AS top_advisors,
+        bottom_results[bottom_results.advisor_id, bottom_results.advisor_name,
+            bottom_results.@revenue AS revenue,
+            bottom_results.@transaction_count AS transaction_count] AS bottom_advisors;
+}
+
+INSTALL QUERY get_top_bottom_advisors

@@ -1,0 +1,66 @@
+review_id,review_date,reviewer_persona,reviewer_user_id,review_summary,feedback_text,status,advisor_id,coaching_session_id
+REVIEW000001,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0001,COACH000004
+REVIEW000002,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0002,COACH000006
+REVIEW000003,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0003,COACH000008
+REVIEW000004,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Focus on high-AUM households.,Completed,ADV0004,COACH000010
+REVIEW000005,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0005,COACH000013
+REVIEW000006,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0006,COACH000016
+REVIEW000007,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0007,COACH000018
+REVIEW000008,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0008,COACH000020
+REVIEW000009,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0009,COACH000023
+REVIEW000010,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0010,COACH000025
+REVIEW000011,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0011,COACH000027
+REVIEW000012,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0012,COACH000029
+REVIEW000013,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0013,COACH000033
+REVIEW000014,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0014,COACH000035
+REVIEW000015,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0015,COACH000038
+REVIEW000016,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0016,COACH000041
+REVIEW000017,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0017,COACH000043
+REVIEW000018,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0018,COACH000045
+REVIEW000019,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0019,COACH000047
+REVIEW000020,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0020,COACH000049
+REVIEW000021,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Continue current playbook.,Completed,ADV0021,COACH000051
+REVIEW000022,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0022,COACH000054
+REVIEW000023,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0023,COACH000058
+REVIEW000024,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Continue current playbook.,Completed,ADV0024,COACH000061
+REVIEW000025,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0025,COACH000064
+REVIEW000026,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0026,COACH000068
+REVIEW000027,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0027,COACH000070
+REVIEW000028,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Focus on high-AUM households.,Completed,ADV0028,COACH000072
+REVIEW000029,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0029,COACH000074
+REVIEW000030,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0030,COACH000076
+REVIEW000031,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0031,COACH000079
+REVIEW000032,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0032,COACH000082
+REVIEW000033,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0033,COACH000084
+REVIEW000034,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Continue current playbook.,Completed,ADV0034,COACH000088
+REVIEW000035,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0035,COACH000092
+REVIEW000036,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Focus on high-AUM households.,Completed,ADV0036,COACH000094
+REVIEW000037,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0037,COACH000097
+REVIEW000038,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0038,COACH000100
+REVIEW000039,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0039,COACH000104
+REVIEW000040,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0040,COACH000106
+REVIEW000041,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Continue current playbook.,Completed,ADV0041,COACH000109
+REVIEW000042,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0042,COACH000113
+REVIEW000043,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0043,COACH000116
+REVIEW000044,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0044,COACH000120
+REVIEW000045,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0045,COACH000122
+REVIEW000046,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Focus on high-AUM households.,Completed,ADV0046,COACH000125
+REVIEW000047,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0047,COACH000128
+REVIEW000048,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Focus on high-AUM households.,Completed,ADV0048,COACH000130
+REVIEW000049,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0049,COACH000134
+REVIEW000050,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0050,COACH000138
+REVIEW000051,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0051,COACH000141
+REVIEW000052,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0052,COACH000143
+REVIEW000053,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0053,COACH000146
+REVIEW000054,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Increase meeting cadence.,Completed,ADV0054,COACH000149
+REVIEW000055,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Continue current playbook.,Completed,ADV0055,COACH000151
+REVIEW000056,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0056,COACH000154
+REVIEW000057,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0057,COACH000158
+REVIEW000058,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is progressing but NNM is behind target.,Focus on high-AUM households.,Completed,ADV0058,COACH000160
+REVIEW000059,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0059,COACH000163
+REVIEW000060,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Continue current playbook.,Completed,ADV0060,COACH000165
+REVIEW000061,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Increase meeting cadence.,Completed,ADV0061,COACH000167
+REVIEW000062,2025-09-30 00:00:00,MDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0062,COACH000170
+REVIEW000063,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Increase meeting cadence.,Completed,ADV0063,COACH000172
+REVIEW000064,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor needs coaching on new household acquisition.,Continue current playbook.,Completed,ADV0064,COACH000176
+REVIEW000065,2025-09-30 00:00:00,DDW,USR_DDW_01,Advisor is on track and showing strong CRM activity.,Focus on high-AUM households.,Completed,ADV0065,COACH000178

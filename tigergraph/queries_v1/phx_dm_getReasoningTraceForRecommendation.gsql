@@ -1,0 +1,10 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_getReasoningTraceForRecommendation(STRING recommendationId) FOR GRAPH iperform_insights_coaching_demo {
+  Rec = SELECT r FROM phx_dm_recommendation:r WHERE r.recommendation_id == recommendationId;
+  Traces = SELECT t FROM phx_dm_reasoning_trace:t -(phx_dm_reasoning_supports_recommendation:e)-> Rec:r;
+  Memories = SELECT m FROM Traces:t -(phx_dm_reasoning_used_memory:e)-> phx_dm_context_memory:m;
+  PRINT Rec AS recommendation;
+  PRINT Traces AS reasoning_traces;
+  PRINT Memories AS memories_used;
+}

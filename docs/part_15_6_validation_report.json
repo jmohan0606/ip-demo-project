@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "missing_files": [],
+  "validated_files": 11,
+  "required_files": 11,
+  "checks": {
+    "sqlite_feature_store": true,
+    "prediction_runtime": true,
+    "similarity_service": true,
+    "graph_persistence": true
+  }
+}

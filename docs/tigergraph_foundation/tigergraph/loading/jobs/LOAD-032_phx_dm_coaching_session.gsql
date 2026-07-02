@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_coaching_session.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_coaching_session FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_coaching_session
+    VALUES ($"session_id", $"session_date", $"coach_user_id", $"session_type", $"status", $"summary", $"action_items_json", $"next_session_date")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "missing_files": [],
+  "validated_files": 11,
+  "required_files": 11,
+  "text_checks": {
+    "mcp_first": true,
+    "rest_fallback": true,
+    "mock_fallback": true,
+    "tool_runtime_uses_graph": true
+  }
+}

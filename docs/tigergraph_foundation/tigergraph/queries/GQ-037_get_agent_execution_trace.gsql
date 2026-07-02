@@ -1,0 +1,24 @@
+/*
+ * GQ-037 — get_agent_execution_trace
+ * Purpose: Return agent execution, tool calls, evaluations, guardrails and reasoning.
+ * Outputs: agent execution trace and related operational artifacts
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_agent_execution_trace(execution_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_executions = {phx_dm_agent_execution.*};
+    execution = SELECT e FROM all_executions:e WHERE e.execution_id == execution_id;
+    tool_calls = SELECT t FROM execution:e
+        -(phx_dm_execution_has_tool_call)- phx_dm_tool_call:t;
+    evaluations = SELECT v FROM execution:e
+        -(phx_dm_execution_has_evaluation)- phx_dm_evaluation_result:v;
+    guardrails = SELECT g FROM execution:e
+        -(phx_dm_execution_has_guardrail_event)- phx_dm_guardrail_event:g;
+    reasoning = SELECT r FROM execution:e
+        -(phx_dm_execution_generated_reasoning)- phx_dm_reasoning_trace:r;
+
+    PRINT execution, tool_calls, evaluations, guardrails, reasoning;
+}
+
+INSTALL QUERY get_agent_execution_trace

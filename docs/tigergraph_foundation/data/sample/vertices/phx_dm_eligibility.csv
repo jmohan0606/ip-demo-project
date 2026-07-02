@@ -1,0 +1,123 @@
+eligibility_id,eligibility_type,eligible_flag,reason,effective_date,expiration_date
+ELIG_ADV_A001,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A002,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A003,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A004,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A005,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_ADV_A006,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A007,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A008,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A009,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A010,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_ADV_A011,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A012,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A013,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A014,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A015,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_ADV_A016,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A017,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A018,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A019,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A020,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_ADV_A021,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A022,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A023,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A024,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A025,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_ADV_A026,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A027,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A028,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A029,AGP_PRODUCT_RECOMMENDATION,True,Eligible based on advisor status and program rules,2026-01-01,2027-01-01
+ELIG_ADV_A030,AGP_PRODUCT_RECOMMENDATION,False,Temporary supervision hold,2026-01-01,2027-01-01
+ELIG_HH_H0001,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0002,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0003,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0004,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0005,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0006,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0007,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0008,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0009,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0010,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0011,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0012,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0013,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0014,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0015,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0016,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0017,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0018,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0019,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0020,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0021,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0022,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0023,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0024,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0025,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0026,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0027,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0028,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0029,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0030,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0031,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0032,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0033,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0034,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0035,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0036,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0037,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0038,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0039,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0040,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0041,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0042,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0043,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0044,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0045,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0046,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0047,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0048,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0049,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0050,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0051,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0052,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0053,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0054,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0055,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0056,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_HH_H0057,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0058,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0059,MANAGED_ACCOUNT,True,AUM and risk profile qualify,2026-01-01,2027-01-01
+ELIG_HH_H0060,MANAGED_ACCOUNT,False,Household preference restriction,2026-01-01,2027-01-01
+ELIG_PROD_P001,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P002,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P003,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P004,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P005,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P006,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P007,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P008,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P009,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P010,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P011,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P012,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P013,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P014,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P015,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P016,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P017,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P018,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P019,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P020,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P021,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P022,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P023,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P024,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P025,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P026,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P027,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P028,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P029,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P030,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P031,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01
+ELIG_PROD_P032,PRODUCT_ACTIVE,True,Product approved for showcase recommendation flows,2026-01-01,2027-01-01

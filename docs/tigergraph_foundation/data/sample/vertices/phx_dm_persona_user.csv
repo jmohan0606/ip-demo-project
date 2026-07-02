@@ -1,0 +1,86 @@
+user_id,display_name,email,role_code,status,default_scope_type,default_scope_id
+U_EXEC,Alex Morgan,alex.morgan@example.test,EXEC,ACTIVE,FIRM,F001
+U_DDW01,Division Director 1,ddw1@example.test,DDW,ACTIVE,DIVISION,D01
+U_DDW02,Division Director 2,ddw2@example.test,DDW,ACTIVE,DIVISION,D02
+U_DDW03,Division Director 3,ddw3@example.test,DDW,ACTIVE,DIVISION,D03
+U_RDW01,Regional Director 1,rdw1@example.test,RDW,ACTIVE,REGION,R01
+U_RDW02,Regional Director 2,rdw2@example.test,RDW,ACTIVE,REGION,R02
+U_RDW03,Regional Director 3,rdw3@example.test,RDW,ACTIVE,REGION,R03
+U_RDW04,Regional Director 4,rdw4@example.test,RDW,ACTIVE,REGION,R04
+U_RDW05,Regional Director 5,rdw5@example.test,RDW,ACTIVE,REGION,R05
+U_RDW06,Regional Director 6,rdw6@example.test,RDW,ACTIVE,REGION,R06
+U_MDW01,Market Director 1,mdw1@example.test,MDW,ACTIVE,MARKET,M01
+U_MDW02,Market Director 2,mdw2@example.test,MDW,ACTIVE,MARKET,M02
+U_MDW03,Market Director 3,mdw3@example.test,MDW,ACTIVE,MARKET,M03
+U_MDW04,Market Director 4,mdw4@example.test,MDW,ACTIVE,MARKET,M04
+U_MDW05,Market Director 5,mdw5@example.test,MDW,ACTIVE,MARKET,M05
+U_MDW06,Market Director 6,mdw6@example.test,MDW,ACTIVE,MARKET,M06
+U_MDW07,Market Director 7,mdw7@example.test,MDW,ACTIVE,MARKET,M07
+U_MDW08,Market Director 8,mdw8@example.test,MDW,ACTIVE,MARKET,M08
+U_MDW09,Market Director 9,mdw9@example.test,MDW,ACTIVE,MARKET,M09
+U_MDW10,Market Director 10,mdw10@example.test,MDW,ACTIVE,MARKET,M10
+U_MDW11,Market Director 11,mdw11@example.test,MDW,ACTIVE,MARKET,M11
+U_MDW12,Market Director 12,mdw12@example.test,MDW,ACTIVE,MARKET,M12
+U_ADMIN,Platform Administrator,admin@example.test,ADMIN,ACTIVE,FIRM,F001
+U_COMP,Compliance Supervisor,compliance@example.test,COMPLIANCE,ACTIVE,FIRM,F001
+U_ADV001,Avery Diaz,advisor1@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A001
+U_ADV002,Jordan Garcia,advisor2@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A002
+U_ADV003,Taylor Jones,advisor3@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A003
+U_ADV004,Morgan Miller,advisor4@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A004
+U_ADV005,Riley Patel,advisor5@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A005
+U_ADV006,Casey Turner,advisor6@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A006
+U_ADV007,Cameron Bennett,advisor7@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A007
+U_ADV008,Parker Evans,advisor8@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A008
+U_ADV009,Quinn Hill,advisor9@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A009
+U_ADV010,Reese Kim,advisor10@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A010
+U_ADV011,Skyler Nguyen,advisor11@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A011
+U_ADV012,Hayden Reed,advisor12@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A012
+U_ADV013,Rowan Walker,advisor13@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A013
+U_ADV014,Emerson Clark,advisor14@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A014
+U_ADV015,Finley Foster,advisor15@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A015
+U_ADV016,Avery Irwin,advisor16@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A016
+U_ADV017,Jordan Lewis,advisor17@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A017
+U_ADV018,Taylor Owens,advisor18@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A018
+U_ADV019,Morgan Smith,advisor19@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A019
+U_ADV020,Riley Adams,advisor20@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A020
+U_ADV021,Casey Diaz,advisor21@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A021
+U_ADV022,Cameron Garcia,advisor22@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A022
+U_ADV023,Parker Jones,advisor23@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A023
+U_ADV024,Quinn Miller,advisor24@example.test,AGP_ADVISOR,ACTIVE,ADVISOR,A024
+U_ADV025,Reese Patel,advisor25@example.test,ADVISOR,ACTIVE,ADVISOR,A025
+U_ADV026,Skyler Turner,advisor26@example.test,ADVISOR,ACTIVE,ADVISOR,A026
+U_ADV027,Hayden Bennett,advisor27@example.test,ADVISOR,ACTIVE,ADVISOR,A027
+U_ADV028,Rowan Evans,advisor28@example.test,ADVISOR,ACTIVE,ADVISOR,A028
+U_ADV029,Emerson Hill,advisor29@example.test,ADVISOR,ACTIVE,ADVISOR,A029
+U_ADV030,Finley Kim,advisor30@example.test,ADVISOR,ACTIVE,ADVISOR,A030
+U_ADV031,Avery Nguyen,advisor31@example.test,ADVISOR,ACTIVE,ADVISOR,A031
+U_ADV032,Jordan Reed,advisor32@example.test,ADVISOR,ACTIVE,ADVISOR,A032
+U_ADV033,Taylor Walker,advisor33@example.test,ADVISOR,ACTIVE,ADVISOR,A033
+U_ADV034,Morgan Clark,advisor34@example.test,ADVISOR,ACTIVE,ADVISOR,A034
+U_ADV035,Riley Foster,advisor35@example.test,ADVISOR,ACTIVE,ADVISOR,A035
+U_ADV036,Casey Irwin,advisor36@example.test,ADVISOR,ACTIVE,ADVISOR,A036
+U_ADV037,Cameron Lewis,advisor37@example.test,ADVISOR,ACTIVE,ADVISOR,A037
+U_ADV038,Parker Owens,advisor38@example.test,ADVISOR,ACTIVE,ADVISOR,A038
+U_ADV039,Quinn Smith,advisor39@example.test,ADVISOR,ACTIVE,ADVISOR,A039
+U_ADV040,Reese Adams,advisor40@example.test,ADVISOR,ACTIVE,ADVISOR,A040
+U_ADV041,Skyler Diaz,advisor41@example.test,ADVISOR,ACTIVE,ADVISOR,A041
+U_ADV042,Hayden Garcia,advisor42@example.test,ADVISOR,ACTIVE,ADVISOR,A042
+U_ADV043,Rowan Jones,advisor43@example.test,ADVISOR,ACTIVE,ADVISOR,A043
+U_ADV044,Emerson Miller,advisor44@example.test,ADVISOR,ACTIVE,ADVISOR,A044
+U_ADV045,Finley Patel,advisor45@example.test,ADVISOR,ACTIVE,ADVISOR,A045
+U_ADV046,Avery Turner,advisor46@example.test,ADVISOR,ACTIVE,ADVISOR,A046
+U_ADV047,Jordan Bennett,advisor47@example.test,ADVISOR,ACTIVE,ADVISOR,A047
+U_ADV048,Taylor Evans,advisor48@example.test,ADVISOR,ACTIVE,ADVISOR,A048
+U_ADV049,Morgan Hill,advisor49@example.test,ADVISOR,ACTIVE,ADVISOR,A049
+U_ADV050,Riley Kim,advisor50@example.test,ADVISOR,ACTIVE,ADVISOR,A050
+U_ADV051,Casey Nguyen,advisor51@example.test,ADVISOR,ACTIVE,ADVISOR,A051
+U_ADV052,Cameron Reed,advisor52@example.test,ADVISOR,ACTIVE,ADVISOR,A052
+U_ADV053,Parker Walker,advisor53@example.test,ADVISOR,ACTIVE,ADVISOR,A053
+U_ADV054,Quinn Clark,advisor54@example.test,ADVISOR,ACTIVE,ADVISOR,A054
+U_ADV055,Reese Foster,advisor55@example.test,ADVISOR,ACTIVE,ADVISOR,A055
+U_ADV056,Skyler Irwin,advisor56@example.test,ADVISOR,ACTIVE,ADVISOR,A056
+U_ADV057,Hayden Lewis,advisor57@example.test,ADVISOR,ACTIVE,ADVISOR,A057
+U_ADV058,Rowan Owens,advisor58@example.test,ADVISOR,ACTIVE,ADVISOR,A058
+U_ADV059,Emerson Smith,advisor59@example.test,ADVISOR,ACTIVE,ADVISOR,A059
+U_ADV060,Finley Adams,advisor60@example.test,ADVISOR,ACTIVE,ADVISOR,A060
+U_AI_OPS,AI Operations User,ai.ops@iperform.demo,AI_OPS,ACTIVE,FIRM,F001

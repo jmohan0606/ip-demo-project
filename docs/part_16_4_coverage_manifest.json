@@ -1,0 +1,21 @@
+{
+  "part": "16.4",
+  "status": "runtime_validation_tooling_complete",
+  "static_validation_scripts": true,
+  "api_health_check_script": true,
+  "browser_screenshot_script": true,
+  "real_browser_screenshot_capture": "provided_as_script_for_local_runtime",
+  "pages_for_screenshot_capture": [
+    "dashboard",
+    "advisor-360",
+    "what-if",
+    "recommendation-runtime",
+    "feature-runtime",
+    "memory-runtime",
+    "knowledge-runtime",
+    "graph-runtime",
+    "tigergraph-activation",
+    "llm-activation",
+    "orchestration"
+  ]
+}

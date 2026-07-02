@@ -1,0 +1,92 @@
+/*
+ * GQ-001 — get_org_hierarchy
+ * Purpose: Return the organizational hierarchy rooted at a selected scope.
+ * Outputs: firms, divisions, regions, markets, branches, advisors
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_org_hierarchy(scope_type STRING, scope_id STRING, max_depth INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_firms = {phx_dm_firm.*};
+    all_divisions = {phx_dm_division.*};
+    all_regions = {phx_dm_region.*};
+    all_markets = {phx_dm_market.*};
+    all_branches = {phx_dm_branch.*};
+    all_advisors = {phx_dm_advisor.*};
+
+    root_firms = SELECT f FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    root_divisions = SELECT d FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    root_regions = SELECT r FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    root_markets = SELECT m FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    root_branches = SELECT b FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    root_advisors = SELECT a FROM all_advisors:a
+        WHERE scope_type == "ADVISOR" AND a.advisor_id == scope_id;
+
+    firm_divisions = SELECT d FROM root_firms:f
+        -(rev_phx_dm_division_in_firm)- all_divisions:d
+        WHERE max_depth >= 1;
+    divisions = root_divisions UNION firm_divisions;
+
+    regions_from_root_division = SELECT r FROM root_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r
+        WHERE max_depth >= 1;
+    regions_from_firm = SELECT r FROM firm_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r
+        WHERE max_depth >= 2;
+    regions = root_regions UNION regions_from_root_division UNION regions_from_firm;
+
+    markets_from_root_region = SELECT m FROM root_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m
+        WHERE max_depth >= 1;
+    markets_from_division = SELECT m FROM regions_from_root_division:r
+        -(rev_phx_dm_market_in_region)- all_markets:m
+        WHERE max_depth >= 2;
+    markets_from_firm = SELECT m FROM regions_from_firm:r
+        -(rev_phx_dm_market_in_region)- all_markets:m
+        WHERE max_depth >= 3;
+    markets = root_markets UNION markets_from_root_region
+        UNION markets_from_division UNION markets_from_firm;
+
+    branches_from_root_market = SELECT b FROM root_markets:m
+        -(rev_phx_dm_branch_in_market)- all_branches:b
+        WHERE max_depth >= 1;
+    branches_from_region = SELECT b FROM markets_from_root_region:m
+        -(rev_phx_dm_branch_in_market)- all_branches:b
+        WHERE max_depth >= 2;
+    branches_from_division = SELECT b FROM markets_from_division:m
+        -(rev_phx_dm_branch_in_market)- all_branches:b
+        WHERE max_depth >= 3;
+    branches_from_firm = SELECT b FROM markets_from_firm:m
+        -(rev_phx_dm_branch_in_market)- all_branches:b
+        WHERE max_depth >= 4;
+    branches = root_branches UNION branches_from_root_market
+        UNION branches_from_region UNION branches_from_division UNION branches_from_firm;
+
+    advisors_from_root_branch = SELECT a FROM root_branches:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        WHERE max_depth >= 1;
+    advisors_from_market_branch = SELECT a FROM branches_from_root_market:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        WHERE max_depth >= 2;
+    advisors_from_region_branch = SELECT a FROM branches_from_region:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        WHERE max_depth >= 3;
+    advisors_from_division_branch = SELECT a FROM branches_from_division:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        WHERE max_depth >= 4;
+    advisors_from_firm_branch = SELECT a FROM branches_from_firm:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        WHERE max_depth >= 5;
+    advisors = root_advisors UNION advisors_from_root_branch
+        UNION advisors_from_market_branch UNION advisors_from_region_branch
+        UNION advisors_from_division_branch UNION advisors_from_firm_branch;
+
+    PRINT root_firms AS firms, divisions, regions, markets, branches, advisors;
+}
+
+INSTALL QUERY get_org_hierarchy

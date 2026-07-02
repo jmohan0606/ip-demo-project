@@ -1,0 +1,29 @@
+/*
+ * GQ-015 — get_agp_kpi_measurements
+ * Purpose: Return KPI measurements for an AGP enrollment and optional milestone.
+ * Outputs: milestone progress, measurements and KPI definitions
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_agp_kpi_measurements(enrollment_id STRING, milestone_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_enrollments = {phx_dm_agp_enrollment.*};
+    enrollment = SELECT e FROM all_enrollments:e WHERE e.enrollment_id == enrollment_id;
+    all_progress = SELECT x FROM enrollment:e
+        -(phx_dm_enrollment_has_milestone_progress)- phx_dm_agp_milestone_progress:x;
+    selected_progress = SELECT x FROM all_progress:x
+        -(phx_dm_progress_for_milestone)- phx_dm_agp_milestone:m
+        WHERE milestone_id == "" OR m.milestone_id == milestone_id;
+    milestones = SELECT m FROM selected_progress:x
+        -(phx_dm_progress_for_milestone)- phx_dm_agp_milestone:m;
+    measurements = SELECT z FROM selected_progress:x
+        -(phx_dm_progress_has_kpi_measurement)- phx_dm_agp_kpi_measurement:z
+        ORDER BY z.measured_at ASC;
+    kpis = SELECT k FROM measurements:z
+        -(phx_dm_measurement_for_kpi)- phx_dm_kpi:k;
+
+    PRINT enrollment, selected_progress AS milestone_progress,
+        milestones, measurements, kpis;
+}
+
+INSTALL QUERY get_agp_kpi_measurements

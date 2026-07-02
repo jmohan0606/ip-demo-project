@@ -1,0 +1,3 @@
+@01_vertices.gsql
+@02_edges.gsql
+@03_create_graph.gsql

@@ -1,0 +1,203 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "PERSONA_ROLES",
+      "detail": "roles=['ADMIN', 'ADVISOR', 'AGP_ADVISOR', 'AI_OPS', 'COMPLIANCE', 'DDW', 'EXEC', 'MDW', 'RDW']"
+    },
+    {
+      "check": "COUNT_phx_dm_firm.csv",
+      "detail": "expected=1, actual=1"
+    },
+    {
+      "check": "COUNT_phx_dm_division.csv",
+      "detail": "expected=3, actual=3"
+    },
+    {
+      "check": "COUNT_phx_dm_region.csv",
+      "detail": "expected=6, actual=6"
+    },
+    {
+      "check": "COUNT_phx_dm_market.csv",
+      "detail": "expected=12, actual=12"
+    },
+    {
+      "check": "COUNT_phx_dm_branch.csv",
+      "detail": "expected=24, actual=24"
+    },
+    {
+      "check": "COUNT_phx_dm_advisor.csv",
+      "detail": "expected=60, actual=60"
+    },
+    {
+      "check": "COUNT_phx_dm_household.csv",
+      "detail": "expected=360, actual=360"
+    },
+    {
+      "check": "COUNT_phx_dm_account.csv",
+      "detail": "expected=720, actual=720"
+    },
+    {
+      "check": "COUNT_phx_dm_product.csv",
+      "detail": "expected=64, actual=64"
+    },
+    {
+      "check": "COUNT_phx_dm_time_period.csv",
+      "detail": "expected=24, actual=24"
+    },
+    {
+      "check": "DIVISION_TO_FIRM",
+      "detail": "every division has one firm"
+    },
+    {
+      "check": "REGION_TO_DIVISION",
+      "detail": "every region has one division"
+    },
+    {
+      "check": "MARKET_TO_REGION",
+      "detail": "every market has one region"
+    },
+    {
+      "check": "BRANCH_TO_MARKET",
+      "detail": "every branch has one market"
+    },
+    {
+      "check": "ADVISOR_TO_BRANCH",
+      "detail": "every advisor has one branch"
+    },
+    {
+      "check": "ADVISOR_TO_MARKET",
+      "detail": "every advisor has one market"
+    },
+    {
+      "check": "RDW_TO_DDW",
+      "detail": "every RDW is managed by one DDW"
+    },
+    {
+      "check": "MDW_TO_RDW",
+      "detail": "every MDW is managed by one RDW"
+    },
+    {
+      "check": "ADVISOR_TO_MDW",
+      "detail": "every advisor is managed by one MDW"
+    },
+    {
+      "check": "HOUSEHOLD_TO_ADVISOR",
+      "detail": "every household has one advisor"
+    },
+    {
+      "check": "ACCOUNT_TO_HOUSEHOLD",
+      "detail": "every account has one household"
+    },
+    {
+      "check": "ACCOUNT_PRODUCT_COVERAGE",
+      "detail": "every account has product holdings"
+    },
+    {
+      "check": "AGP_MILESTONE_MONTHS",
+      "detail": "eight 3-month milestones through month 24"
+    },
+    {
+      "check": "AGP_ENROLLMENTS",
+      "detail": "24 AGP enrollments"
+    },
+    {
+      "check": "AGP_PROGRESS_PER_ENROLLMENT",
+      "detail": "each enrollment has 8 milestone progress records"
+    },
+    {
+      "check": "AGP_KPI_PER_MILESTONE",
+      "detail": "each milestone progress has 5 KPI measurements"
+    },
+    {
+      "check": "AGP_STATUS_VARIETY",
+      "detail": "statuses=['AT_RISK', 'COMPLETED', 'ON_TRACK', 'UPCOMING']"
+    },
+    {
+      "check": "CRM_LEAD_VARIETY",
+      "detail": "statuses=['COMPLETED', 'CONVERTED', 'OVERDUE', 'PENDING']"
+    },
+    {
+      "check": "CRM_REFERRAL_VARIETY",
+      "detail": "statuses=['COMPLETED', 'CONVERTED', 'OVERDUE', 'PENDING']"
+    },
+    {
+      "check": "CRM_OPPORTUNITY_OUTCOMES",
+      "detail": "statuses=['LOST', 'OPEN', 'WON']"
+    },
+    {
+      "check": "CRM_PIPELINE_STAGES",
+      "detail": "stages=['CLOSED_LOST', 'CLOSED_WON', 'NEGOTIATE', 'PROPOSE', 'QUALIFY']"
+    },
+    {
+      "check": "SEVERITY_phx_dm_prediction_result.csv",
+      "detail": "severities=['ATTENTION', 'CRITICAL', 'INFO', 'URGENT']"
+    },
+    {
+      "check": "SEVERITY_phx_dm_opportunity.csv",
+      "detail": "severities=['ATTENTION', 'CRITICAL', 'INFO', 'URGENT']"
+    },
+    {
+      "check": "SEVERITY_phx_dm_recommendation.csv",
+      "detail": "severities=['ATTENTION', 'CRITICAL', 'INFO', 'URGENT']"
+    },
+    {
+      "check": "MEMORY_TAXONOMY",
+      "detail": "memory_types=['EPISODIC', 'OUTCOME', 'PREFERENCE', 'REASONING', 'SEMANTIC']"
+    },
+    {
+      "check": "FEEDBACK_ACTIONS",
+      "detail": "actions=['ACCEPT', 'COMPLETE', 'DEFER', 'NOT_RELEVANT', 'REJECT']"
+    },
+    {
+      "check": "PREDICTION_FEATURE_LINEAGE",
+      "detail": "every prediction links to a feature snapshot"
+    },
+    {
+      "check": "PREDICTION_REASONING_LINEAGE",
+      "detail": "every prediction links to reasoning"
+    },
+    {
+      "check": "OPPORTUNITY_FEATURE_LINEAGE",
+      "detail": "every opportunity links to a feature snapshot"
+    },
+    {
+      "check": "OPPORTUNITY_PREDICTION_LINEAGE",
+      "detail": "every opportunity links to a prediction"
+    },
+    {
+      "check": "OPPORTUNITY_REASONING_LINEAGE",
+      "detail": "every opportunity links to reasoning"
+    },
+    {
+      "check": "RECOMMENDATION_FEATURE_LINEAGE",
+      "detail": "every recommendation links to a feature snapshot"
+    },
+    {
+      "check": "RECOMMENDATION_OPPORTUNITY_LINEAGE",
+      "detail": "every recommendation links to an opportunity"
+    },
+    {
+      "check": "RECOMMENDATION_PREDICTION_LINEAGE",
+      "detail": "every recommendation links to a prediction"
+    },
+    {
+      "check": "RECOMMENDATION_REASONING_LINEAGE",
+      "detail": "every recommendation links to reasoning"
+    },
+    {
+      "check": "TIME_PERIOD_CONTINUITY",
+      "detail": "24 unique monthly periods"
+    },
+    {
+      "check": "TRANSACTION_ADVISOR_COVERAGE",
+      "detail": "all advisors have transactions"
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "checks": 48,
+    "passed": 48,
+    "failed": 0
+  }
+}

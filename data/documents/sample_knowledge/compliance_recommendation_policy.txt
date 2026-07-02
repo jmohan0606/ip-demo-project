@@ -1,0 +1,10 @@
+Compliance Recommendation Policy
+
+AI-generated recommendations must be explainable, evidence-supported, and checked against firm guidance.
+
+Policy expectations:
+- Show supporting data
+- Identify sources
+- Avoid unsupported product claims
+- Include confidence and reasoning steps
+- Retain recommendation, feedback, and outcome history

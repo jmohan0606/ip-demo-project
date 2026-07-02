@@ -1,0 +1,15 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_getRecommendationExplainability(STRING recommendationId) FOR GRAPH iperform_insights_coaching_demo {
+  Rec = SELECT r FROM phx_dm_recommendation:r WHERE r.recommendation_id == recommendationId;
+  Opps = SELECT o FROM Rec:r -(phx_dm_recommendation_based_on_opportunity:e)-> phx_dm_opportunity:o;
+  Preds = SELECT p FROM Rec:r -(phx_dm_recommendation_supported_by_prediction:e)-> phx_dm_prediction_result:p;
+  Playbooks = SELECT pb FROM Rec:r -(phx_dm_recommendation_supported_by_playbook:e)-> phx_dm_playbook:pb;
+  Traces = SELECT tr FROM phx_dm_reasoning_trace:tr -(phx_dm_reasoning_supports_recommendation:e)-> Rec:r;
+
+  PRINT Rec AS recommendation;
+  PRINT Opps AS opportunities;
+  PRINT Preds AS predictions;
+  PRINT Playbooks AS playbooks;
+  PRINT Traces AS reasoning_traces;
+}

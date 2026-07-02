@@ -1,0 +1,82 @@
+[
+  {
+    "label": "Executive Dashboard",
+    "href": "/dashboard",
+    "file": "frontend/app/(dashboard)/dashboard/page.tsx"
+  },
+  {
+    "label": "Revenue Analytics",
+    "href": "/revenue-analytics",
+    "file": "frontend/app/(dashboard)/revenue-analytics/page.tsx"
+  },
+  {
+    "label": "Advisor 360 / Client 360",
+    "href": "/advisor-360",
+    "file": "frontend/app/(dashboard)/advisor-360/page.tsx"
+  },
+  {
+    "label": "AGP Goals & Coaching",
+    "href": "/agp",
+    "file": "frontend/app/(dashboard)/agp/page.tsx"
+  },
+  {
+    "label": "What-If Simulator",
+    "href": "/what-if",
+    "file": "frontend/app/(dashboard)/what-if/page.tsx"
+  },
+  {
+    "label": "Prediction & Forecasting",
+    "href": "/predictions",
+    "file": "frontend/app/(dashboard)/predictions/page.tsx"
+  },
+  {
+    "label": "Opportunities & Recommendations",
+    "href": "/recommendations",
+    "file": "frontend/app/(dashboard)/recommendations/page.tsx"
+  },
+  {
+    "label": "Recommendation Impact / ROI",
+    "href": "/recommendation-roi",
+    "file": "frontend/app/(dashboard)/recommendation-roi/page.tsx"
+  },
+  {
+    "label": "AI Assistant",
+    "href": "/ai-assistant",
+    "file": "frontend/app/(dashboard)/ai-assistant/page.tsx"
+  },
+  {
+    "label": "Knowledge / Playbooks / Compliance",
+    "href": "/knowledge",
+    "file": "frontend/app/(dashboard)/knowledge/page.tsx"
+  },
+  {
+    "label": "Knowledge Graph Explorer",
+    "href": "/graph-explorer",
+    "file": "frontend/app/(dashboard)/graph-explorer/page.tsx"
+  },
+  {
+    "label": "Feature Store / Embeddings / Similarity",
+    "href": "/features-embeddings",
+    "file": "frontend/app/(dashboard)/features-embeddings/page.tsx"
+  },
+  {
+    "label": "Memory Timeline & Explainability",
+    "href": "/memory-explainability",
+    "file": "frontend/app/(dashboard)/memory-explainability/page.tsx"
+  },
+  {
+    "label": "Agent Orchestration & Observability",
+    "href": "/agents",
+    "file": "frontend/app/(dashboard)/agents/page.tsx"
+  },
+  {
+    "label": "Data Ingestion & Sync",
+    "href": "/data-ingestion",
+    "file": "frontend/app/(dashboard)/data-ingestion/page.tsx"
+  },
+  {
+    "label": "Admin / Data Quality / Runtime Health",
+    "href": "/admin",
+    "file": "frontend/app/(dashboard)/admin/page.tsx"
+  }
+]

@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_agent_execution.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_agent_execution FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_agent_execution
+    VALUES ($"execution_id", $"agent_name", $"workflow_name", $"persona", $"scope_type", $"scope_id", $"status", $"started_at", $"completed_at", $"latency_ms", $"model_name", $"prompt_version")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

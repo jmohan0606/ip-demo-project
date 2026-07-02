@@ -1,0 +1,7 @@
+region_id,region_name,region_code,status
+R01,Region 1,REG1,ACTIVE
+R02,Region 2,REG2,ACTIVE
+R03,Region 3,REG3,ACTIVE
+R04,Region 4,REG4,ACTIVE
+R05,Region 5,REG5,ACTIVE
+R06,Region 6,REG6,ACTIVE

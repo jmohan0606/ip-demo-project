@@ -1,0 +1,179 @@
+coaching_session_id,session_date,coach_persona,coach_user_id,coaching_summary,action_plan,status,advisor_id
+COACH000001,2023-03-11 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0001
+COACH000002,2024-07-09 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0001
+COACH000003,2024-04-06 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0001
+COACH000004,2025-05-15 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0001
+COACH000005,2023-08-19 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0002
+COACH000006,2025-01-13 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0002
+COACH000007,2024-11-07 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0003
+COACH000008,2024-01-03 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0003
+COACH000009,2023-04-05 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0004
+COACH000010,2024-08-11 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0004
+COACH000011,2024-05-01 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0005
+COACH000012,2023-06-16 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0005
+COACH000013,2023-01-01 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0005
+COACH000014,2025-12-09 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0006
+COACH000015,2024-09-14 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0006
+COACH000016,2024-10-03 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0006
+COACH000017,2025-02-07 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0007
+COACH000018,2025-05-14 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0007
+COACH000019,2025-11-05 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0008
+COACH000020,2025-03-15 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0008
+COACH000021,2024-06-08 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0009
+COACH000022,2023-05-11 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0009
+COACH000023,2024-01-13 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0009
+COACH000024,2023-01-15 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0010
+COACH000025,2023-02-10 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0010
+COACH000026,2025-01-14 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0011
+COACH000027,2023-07-16 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0011
+COACH000028,2024-08-03 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0012
+COACH000029,2024-07-05 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0012
+COACH000030,2024-11-12 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0013
+COACH000031,2025-08-12 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Review managed revenue gaps.,Completed,ADV0013
+COACH000032,2025-02-06 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0013
+COACH000033,2025-08-16 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0013
+COACH000034,2024-02-04 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0014
+COACH000035,2023-03-02 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0014
+COACH000036,2025-03-01 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0015
+COACH000037,2024-08-06 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0015
+COACH000038,2025-07-19 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0015
+COACH000039,2023-06-20 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0016
+COACH000040,2025-04-16 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0016
+COACH000041,2023-02-09 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0016
+COACH000042,2023-09-13 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0017
+COACH000043,2025-10-14 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0017
+COACH000044,2023-11-20 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0018
+COACH000045,2023-10-17 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0018
+COACH000046,2024-02-16 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Review managed revenue gaps.,Completed,ADV0019
+COACH000047,2024-06-05 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0019
+COACH000048,2025-09-19 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0020
+COACH000049,2024-02-07 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0020
+COACH000050,2025-10-17 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0021
+COACH000051,2025-07-11 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0021
+COACH000052,2024-10-10 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0022
+COACH000053,2025-06-15 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0022
+COACH000054,2023-06-18 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0022
+COACH000055,2024-03-14 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0023
+COACH000056,2023-01-08 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Review managed revenue gaps.,Completed,ADV0023
+COACH000057,2025-11-05 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0023
+COACH000058,2023-09-13 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0023
+COACH000059,2023-12-01 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0024
+COACH000060,2023-10-11 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0024
+COACH000061,2024-11-08 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0024
+COACH000062,2024-10-15 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0025
+COACH000063,2023-06-08 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0025
+COACH000064,2024-07-05 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0025
+COACH000065,2024-04-04 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0026
+COACH000066,2023-07-18 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0026
+COACH000067,2025-04-03 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0026
+COACH000068,2024-06-09 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0026
+COACH000069,2023-06-06 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0027
+COACH000070,2023-04-12 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0027
+COACH000071,2023-09-15 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0028
+COACH000072,2023-06-08 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0028
+COACH000073,2024-08-14 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0029
+COACH000074,2023-03-04 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0029
+COACH000075,2025-05-01 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0030
+COACH000076,2024-09-13 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0030
+COACH000077,2024-03-09 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Review managed revenue gaps.,Completed,ADV0031
+COACH000078,2023-04-02 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Review managed revenue gaps.,Completed,ADV0031
+COACH000079,2023-03-13 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0031
+COACH000080,2023-11-13 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0032
+COACH000081,2024-07-07 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0032
+COACH000082,2024-12-04 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0032
+COACH000083,2023-11-15 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0033
+COACH000084,2025-08-18 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0033
+COACH000085,2024-12-08 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0034
+COACH000086,2025-11-15 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0034
+COACH000087,2025-10-05 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0034
+COACH000088,2024-06-04 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0034
+COACH000089,2023-07-16 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0035
+COACH000090,2024-12-01 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0035
+COACH000091,2023-09-02 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0035
+COACH000092,2024-10-17 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0035
+COACH000093,2025-09-17 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0036
+COACH000094,2025-02-16 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0036
+COACH000095,2024-10-02 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0037
+COACH000096,2023-05-01 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0037
+COACH000097,2023-03-11 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0037
+COACH000098,2025-01-03 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0038
+COACH000099,2023-08-08 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0038
+COACH000100,2023-06-06 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0038
+COACH000101,2025-10-19 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Review managed revenue gaps.,Completed,ADV0039
+COACH000102,2023-06-18 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0039
+COACH000103,2023-08-03 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0039
+COACH000104,2025-06-15 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0039
+COACH000105,2025-06-16 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0040
+COACH000106,2024-05-05 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0040
+COACH000107,2025-08-01 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0041
+COACH000108,2024-10-09 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Review managed revenue gaps.,Completed,ADV0041
+COACH000109,2024-03-05 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0041
+COACH000110,2024-09-15 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0042
+COACH000111,2025-09-19 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0042
+COACH000112,2025-03-19 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0042
+COACH000113,2023-11-02 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0042
+COACH000114,2023-04-07 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0043
+COACH000115,2023-12-09 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Review managed revenue gaps.,Completed,ADV0043
+COACH000116,2024-10-10 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0043
+COACH000117,2025-04-04 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0044
+COACH000118,2023-09-13 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0044
+COACH000119,2025-09-14 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0044
+COACH000120,2023-11-15 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0044
+COACH000121,2023-11-04 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0045
+COACH000122,2023-02-03 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0045
+COACH000123,2024-05-15 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0046
+COACH000124,2023-11-09 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Review managed revenue gaps.,Completed,ADV0046
+COACH000125,2023-10-10 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0046
+COACH000126,2025-03-20 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0047
+COACH000127,2025-04-07 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0047
+COACH000128,2025-10-11 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0047
+COACH000129,2024-03-12 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0048
+COACH000130,2025-07-14 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0048
+COACH000131,2024-02-18 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0049
+COACH000132,2023-04-17 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0049
+COACH000133,2024-01-11 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0049
+COACH000134,2024-05-08 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0049
+COACH000135,2023-09-09 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0050
+COACH000136,2023-02-04 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Schedule 5 client reviews.,Completed,ADV0050
+COACH000137,2025-03-11 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0050
+COACH000138,2025-07-08 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0050
+COACH000139,2025-11-16 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0051
+COACH000140,2025-08-03 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0051
+COACH000141,2023-02-19 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0051
+COACH000142,2025-08-14 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Review managed revenue gaps.,Completed,ADV0052
+COACH000143,2023-01-15 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Target 3 high-cash households.,Completed,ADV0052
+COACH000144,2024-10-01 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0053
+COACH000145,2024-08-12 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0053
+COACH000146,2025-05-12 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0053
+COACH000147,2024-02-11 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0054
+COACH000148,2025-07-19 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0054
+COACH000149,2023-04-01 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0054
+COACH000150,2025-09-13 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0055
+COACH000151,2025-06-20 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0055
+COACH000152,2023-06-14 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0056
+COACH000153,2023-04-01 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0056
+COACH000154,2024-05-04 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0056
+COACH000155,2024-01-19 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0057
+COACH000156,2023-06-19 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0057
+COACH000157,2023-05-03 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Target 3 high-cash households.,Completed,ADV0057
+COACH000158,2025-07-06 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0057
+COACH000159,2025-11-02 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0058
+COACH000160,2023-02-15 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Review managed revenue gaps.,Completed,ADV0058
+COACH000161,2024-09-09 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0059
+COACH000162,2024-01-16 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0059
+COACH000163,2023-12-08 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0059
+COACH000164,2024-09-13 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0060
+COACH000165,2023-11-14 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0060
+COACH000166,2023-01-13 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Target 3 high-cash households.,Completed,ADV0061
+COACH000167,2025-11-08 00:00:00,MDW,USR_MDW_010101,Prioritize AGP off-track goals.,Schedule 5 client reviews.,Completed,ADV0061
+COACH000168,2023-07-19 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0062
+COACH000169,2024-05-12 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0062
+COACH000170,2023-05-16 00:00:00,MDW,USR_MDW_010101,Increase prospecting follow-ups.,Complete prospecting plan.,Completed,ADV0062
+COACH000171,2024-05-01 00:00:00,MDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0063
+COACH000172,2023-12-10 00:00:00,DDW,USR_MDW_010101,Prioritize AGP off-track goals.,Complete prospecting plan.,Completed,ADV0063
+COACH000173,2023-05-09 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Review managed revenue gaps.,Completed,ADV0064
+COACH000174,2025-06-18 00:00:00,MDW,USR_MDW_010101,Improve review meeting cadence.,Complete prospecting plan.,Completed,ADV0064
+COACH000175,2025-04-18 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Schedule 5 client reviews.,Completed,ADV0064
+COACH000176,2023-03-20 00:00:00,DDW,USR_MDW_010101,Improve review meeting cadence.,Schedule 5 client reviews.,Completed,ADV0064
+COACH000177,2025-05-01 00:00:00,DDW,USR_MDW_010101,Focus on NNM growth actions.,Complete prospecting plan.,Completed,ADV0065
+COACH000178,2023-01-08 00:00:00,DDW,USR_MDW_010101,Increase prospecting follow-ups.,Target 3 high-cash households.,Completed,ADV0065

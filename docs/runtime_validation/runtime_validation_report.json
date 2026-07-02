@@ -1,0 +1,285 @@
+{
+  "status": "passed",
+  "checks_passed": 14,
+  "checks_failed": 0,
+  "results": [
+    {
+      "check_name": "import_fastapi_app",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "route_count": 69,
+        "sample_routes": [
+          "/openapi.json",
+          "/docs",
+          "/docs/oauth2-redirect",
+          "/redoc",
+          "/health",
+          "/health/runtime",
+          "/config/summary",
+          "/adapters/model",
+          "/manifest",
+          "/tigergraph-foundation/inventory",
+          "/tigergraph-foundation/files",
+          "/tigergraph-foundation/validate-prefix",
+          "/demo-data/manifest",
+          "/demo-data/files",
+          "/ingestion/entities",
+          "/ingestion/batches",
+          "/ingestion/run",
+          "/knowledge/ingest",
+          "/knowledge/ingest-samples",
+          "/knowledge/search"
+        ]
+      },
+      "started_at": "2026-06-17T10:30:10.825185",
+      "completed_at": "2026-06-17T10:30:11.379645"
+    },
+    {
+      "check_name": "import_streamlit_app",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "app": "app/ui/app_enterprise.py",
+        "required_pages": [
+          "Agentic AI Console",
+          "Final Audit & Gap Closure",
+          "AI Assistant Chat",
+          "Graph Access Status"
+        ]
+      },
+      "started_at": "2026-06-17T10:30:11.379680",
+      "completed_at": "2026-06-17T10:30:11.380016"
+    },
+    {
+      "check_name": "preloaded_sqlite_read",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "db_size": 4329472,
+        "counts": {
+          "phx_dm_feature_vector": 9902,
+          "phx_dm_local_recommendation": 672,
+          "phx_dm_local_context_memory": 182
+        }
+      },
+      "started_at": "2026-06-17T10:30:11.380040",
+      "completed_at": "2026-06-17T10:30:11.382186"
+    },
+    {
+      "check_name": "preloaded_chroma_folder",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "manifest": {
+          "collection_name": "iperform_knowledge_base",
+          "document_count": 4,
+          "chunk_count": 4,
+          "status": "preloaded_manifest_available"
+        },
+        "index_size": 2621
+      },
+      "started_at": "2026-06-17T10:30:11.382207",
+      "completed_at": "2026-06-17T10:30:11.382404"
+    },
+    {
+      "check_name": "graph_access_fallback",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "health": {
+          "active_mode": "mock",
+          "mcp_available": false,
+          "rest_available": false,
+          "mock_available": true,
+          "graph_name": "iperform_insights_coaching_demo",
+          "strategy": "mcp_rest_mock",
+          "details": {
+            "mock": {
+              "success": true,
+              "mode": "mock",
+              "message": "Local mock graph service is available.",
+              "manifest": {
+                "firm": 1,
+                "divisions": 4,
+                "regions": 12,
+                "markets": 24,
+                "advisors": 168,
+                "agp_advisors": 65,
+                "households": 2345,
+                "accounts": 7053,
+                "transactions": 508260,
+                "months": 36
+              }
+            }
+          }
+        },
+        "schema_mode": "mock"
+      },
+      "started_at": "2026-06-17T10:30:11.382414",
+      "completed_at": "2026-06-17T10:30:11.382680"
+    },
+    {
+      "check_name": "agent_registry",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "agent_count": 10,
+        "agents": [
+          "ai_assistant_agent",
+          "context_retrieval_agent",
+          "explainability_agent",
+          "feedback_learning_agent",
+          "opportunity_agent",
+          "prediction_agent",
+          "rag_knowledge_agent",
+          "recommendation_agent",
+          "supervisor",
+          "tigergraph_graph_agent"
+        ]
+      },
+      "started_at": "2026-06-17T10:30:11.382688",
+      "completed_at": "2026-06-17T10:30:11.382748"
+    },
+    {
+      "check_name": "agentic_workflow",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "task_count": 8,
+        "evidence_count": 10,
+        "confidence": 0.85
+      },
+      "started_at": "2026-06-17T10:30:11.382753",
+      "completed_at": "2026-06-17T10:30:57.096642"
+    },
+    {
+      "check_name": "feature_store_read",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "feature_keys": [
+          "revenue_ltm",
+          "managed_revenue_ltm",
+          "managed_revenue_pct",
+          "nnm_ltm",
+          "ncf_ltm",
+          "household_count",
+          "tenure_years",
+          "agp_enrolled"
+        ]
+      },
+      "started_at": "2026-06-17T10:30:57.096657",
+      "completed_at": "2026-06-17T10:30:57.098677"
+    },
+    {
+      "check_name": "prediction_search",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "prediction_count": 6,
+        "sample": {
+          "prediction_id": "pred_20260617103031_a3c5fd4c",
+          "entity_type": "Advisor",
+          "entity_id": "ADV0001",
+          "prediction_type": "Opportunity Propensity",
+          "score": 0.847045,
+          "label": "High",
+          "model_name": "sklearn_local_demo_model",
+          "model_version": "1.0",
+          "confidence": 0.95,
+          "explanation": "Opportunity Propensity score 0.847 based on Revenue signal=1213064.24, managed revenue pct=28.31, CRM activity=69, off-track KPIs=1.0",
+          "generated_ts": "2026-06-17T10:30:31.222471",
+          "status": "Active",
+          "feature_snapshot": {
+            "revenue_ltm": 1213064.24,
+            "managed_revenue_ltm": 343428.89,
+            "managed_revenue_pct": 28.31,
+            "nnm_ltm": 6329632.79,
+            "ncf_ltm": 7310949.65,
+            "household_count": 18,
+            "tenure_years": 5.1,
+            "agp_enrolled": 1,
+            "crm_activity_count": 69,
+            "meeting_count": 4,
+            "call_count": 11,
+            "task_count": 4.0,
+            "email_count": 13,
+            "prospecting_count": 7.0,
+            "follow-up_count": 12,
+            "client_review_count": 7.0,
+            "note_count": 11,
+            "goal_count": 3.0,
+            "kpi_count": 3.0,
+            "off_track_kpi_count": 1.0,
+            "avg_goal_attainment_pct": 85.68
+          }
+        }
+      },
+      "started_at": "2026-06-17T10:30:57.098697",
+      "completed_at": "2026-06-17T10:30:57.104857"
+    },
+    {
+      "check_name": "recommendation_search",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "recommendation_count": 2,
+        "sample_id": "rec_20260617103057_18b71f6f"
+      },
+      "started_at": "2026-06-17T10:30:57.104877",
+      "completed_at": "2026-06-17T10:30:57.112712"
+    },
+    {
+      "check_name": "feedback_learning_write",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "feedback_id": "fdbk_20260617103057_34d5e9ed",
+        "learning_signal_id": "learn_20260617103057_acbc9180"
+      },
+      "started_at": "2026-06-17T10:30:57.112735",
+      "completed_at": "2026-06-17T10:30:57.138010"
+    },
+    {
+      "check_name": "memory_retrieval",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "evidence_count": 2
+      },
+      "started_at": "2026-06-17T10:30:57.138026",
+      "completed_at": "2026-06-17T10:30:57.140767"
+    },
+    {
+      "check_name": "ai_chat",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "conversation_id": "conv_20260617103057_d7257a84",
+        "context_items": 11
+      },
+      "started_at": "2026-06-17T10:30:57.140779",
+      "completed_at": "2026-06-17T10:30:57.223727"
+    },
+    {
+      "check_name": "final_audit",
+      "status": "passed",
+      "message": "Runtime check passed.",
+      "details": {
+        "requirement_count": 23,
+        "requirements_passed": 23,
+        "requirements_failed": 0,
+        "python_compile_status": "passed",
+        "sqlite_status": "passed",
+        "chroma_status": "passed",
+        "ui_status": "passed",
+        "graph_access_status": "passed",
+        "overall_status": "passed"
+      },
+      "started_at": "2026-06-17T10:30:57.223755",
+      "completed_at": "2026-06-17T10:30:57.539675"
+    }
+  ],
+  "generated_at": "2026-06-17T10:30:57.539736"
+}

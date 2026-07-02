@@ -1,0 +1,15 @@
+{
+  "missing_files": [],
+  "validated_files": [
+    "frontend/components/layout/shell-context.tsx",
+    "frontend/components/layout/app-shell.tsx",
+    "frontend/components/layout/top-header.tsx",
+    "frontend/components/navigation/sidebar-navigation.tsx",
+    "frontend/components/navigation/mobile-context-drawer.tsx",
+    "frontend/components/status/persona-scope-selector.tsx",
+    "frontend/components/status/active-context-bar.tsx",
+    "frontend/components/status/runtime-mode-pill.tsx",
+    "frontend/lib/scope-options.ts",
+    "frontend/lib/types/shell.ts"
+  ]
+}

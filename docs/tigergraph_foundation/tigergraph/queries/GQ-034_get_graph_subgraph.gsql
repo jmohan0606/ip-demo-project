@@ -1,0 +1,77 @@
+/*
+ * GQ-034 — get_graph_subgraph
+ * Purpose: Return a bounded Advisor/Household/Account/Product subgraph for Graph Explorer.
+ * Outputs: bounded typed subgraph sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_graph_subgraph(root_type STRING, root_id STRING, max_depth INT, node_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_advisors = {phx_dm_advisor.*};
+    all_households = {phx_dm_household.*};
+    all_accounts = {phx_dm_account.*};
+    all_products = {phx_dm_product.*};
+
+    root_advisor = SELECT a FROM all_advisors:a
+        WHERE root_type == "ADVISOR" AND a.advisor_id == root_id;
+    root_household = SELECT h FROM all_households:h
+        WHERE root_type == "HOUSEHOLD" AND h.household_id == root_id;
+    root_account = SELECT ac FROM all_accounts:ac
+        WHERE root_type == "ACCOUNT" AND ac.account_id == root_id;
+    root_product = SELECT p FROM all_products:p
+        WHERE root_type == "PRODUCT" AND p.product_id == root_id;
+
+    advisor_households = SELECT h FROM root_advisor:a
+        -(phx_dm_advisor_serves_household)- all_households:h
+        WHERE max_depth >= 1 LIMIT node_limit;
+    advisor_accounts = SELECT ac FROM advisor_households:h
+        -(phx_dm_household_owns_account)- all_accounts:ac
+        WHERE max_depth >= 2 LIMIT node_limit;
+    advisor_products = SELECT p FROM advisor_accounts:ac
+        -(phx_dm_account_holds_product)- all_products:p
+        WHERE max_depth >= 3 LIMIT node_limit;
+
+    household_advisors = SELECT a FROM root_household:h
+        -(rev_phx_dm_advisor_serves_household)- all_advisors:a
+        WHERE max_depth >= 1 LIMIT node_limit;
+    household_accounts = SELECT ac FROM root_household:h
+        -(phx_dm_household_owns_account)- all_accounts:ac
+        WHERE max_depth >= 1 LIMIT node_limit;
+    household_products = SELECT p FROM household_accounts:ac
+        -(phx_dm_account_holds_product)- all_products:p
+        WHERE max_depth >= 2 LIMIT node_limit;
+
+    account_households = SELECT h FROM root_account:ac
+        -(rev_phx_dm_household_owns_account)- all_households:h
+        WHERE max_depth >= 1 LIMIT node_limit;
+    account_products = SELECT p FROM root_account:ac
+        -(phx_dm_account_holds_product)- all_products:p
+        WHERE max_depth >= 1 LIMIT node_limit;
+    account_advisors = SELECT a FROM account_households:h
+        -(rev_phx_dm_advisor_serves_household)- all_advisors:a
+        WHERE max_depth >= 2 LIMIT node_limit;
+
+    product_accounts = SELECT ac FROM root_product:p
+        -(rev_phx_dm_account_holds_product)- all_accounts:ac
+        WHERE max_depth >= 1 LIMIT node_limit;
+    product_households = SELECT h FROM product_accounts:ac
+        -(rev_phx_dm_household_owns_account)- all_households:h
+        WHERE max_depth >= 2 LIMIT node_limit;
+    product_advisors = SELECT a FROM product_households:h
+        -(rev_phx_dm_advisor_serves_household)- all_advisors:a
+        WHERE max_depth >= 3 LIMIT node_limit;
+
+    advisors = root_advisor UNION household_advisors
+        UNION account_advisors UNION product_advisors;
+    households = root_household UNION advisor_households
+        UNION account_households UNION product_households;
+    accounts = root_account UNION advisor_accounts
+        UNION household_accounts UNION product_accounts;
+    products = root_product UNION advisor_products
+        UNION household_products UNION account_products;
+
+    PRINT root_type, root_id, max_depth,
+        advisors, households, accounts, products;
+}
+
+INSTALL QUERY get_graph_subgraph

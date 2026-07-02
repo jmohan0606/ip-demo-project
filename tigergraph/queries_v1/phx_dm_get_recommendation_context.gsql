@@ -1,0 +1,10 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_get_recommendation_context(STRING scope_id) FOR GRAPH iperform_insights_coaching_demo {
+  A = SELECT a FROM {phx_dm_advisor.*}:a WHERE a.advisor_id == scope_id;
+  H = SELECT h FROM A:a -(phx_dm_serves_household:e)-> phx_dm_household:h;
+  O = SELECT o FROM H:h -(phx_dm_has_opportunity:e)-> phx_dm_opportunity:o;
+  R = SELECT r FROM O:o -(phx_dm_generates_recommendation:e)-> phx_dm_recommendation:r;
+  M = SELECT m FROM A:a -(phx_dm_has_memory:e)-> phx_dm_memory:m;
+  PRINT A, H, O, R, M;
+}

@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.env
+.env.*
+!.env.example
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/coverage/
+frontend/.env.local
+frontend/.env.*.local
+!frontend/.env.local.example
+
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs/temp
+*.log
+*.tmp
+tmp/
+temp/
+
+# Local runtime outputs
+data/uploads/*
+!data/uploads/.gitkeep
+docs/ui_runtime/screenshots/*
+!docs/ui_runtime/screenshots/.gitkeep

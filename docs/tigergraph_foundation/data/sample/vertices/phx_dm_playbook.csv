@@ -1,0 +1,7 @@
+playbook_id,playbook_name,category,version,status,summary
+PB001,Growth Playbook 1,AGP,1.0,ACTIVE,Recommended actions and guardrails.
+PB002,Growth Playbook 2,CRM,1.0,ACTIVE,Recommended actions and guardrails.
+PB003,Growth Playbook 3,REVENUE,1.0,ACTIVE,Recommended actions and guardrails.
+PB004,Growth Playbook 4,PRODUCT,1.0,ACTIVE,Recommended actions and guardrails.
+PB005,Growth Playbook 5,COACHING,1.0,ACTIVE,Recommended actions and guardrails.
+PB006,Growth Playbook 6,CLIENT,1.0,ACTIVE,Recommended actions and guardrails.

@@ -1,0 +1,671 @@
+{
+  "graph_name": "iperform_insights_coaching_demo",
+  "cases": [
+    {
+      "id": "GQ-001",
+      "query_name": "get_org_hierarchy",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "max_depth": 6
+      },
+      "expected_outputs": [
+        "firms",
+        "divisions",
+        "regions",
+        "markets",
+        "branches",
+        "advisors"
+      ],
+      "required_result_keys": [
+        "firms"
+      ]
+    },
+    {
+      "id": "GQ-002",
+      "query_name": "get_scope_descendants",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "entity_type": "ADVISOR"
+      },
+      "expected_outputs": [
+        "advisor_descendants",
+        "household_descendants",
+        "account_descendants"
+      ],
+      "required_result_keys": [
+        "advisor_descendants"
+      ]
+    },
+    {
+      "id": "GQ-003",
+      "query_name": "get_management_chain",
+      "params": {
+        "user_id": "U_EXEC",
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "requester",
+        "ddw",
+        "rdw",
+        "mdw",
+        "advisor"
+      ],
+      "required_result_keys": [
+        "requester"
+      ]
+    },
+    {
+      "id": "GQ-004",
+      "query_name": "get_revenue_summary_by_scope",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "period_type": "LTM",
+        "start_date": "2025-07-01",
+        "end_date": "2026-06-30"
+      },
+      "expected_outputs": [
+        "scope summary accumulator object"
+      ],
+      "required_result_keys": [
+        "total_revenue"
+      ]
+    },
+    {
+      "id": "GQ-005",
+      "query_name": "get_revenue_trend_by_scope",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "period_grain": "MONTH",
+        "start_date": "2025-07-01",
+        "end_date": "2026-06-30"
+      },
+      "expected_outputs": [
+        "revenue_trend grouped accumulator"
+      ],
+      "required_result_keys": [
+        "revenue_trend"
+      ]
+    },
+    {
+      "id": "GQ-006",
+      "query_name": "get_product_mix_by_scope",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "start_date": "2025-07-01",
+        "end_date": "2026-06-30"
+      },
+      "expected_outputs": [
+        "total_revenue",
+        "product_mix",
+        "product hierarchy vertices"
+      ],
+      "required_result_keys": [
+        "product_mix"
+      ]
+    },
+    {
+      "id": "GQ-007",
+      "query_name": "get_top_bottom_advisors",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "start_date": "2025-07-01",
+        "end_date": "2026-06-30",
+        "direction": "TOP",
+        "result_limit": 10
+      },
+      "expected_outputs": [
+        "top_advisors or bottom_advisors with revenue"
+      ],
+      "required_result_keys": [
+        "top_advisors"
+      ]
+    },
+    {
+      "id": "GQ-008",
+      "query_name": "get_peer_benchmark",
+      "params": {
+        "advisor_id": "A001",
+        "peer_method": "MARKET",
+        "start_date": "2025-07-01",
+        "end_date": "2026-06-30"
+      },
+      "expected_outputs": [
+        "advisor revenue",
+        "peer totals and peer details"
+      ],
+      "required_result_keys": [
+        "advisor_revenue"
+      ]
+    },
+    {
+      "id": "GQ-009",
+      "query_name": "get_advisor_360",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "all Advisor 360 connected sets"
+      ],
+      "required_result_keys": [
+        "advisor"
+      ]
+    },
+    {
+      "id": "GQ-010",
+      "query_name": "get_advisor_book_of_business",
+      "params": {
+        "advisor_id": "A001",
+        "result_limit": 20
+      },
+      "expected_outputs": [
+        "advisor",
+        "households",
+        "accounts",
+        "household_revenue_summary"
+      ],
+      "required_result_keys": [
+        "household_revenue_summary"
+      ]
+    },
+    {
+      "id": "GQ-011",
+      "query_name": "get_household_360",
+      "params": {
+        "household_id": "H0001"
+      },
+      "expected_outputs": [
+        "household",
+        "accounts",
+        "CRM",
+        "AI and memory context"
+      ],
+      "required_result_keys": [
+        "household"
+      ]
+    },
+    {
+      "id": "GQ-012",
+      "query_name": "get_account_holdings_and_activity",
+      "params": {
+        "account_id": "AC00001"
+      },
+      "expected_outputs": [
+        "account",
+        "holdings",
+        "activity",
+        "transactions and AI artifacts"
+      ],
+      "required_result_keys": [
+        "account"
+      ]
+    },
+    {
+      "id": "GQ-013",
+      "query_name": "get_agp_enrollment_summary",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "advisor",
+        "enrollment",
+        "program",
+        "progress",
+        "milestones",
+        "goals",
+        "KPIs"
+      ],
+      "required_result_keys": [
+        "enrollments"
+      ]
+    },
+    {
+      "id": "GQ-014",
+      "query_name": "get_agp_milestone_timeline",
+      "params": {
+        "enrollment_id": "ENR001"
+      },
+      "expected_outputs": [
+        "enrollment",
+        "progress",
+        "milestones",
+        "measurements",
+        "KPIs"
+      ],
+      "required_result_keys": [
+        "progress"
+      ]
+    },
+    {
+      "id": "GQ-015",
+      "query_name": "get_agp_kpi_measurements",
+      "params": {
+        "enrollment_id": "ENR001",
+        "milestone_id": "MS03"
+      },
+      "expected_outputs": [
+        "milestone progress",
+        "measurements and KPI definitions"
+      ],
+      "required_result_keys": [
+        "measurements"
+      ]
+    },
+    {
+      "id": "GQ-016",
+      "query_name": "get_agp_coaching_history",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "advisor",
+        "enrollment",
+        "coaching and review timelines"
+      ],
+      "required_result_keys": [
+        "coaching"
+      ]
+    },
+    {
+      "id": "GQ-017",
+      "query_name": "get_agp_crm_work_summary",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "CRM work summary",
+        "pipeline and item sets"
+      ],
+      "required_result_keys": [
+        "crm_work_summary"
+      ]
+    },
+    {
+      "id": "GQ-018",
+      "query_name": "get_crm_leads",
+      "params": {
+        "advisor_id": "A001",
+        "status": "ALL",
+        "result_limit": 20
+      },
+      "expected_outputs": [
+        "advisor",
+        "leads",
+        "related households and CRM opportunities"
+      ],
+      "required_result_keys": [
+        "leads"
+      ]
+    },
+    {
+      "id": "GQ-019",
+      "query_name": "get_crm_referrals",
+      "params": {
+        "advisor_id": "A001",
+        "status": "ALL",
+        "result_limit": 20
+      },
+      "expected_outputs": [
+        "advisor",
+        "referrals",
+        "related households and CRM opportunities"
+      ],
+      "required_result_keys": [
+        "referrals"
+      ]
+    },
+    {
+      "id": "GQ-020",
+      "query_name": "get_crm_opportunities",
+      "params": {
+        "advisor_id": "A001",
+        "status": "ALL",
+        "result_limit": 20
+      },
+      "expected_outputs": [
+        "opportunities with related household",
+        "account and product sets"
+      ],
+      "required_result_keys": [
+        "opportunities"
+      ]
+    },
+    {
+      "id": "GQ-021",
+      "query_name": "get_crm_pipeline_by_stage",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "pipeline_by_stage and opportunities"
+      ],
+      "required_result_keys": [
+        "pipeline_by_stage"
+      ]
+    },
+    {
+      "id": "GQ-022",
+      "query_name": "get_feature_snapshot",
+      "params": {
+        "entity_type": "ADVISOR",
+        "entity_id": "A001"
+      },
+      "expected_outputs": [
+        "feature_snapshots"
+      ],
+      "required_result_keys": [
+        "feature_snapshots"
+      ]
+    },
+    {
+      "id": "GQ-023",
+      "query_name": "get_feature_lineage",
+      "params": {
+        "feature_snapshot_id": "FS_A001_202607"
+      },
+      "expected_outputs": [
+        "feature snapshot ownership and downstream lineage"
+      ],
+      "required_result_keys": [
+        "feature_snapshot"
+      ]
+    },
+    {
+      "id": "GQ-024",
+      "query_name": "get_embeddings_for_entity",
+      "params": {
+        "entity_type": "ADVISOR",
+        "entity_id": "A001"
+      },
+      "expected_outputs": [
+        "embeddings"
+      ],
+      "required_result_keys": [
+        "embeddings"
+      ]
+    },
+    {
+      "id": "GQ-025",
+      "query_name": "get_similar_entities",
+      "params": {
+        "entity_type": "ADVISOR",
+        "entity_id": "A001",
+        "result_limit": 10,
+        "min_score": 0.5
+      },
+      "expected_outputs": [
+        "similarity matches and typed target sets"
+      ],
+      "required_result_keys": [
+        "matches"
+      ]
+    },
+    {
+      "id": "GQ-026",
+      "query_name": "get_predictions",
+      "params": {
+        "target_type": "ADVISOR",
+        "target_id": "A001"
+      },
+      "expected_outputs": [
+        "predictions",
+        "feature snapshots and reasoning"
+      ],
+      "required_result_keys": [
+        "predictions"
+      ]
+    },
+    {
+      "id": "GQ-027",
+      "query_name": "get_ai_opportunities",
+      "params": {
+        "target_type": "ADVISOR",
+        "target_id": "A001"
+      },
+      "expected_outputs": [
+        "opportunities and complete lineage"
+      ],
+      "required_result_keys": [
+        "opportunities"
+      ]
+    },
+    {
+      "id": "GQ-028",
+      "query_name": "get_recommendations",
+      "params": {
+        "target_type": "ADVISOR",
+        "target_id": "A001"
+      },
+      "expected_outputs": [
+        "recommendations and complete lineage"
+      ],
+      "required_result_keys": [
+        "recommendations"
+      ]
+    },
+    {
+      "id": "GQ-029",
+      "query_name": "get_recommendation_detail",
+      "params": {
+        "recommendation_id": "REC_A001"
+      },
+      "expected_outputs": [
+        "one recommendation and full explainability/learning chain"
+      ],
+      "required_result_keys": [
+        "recommendation"
+      ]
+    },
+    {
+      "id": "GQ-030",
+      "query_name": "get_feedback_learning_history",
+      "params": {
+        "recommendation_id": "REC_A001"
+      },
+      "expected_outputs": [
+        "recommendation",
+        "feedback",
+        "outcomes and learning signals"
+      ],
+      "required_result_keys": [
+        "feedback"
+      ]
+    },
+    {
+      "id": "GQ-031",
+      "query_name": "get_context_for_agent",
+      "params": {
+        "persona_user_id": "U_MDW01",
+        "subject_id": "A001",
+        "query_intent": "COACHING"
+      },
+      "expected_outputs": [
+        "persona authorization and ranked subject context sets"
+      ],
+      "required_result_keys": [
+        "subject"
+      ]
+    },
+    {
+      "id": "GQ-032",
+      "query_name": "get_memory_timeline",
+      "params": {
+        "subject_type": "ADVISOR",
+        "subject_id": "A001"
+      },
+      "expected_outputs": [
+        "memory timeline",
+        "source conversation and reasoning use"
+      ],
+      "required_result_keys": [
+        "memories"
+      ]
+    },
+    {
+      "id": "GQ-033",
+      "query_name": "get_reasoning_trace",
+      "params": {
+        "artifact_type": "RECOMMENDATION",
+        "artifact_id": "REC_A001"
+      },
+      "expected_outputs": [
+        "reasoning records and direct graph evidence"
+      ],
+      "required_result_keys": [
+        "reasoning"
+      ]
+    },
+    {
+      "id": "GQ-034",
+      "query_name": "get_graph_subgraph",
+      "params": {
+        "root_type": "ADVISOR",
+        "root_id": "A001",
+        "max_depth": 2,
+        "node_limit": 100
+      },
+      "expected_outputs": [
+        "bounded typed subgraph sets"
+      ],
+      "required_result_keys": [
+        "advisors"
+      ]
+    },
+    {
+      "id": "GQ-035",
+      "query_name": "get_notifications_for_user",
+      "params": {
+        "user_id": "U_EXEC",
+        "status": "ALL",
+        "result_limit": 20
+      },
+      "expected_outputs": [
+        "user and notifications"
+      ],
+      "required_result_keys": [
+        "notifications"
+      ]
+    },
+    {
+      "id": "GQ-036",
+      "query_name": "get_data_health_summary",
+      "params": {},
+      "expected_outputs": [
+        "vertex counts and edge traversal counts"
+      ],
+      "required_result_keys": [
+        "vertex_counts"
+      ]
+    },
+    {
+      "id": "GQ-037",
+      "query_name": "get_agent_execution_trace",
+      "params": {
+        "execution_id": "EXEC001"
+      },
+      "expected_outputs": [
+        "agent execution trace and related operational artifacts"
+      ],
+      "required_result_keys": [
+        "execution"
+      ]
+    },
+    {
+      "id": "GQ-038",
+      "query_name": "get_what_if_baseline",
+      "params": {
+        "scenario_type": "AGP_ACTIVITY_IMPROVEMENT",
+        "scope_type": "ADVISOR",
+        "scope_id": "A001"
+      },
+      "expected_outputs": [
+        "stored scenario plus current baseline artifacts"
+      ],
+      "required_result_keys": [
+        "scenarios"
+      ]
+    },
+    {
+      "id": "GQ-039",
+      "query_name": "get_agp_program_cohort_summary",
+      "params": {
+        "program_id": "AGP24",
+        "cohort": "ALL",
+        "scope_type": "FIRM",
+        "scope_id": "F001"
+      },
+      "expected_outputs": [
+        "cohort counts",
+        "milestone summary and member sets"
+      ],
+      "required_result_keys": [
+        "enrollment_count"
+      ]
+    },
+    {
+      "id": "GQ-040",
+      "query_name": "get_insight_coaching_context",
+      "params": {
+        "persona_user_id": "U_MDW01",
+        "scope_type": "MARKET",
+        "scope_id": "M01",
+        "subject_id": "A001"
+      },
+      "expected_outputs": [
+        "user",
+        "subject and supporting insight/coaching context"
+      ],
+      "required_result_keys": [
+        "subject"
+      ]
+    },
+    {
+      "id": "GQ-041",
+      "query_name": "get_recommendation_adoption_learning_summary",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001"
+      },
+      "expected_outputs": [
+        "adoption",
+        "feedback and learning aggregates with source sets"
+      ],
+      "required_result_keys": [
+        "recommendation_adoption"
+      ]
+    },
+    {
+      "id": "GQ-042",
+      "query_name": "get_persona_scope_assignments",
+      "params": {
+        "user_id": "U_MDW01"
+      },
+      "expected_outputs": [
+        "user scopes and management assignments"
+      ],
+      "required_result_keys": [
+        "user"
+      ]
+    },
+    {
+      "id": "GQ-043",
+      "query_name": "get_data_quality_issues",
+      "params": {
+        "domain": "ALL",
+        "severity": "ALL",
+        "result_limit": 100
+      },
+      "expected_outputs": [
+        "issue count and typed issue vertex sets"
+      ],
+      "required_result_keys": [
+        "issue_count"
+      ]
+    }
+  ]
+}

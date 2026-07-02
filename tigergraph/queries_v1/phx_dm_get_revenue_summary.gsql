@@ -1,0 +1,18 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_get_revenue_summary(STRING scope_type, STRING scope_id, STRING period) FOR GRAPH iperform_insights_coaching_demo {
+  SumAccum<DOUBLE> @@revenue;
+  SumAccum<DOUBLE> @@aum;
+
+  A = SELECT a FROM {phx_dm_advisor.*}:a
+      WHERE a.advisor_id == scope_id OR scope_type != "Advisor";
+
+  ACC = SELECT acc FROM A:a -(phx_dm_serves_household:e1)-> phx_dm_household:h
+                    -(phx_dm_owns_account:e2)-> phx_dm_account:acc
+        ACCUM @@aum += acc.aum;
+
+  T = SELECT t FROM ACC:acc -(phx_dm_generated_revenue:e)-> phx_dm_revenue_transaction:t
+      ACCUM @@revenue += t.amount;
+
+  PRINT @@revenue AS revenue, @@aum AS aum, period AS period, scope_type AS scope_type, scope_id AS scope_id;
+}

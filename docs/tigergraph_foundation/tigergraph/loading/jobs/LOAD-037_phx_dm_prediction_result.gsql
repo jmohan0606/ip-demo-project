@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_prediction_result.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_prediction_result FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_prediction_result
+    VALUES ($"prediction_id", $"prediction_type", $"target_type", $"target_id", $"score", $"confidence", $"risk_band", $"severity", $"horizon_days", $"explanation", $"status", $"generated_at")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

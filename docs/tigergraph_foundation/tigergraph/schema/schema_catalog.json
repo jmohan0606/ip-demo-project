@@ -1,0 +1,2951 @@
+{
+  "graph_name": "iperform_insights_coaching_demo",
+  "vertices": [
+    {
+      "name": "phx_dm_persona_user",
+      "primary_id": "user_id",
+      "attrs": [
+        [
+          "display_name",
+          "STRING"
+        ],
+        [
+          "email",
+          "STRING"
+        ],
+        [
+          "role_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "default_scope_type",
+          "STRING"
+        ],
+        [
+          "default_scope_id",
+          "STRING"
+        ]
+      ],
+      "domain": "Identity",
+      "purpose": "Simulated or authenticated application persona."
+    },
+    {
+      "name": "phx_dm_firm",
+      "primary_id": "firm_id",
+      "attrs": [
+        [
+          "firm_name",
+          "STRING"
+        ],
+        [
+          "firm_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Top organizational scope."
+    },
+    {
+      "name": "phx_dm_division",
+      "primary_id": "division_id",
+      "attrs": [
+        [
+          "division_name",
+          "STRING"
+        ],
+        [
+          "division_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Division under firm."
+    },
+    {
+      "name": "phx_dm_region",
+      "primary_id": "region_id",
+      "attrs": [
+        [
+          "region_name",
+          "STRING"
+        ],
+        [
+          "region_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Region under division."
+    },
+    {
+      "name": "phx_dm_market",
+      "primary_id": "market_id",
+      "attrs": [
+        [
+          "market_name",
+          "STRING"
+        ],
+        [
+          "market_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Market under region."
+    },
+    {
+      "name": "phx_dm_branch",
+      "primary_id": "branch_id",
+      "attrs": [
+        [
+          "branch_name",
+          "STRING"
+        ],
+        [
+          "branch_code",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "city",
+          "STRING"
+        ],
+        [
+          "state",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Branch under market."
+    },
+    {
+      "name": "phx_dm_advisor",
+      "primary_id": "advisor_id",
+      "attrs": [
+        [
+          "advisor_name",
+          "STRING"
+        ],
+        [
+          "employee_id",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "hire_date",
+          "DATETIME"
+        ],
+        [
+          "tenure_months",
+          "INT"
+        ],
+        [
+          "agp_flag",
+          "BOOL"
+        ],
+        [
+          "segment",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Advisor identity and performance subject."
+    },
+    {
+      "name": "phx_dm_rep_pool",
+      "primary_id": "rep_pool_id",
+      "attrs": [
+        [
+          "pool_name",
+          "STRING"
+        ],
+        [
+          "pool_type",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Organization",
+      "purpose": "Representative/pool construct retained for compatibility."
+    },
+    {
+      "name": "phx_dm_household",
+      "primary_id": "household_id",
+      "attrs": [
+        [
+          "household_name",
+          "STRING"
+        ],
+        [
+          "segment",
+          "STRING"
+        ],
+        [
+          "risk_profile",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "total_aum",
+          "DOUBLE"
+        ],
+        [
+          "state",
+          "STRING"
+        ]
+      ],
+      "domain": "Client",
+      "purpose": "Client household served by advisor."
+    },
+    {
+      "name": "phx_dm_account",
+      "primary_id": "account_id",
+      "attrs": [
+        [
+          "account_name",
+          "STRING"
+        ],
+        [
+          "account_type",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "opened_date",
+          "DATETIME"
+        ],
+        [
+          "current_value",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Client",
+      "purpose": "Account owned by a household."
+    },
+    {
+      "name": "phx_dm_product_category",
+      "primary_id": "category_id",
+      "attrs": [
+        [
+          "category_name",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Product",
+      "purpose": "Major product category."
+    },
+    {
+      "name": "phx_dm_product_subcategory",
+      "primary_id": "subcategory_id",
+      "attrs": [
+        [
+          "subcategory_name",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Product",
+      "purpose": "Product subcategory."
+    },
+    {
+      "name": "phx_dm_product",
+      "primary_id": "product_id",
+      "attrs": [
+        [
+          "product_name",
+          "STRING"
+        ],
+        [
+          "product_code",
+          "STRING"
+        ],
+        [
+          "risk_level",
+          "STRING"
+        ],
+        [
+          "managed_flag",
+          "BOOL"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Product",
+      "purpose": "Individual wealth-management product."
+    },
+    {
+      "name": "phx_dm_time_period",
+      "primary_id": "period_id",
+      "attrs": [
+        [
+          "period_type",
+          "STRING"
+        ],
+        [
+          "start_date",
+          "DATETIME"
+        ],
+        [
+          "end_date",
+          "DATETIME"
+        ],
+        [
+          "year",
+          "INT"
+        ],
+        [
+          "quarter",
+          "INT"
+        ],
+        [
+          "month",
+          "INT"
+        ],
+        [
+          "label",
+          "STRING"
+        ]
+      ],
+      "domain": "Time",
+      "purpose": "Calendar and reporting period."
+    },
+    {
+      "name": "phx_dm_revenue_transaction",
+      "primary_id": "transaction_id",
+      "attrs": [
+        [
+          "transaction_date",
+          "DATETIME"
+        ],
+        [
+          "revenue_amount",
+          "DOUBLE"
+        ],
+        [
+          "transaction_type",
+          "STRING"
+        ],
+        [
+          "quantity",
+          "DOUBLE"
+        ],
+        [
+          "gross_amount",
+          "DOUBLE"
+        ],
+        [
+          "source_system",
+          "STRING"
+        ]
+      ],
+      "domain": "Performance",
+      "purpose": "Revenue-producing transaction."
+    },
+    {
+      "name": "phx_dm_monthly_aum",
+      "primary_id": "aum_id",
+      "attrs": [
+        [
+          "month_end",
+          "DATETIME"
+        ],
+        [
+          "aum_amount",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Performance",
+      "purpose": "Monthly assets-under-management snapshot."
+    },
+    {
+      "name": "phx_dm_monthly_ncf",
+      "primary_id": "ncf_id",
+      "attrs": [
+        [
+          "month_end",
+          "DATETIME"
+        ],
+        [
+          "ncf_amount",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Performance",
+      "purpose": "Monthly net cash flow snapshot."
+    },
+    {
+      "name": "phx_dm_monthly_nnm",
+      "primary_id": "nnm_id",
+      "attrs": [
+        [
+          "month_end",
+          "DATETIME"
+        ],
+        [
+          "nnm_amount",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Performance",
+      "purpose": "Monthly net new money snapshot."
+    },
+    {
+      "name": "phx_dm_monthly_product_revenue",
+      "primary_id": "product_revenue_id",
+      "attrs": [
+        [
+          "month_end",
+          "DATETIME"
+        ],
+        [
+          "revenue_amount",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Performance",
+      "purpose": "Monthly product revenue snapshot."
+    },
+    {
+      "name": "phx_dm_eligibility",
+      "primary_id": "eligibility_id",
+      "attrs": [
+        [
+          "eligibility_type",
+          "STRING"
+        ],
+        [
+          "eligible_flag",
+          "BOOL"
+        ],
+        [
+          "reason",
+          "STRING"
+        ],
+        [
+          "effective_date",
+          "DATETIME"
+        ],
+        [
+          "expiration_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Rules",
+      "purpose": "Eligibility rule result."
+    },
+    {
+      "name": "phx_dm_crm_activity",
+      "primary_id": "activity_id",
+      "attrs": [
+        [
+          "activity_type",
+          "STRING"
+        ],
+        [
+          "activity_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "subject",
+          "STRING"
+        ],
+        [
+          "notes_summary",
+          "STRING"
+        ],
+        [
+          "next_action",
+          "STRING"
+        ],
+        [
+          "next_action_date",
+          "DATETIME"
+        ],
+        [
+          "sentiment",
+          "STRING"
+        ]
+      ],
+      "domain": "CRM",
+      "purpose": "Generic CRM interaction/activity."
+    },
+    {
+      "name": "phx_dm_crm_lead",
+      "primary_id": "lead_id",
+      "attrs": [
+        [
+          "source",
+          "STRING"
+        ],
+        [
+          "created_date",
+          "DATETIME"
+        ],
+        [
+          "due_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "completed_date",
+          "DATETIME"
+        ],
+        [
+          "converted_flag",
+          "BOOL"
+        ],
+        [
+          "priority",
+          "STRING"
+        ],
+        [
+          "estimated_value",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "CRM",
+      "purpose": "First-class lead tracking."
+    },
+    {
+      "name": "phx_dm_crm_referral",
+      "primary_id": "referral_id",
+      "attrs": [
+        [
+          "source",
+          "STRING"
+        ],
+        [
+          "received_date",
+          "DATETIME"
+        ],
+        [
+          "due_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "completed_date",
+          "DATETIME"
+        ],
+        [
+          "converted_flag",
+          "BOOL"
+        ],
+        [
+          "priority",
+          "STRING"
+        ],
+        [
+          "estimated_value",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "CRM",
+      "purpose": "First-class referral tracking."
+    },
+    {
+      "name": "phx_dm_crm_opportunity",
+      "primary_id": "crm_opportunity_id",
+      "attrs": [
+        [
+          "name",
+          "STRING"
+        ],
+        [
+          "stage",
+          "STRING"
+        ],
+        [
+          "amount",
+          "DOUBLE"
+        ],
+        [
+          "probability",
+          "DOUBLE"
+        ],
+        [
+          "expected_close_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "next_action",
+          "STRING"
+        ],
+        [
+          "next_action_date",
+          "DATETIME"
+        ],
+        [
+          "source_type",
+          "STRING"
+        ]
+      ],
+      "domain": "CRM",
+      "purpose": "Human/CRM-entered pipeline opportunity distinct from AI opportunity."
+    },
+    {
+      "name": "phx_dm_agp_program",
+      "primary_id": "program_id",
+      "attrs": [
+        [
+          "program_name",
+          "STRING"
+        ],
+        [
+          "duration_months",
+          "INT"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "start_date",
+          "DATETIME"
+        ],
+        [
+          "end_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Advisor Growth Program definition."
+    },
+    {
+      "name": "phx_dm_agp_enrollment",
+      "primary_id": "enrollment_id",
+      "attrs": [
+        [
+          "cohort",
+          "STRING"
+        ],
+        [
+          "start_date",
+          "DATETIME"
+        ],
+        [
+          "expected_end_date",
+          "DATETIME"
+        ],
+        [
+          "actual_end_date",
+          "DATETIME"
+        ],
+        [
+          "current_program_month",
+          "INT"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Advisor participation in a 24-month AGP."
+    },
+    {
+      "name": "phx_dm_agp_milestone",
+      "primary_id": "milestone_id",
+      "attrs": [
+        [
+          "sequence_no",
+          "INT"
+        ],
+        [
+          "milestone_month",
+          "INT"
+        ],
+        [
+          "milestone_name",
+          "STRING"
+        ],
+        [
+          "due_offset_days",
+          "INT"
+        ],
+        [
+          "active_flag",
+          "BOOL"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Program milestone at 3-month increments."
+    },
+    {
+      "name": "phx_dm_agp_milestone_progress",
+      "primary_id": "milestone_progress_id",
+      "attrs": [
+        [
+          "due_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "attainment_pct",
+          "DOUBLE"
+        ],
+        [
+          "risk_score",
+          "DOUBLE"
+        ],
+        [
+          "evaluated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Enrollment-specific milestone result."
+    },
+    {
+      "name": "phx_dm_goal",
+      "primary_id": "goal_id",
+      "attrs": [
+        [
+          "goal_name",
+          "STRING"
+        ],
+        [
+          "goal_type",
+          "STRING"
+        ],
+        [
+          "target_value",
+          "DOUBLE"
+        ],
+        [
+          "unit",
+          "STRING"
+        ],
+        [
+          "start_date",
+          "DATETIME"
+        ],
+        [
+          "end_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Goal definition/assignment."
+    },
+    {
+      "name": "phx_dm_kpi",
+      "primary_id": "kpi_id",
+      "attrs": [
+        [
+          "kpi_name",
+          "STRING"
+        ],
+        [
+          "kpi_code",
+          "STRING"
+        ],
+        [
+          "unit",
+          "STRING"
+        ],
+        [
+          "direction",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "KPI definition."
+    },
+    {
+      "name": "phx_dm_agp_kpi_measurement",
+      "primary_id": "measurement_id",
+      "attrs": [
+        [
+          "target_value",
+          "DOUBLE"
+        ],
+        [
+          "actual_value",
+          "DOUBLE"
+        ],
+        [
+          "attainment_pct",
+          "DOUBLE"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "measured_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AGP",
+      "purpose": "Milestone-specific KPI measurement."
+    },
+    {
+      "name": "phx_dm_coaching_session",
+      "primary_id": "session_id",
+      "attrs": [
+        [
+          "session_date",
+          "DATETIME"
+        ],
+        [
+          "coach_user_id",
+          "STRING"
+        ],
+        [
+          "session_type",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "summary",
+          "STRING"
+        ],
+        [
+          "action_items_json",
+          "STRING"
+        ],
+        [
+          "next_session_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Coaching",
+      "purpose": "Advisor coaching session."
+    },
+    {
+      "name": "phx_dm_manager_review",
+      "primary_id": "review_id",
+      "attrs": [
+        [
+          "review_date",
+          "DATETIME"
+        ],
+        [
+          "reviewer_user_id",
+          "STRING"
+        ],
+        [
+          "review_type",
+          "STRING"
+        ],
+        [
+          "rating",
+          "DOUBLE"
+        ],
+        [
+          "summary",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Coaching",
+      "purpose": "Manager review and feedback."
+    },
+    {
+      "name": "phx_dm_feature_snapshot",
+      "primary_id": "feature_snapshot_id",
+      "attrs": [
+        [
+          "entity_type",
+          "STRING"
+        ],
+        [
+          "entity_id",
+          "STRING"
+        ],
+        [
+          "feature_group",
+          "STRING"
+        ],
+        [
+          "feature_version",
+          "STRING"
+        ],
+        [
+          "snapshot_time",
+          "DATETIME"
+        ],
+        [
+          "features_json",
+          "STRING"
+        ],
+        [
+          "source_lineage_json",
+          "STRING"
+        ]
+      ],
+      "domain": "AI Feature",
+      "purpose": "Immutable feature values used for scoring."
+    },
+    {
+      "name": "phx_dm_embedding",
+      "primary_id": "embedding_id",
+      "attrs": [
+        [
+          "entity_type",
+          "STRING"
+        ],
+        [
+          "entity_id",
+          "STRING"
+        ],
+        [
+          "model_name",
+          "STRING"
+        ],
+        [
+          "model_version",
+          "STRING"
+        ],
+        [
+          "dimensions",
+          "INT"
+        ],
+        [
+          "vector_preview",
+          "STRING"
+        ],
+        [
+          "generated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AI Embedding",
+      "purpose": "Embedding metadata and deterministic vector preview."
+    },
+    {
+      "name": "phx_dm_similarity_match",
+      "primary_id": "similarity_id",
+      "attrs": [
+        [
+          "entity_type",
+          "STRING"
+        ],
+        [
+          "source_entity_id",
+          "STRING"
+        ],
+        [
+          "target_entity_id",
+          "STRING"
+        ],
+        [
+          "model_version",
+          "STRING"
+        ],
+        [
+          "similarity_score",
+          "DOUBLE"
+        ],
+        [
+          "reason_json",
+          "STRING"
+        ],
+        [
+          "generated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AI Embedding",
+      "purpose": "Stored nearest-neighbor relation."
+    },
+    {
+      "name": "phx_dm_prediction_result",
+      "primary_id": "prediction_id",
+      "attrs": [
+        [
+          "prediction_type",
+          "STRING"
+        ],
+        [
+          "target_type",
+          "STRING"
+        ],
+        [
+          "target_id",
+          "STRING"
+        ],
+        [
+          "score",
+          "DOUBLE"
+        ],
+        [
+          "confidence",
+          "DOUBLE"
+        ],
+        [
+          "risk_band",
+          "STRING"
+        ],
+        [
+          "severity",
+          "STRING"
+        ],
+        [
+          "horizon_days",
+          "INT"
+        ],
+        [
+          "explanation",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "generated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AI",
+      "purpose": "Stored simulated or model prediction."
+    },
+    {
+      "name": "phx_dm_opportunity",
+      "primary_id": "opportunity_id",
+      "attrs": [
+        [
+          "opportunity_type",
+          "STRING"
+        ],
+        [
+          "category",
+          "STRING"
+        ],
+        [
+          "target_type",
+          "STRING"
+        ],
+        [
+          "target_id",
+          "STRING"
+        ],
+        [
+          "score",
+          "DOUBLE"
+        ],
+        [
+          "severity",
+          "STRING"
+        ],
+        [
+          "estimated_revenue_impact",
+          "DOUBLE"
+        ],
+        [
+          "impact_summary",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "generated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AI",
+      "purpose": "AI-discovered growth or risk opportunity."
+    },
+    {
+      "name": "phx_dm_recommendation",
+      "primary_id": "recommendation_id",
+      "attrs": [
+        [
+          "recommendation_type",
+          "STRING"
+        ],
+        [
+          "title",
+          "STRING"
+        ],
+        [
+          "action_text",
+          "STRING"
+        ],
+        [
+          "priority_score",
+          "DOUBLE"
+        ],
+        [
+          "severity",
+          "STRING"
+        ],
+        [
+          "confidence",
+          "DOUBLE"
+        ],
+        [
+          "estimated_revenue_impact",
+          "DOUBLE"
+        ],
+        [
+          "impact_summary",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "due_date",
+          "DATETIME"
+        ],
+        [
+          "generated_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "AI",
+      "purpose": "Next-best action/recommendation."
+    },
+    {
+      "name": "phx_dm_feedback_event",
+      "primary_id": "feedback_id",
+      "attrs": [
+        [
+          "action",
+          "STRING"
+        ],
+        [
+          "reason_code",
+          "STRING"
+        ],
+        [
+          "reason_text",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ],
+        [
+          "user_id",
+          "STRING"
+        ]
+      ],
+      "domain": "Learning",
+      "purpose": "User feedback on an AI artifact."
+    },
+    {
+      "name": "phx_dm_outcome_event",
+      "primary_id": "outcome_id",
+      "attrs": [
+        [
+          "outcome_type",
+          "STRING"
+        ],
+        [
+          "outcome_value",
+          "DOUBLE"
+        ],
+        [
+          "outcome_unit",
+          "STRING"
+        ],
+        [
+          "observed_at",
+          "DATETIME"
+        ],
+        [
+          "notes",
+          "STRING"
+        ]
+      ],
+      "domain": "Learning",
+      "purpose": "Observed business result after an action."
+    },
+    {
+      "name": "phx_dm_learning_signal",
+      "primary_id": "learning_signal_id",
+      "attrs": [
+        [
+          "signal_type",
+          "STRING"
+        ],
+        [
+          "reward",
+          "DOUBLE"
+        ],
+        [
+          "score_delta",
+          "DOUBLE"
+        ],
+        [
+          "signal_json",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Learning",
+      "purpose": "Derived learning/reward signal."
+    },
+    {
+      "name": "phx_dm_context_memory",
+      "primary_id": "memory_id",
+      "attrs": [
+        [
+          "memory_type",
+          "STRING"
+        ],
+        [
+          "subject_type",
+          "STRING"
+        ],
+        [
+          "subject_id",
+          "STRING"
+        ],
+        [
+          "content",
+          "STRING"
+        ],
+        [
+          "source_type",
+          "STRING"
+        ],
+        [
+          "source_id",
+          "STRING"
+        ],
+        [
+          "confidence",
+          "DOUBLE"
+        ],
+        [
+          "effective_date",
+          "DATETIME"
+        ],
+        [
+          "expiration_date",
+          "DATETIME"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Memory",
+      "purpose": "Context and memory artifact."
+    },
+    {
+      "name": "phx_dm_conversation_turn",
+      "primary_id": "turn_id",
+      "attrs": [
+        [
+          "conversation_id",
+          "STRING"
+        ],
+        [
+          "turn_no",
+          "INT"
+        ],
+        [
+          "speaker",
+          "STRING"
+        ],
+        [
+          "content",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ],
+        [
+          "intent",
+          "STRING"
+        ]
+      ],
+      "domain": "Memory",
+      "purpose": "User/assistant conversational turn."
+    },
+    {
+      "name": "phx_dm_reasoning_trace",
+      "primary_id": "reasoning_id",
+      "attrs": [
+        [
+          "artifact_type",
+          "STRING"
+        ],
+        [
+          "artifact_id",
+          "STRING"
+        ],
+        [
+          "reasoning_steps_json",
+          "STRING"
+        ],
+        [
+          "evidence_json",
+          "STRING"
+        ],
+        [
+          "model_name",
+          "STRING"
+        ],
+        [
+          "prompt_version",
+          "STRING"
+        ],
+        [
+          "confidence",
+          "DOUBLE"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Explainability",
+      "purpose": "Reasoning and evidence trace."
+    },
+    {
+      "name": "phx_dm_document",
+      "primary_id": "document_id",
+      "attrs": [
+        [
+          "title",
+          "STRING"
+        ],
+        [
+          "document_type",
+          "STRING"
+        ],
+        [
+          "source",
+          "STRING"
+        ],
+        [
+          "version",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "published_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Knowledge",
+      "purpose": "Knowledge-document metadata."
+    },
+    {
+      "name": "phx_dm_document_chunk",
+      "primary_id": "chunk_id",
+      "attrs": [
+        [
+          "chunk_no",
+          "INT"
+        ],
+        [
+          "content",
+          "STRING"
+        ],
+        [
+          "token_count",
+          "INT"
+        ],
+        [
+          "embedding_ref",
+          "STRING"
+        ]
+      ],
+      "domain": "Knowledge",
+      "purpose": "Retrieval chunk."
+    },
+    {
+      "name": "phx_dm_playbook",
+      "primary_id": "playbook_id",
+      "attrs": [
+        [
+          "playbook_name",
+          "STRING"
+        ],
+        [
+          "category",
+          "STRING"
+        ],
+        [
+          "version",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "summary",
+          "STRING"
+        ]
+      ],
+      "domain": "Knowledge",
+      "purpose": "Action/coaching playbook."
+    },
+    {
+      "name": "phx_dm_best_practice",
+      "primary_id": "best_practice_id",
+      "attrs": [
+        [
+          "title",
+          "STRING"
+        ],
+        [
+          "category",
+          "STRING"
+        ],
+        [
+          "summary",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Knowledge",
+      "purpose": "Best-practice artifact."
+    },
+    {
+      "name": "phx_dm_business_glossary_term",
+      "primary_id": "term_id",
+      "attrs": [
+        [
+          "term",
+          "STRING"
+        ],
+        [
+          "definition",
+          "STRING"
+        ],
+        [
+          "domain",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ]
+      ],
+      "domain": "Knowledge",
+      "purpose": "Business term used for grounding."
+    },
+    {
+      "name": "phx_dm_notification",
+      "primary_id": "notification_id",
+      "attrs": [
+        [
+          "notification_type",
+          "STRING"
+        ],
+        [
+          "title",
+          "STRING"
+        ],
+        [
+          "message",
+          "STRING"
+        ],
+        [
+          "severity",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ],
+        [
+          "due_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Platform",
+      "purpose": "Persona-specific alert/notification."
+    },
+    {
+      "name": "phx_dm_simulation_scenario",
+      "primary_id": "scenario_id",
+      "attrs": [
+        [
+          "scenario_type",
+          "STRING"
+        ],
+        [
+          "scope_type",
+          "STRING"
+        ],
+        [
+          "scope_id",
+          "STRING"
+        ],
+        [
+          "assumptions_json",
+          "STRING"
+        ],
+        [
+          "baseline_json",
+          "STRING"
+        ],
+        [
+          "projected_json",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Simulation",
+      "purpose": "Stored what-if scenario."
+    },
+    {
+      "name": "phx_dm_agent_execution",
+      "primary_id": "execution_id",
+      "attrs": [
+        [
+          "agent_name",
+          "STRING"
+        ],
+        [
+          "workflow_name",
+          "STRING"
+        ],
+        [
+          "persona",
+          "STRING"
+        ],
+        [
+          "scope_type",
+          "STRING"
+        ],
+        [
+          "scope_id",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "started_at",
+          "DATETIME"
+        ],
+        [
+          "completed_at",
+          "DATETIME"
+        ],
+        [
+          "latency_ms",
+          "INT"
+        ],
+        [
+          "model_name",
+          "STRING"
+        ],
+        [
+          "prompt_version",
+          "STRING"
+        ]
+      ],
+      "domain": "AI Ops",
+      "purpose": "Top-level agentic workflow trace."
+    },
+    {
+      "name": "phx_dm_tool_call",
+      "primary_id": "tool_call_id",
+      "attrs": [
+        [
+          "tool_name",
+          "STRING"
+        ],
+        [
+          "operation",
+          "STRING"
+        ],
+        [
+          "request_summary",
+          "STRING"
+        ],
+        [
+          "response_summary",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "latency_ms",
+          "INT"
+        ],
+        [
+          "error_code",
+          "STRING"
+        ]
+      ],
+      "domain": "AI Ops",
+      "purpose": "Tool/MCP/REST/GSQL trace."
+    },
+    {
+      "name": "phx_dm_evaluation_result",
+      "primary_id": "evaluation_id",
+      "attrs": [
+        [
+          "evaluator",
+          "STRING"
+        ],
+        [
+          "relevance_score",
+          "DOUBLE"
+        ],
+        [
+          "groundedness_score",
+          "DOUBLE"
+        ],
+        [
+          "safety_score",
+          "DOUBLE"
+        ],
+        [
+          "confidence_score",
+          "DOUBLE"
+        ],
+        [
+          "threshold",
+          "DOUBLE"
+        ],
+        [
+          "passed",
+          "BOOL"
+        ]
+      ],
+      "domain": "AI Ops",
+      "purpose": "Evaluation and retry decision."
+    },
+    {
+      "name": "phx_dm_guardrail_event",
+      "primary_id": "guardrail_event_id",
+      "attrs": [
+        [
+          "event_type",
+          "STRING"
+        ],
+        [
+          "severity",
+          "STRING"
+        ],
+        [
+          "action",
+          "STRING"
+        ],
+        [
+          "matched_rule",
+          "STRING"
+        ],
+        [
+          "redacted_content",
+          "STRING"
+        ],
+        [
+          "created_at",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Compliance",
+      "purpose": "PII, prompt-injection or policy event."
+    }
+  ],
+  "edges": [
+    {
+      "name": "phx_dm_division_in_firm",
+      "from": "phx_dm_division",
+      "to": "phx_dm_firm",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Division containment.",
+      "reverse_edge": "rev_phx_dm_division_in_firm"
+    },
+    {
+      "name": "phx_dm_region_in_division",
+      "from": "phx_dm_region",
+      "to": "phx_dm_division",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Region containment.",
+      "reverse_edge": "rev_phx_dm_region_in_division"
+    },
+    {
+      "name": "phx_dm_market_in_region",
+      "from": "phx_dm_market",
+      "to": "phx_dm_region",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Market containment.",
+      "reverse_edge": "rev_phx_dm_market_in_region"
+    },
+    {
+      "name": "phx_dm_branch_in_market",
+      "from": "phx_dm_branch",
+      "to": "phx_dm_market",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Branch containment.",
+      "reverse_edge": "rev_phx_dm_branch_in_market"
+    },
+    {
+      "name": "phx_dm_advisor_in_branch",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_branch",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Advisor placement.",
+      "reverse_edge": "rev_phx_dm_advisor_in_branch"
+    },
+    {
+      "name": "phx_dm_advisor_in_market",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_market",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Compatibility/direct market traversal.",
+      "reverse_edge": "rev_phx_dm_advisor_in_market"
+    },
+    {
+      "name": "phx_dm_advisor_in_rep_pool",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_rep_pool",
+      "attrs": [],
+      "domain": "Organization",
+      "purpose": "Advisor pool membership.",
+      "reverse_edge": "rev_phx_dm_advisor_in_rep_pool"
+    },
+    {
+      "name": "phx_dm_user_scoped_to_firm",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_firm",
+      "attrs": [
+        [
+          "primary_scope",
+          "BOOL"
+        ]
+      ],
+      "domain": "Security",
+      "purpose": "Firm scope assignment.",
+      "reverse_edge": "rev_phx_dm_user_scoped_to_firm"
+    },
+    {
+      "name": "phx_dm_user_scoped_to_division",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_division",
+      "attrs": [
+        [
+          "primary_scope",
+          "BOOL"
+        ]
+      ],
+      "domain": "Security",
+      "purpose": "Division scope assignment.",
+      "reverse_edge": "rev_phx_dm_user_scoped_to_division"
+    },
+    {
+      "name": "phx_dm_user_scoped_to_region",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_region",
+      "attrs": [
+        [
+          "primary_scope",
+          "BOOL"
+        ]
+      ],
+      "domain": "Security",
+      "purpose": "Region scope assignment.",
+      "reverse_edge": "rev_phx_dm_user_scoped_to_region"
+    },
+    {
+      "name": "phx_dm_user_scoped_to_market",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_market",
+      "attrs": [
+        [
+          "primary_scope",
+          "BOOL"
+        ]
+      ],
+      "domain": "Security",
+      "purpose": "Market scope assignment.",
+      "reverse_edge": "rev_phx_dm_user_scoped_to_market"
+    },
+    {
+      "name": "phx_dm_user_scoped_to_branch",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_branch",
+      "attrs": [
+        [
+          "primary_scope",
+          "BOOL"
+        ]
+      ],
+      "domain": "Security",
+      "purpose": "Branch scope assignment.",
+      "reverse_edge": "rev_phx_dm_user_scoped_to_branch"
+    },
+    {
+      "name": "phx_dm_user_represents_advisor",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Security",
+      "purpose": "Advisor identity mapping.",
+      "reverse_edge": "rev_phx_dm_user_represents_advisor"
+    },
+    {
+      "name": "phx_dm_ddw_manages_rdw",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_persona_user",
+      "attrs": [
+        [
+          "effective_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Management",
+      "purpose": "DDW reporting relationship.",
+      "reverse_edge": "rev_phx_dm_ddw_manages_rdw"
+    },
+    {
+      "name": "phx_dm_rdw_manages_mdw",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_persona_user",
+      "attrs": [
+        [
+          "effective_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Management",
+      "purpose": "RDW reporting relationship.",
+      "reverse_edge": "rev_phx_dm_rdw_manages_mdw"
+    },
+    {
+      "name": "phx_dm_mdw_manages_advisor",
+      "from": "phx_dm_persona_user",
+      "to": "phx_dm_advisor",
+      "attrs": [
+        [
+          "effective_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Management",
+      "purpose": "MDW reporting relationship.",
+      "reverse_edge": "rev_phx_dm_mdw_manages_advisor"
+    },
+    {
+      "name": "phx_dm_advisor_serves_household",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_household",
+      "attrs": [
+        [
+          "relationship_start",
+          "DATETIME"
+        ],
+        [
+          "primary_flag",
+          "BOOL"
+        ]
+      ],
+      "domain": "Client",
+      "purpose": "Advisor serves household.",
+      "reverse_edge": "rev_phx_dm_advisor_serves_household"
+    },
+    {
+      "name": "phx_dm_household_owns_account",
+      "from": "phx_dm_household",
+      "to": "phx_dm_account",
+      "attrs": [
+        [
+          "ownership_pct",
+          "DOUBLE"
+        ]
+      ],
+      "domain": "Client",
+      "purpose": "Household owns account.",
+      "reverse_edge": "rev_phx_dm_household_owns_account"
+    },
+    {
+      "name": "phx_dm_product_in_subcategory",
+      "from": "phx_dm_product",
+      "to": "phx_dm_product_subcategory",
+      "attrs": [],
+      "domain": "Product",
+      "purpose": "Product classification.",
+      "reverse_edge": "rev_phx_dm_product_in_subcategory"
+    },
+    {
+      "name": "phx_dm_subcategory_in_category",
+      "from": "phx_dm_product_subcategory",
+      "to": "phx_dm_product_category",
+      "attrs": [],
+      "domain": "Product",
+      "purpose": "Subcategory classification.",
+      "reverse_edge": "rev_phx_dm_subcategory_in_category"
+    },
+    {
+      "name": "phx_dm_account_holds_product",
+      "from": "phx_dm_account",
+      "to": "phx_dm_product",
+      "attrs": [
+        [
+          "market_value",
+          "DOUBLE"
+        ],
+        [
+          "allocation_pct",
+          "DOUBLE"
+        ],
+        [
+          "as_of_date",
+          "DATETIME"
+        ]
+      ],
+      "domain": "Product",
+      "purpose": "Account holding.",
+      "reverse_edge": "rev_phx_dm_account_holds_product"
+    },
+    {
+      "name": "phx_dm_transaction_for_advisor",
+      "from": "phx_dm_revenue_transaction",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Transaction owner.",
+      "reverse_edge": "rev_phx_dm_transaction_for_advisor"
+    },
+    {
+      "name": "phx_dm_transaction_for_household",
+      "from": "phx_dm_revenue_transaction",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Transaction household.",
+      "reverse_edge": "rev_phx_dm_transaction_for_household"
+    },
+    {
+      "name": "phx_dm_transaction_for_account",
+      "from": "phx_dm_revenue_transaction",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Transaction account.",
+      "reverse_edge": "rev_phx_dm_transaction_for_account"
+    },
+    {
+      "name": "phx_dm_transaction_for_product",
+      "from": "phx_dm_revenue_transaction",
+      "to": "phx_dm_product",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Transaction product.",
+      "reverse_edge": "rev_phx_dm_transaction_for_product"
+    },
+    {
+      "name": "phx_dm_transaction_in_period",
+      "from": "phx_dm_revenue_transaction",
+      "to": "phx_dm_time_period",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Transaction period.",
+      "reverse_edge": "rev_phx_dm_transaction_in_period"
+    },
+    {
+      "name": "phx_dm_aum_for_advisor",
+      "from": "phx_dm_monthly_aum",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "AUM advisor.",
+      "reverse_edge": "rev_phx_dm_aum_for_advisor"
+    },
+    {
+      "name": "phx_dm_aum_in_period",
+      "from": "phx_dm_monthly_aum",
+      "to": "phx_dm_time_period",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "AUM period.",
+      "reverse_edge": "rev_phx_dm_aum_in_period"
+    },
+    {
+      "name": "phx_dm_ncf_for_advisor",
+      "from": "phx_dm_monthly_ncf",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "NCF advisor.",
+      "reverse_edge": "rev_phx_dm_ncf_for_advisor"
+    },
+    {
+      "name": "phx_dm_ncf_in_period",
+      "from": "phx_dm_monthly_ncf",
+      "to": "phx_dm_time_period",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "NCF period.",
+      "reverse_edge": "rev_phx_dm_ncf_in_period"
+    },
+    {
+      "name": "phx_dm_nnm_for_advisor",
+      "from": "phx_dm_monthly_nnm",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "NNM advisor.",
+      "reverse_edge": "rev_phx_dm_nnm_for_advisor"
+    },
+    {
+      "name": "phx_dm_nnm_in_period",
+      "from": "phx_dm_monthly_nnm",
+      "to": "phx_dm_time_period",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "NNM period.",
+      "reverse_edge": "rev_phx_dm_nnm_in_period"
+    },
+    {
+      "name": "phx_dm_product_revenue_for_advisor",
+      "from": "phx_dm_monthly_product_revenue",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Product revenue advisor.",
+      "reverse_edge": "rev_phx_dm_product_revenue_for_advisor"
+    },
+    {
+      "name": "phx_dm_product_revenue_for_product",
+      "from": "phx_dm_monthly_product_revenue",
+      "to": "phx_dm_product",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Product revenue product.",
+      "reverse_edge": "rev_phx_dm_product_revenue_for_product"
+    },
+    {
+      "name": "phx_dm_product_revenue_in_period",
+      "from": "phx_dm_monthly_product_revenue",
+      "to": "phx_dm_time_period",
+      "attrs": [],
+      "domain": "Performance",
+      "purpose": "Product revenue period.",
+      "reverse_edge": "rev_phx_dm_product_revenue_in_period"
+    },
+    {
+      "name": "phx_dm_eligibility_for_advisor",
+      "from": "phx_dm_eligibility",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Rules",
+      "purpose": "Advisor eligibility.",
+      "reverse_edge": "rev_phx_dm_eligibility_for_advisor"
+    },
+    {
+      "name": "phx_dm_eligibility_for_household",
+      "from": "phx_dm_eligibility",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "Rules",
+      "purpose": "Household eligibility.",
+      "reverse_edge": "rev_phx_dm_eligibility_for_household"
+    },
+    {
+      "name": "phx_dm_eligibility_for_product",
+      "from": "phx_dm_eligibility",
+      "to": "phx_dm_product",
+      "attrs": [],
+      "domain": "Rules",
+      "purpose": "Product eligibility.",
+      "reverse_edge": "rev_phx_dm_eligibility_for_product"
+    },
+    {
+      "name": "phx_dm_activity_for_advisor",
+      "from": "phx_dm_crm_activity",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Activity advisor.",
+      "reverse_edge": "rev_phx_dm_activity_for_advisor"
+    },
+    {
+      "name": "phx_dm_activity_for_household",
+      "from": "phx_dm_crm_activity",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Activity household.",
+      "reverse_edge": "rev_phx_dm_activity_for_household"
+    },
+    {
+      "name": "phx_dm_activity_for_account",
+      "from": "phx_dm_crm_activity",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Activity account.",
+      "reverse_edge": "rev_phx_dm_activity_for_account"
+    },
+    {
+      "name": "phx_dm_advisor_has_crm_lead",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_crm_lead",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Lead ownership.",
+      "reverse_edge": "rev_phx_dm_advisor_has_crm_lead"
+    },
+    {
+      "name": "phx_dm_lead_for_household",
+      "from": "phx_dm_crm_lead",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Lead household.",
+      "reverse_edge": "rev_phx_dm_lead_for_household"
+    },
+    {
+      "name": "phx_dm_lead_generates_crm_opportunity",
+      "from": "phx_dm_crm_lead",
+      "to": "phx_dm_crm_opportunity",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Lead conversion.",
+      "reverse_edge": "rev_phx_dm_lead_generates_crm_opportunity"
+    },
+    {
+      "name": "phx_dm_advisor_has_crm_referral",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_crm_referral",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Referral ownership.",
+      "reverse_edge": "rev_phx_dm_advisor_has_crm_referral"
+    },
+    {
+      "name": "phx_dm_referral_for_household",
+      "from": "phx_dm_crm_referral",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Referral household.",
+      "reverse_edge": "rev_phx_dm_referral_for_household"
+    },
+    {
+      "name": "phx_dm_referral_generates_crm_opportunity",
+      "from": "phx_dm_crm_referral",
+      "to": "phx_dm_crm_opportunity",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "Referral conversion.",
+      "reverse_edge": "rev_phx_dm_referral_generates_crm_opportunity"
+    },
+    {
+      "name": "phx_dm_advisor_has_crm_opportunity",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_crm_opportunity",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "CRM opportunity ownership.",
+      "reverse_edge": "rev_phx_dm_advisor_has_crm_opportunity"
+    },
+    {
+      "name": "phx_dm_crm_opportunity_for_household",
+      "from": "phx_dm_crm_opportunity",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "CRM opportunity household.",
+      "reverse_edge": "rev_phx_dm_crm_opportunity_for_household"
+    },
+    {
+      "name": "phx_dm_crm_opportunity_for_account",
+      "from": "phx_dm_crm_opportunity",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "CRM opportunity account.",
+      "reverse_edge": "rev_phx_dm_crm_opportunity_for_account"
+    },
+    {
+      "name": "phx_dm_crm_opportunity_for_product",
+      "from": "phx_dm_crm_opportunity",
+      "to": "phx_dm_product",
+      "attrs": [],
+      "domain": "CRM",
+      "purpose": "CRM opportunity product.",
+      "reverse_edge": "rev_phx_dm_crm_opportunity_for_product"
+    },
+    {
+      "name": "phx_dm_advisor_has_agp_enrollment",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_agp_enrollment",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Advisor enrollment.",
+      "reverse_edge": "rev_phx_dm_advisor_has_agp_enrollment"
+    },
+    {
+      "name": "phx_dm_enrollment_in_agp_program",
+      "from": "phx_dm_agp_enrollment",
+      "to": "phx_dm_agp_program",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Program enrollment.",
+      "reverse_edge": "rev_phx_dm_enrollment_in_agp_program"
+    },
+    {
+      "name": "phx_dm_agp_program_has_milestone",
+      "from": "phx_dm_agp_program",
+      "to": "phx_dm_agp_milestone",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Milestone definition.",
+      "reverse_edge": "rev_phx_dm_agp_program_has_milestone"
+    },
+    {
+      "name": "phx_dm_enrollment_has_milestone_progress",
+      "from": "phx_dm_agp_enrollment",
+      "to": "phx_dm_agp_milestone_progress",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Enrollment milestone progress.",
+      "reverse_edge": "rev_phx_dm_enrollment_has_milestone_progress"
+    },
+    {
+      "name": "phx_dm_progress_for_milestone",
+      "from": "phx_dm_agp_milestone_progress",
+      "to": "phx_dm_agp_milestone",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Progress to definition.",
+      "reverse_edge": "rev_phx_dm_progress_for_milestone"
+    },
+    {
+      "name": "phx_dm_progress_has_kpi_measurement",
+      "from": "phx_dm_agp_milestone_progress",
+      "to": "phx_dm_agp_kpi_measurement",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Progress measurement.",
+      "reverse_edge": "rev_phx_dm_progress_has_kpi_measurement"
+    },
+    {
+      "name": "phx_dm_measurement_for_kpi",
+      "from": "phx_dm_agp_kpi_measurement",
+      "to": "phx_dm_kpi",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Measurement KPI.",
+      "reverse_edge": "rev_phx_dm_measurement_for_kpi"
+    },
+    {
+      "name": "phx_dm_advisor_has_goal",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_goal",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Advisor goal.",
+      "reverse_edge": "rev_phx_dm_advisor_has_goal"
+    },
+    {
+      "name": "phx_dm_advisor_has_kpi",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_kpi",
+      "attrs": [],
+      "domain": "AGP",
+      "purpose": "Advisor KPI assignment.",
+      "reverse_edge": "rev_phx_dm_advisor_has_kpi"
+    },
+    {
+      "name": "phx_dm_coaching_for_advisor",
+      "from": "phx_dm_coaching_session",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "Coaching subject.",
+      "reverse_edge": "rev_phx_dm_coaching_for_advisor"
+    },
+    {
+      "name": "phx_dm_coaching_for_enrollment",
+      "from": "phx_dm_coaching_session",
+      "to": "phx_dm_agp_enrollment",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "AGP coaching context.",
+      "reverse_edge": "rev_phx_dm_coaching_for_enrollment"
+    },
+    {
+      "name": "phx_dm_review_for_advisor",
+      "from": "phx_dm_manager_review",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "Review subject.",
+      "reverse_edge": "rev_phx_dm_review_for_advisor"
+    },
+    {
+      "name": "phx_dm_review_for_enrollment",
+      "from": "phx_dm_manager_review",
+      "to": "phx_dm_agp_enrollment",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "AGP review context.",
+      "reverse_edge": "rev_phx_dm_review_for_enrollment"
+    },
+    {
+      "name": "phx_dm_advisor_has_feature_snapshot",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI Feature",
+      "purpose": "Advisor feature snapshots.",
+      "reverse_edge": "rev_phx_dm_advisor_has_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_advisor_has_embedding",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_embedding",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Advisor embeddings.",
+      "reverse_edge": "rev_phx_dm_advisor_has_embedding"
+    },
+    {
+      "name": "phx_dm_advisor_has_similarity_match",
+      "from": "phx_dm_advisor",
+      "to": "phx_dm_similarity_match",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Advisor similarity matches.",
+      "reverse_edge": "rev_phx_dm_advisor_has_similarity_match"
+    },
+    {
+      "name": "phx_dm_household_has_feature_snapshot",
+      "from": "phx_dm_household",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI Feature",
+      "purpose": "Household feature snapshots.",
+      "reverse_edge": "rev_phx_dm_household_has_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_household_has_embedding",
+      "from": "phx_dm_household",
+      "to": "phx_dm_embedding",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Household embeddings.",
+      "reverse_edge": "rev_phx_dm_household_has_embedding"
+    },
+    {
+      "name": "phx_dm_household_has_similarity_match",
+      "from": "phx_dm_household",
+      "to": "phx_dm_similarity_match",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Household similarity matches.",
+      "reverse_edge": "rev_phx_dm_household_has_similarity_match"
+    },
+    {
+      "name": "phx_dm_account_has_feature_snapshot",
+      "from": "phx_dm_account",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI Feature",
+      "purpose": "Account feature snapshots.",
+      "reverse_edge": "rev_phx_dm_account_has_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_account_has_embedding",
+      "from": "phx_dm_account",
+      "to": "phx_dm_embedding",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Account embeddings.",
+      "reverse_edge": "rev_phx_dm_account_has_embedding"
+    },
+    {
+      "name": "phx_dm_account_has_similarity_match",
+      "from": "phx_dm_account",
+      "to": "phx_dm_similarity_match",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Account similarity matches.",
+      "reverse_edge": "rev_phx_dm_account_has_similarity_match"
+    },
+    {
+      "name": "phx_dm_product_has_feature_snapshot",
+      "from": "phx_dm_product",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI Feature",
+      "purpose": "Product feature snapshots.",
+      "reverse_edge": "rev_phx_dm_product_has_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_product_has_embedding",
+      "from": "phx_dm_product",
+      "to": "phx_dm_embedding",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Product embeddings.",
+      "reverse_edge": "rev_phx_dm_product_has_embedding"
+    },
+    {
+      "name": "phx_dm_product_has_similarity_match",
+      "from": "phx_dm_product",
+      "to": "phx_dm_similarity_match",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Product similarity matches.",
+      "reverse_edge": "rev_phx_dm_product_has_similarity_match"
+    },
+    {
+      "name": "phx_dm_similarity_match_targets_advisor",
+      "from": "phx_dm_similarity_match",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Advisor similarity target.",
+      "reverse_edge": "rev_phx_dm_similarity_match_targets_advisor"
+    },
+    {
+      "name": "phx_dm_similarity_match_targets_household",
+      "from": "phx_dm_similarity_match",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Household similarity target.",
+      "reverse_edge": "rev_phx_dm_similarity_match_targets_household"
+    },
+    {
+      "name": "phx_dm_similarity_match_targets_account",
+      "from": "phx_dm_similarity_match",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Account similarity target.",
+      "reverse_edge": "rev_phx_dm_similarity_match_targets_account"
+    },
+    {
+      "name": "phx_dm_similarity_match_targets_product",
+      "from": "phx_dm_similarity_match",
+      "to": "phx_dm_product",
+      "attrs": [],
+      "domain": "AI Embedding",
+      "purpose": "Product similarity target.",
+      "reverse_edge": "rev_phx_dm_similarity_match_targets_product"
+    },
+    {
+      "name": "phx_dm_prediction_for_advisor",
+      "from": "phx_dm_prediction_result",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Prediction target advisor.",
+      "reverse_edge": "rev_phx_dm_prediction_for_advisor"
+    },
+    {
+      "name": "phx_dm_prediction_for_household",
+      "from": "phx_dm_prediction_result",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Prediction target household.",
+      "reverse_edge": "rev_phx_dm_prediction_for_household"
+    },
+    {
+      "name": "phx_dm_prediction_for_account",
+      "from": "phx_dm_prediction_result",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Prediction target account.",
+      "reverse_edge": "rev_phx_dm_prediction_for_account"
+    },
+    {
+      "name": "phx_dm_opportunity_for_advisor",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Opportunity target advisor.",
+      "reverse_edge": "rev_phx_dm_opportunity_for_advisor"
+    },
+    {
+      "name": "phx_dm_opportunity_for_household",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Opportunity target household.",
+      "reverse_edge": "rev_phx_dm_opportunity_for_household"
+    },
+    {
+      "name": "phx_dm_opportunity_for_account",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Opportunity target account.",
+      "reverse_edge": "rev_phx_dm_opportunity_for_account"
+    },
+    {
+      "name": "phx_dm_recommendation_for_advisor",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation target advisor.",
+      "reverse_edge": "rev_phx_dm_recommendation_for_advisor"
+    },
+    {
+      "name": "phx_dm_recommendation_for_household",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation target household.",
+      "reverse_edge": "rev_phx_dm_recommendation_for_household"
+    },
+    {
+      "name": "phx_dm_recommendation_for_account",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_account",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation target account.",
+      "reverse_edge": "rev_phx_dm_recommendation_for_account"
+    },
+    {
+      "name": "phx_dm_prediction_uses_feature_snapshot",
+      "from": "phx_dm_prediction_result",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Prediction input lineage.",
+      "reverse_edge": "rev_phx_dm_prediction_uses_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_opportunity_uses_feature_snapshot",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Opportunity input lineage.",
+      "reverse_edge": "rev_phx_dm_opportunity_uses_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_recommendation_uses_feature_snapshot",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation input lineage.",
+      "reverse_edge": "rev_phx_dm_recommendation_uses_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_opportunity_derived_from_prediction",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_prediction_result",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Opportunity prediction lineage.",
+      "reverse_edge": "rev_phx_dm_opportunity_derived_from_prediction"
+    },
+    {
+      "name": "phx_dm_ai_opportunity_derived_from_crm_opportunity",
+      "from": "phx_dm_opportunity",
+      "to": "phx_dm_crm_opportunity",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "AI enrichment of CRM pipeline.",
+      "reverse_edge": "rev_phx_dm_ai_opportunity_derived_from_crm_opportunity"
+    },
+    {
+      "name": "phx_dm_recommendation_addresses_opportunity",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_opportunity",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation addresses opportunity.",
+      "reverse_edge": "rev_phx_dm_recommendation_addresses_opportunity"
+    },
+    {
+      "name": "phx_dm_recommendation_based_on_prediction",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_prediction_result",
+      "attrs": [],
+      "domain": "AI",
+      "purpose": "Recommendation prediction lineage.",
+      "reverse_edge": "rev_phx_dm_recommendation_based_on_prediction"
+    },
+    {
+      "name": "phx_dm_recommendation_uses_playbook",
+      "from": "phx_dm_recommendation",
+      "to": "phx_dm_playbook",
+      "attrs": [],
+      "domain": "Knowledge",
+      "purpose": "Recommendation playbook.",
+      "reverse_edge": "rev_phx_dm_recommendation_uses_playbook"
+    },
+    {
+      "name": "phx_dm_feedback_for_recommendation",
+      "from": "phx_dm_feedback_event",
+      "to": "phx_dm_recommendation",
+      "attrs": [],
+      "domain": "Learning",
+      "purpose": "Feedback target.",
+      "reverse_edge": "rev_phx_dm_feedback_for_recommendation"
+    },
+    {
+      "name": "phx_dm_outcome_for_feedback",
+      "from": "phx_dm_outcome_event",
+      "to": "phx_dm_feedback_event",
+      "attrs": [],
+      "domain": "Learning",
+      "purpose": "Outcome from feedback/action.",
+      "reverse_edge": "rev_phx_dm_outcome_for_feedback"
+    },
+    {
+      "name": "phx_dm_learning_from_outcome",
+      "from": "phx_dm_learning_signal",
+      "to": "phx_dm_outcome_event",
+      "attrs": [],
+      "domain": "Learning",
+      "purpose": "Learning signal origin.",
+      "reverse_edge": "rev_phx_dm_learning_from_outcome"
+    },
+    {
+      "name": "phx_dm_learning_updates_recommendation",
+      "from": "phx_dm_learning_signal",
+      "to": "phx_dm_recommendation",
+      "attrs": [],
+      "domain": "Learning",
+      "purpose": "Learning applies to recommendation family.",
+      "reverse_edge": "rev_phx_dm_learning_updates_recommendation"
+    },
+    {
+      "name": "phx_dm_memory_for_firm",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_firm",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to firm.",
+      "reverse_edge": "rev_phx_dm_memory_for_firm"
+    },
+    {
+      "name": "phx_dm_memory_for_division",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_division",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to division.",
+      "reverse_edge": "rev_phx_dm_memory_for_division"
+    },
+    {
+      "name": "phx_dm_memory_for_region",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_region",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to region.",
+      "reverse_edge": "rev_phx_dm_memory_for_region"
+    },
+    {
+      "name": "phx_dm_memory_for_market",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_market",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to market.",
+      "reverse_edge": "rev_phx_dm_memory_for_market"
+    },
+    {
+      "name": "phx_dm_memory_for_branch",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_branch",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to branch.",
+      "reverse_edge": "rev_phx_dm_memory_for_branch"
+    },
+    {
+      "name": "phx_dm_memory_for_advisor",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to advisor.",
+      "reverse_edge": "rev_phx_dm_memory_for_advisor"
+    },
+    {
+      "name": "phx_dm_memory_for_household",
+      "from": "phx_dm_context_memory",
+      "to": "phx_dm_household",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Memory scoped to household.",
+      "reverse_edge": "rev_phx_dm_memory_for_household"
+    },
+    {
+      "name": "phx_dm_conversation_creates_memory",
+      "from": "phx_dm_conversation_turn",
+      "to": "phx_dm_context_memory",
+      "attrs": [],
+      "domain": "Memory",
+      "purpose": "Conversation-derived memory.",
+      "reverse_edge": "rev_phx_dm_conversation_creates_memory"
+    },
+    {
+      "name": "phx_dm_reasoning_uses_memory",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_context_memory",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Memory provenance.",
+      "reverse_edge": "rev_phx_dm_reasoning_uses_memory"
+    },
+    {
+      "name": "phx_dm_reasoning_uses_feature_snapshot",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_feature_snapshot",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Feature provenance.",
+      "reverse_edge": "rev_phx_dm_reasoning_uses_feature_snapshot"
+    },
+    {
+      "name": "phx_dm_reasoning_uses_document_chunk",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_document_chunk",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Knowledge provenance.",
+      "reverse_edge": "rev_phx_dm_reasoning_uses_document_chunk"
+    },
+    {
+      "name": "phx_dm_reasoning_uses_crm_activity",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_crm_activity",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "CRM evidence.",
+      "reverse_edge": "rev_phx_dm_reasoning_uses_crm_activity"
+    },
+    {
+      "name": "phx_dm_reasoning_uses_transaction",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_revenue_transaction",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Transaction evidence.",
+      "reverse_edge": "rev_phx_dm_reasoning_uses_transaction"
+    },
+    {
+      "name": "phx_dm_reasoning_for_prediction",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_prediction_result",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Prediction explanation.",
+      "reverse_edge": "rev_phx_dm_reasoning_for_prediction"
+    },
+    {
+      "name": "phx_dm_reasoning_for_opportunity",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_opportunity",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Opportunity explanation.",
+      "reverse_edge": "rev_phx_dm_reasoning_for_opportunity"
+    },
+    {
+      "name": "phx_dm_reasoning_for_recommendation",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_recommendation",
+      "attrs": [],
+      "domain": "Explainability",
+      "purpose": "Recommendation explanation.",
+      "reverse_edge": "rev_phx_dm_reasoning_for_recommendation"
+    },
+    {
+      "name": "phx_dm_document_has_chunk",
+      "from": "phx_dm_document",
+      "to": "phx_dm_document_chunk",
+      "attrs": [],
+      "domain": "Knowledge",
+      "purpose": "Document chunking.",
+      "reverse_edge": "rev_phx_dm_document_has_chunk"
+    },
+    {
+      "name": "phx_dm_playbook_has_best_practice",
+      "from": "phx_dm_playbook",
+      "to": "phx_dm_best_practice",
+      "attrs": [],
+      "domain": "Knowledge",
+      "purpose": "Playbook content.",
+      "reverse_edge": "rev_phx_dm_playbook_has_best_practice"
+    },
+    {
+      "name": "phx_dm_notification_for_user",
+      "from": "phx_dm_notification",
+      "to": "phx_dm_persona_user",
+      "attrs": [],
+      "domain": "Platform",
+      "purpose": "User alert.",
+      "reverse_edge": "rev_phx_dm_notification_for_user"
+    },
+    {
+      "name": "phx_dm_scenario_for_user",
+      "from": "phx_dm_simulation_scenario",
+      "to": "phx_dm_persona_user",
+      "attrs": [],
+      "domain": "Simulation",
+      "purpose": "Scenario owner.",
+      "reverse_edge": "rev_phx_dm_scenario_for_user"
+    },
+    {
+      "name": "phx_dm_scenario_for_advisor",
+      "from": "phx_dm_simulation_scenario",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Simulation",
+      "purpose": "Scenario scope.",
+      "reverse_edge": "rev_phx_dm_scenario_for_advisor"
+    },
+    {
+      "name": "phx_dm_execution_has_tool_call",
+      "from": "phx_dm_agent_execution",
+      "to": "phx_dm_tool_call",
+      "attrs": [],
+      "domain": "AI Ops",
+      "purpose": "Execution tool call.",
+      "reverse_edge": "rev_phx_dm_execution_has_tool_call"
+    },
+    {
+      "name": "phx_dm_execution_has_evaluation",
+      "from": "phx_dm_agent_execution",
+      "to": "phx_dm_evaluation_result",
+      "attrs": [],
+      "domain": "AI Ops",
+      "purpose": "Execution evaluation.",
+      "reverse_edge": "rev_phx_dm_execution_has_evaluation"
+    },
+    {
+      "name": "phx_dm_execution_has_guardrail_event",
+      "from": "phx_dm_agent_execution",
+      "to": "phx_dm_guardrail_event",
+      "attrs": [],
+      "domain": "AI Ops",
+      "purpose": "Execution guardrail.",
+      "reverse_edge": "rev_phx_dm_execution_has_guardrail_event"
+    },
+    {
+      "name": "phx_dm_execution_generated_reasoning",
+      "from": "phx_dm_agent_execution",
+      "to": "phx_dm_reasoning_trace",
+      "attrs": [],
+      "domain": "AI Ops",
+      "purpose": "Execution explanation.",
+      "reverse_edge": "rev_phx_dm_execution_generated_reasoning"
+    }
+  ],
+  "generated_at": "2026-07-02T19:15:08.289450Z",
+  "source_note": "Consolidated Story 1 schema derived from approved v1.1 requirements baseline.",
+  "reverse_edge_strategy": "All directed edges declare explicit reverse edges for efficient bidirectional traversal in SYNTAX V1 queries."
+}

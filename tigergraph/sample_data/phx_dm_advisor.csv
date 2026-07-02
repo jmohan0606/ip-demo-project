@@ -1,0 +1,3 @@
+advisor_id,name,mdw_id,ddw_id,agp_enrolled,market_id
+ADV0001,Alex Morgan,MDW001,DDW001,true,MKT101
+ADV0002,Maya Chen,MDW001,DDW001,true,MKT101

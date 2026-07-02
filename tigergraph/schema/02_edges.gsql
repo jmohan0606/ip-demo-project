@@ -1,0 +1,101 @@
+// ============================================================
+// Edges
+// ============================================================
+
+CREATE DIRECTED EDGE phx_dm_division_in_firm (FROM phx_dm_division, TO phx_dm_firm)
+CREATE DIRECTED EDGE phx_dm_region_in_division (FROM phx_dm_region, TO phx_dm_division)
+CREATE DIRECTED EDGE phx_dm_market_in_region (FROM phx_dm_market, TO phx_dm_region)
+CREATE DIRECTED EDGE phx_dm_advisor_in_market (FROM phx_dm_advisor, TO phx_dm_market)
+CREATE DIRECTED EDGE phx_dm_user_represents_scope (FROM phx_dm_persona_user, TO phx_dm_advisor)
+
+CREATE DIRECTED EDGE phx_dm_advisor_serves_household (FROM phx_dm_advisor, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_household_has_account (FROM phx_dm_household, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_account_holds_product (FROM phx_dm_account, TO phx_dm_product)
+CREATE DIRECTED EDGE phx_dm_product_in_category (FROM phx_dm_product, TO phx_dm_product_category)
+CREATE DIRECTED EDGE phx_dm_product_in_subcategory (FROM phx_dm_product, TO phx_dm_product_subcategory)
+CREATE DIRECTED EDGE phx_dm_subcategory_in_category (FROM phx_dm_product_subcategory, TO phx_dm_product_category)
+
+CREATE DIRECTED EDGE phx_dm_transaction_for_advisor (FROM phx_dm_transaction, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_transaction_for_household (FROM phx_dm_transaction, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_transaction_for_account (FROM phx_dm_transaction, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_transaction_for_product (FROM phx_dm_transaction, TO phx_dm_product)
+CREATE DIRECTED EDGE phx_dm_transaction_for_period (FROM phx_dm_transaction, TO phx_dm_time_period)
+
+CREATE DIRECTED EDGE phx_dm_aum_for_account (FROM phx_dm_monthly_aum, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_aum_for_period (FROM phx_dm_monthly_aum, TO phx_dm_time_period)
+CREATE DIRECTED EDGE phx_dm_ncf_for_account (FROM phx_dm_monthly_ncf, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_ncf_for_period (FROM phx_dm_monthly_ncf, TO phx_dm_time_period)
+CREATE DIRECTED EDGE phx_dm_nnm_for_account (FROM phx_dm_monthly_nnm, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_nnm_for_period (FROM phx_dm_monthly_nnm, TO phx_dm_time_period)
+
+CREATE DIRECTED EDGE phx_dm_product_revenue_for_advisor (FROM phx_dm_monthly_product_revenue, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_product_revenue_for_product (FROM phx_dm_monthly_product_revenue, TO phx_dm_product)
+CREATE DIRECTED EDGE phx_dm_product_revenue_for_period (FROM phx_dm_monthly_product_revenue, TO phx_dm_time_period)
+
+CREATE DIRECTED EDGE phx_dm_eligibility_for_advisor (FROM phx_dm_monthly_eligibility, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_eligibility_for_period (FROM phx_dm_monthly_eligibility, TO phx_dm_time_period)
+
+CREATE DIRECTED EDGE phx_dm_activity_for_advisor (FROM phx_dm_crm_activity, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_activity_for_household (FROM phx_dm_crm_activity, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_activity_for_account (FROM phx_dm_crm_activity, TO phx_dm_account)
+
+CREATE DIRECTED EDGE phx_dm_advisor_enrolled_in_agp (FROM phx_dm_advisor, TO phx_dm_agp_program)
+CREATE DIRECTED EDGE phx_dm_program_has_goal (FROM phx_dm_agp_program, TO phx_dm_goal)
+CREATE DIRECTED EDGE phx_dm_goal_measured_by_kpi (FROM phx_dm_goal, TO phx_dm_kpi)
+CREATE DIRECTED EDGE phx_dm_advisor_has_goal (FROM phx_dm_advisor, TO phx_dm_goal)
+CREATE DIRECTED EDGE phx_dm_advisor_has_kpi (FROM phx_dm_advisor, TO phx_dm_kpi)
+CREATE DIRECTED EDGE phx_dm_coaching_for_advisor (FROM phx_dm_coaching_session, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_review_for_advisor (FROM phx_dm_manager_review, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_review_created_coaching (FROM phx_dm_manager_review, TO phx_dm_coaching_session)
+
+CREATE DIRECTED EDGE phx_dm_prediction_for_advisor (FROM phx_dm_prediction_result, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_prediction_for_household (FROM phx_dm_prediction_result, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_prediction_for_account (FROM phx_dm_prediction_result, TO phx_dm_account)
+
+CREATE DIRECTED EDGE phx_dm_opportunity_for_advisor (FROM phx_dm_opportunity, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_opportunity_for_household (FROM phx_dm_opportunity, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_opportunity_supported_by_prediction (FROM phx_dm_opportunity, TO phx_dm_prediction_result)
+
+CREATE DIRECTED EDGE phx_dm_recommendation_for_advisor (FROM phx_dm_recommendation, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_recommendation_targets_household (FROM phx_dm_recommendation, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_recommendation_targets_account (FROM phx_dm_recommendation, TO phx_dm_account)
+CREATE DIRECTED EDGE phx_dm_recommendation_based_on_opportunity (FROM phx_dm_recommendation, TO phx_dm_opportunity)
+CREATE DIRECTED EDGE phx_dm_recommendation_supported_by_prediction (FROM phx_dm_recommendation, TO phx_dm_prediction_result)
+CREATE DIRECTED EDGE phx_dm_recommendation_supported_by_playbook (FROM phx_dm_recommendation, TO phx_dm_playbook)
+
+CREATE DIRECTED EDGE phx_dm_feedback_for_recommendation (FROM phx_dm_feedback_event, TO phx_dm_recommendation)
+CREATE DIRECTED EDGE phx_dm_outcome_for_feedback (FROM phx_dm_outcome_event, TO phx_dm_feedback_event)
+CREATE DIRECTED EDGE phx_dm_learning_from_outcome (FROM phx_dm_learning_signal, TO phx_dm_outcome_event)
+CREATE DIRECTED EDGE phx_dm_learning_updates_recommendation (FROM phx_dm_learning_signal, TO phx_dm_recommendation)
+
+CREATE DIRECTED EDGE phx_dm_memory_for_firm (FROM phx_dm_context_memory, TO phx_dm_firm)
+CREATE DIRECTED EDGE phx_dm_memory_for_division (FROM phx_dm_context_memory, TO phx_dm_division)
+CREATE DIRECTED EDGE phx_dm_memory_for_region (FROM phx_dm_context_memory, TO phx_dm_region)
+CREATE DIRECTED EDGE phx_dm_memory_for_market (FROM phx_dm_context_memory, TO phx_dm_market)
+CREATE DIRECTED EDGE phx_dm_memory_for_advisor (FROM phx_dm_context_memory, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_memory_for_household (FROM phx_dm_context_memory, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_conversation_created_memory (FROM phx_dm_conversation_turn, TO phx_dm_context_memory)
+CREATE DIRECTED EDGE phx_dm_reasoning_used_memory (FROM phx_dm_reasoning_trace, TO phx_dm_context_memory)
+CREATE DIRECTED EDGE phx_dm_reasoning_supports_recommendation (FROM phx_dm_reasoning_trace, TO phx_dm_recommendation)
+CREATE DIRECTED EDGE phx_dm_reasoning_supports_prediction (FROM phx_dm_reasoning_trace, TO phx_dm_prediction_result)
+CREATE DIRECTED EDGE phx_dm_reasoning_supports_opportunity (FROM phx_dm_reasoning_trace, TO phx_dm_opportunity)
+
+CREATE DIRECTED EDGE phx_dm_document_has_chunk (FROM phx_dm_document, TO phx_dm_document_chunk)
+CREATE DIRECTED EDGE phx_dm_document_supports_playbook (FROM phx_dm_document, TO phx_dm_playbook)
+CREATE DIRECTED EDGE phx_dm_playbook_has_best_practice (FROM phx_dm_playbook, TO phx_dm_best_practice)
+CREATE DIRECTED EDGE phx_dm_best_practice_supports_recommendation (FROM phx_dm_best_practice, TO phx_dm_recommendation)
+
+CREATE DIRECTED EDGE phx_dm_feature_for_advisor (FROM phx_dm_feature_snapshot, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_feature_for_household (FROM phx_dm_feature_snapshot, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_feature_for_account (FROM phx_dm_feature_snapshot, TO phx_dm_account)
+
+CREATE DIRECTED EDGE phx_dm_embedding_for_advisor (FROM phx_dm_embedding, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_embedding_for_household (FROM phx_dm_embedding, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_embedding_for_product (FROM phx_dm_embedding, TO phx_dm_product)
+CREATE DIRECTED EDGE phx_dm_similarity_source_advisor (FROM phx_dm_similarity_match, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_similarity_target_advisor (FROM phx_dm_similarity_match, TO phx_dm_advisor)
+CREATE DIRECTED EDGE phx_dm_similarity_source_household (FROM phx_dm_similarity_match, TO phx_dm_household)
+CREATE DIRECTED EDGE phx_dm_similarity_target_household (FROM phx_dm_similarity_match, TO phx_dm_household)
+
+CREATE DIRECTED EDGE phx_dm_notification_for_user (FROM phx_dm_notification, TO phx_dm_persona_user)
+CREATE DIRECTED EDGE phx_dm_glossary_supports_document (FROM phx_dm_business_glossary_term, TO phx_dm_document)

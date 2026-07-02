@@ -1,0 +1,9 @@
+// ============================================================
+// iPerform Insights & Coaching Demo
+// TigerGraph 4.2.2 compatible schema
+// Graph: iperform_insights_coaching_demo
+// Naming convention: all demo objects use phx_dm_ prefix
+// ============================================================
+
+// Run in GSQL/WebShell.
+// This package intentionally avoids dependency on existing graphs.

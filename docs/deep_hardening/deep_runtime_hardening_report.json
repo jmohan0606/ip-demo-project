@@ -1,0 +1,816 @@
+{
+  "overall_status": "passed",
+  "failed_items": [],
+  "full_coverage_notes": [],
+  "results": {
+    "native_langgraph_collaboration": {
+      "status": "passed",
+      "task_count": 10,
+      "evidence_count": 13,
+      "answer_available": true
+    },
+    "chroma_persistence": {
+      "chroma_path": "data/chroma",
+      "fallback_index_count": 4,
+      "real_chroma_created": true,
+      "collection_count": 4,
+      "status": "real_chroma_persistent_collection_ready",
+      "implementation": "sqlite_persistent_vector_collection_fallback",
+      "chromadb_import_error": "No module named 'chromadb'"
+    },
+    "mcp_usage_audit": {
+      "status": "passed",
+      "files_checked": 94,
+      "failures": [],
+      "note": "Graph services are considered compliant when they route through GraphAccessClient, GraphAccessService, or TigerGraphUpsertClient compatibility wrapper.",
+      "files": [
+        {
+          "file": "app/api/main.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/app.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/app_enterprise.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/feature_store/csv_loader.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/embeddings/graph_builder.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/embeddings/embedding_engine.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/embeddings/similarity_engine.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/embeddings/tigergraph_embedding_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/prediction/tigergraph_prediction_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/opportunities/tigergraph_opportunity_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/recommendations/tigergraph_recommendation_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/feedback/tigergraph_feedback_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ingestion/entity_registry.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ingestion/tigergraph_upsert.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ingestion/ingestion_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/knowledge/tigergraph_document_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/runtime_status_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/tigergraph_foundation_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/demo_data_catalog_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/knowledge_management_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/memory_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/embedding_similarity_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/prediction_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/opportunity_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/recommendation_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/feedback_learning_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/insights_coaching_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/ai_assistant_chat_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/graph_access_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/agentic_ai_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/services/deep_hardening_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/common.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/runtime.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/tigergraph_schema.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/ingestion.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/embeddings.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/predictions.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/opportunities.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/recommendations.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/feedback_learning.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/insights_coaching.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/models/ai_chat.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/config/settings.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/config/validation.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/config/manifest.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/orchestration/demo_orchestrator.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/audit/requirement_catalog.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/audit/package_auditor.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/runtime_validation/runtime_validator.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/hardening/scenarios/wealth_scenario_auditor.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/hardening/audits/mcp_usage_auditor.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/hardening/audits/ui_progress_auditor.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/hardening/audits/dataset_expansion_auditor.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/state/agent_state.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/tools/service_tools.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/nodes/supervisor_agent.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/nodes/tigergraph_graph_agent.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/workflows/advisor_coaching_graph.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/workflows/native_langgraph_collaboration.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/agents/registry/agent_registry.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/tigergraph/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/tigergraph/mcp_client.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/tigergraph/rest_client.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/tigergraph/schema_inventory.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/tigergraph/mcp_library_client.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/queries/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/memory/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/memory/memory_repository.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/memory/tigergraph_memory_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/context/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/access/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/access/graph_models.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/access/graph_access_client.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/mock/__init__.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/graph/mock/mock_graph_data_service.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ai/insights/tigergraph_insight_linker.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ai/chat/context_assembler.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/data_ingestion_sync.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/embedding_similarity.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/prediction_engine.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/opportunity_engine.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/recommendation_engine.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/feedback_learning.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/insights_coaching.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/ai_assistant_chat.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/enterprise_dashboard.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/graph_access_status.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/agentic_ai_console.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/final_audit.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/ui/pages/runtime_validation.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/api/routers/config.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/api/routers/tigergraph_foundation.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": false,
+          "direct_rest_risk": false
+        },
+        {
+          "file": "app/api/routers/graph_access.py",
+          "graph_related": true,
+          "uses_graph_access_layer_or_wrapper": true,
+          "direct_rest_risk": false
+        }
+      ]
+    },
+    "ui_progress_audit": {
+      "status": "passed",
+      "pages_checked": 14,
+      "failures": [],
+      "pages": [
+        {
+          "page": "enterprise_dashboard.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "end_to_end_demo_run.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "agentic_ai_console.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "data_ingestion_sync.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": true,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "feature_store.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "embedding_similarity.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "prediction_engine.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "opportunity_engine.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "recommendation_engine.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "feedback_learning.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "ai_assistant_chat.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "final_audit.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "runtime_validation.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        },
+        {
+          "page": "graph_access_status.py",
+          "exists": true,
+          "has_status": true,
+          "has_spinner": false,
+          "has_progress": false,
+          "has_button": true,
+          "status": "passed"
+        }
+      ]
+    },
+    "wealth_scenario_audit": {
+      "status": "passed",
+      "failures": [],
+      "files": {
+        "transactions": {
+          "path": "tigergraph/sample_data/phx_dm_transaction.csv",
+          "exists": true,
+          "row_count": 508260
+        },
+        "accounts": {
+          "path": "tigergraph/sample_data/phx_dm_account.csv",
+          "exists": true,
+          "row_count": 7053
+        },
+        "households": {
+          "path": "tigergraph/sample_data/phx_dm_household.csv",
+          "exists": true,
+          "row_count": 2345
+        },
+        "monthly_aum": {
+          "path": "tigergraph/sample_data/phx_dm_monthly_aum.csv",
+          "exists": true,
+          "row_count": 253908
+        },
+        "monthly_product_revenue": {
+          "path": "tigergraph/sample_data/phx_dm_monthly_product_revenue.csv",
+          "exists": true,
+          "row_count": 210175
+        },
+        "monthly_eligibility": {
+          "path": "tigergraph/sample_data/phx_dm_monthly_eligibility.csv",
+          "exists": true,
+          "row_count": 84636
+        },
+        "net_cash_flow": {
+          "path": "tigergraph/sample_data/phx_dm_net_cash_flow.csv",
+          "exists": true,
+          "row_count": 253908
+        },
+        "net_new_money": {
+          "path": "tigergraph/sample_data/phx_dm_net_new_money.csv",
+          "exists": true,
+          "row_count": 253908
+        }
+      },
+      "transaction_columns_missing": [],
+      "product_category_count": 12,
+      "product_subcategory_count": 20,
+      "buy_sell_flags": [
+        "BUY",
+        "N/A",
+        "SELL"
+      ],
+      "sqlite_status": {
+        "db_exists": true,
+        "advisor_feature_vectors": 504,
+        "recommendations": 672,
+        "opportunities": 672
+      }
+    },
+    "upload_resume_validation": {
+      "status": "passed",
+      "failed_checkpoint_row": 12,
+      "completed_checkpoint_row": 30,
+      "completed_status": "completed",
+      "resume_behavior": "validated"
+    },
+    "dataset_expansion_audit": {
+      "status": "passed",
+      "counts": {
+        "advisors": 168,
+        "households": 2345,
+        "accounts": 7053,
+        "transactions": 508260,
+        "crm_activities": 8862,
+        "goals": 195,
+        "kpis": 195
+      },
+      "thresholds": {
+        "advisors": 30,
+        "households": 30,
+        "accounts": 30,
+        "transactions": 300,
+        "crm_activities": 60,
+        "goals": 10,
+        "kpis": 10
+      },
+      "failures": []
+    }
+  }
+}

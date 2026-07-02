@@ -1,0 +1,4 @@
+from_id,to_id,primary_scope
+U_DDW01,D01,True
+U_DDW02,D02,True
+U_DDW03,D03,True

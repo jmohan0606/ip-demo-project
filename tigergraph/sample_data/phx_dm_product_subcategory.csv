@@ -1,0 +1,21 @@
+product_subcategory_id,product_subcategory_name,product_category_id,status
+PSC001,Standard Brokerage,PC001,Active
+PSC002,Advisory Wrap,PC002,Active
+PSC003,SMA,PC002,Active
+PSC004,UMA,PC002,Active
+PSC005,Equity Mutual Fund,PC003,Active
+PSC006,Bond Mutual Fund,PC003,Active
+PSC007,Index ETF,PC004,Active
+PSC008,Sector ETF,PC004,Active
+PSC009,Common Stock,PC005,Active
+PSC010,Preferred Stock,PC005,Active
+PSC011,Municipal Bonds,PC006,Active
+PSC012,Corporate Bonds,PC006,Active
+PSC013,Treasury Bonds,PC006,Active
+PSC014,Private Equity,PC007,Active
+PSC015,Hedge Fund,PC007,Active
+PSC016,Money Market,PC008,Active
+PSC017,IRA,PC009,Active
+PSC018,Annuity,PC010,Active
+PSC019,Education 529,PC011,Active
+PSC020,Buffered Note,PC012,Active

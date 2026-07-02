@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for edges/phx_dm_product_revenue_for_product.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_product_revenue_for_product FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO EDGE phx_dm_product_revenue_for_product
+    VALUES ($"from_id", $"to_id")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

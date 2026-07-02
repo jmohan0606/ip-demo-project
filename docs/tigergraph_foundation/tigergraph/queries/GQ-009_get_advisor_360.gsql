@@ -1,0 +1,47 @@
+/*
+ * GQ-009 — get_advisor_360
+ * Purpose: Return a connected Advisor 360 view across business, CRM, AGP and AI artifacts.
+ * Outputs: all Advisor 360 connected sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_advisor_360(advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM advisors:a WHERE a.advisor_id == advisor_id;
+    branch = SELECT b FROM advisor:a -(phx_dm_advisor_in_branch)- phx_dm_branch:b;
+    market = SELECT m FROM advisor:a -(phx_dm_advisor_in_market)- phx_dm_market:m;
+    households = SELECT h FROM advisor:a
+        -(phx_dm_advisor_serves_household)- phx_dm_household:h;
+    accounts = SELECT ac FROM households:h
+        -(phx_dm_household_owns_account)- phx_dm_account:ac;
+    crm_activities = SELECT x FROM advisor:a
+        -(rev_phx_dm_activity_for_advisor)- phx_dm_crm_activity:x;
+    crm_leads = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_crm_lead)- phx_dm_crm_lead:x;
+    crm_referrals = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_crm_referral)- phx_dm_crm_referral:x;
+    crm_opportunities = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_crm_opportunity)- phx_dm_crm_opportunity:x;
+    enrollments = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_agp_enrollment)- phx_dm_agp_enrollment:x;
+    predictions = SELECT x FROM advisor:a
+        -(rev_phx_dm_prediction_for_advisor)- phx_dm_prediction_result:x;
+    opportunities = SELECT x FROM advisor:a
+        -(rev_phx_dm_opportunity_for_advisor)- phx_dm_opportunity:x;
+    recommendations = SELECT x FROM advisor:a
+        -(rev_phx_dm_recommendation_for_advisor)- phx_dm_recommendation:x;
+    memories = SELECT x FROM advisor:a
+        -(rev_phx_dm_memory_for_advisor)- phx_dm_context_memory:x;
+    features = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_feature_snapshot)- phx_dm_feature_snapshot:x;
+    embeddings = SELECT x FROM advisor:a
+        -(phx_dm_advisor_has_embedding)- phx_dm_embedding:x;
+
+    PRINT advisor, branch, market, households, accounts,
+        crm_activities, crm_leads, crm_referrals, crm_opportunities,
+        enrollments, predictions, opportunities, recommendations,
+        memories, features, embeddings;
+}
+
+INSTALL QUERY get_advisor_360

@@ -1,0 +1,27 @@
+/*
+ * GQ-020 — get_crm_opportunities
+ * Purpose: Return advisor CRM opportunities with related clients, accounts and products.
+ * Outputs: opportunities with related household, account and product sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_crm_opportunities(advisor_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
+    opportunities = SELECT o FROM advisor:a
+        -(phx_dm_advisor_has_crm_opportunity)- phx_dm_crm_opportunity:o
+        WHERE status == "ALL" OR o.status == status OR o.stage == status
+        ORDER BY o.expected_close_date ASC, o.amount DESC
+        LIMIT result_limit;
+    households = SELECT h FROM opportunities:o
+        -(phx_dm_crm_opportunity_for_household)- phx_dm_household:h;
+    accounts = SELECT ac FROM opportunities:o
+        -(phx_dm_crm_opportunity_for_account)- phx_dm_account:ac;
+    products = SELECT p FROM opportunities:o
+        -(phx_dm_crm_opportunity_for_product)- phx_dm_product:p;
+
+    PRINT advisor, opportunities, households, accounts, products;
+}
+
+INSTALL QUERY get_crm_opportunities

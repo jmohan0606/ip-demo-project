@@ -1,0 +1,1463 @@
+{
+  "status": "PASS",
+  "job_count": 182,
+  "errors": [],
+  "jobs": [
+    {
+      "order": 1,
+      "job": "load_phx_dm_persona_user",
+      "target": "phx_dm_persona_user",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 2,
+      "job": "load_phx_dm_firm",
+      "target": "phx_dm_firm",
+      "kind": "vertex",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 3,
+      "job": "load_phx_dm_division",
+      "target": "phx_dm_division",
+      "kind": "vertex",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 4,
+      "job": "load_phx_dm_region",
+      "target": "phx_dm_region",
+      "kind": "vertex",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 5,
+      "job": "load_phx_dm_market",
+      "target": "phx_dm_market",
+      "kind": "vertex",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 6,
+      "job": "load_phx_dm_branch",
+      "target": "phx_dm_branch",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 7,
+      "job": "load_phx_dm_advisor",
+      "target": "phx_dm_advisor",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 8,
+      "job": "load_phx_dm_rep_pool",
+      "target": "phx_dm_rep_pool",
+      "kind": "vertex",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 9,
+      "job": "load_phx_dm_household",
+      "target": "phx_dm_household",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 10,
+      "job": "load_phx_dm_account",
+      "target": "phx_dm_account",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 11,
+      "job": "load_phx_dm_product_category",
+      "target": "phx_dm_product_category",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 12,
+      "job": "load_phx_dm_product_subcategory",
+      "target": "phx_dm_product_subcategory",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 13,
+      "job": "load_phx_dm_product",
+      "target": "phx_dm_product",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 14,
+      "job": "load_phx_dm_time_period",
+      "target": "phx_dm_time_period",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 15,
+      "job": "load_phx_dm_revenue_transaction",
+      "target": "phx_dm_revenue_transaction",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 16,
+      "job": "load_phx_dm_monthly_aum",
+      "target": "phx_dm_monthly_aum",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 17,
+      "job": "load_phx_dm_monthly_ncf",
+      "target": "phx_dm_monthly_ncf",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 18,
+      "job": "load_phx_dm_monthly_nnm",
+      "target": "phx_dm_monthly_nnm",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 19,
+      "job": "load_phx_dm_monthly_product_revenue",
+      "target": "phx_dm_monthly_product_revenue",
+      "kind": "vertex",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 20,
+      "job": "load_phx_dm_eligibility",
+      "target": "phx_dm_eligibility",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 21,
+      "job": "load_phx_dm_crm_activity",
+      "target": "phx_dm_crm_activity",
+      "kind": "vertex",
+      "columns": 9,
+      "status": "PASS"
+    },
+    {
+      "order": 22,
+      "job": "load_phx_dm_crm_lead",
+      "target": "phx_dm_crm_lead",
+      "kind": "vertex",
+      "columns": 9,
+      "status": "PASS"
+    },
+    {
+      "order": 23,
+      "job": "load_phx_dm_crm_referral",
+      "target": "phx_dm_crm_referral",
+      "kind": "vertex",
+      "columns": 9,
+      "status": "PASS"
+    },
+    {
+      "order": 24,
+      "job": "load_phx_dm_crm_opportunity",
+      "target": "phx_dm_crm_opportunity",
+      "kind": "vertex",
+      "columns": 10,
+      "status": "PASS"
+    },
+    {
+      "order": 25,
+      "job": "load_phx_dm_agp_program",
+      "target": "phx_dm_agp_program",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 26,
+      "job": "load_phx_dm_agp_enrollment",
+      "target": "phx_dm_agp_enrollment",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 27,
+      "job": "load_phx_dm_agp_milestone",
+      "target": "phx_dm_agp_milestone",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 28,
+      "job": "load_phx_dm_agp_milestone_progress",
+      "target": "phx_dm_agp_milestone_progress",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 29,
+      "job": "load_phx_dm_goal",
+      "target": "phx_dm_goal",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 30,
+      "job": "load_phx_dm_kpi",
+      "target": "phx_dm_kpi",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 31,
+      "job": "load_phx_dm_agp_kpi_measurement",
+      "target": "phx_dm_agp_kpi_measurement",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 32,
+      "job": "load_phx_dm_coaching_session",
+      "target": "phx_dm_coaching_session",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 33,
+      "job": "load_phx_dm_manager_review",
+      "target": "phx_dm_manager_review",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 34,
+      "job": "load_phx_dm_feature_snapshot",
+      "target": "phx_dm_feature_snapshot",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 35,
+      "job": "load_phx_dm_embedding",
+      "target": "phx_dm_embedding",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 36,
+      "job": "load_phx_dm_similarity_match",
+      "target": "phx_dm_similarity_match",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 37,
+      "job": "load_phx_dm_prediction_result",
+      "target": "phx_dm_prediction_result",
+      "kind": "vertex",
+      "columns": 12,
+      "status": "PASS"
+    },
+    {
+      "order": 38,
+      "job": "load_phx_dm_opportunity",
+      "target": "phx_dm_opportunity",
+      "kind": "vertex",
+      "columns": 11,
+      "status": "PASS"
+    },
+    {
+      "order": 39,
+      "job": "load_phx_dm_recommendation",
+      "target": "phx_dm_recommendation",
+      "kind": "vertex",
+      "columns": 12,
+      "status": "PASS"
+    },
+    {
+      "order": 40,
+      "job": "load_phx_dm_feedback_event",
+      "target": "phx_dm_feedback_event",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 41,
+      "job": "load_phx_dm_outcome_event",
+      "target": "phx_dm_outcome_event",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 42,
+      "job": "load_phx_dm_learning_signal",
+      "target": "phx_dm_learning_signal",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 43,
+      "job": "load_phx_dm_context_memory",
+      "target": "phx_dm_context_memory",
+      "kind": "vertex",
+      "columns": 11,
+      "status": "PASS"
+    },
+    {
+      "order": 44,
+      "job": "load_phx_dm_conversation_turn",
+      "target": "phx_dm_conversation_turn",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 45,
+      "job": "load_phx_dm_reasoning_trace",
+      "target": "phx_dm_reasoning_trace",
+      "kind": "vertex",
+      "columns": 9,
+      "status": "PASS"
+    },
+    {
+      "order": 46,
+      "job": "load_phx_dm_document",
+      "target": "phx_dm_document",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 47,
+      "job": "load_phx_dm_document_chunk",
+      "target": "phx_dm_document_chunk",
+      "kind": "vertex",
+      "columns": 5,
+      "status": "PASS"
+    },
+    {
+      "order": 48,
+      "job": "load_phx_dm_playbook",
+      "target": "phx_dm_playbook",
+      "kind": "vertex",
+      "columns": 6,
+      "status": "PASS"
+    },
+    {
+      "order": 49,
+      "job": "load_phx_dm_best_practice",
+      "target": "phx_dm_best_practice",
+      "kind": "vertex",
+      "columns": 5,
+      "status": "PASS"
+    },
+    {
+      "order": 50,
+      "job": "load_phx_dm_business_glossary_term",
+      "target": "phx_dm_business_glossary_term",
+      "kind": "vertex",
+      "columns": 5,
+      "status": "PASS"
+    },
+    {
+      "order": 51,
+      "job": "load_phx_dm_notification",
+      "target": "phx_dm_notification",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 52,
+      "job": "load_phx_dm_simulation_scenario",
+      "target": "phx_dm_simulation_scenario",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 53,
+      "job": "load_phx_dm_agent_execution",
+      "target": "phx_dm_agent_execution",
+      "kind": "vertex",
+      "columns": 12,
+      "status": "PASS"
+    },
+    {
+      "order": 54,
+      "job": "load_phx_dm_tool_call",
+      "target": "phx_dm_tool_call",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 55,
+      "job": "load_phx_dm_evaluation_result",
+      "target": "phx_dm_evaluation_result",
+      "kind": "vertex",
+      "columns": 8,
+      "status": "PASS"
+    },
+    {
+      "order": 56,
+      "job": "load_phx_dm_guardrail_event",
+      "target": "phx_dm_guardrail_event",
+      "kind": "vertex",
+      "columns": 7,
+      "status": "PASS"
+    },
+    {
+      "order": 57,
+      "job": "load_phx_dm_division_in_firm",
+      "target": "phx_dm_division_in_firm",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 58,
+      "job": "load_phx_dm_region_in_division",
+      "target": "phx_dm_region_in_division",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 59,
+      "job": "load_phx_dm_market_in_region",
+      "target": "phx_dm_market_in_region",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 60,
+      "job": "load_phx_dm_branch_in_market",
+      "target": "phx_dm_branch_in_market",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 61,
+      "job": "load_phx_dm_advisor_in_branch",
+      "target": "phx_dm_advisor_in_branch",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 62,
+      "job": "load_phx_dm_advisor_in_market",
+      "target": "phx_dm_advisor_in_market",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 63,
+      "job": "load_phx_dm_advisor_in_rep_pool",
+      "target": "phx_dm_advisor_in_rep_pool",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 64,
+      "job": "load_phx_dm_user_scoped_to_firm",
+      "target": "phx_dm_user_scoped_to_firm",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 65,
+      "job": "load_phx_dm_user_scoped_to_division",
+      "target": "phx_dm_user_scoped_to_division",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 66,
+      "job": "load_phx_dm_user_scoped_to_region",
+      "target": "phx_dm_user_scoped_to_region",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 67,
+      "job": "load_phx_dm_user_scoped_to_market",
+      "target": "phx_dm_user_scoped_to_market",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 68,
+      "job": "load_phx_dm_user_scoped_to_branch",
+      "target": "phx_dm_user_scoped_to_branch",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 69,
+      "job": "load_phx_dm_user_represents_advisor",
+      "target": "phx_dm_user_represents_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 70,
+      "job": "load_phx_dm_ddw_manages_rdw",
+      "target": "phx_dm_ddw_manages_rdw",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 71,
+      "job": "load_phx_dm_rdw_manages_mdw",
+      "target": "phx_dm_rdw_manages_mdw",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 72,
+      "job": "load_phx_dm_mdw_manages_advisor",
+      "target": "phx_dm_mdw_manages_advisor",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 73,
+      "job": "load_phx_dm_advisor_serves_household",
+      "target": "phx_dm_advisor_serves_household",
+      "kind": "edge",
+      "columns": 4,
+      "status": "PASS"
+    },
+    {
+      "order": 74,
+      "job": "load_phx_dm_household_owns_account",
+      "target": "phx_dm_household_owns_account",
+      "kind": "edge",
+      "columns": 3,
+      "status": "PASS"
+    },
+    {
+      "order": 75,
+      "job": "load_phx_dm_product_in_subcategory",
+      "target": "phx_dm_product_in_subcategory",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 76,
+      "job": "load_phx_dm_subcategory_in_category",
+      "target": "phx_dm_subcategory_in_category",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 77,
+      "job": "load_phx_dm_account_holds_product",
+      "target": "phx_dm_account_holds_product",
+      "kind": "edge",
+      "columns": 5,
+      "status": "PASS"
+    },
+    {
+      "order": 78,
+      "job": "load_phx_dm_transaction_for_advisor",
+      "target": "phx_dm_transaction_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 79,
+      "job": "load_phx_dm_transaction_for_household",
+      "target": "phx_dm_transaction_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 80,
+      "job": "load_phx_dm_transaction_for_account",
+      "target": "phx_dm_transaction_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 81,
+      "job": "load_phx_dm_transaction_for_product",
+      "target": "phx_dm_transaction_for_product",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 82,
+      "job": "load_phx_dm_transaction_in_period",
+      "target": "phx_dm_transaction_in_period",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 83,
+      "job": "load_phx_dm_aum_for_advisor",
+      "target": "phx_dm_aum_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 84,
+      "job": "load_phx_dm_aum_in_period",
+      "target": "phx_dm_aum_in_period",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 85,
+      "job": "load_phx_dm_ncf_for_advisor",
+      "target": "phx_dm_ncf_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 86,
+      "job": "load_phx_dm_ncf_in_period",
+      "target": "phx_dm_ncf_in_period",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 87,
+      "job": "load_phx_dm_nnm_for_advisor",
+      "target": "phx_dm_nnm_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 88,
+      "job": "load_phx_dm_nnm_in_period",
+      "target": "phx_dm_nnm_in_period",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 89,
+      "job": "load_phx_dm_product_revenue_for_advisor",
+      "target": "phx_dm_product_revenue_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 90,
+      "job": "load_phx_dm_product_revenue_for_product",
+      "target": "phx_dm_product_revenue_for_product",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 91,
+      "job": "load_phx_dm_product_revenue_in_period",
+      "target": "phx_dm_product_revenue_in_period",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 92,
+      "job": "load_phx_dm_eligibility_for_advisor",
+      "target": "phx_dm_eligibility_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 93,
+      "job": "load_phx_dm_eligibility_for_household",
+      "target": "phx_dm_eligibility_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 94,
+      "job": "load_phx_dm_eligibility_for_product",
+      "target": "phx_dm_eligibility_for_product",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 95,
+      "job": "load_phx_dm_activity_for_advisor",
+      "target": "phx_dm_activity_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 96,
+      "job": "load_phx_dm_activity_for_household",
+      "target": "phx_dm_activity_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 97,
+      "job": "load_phx_dm_activity_for_account",
+      "target": "phx_dm_activity_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 98,
+      "job": "load_phx_dm_advisor_has_crm_lead",
+      "target": "phx_dm_advisor_has_crm_lead",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 99,
+      "job": "load_phx_dm_lead_for_household",
+      "target": "phx_dm_lead_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 100,
+      "job": "load_phx_dm_lead_generates_crm_opportunity",
+      "target": "phx_dm_lead_generates_crm_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 101,
+      "job": "load_phx_dm_advisor_has_crm_referral",
+      "target": "phx_dm_advisor_has_crm_referral",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 102,
+      "job": "load_phx_dm_referral_for_household",
+      "target": "phx_dm_referral_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 103,
+      "job": "load_phx_dm_referral_generates_crm_opportunity",
+      "target": "phx_dm_referral_generates_crm_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 104,
+      "job": "load_phx_dm_advisor_has_crm_opportunity",
+      "target": "phx_dm_advisor_has_crm_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 105,
+      "job": "load_phx_dm_crm_opportunity_for_household",
+      "target": "phx_dm_crm_opportunity_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 106,
+      "job": "load_phx_dm_crm_opportunity_for_account",
+      "target": "phx_dm_crm_opportunity_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 107,
+      "job": "load_phx_dm_crm_opportunity_for_product",
+      "target": "phx_dm_crm_opportunity_for_product",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 108,
+      "job": "load_phx_dm_advisor_has_agp_enrollment",
+      "target": "phx_dm_advisor_has_agp_enrollment",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 109,
+      "job": "load_phx_dm_enrollment_in_agp_program",
+      "target": "phx_dm_enrollment_in_agp_program",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 110,
+      "job": "load_phx_dm_agp_program_has_milestone",
+      "target": "phx_dm_agp_program_has_milestone",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 111,
+      "job": "load_phx_dm_enrollment_has_milestone_progress",
+      "target": "phx_dm_enrollment_has_milestone_progress",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 112,
+      "job": "load_phx_dm_progress_for_milestone",
+      "target": "phx_dm_progress_for_milestone",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 113,
+      "job": "load_phx_dm_progress_has_kpi_measurement",
+      "target": "phx_dm_progress_has_kpi_measurement",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 114,
+      "job": "load_phx_dm_measurement_for_kpi",
+      "target": "phx_dm_measurement_for_kpi",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 115,
+      "job": "load_phx_dm_advisor_has_goal",
+      "target": "phx_dm_advisor_has_goal",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 116,
+      "job": "load_phx_dm_advisor_has_kpi",
+      "target": "phx_dm_advisor_has_kpi",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 117,
+      "job": "load_phx_dm_coaching_for_advisor",
+      "target": "phx_dm_coaching_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 118,
+      "job": "load_phx_dm_coaching_for_enrollment",
+      "target": "phx_dm_coaching_for_enrollment",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 119,
+      "job": "load_phx_dm_review_for_advisor",
+      "target": "phx_dm_review_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 120,
+      "job": "load_phx_dm_review_for_enrollment",
+      "target": "phx_dm_review_for_enrollment",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 121,
+      "job": "load_phx_dm_advisor_has_feature_snapshot",
+      "target": "phx_dm_advisor_has_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 122,
+      "job": "load_phx_dm_advisor_has_embedding",
+      "target": "phx_dm_advisor_has_embedding",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 123,
+      "job": "load_phx_dm_advisor_has_similarity_match",
+      "target": "phx_dm_advisor_has_similarity_match",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 124,
+      "job": "load_phx_dm_household_has_feature_snapshot",
+      "target": "phx_dm_household_has_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 125,
+      "job": "load_phx_dm_household_has_embedding",
+      "target": "phx_dm_household_has_embedding",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 126,
+      "job": "load_phx_dm_household_has_similarity_match",
+      "target": "phx_dm_household_has_similarity_match",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 127,
+      "job": "load_phx_dm_account_has_feature_snapshot",
+      "target": "phx_dm_account_has_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 128,
+      "job": "load_phx_dm_account_has_embedding",
+      "target": "phx_dm_account_has_embedding",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 129,
+      "job": "load_phx_dm_account_has_similarity_match",
+      "target": "phx_dm_account_has_similarity_match",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 130,
+      "job": "load_phx_dm_product_has_feature_snapshot",
+      "target": "phx_dm_product_has_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 131,
+      "job": "load_phx_dm_product_has_embedding",
+      "target": "phx_dm_product_has_embedding",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 132,
+      "job": "load_phx_dm_product_has_similarity_match",
+      "target": "phx_dm_product_has_similarity_match",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 133,
+      "job": "load_phx_dm_similarity_match_targets_advisor",
+      "target": "phx_dm_similarity_match_targets_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 134,
+      "job": "load_phx_dm_similarity_match_targets_household",
+      "target": "phx_dm_similarity_match_targets_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 135,
+      "job": "load_phx_dm_similarity_match_targets_account",
+      "target": "phx_dm_similarity_match_targets_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 136,
+      "job": "load_phx_dm_similarity_match_targets_product",
+      "target": "phx_dm_similarity_match_targets_product",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 137,
+      "job": "load_phx_dm_prediction_for_advisor",
+      "target": "phx_dm_prediction_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 138,
+      "job": "load_phx_dm_prediction_for_household",
+      "target": "phx_dm_prediction_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 139,
+      "job": "load_phx_dm_prediction_for_account",
+      "target": "phx_dm_prediction_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 140,
+      "job": "load_phx_dm_opportunity_for_advisor",
+      "target": "phx_dm_opportunity_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 141,
+      "job": "load_phx_dm_opportunity_for_household",
+      "target": "phx_dm_opportunity_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 142,
+      "job": "load_phx_dm_opportunity_for_account",
+      "target": "phx_dm_opportunity_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 143,
+      "job": "load_phx_dm_recommendation_for_advisor",
+      "target": "phx_dm_recommendation_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 144,
+      "job": "load_phx_dm_recommendation_for_household",
+      "target": "phx_dm_recommendation_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 145,
+      "job": "load_phx_dm_recommendation_for_account",
+      "target": "phx_dm_recommendation_for_account",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 146,
+      "job": "load_phx_dm_prediction_uses_feature_snapshot",
+      "target": "phx_dm_prediction_uses_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 147,
+      "job": "load_phx_dm_opportunity_uses_feature_snapshot",
+      "target": "phx_dm_opportunity_uses_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 148,
+      "job": "load_phx_dm_recommendation_uses_feature_snapshot",
+      "target": "phx_dm_recommendation_uses_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 149,
+      "job": "load_phx_dm_opportunity_derived_from_prediction",
+      "target": "phx_dm_opportunity_derived_from_prediction",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 150,
+      "job": "load_phx_dm_ai_opportunity_derived_from_crm_opportunity",
+      "target": "phx_dm_ai_opportunity_derived_from_crm_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 151,
+      "job": "load_phx_dm_recommendation_addresses_opportunity",
+      "target": "phx_dm_recommendation_addresses_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 152,
+      "job": "load_phx_dm_recommendation_based_on_prediction",
+      "target": "phx_dm_recommendation_based_on_prediction",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 153,
+      "job": "load_phx_dm_recommendation_uses_playbook",
+      "target": "phx_dm_recommendation_uses_playbook",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 154,
+      "job": "load_phx_dm_feedback_for_recommendation",
+      "target": "phx_dm_feedback_for_recommendation",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 155,
+      "job": "load_phx_dm_outcome_for_feedback",
+      "target": "phx_dm_outcome_for_feedback",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 156,
+      "job": "load_phx_dm_learning_from_outcome",
+      "target": "phx_dm_learning_from_outcome",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 157,
+      "job": "load_phx_dm_learning_updates_recommendation",
+      "target": "phx_dm_learning_updates_recommendation",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 158,
+      "job": "load_phx_dm_memory_for_firm",
+      "target": "phx_dm_memory_for_firm",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 159,
+      "job": "load_phx_dm_memory_for_division",
+      "target": "phx_dm_memory_for_division",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 160,
+      "job": "load_phx_dm_memory_for_region",
+      "target": "phx_dm_memory_for_region",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 161,
+      "job": "load_phx_dm_memory_for_market",
+      "target": "phx_dm_memory_for_market",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 162,
+      "job": "load_phx_dm_memory_for_branch",
+      "target": "phx_dm_memory_for_branch",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 163,
+      "job": "load_phx_dm_memory_for_advisor",
+      "target": "phx_dm_memory_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 164,
+      "job": "load_phx_dm_memory_for_household",
+      "target": "phx_dm_memory_for_household",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 165,
+      "job": "load_phx_dm_conversation_creates_memory",
+      "target": "phx_dm_conversation_creates_memory",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 166,
+      "job": "load_phx_dm_reasoning_uses_memory",
+      "target": "phx_dm_reasoning_uses_memory",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 167,
+      "job": "load_phx_dm_reasoning_uses_feature_snapshot",
+      "target": "phx_dm_reasoning_uses_feature_snapshot",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 168,
+      "job": "load_phx_dm_reasoning_uses_document_chunk",
+      "target": "phx_dm_reasoning_uses_document_chunk",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 169,
+      "job": "load_phx_dm_reasoning_uses_crm_activity",
+      "target": "phx_dm_reasoning_uses_crm_activity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 170,
+      "job": "load_phx_dm_reasoning_uses_transaction",
+      "target": "phx_dm_reasoning_uses_transaction",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 171,
+      "job": "load_phx_dm_reasoning_for_prediction",
+      "target": "phx_dm_reasoning_for_prediction",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 172,
+      "job": "load_phx_dm_reasoning_for_opportunity",
+      "target": "phx_dm_reasoning_for_opportunity",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 173,
+      "job": "load_phx_dm_reasoning_for_recommendation",
+      "target": "phx_dm_reasoning_for_recommendation",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 174,
+      "job": "load_phx_dm_document_has_chunk",
+      "target": "phx_dm_document_has_chunk",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 175,
+      "job": "load_phx_dm_playbook_has_best_practice",
+      "target": "phx_dm_playbook_has_best_practice",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 176,
+      "job": "load_phx_dm_notification_for_user",
+      "target": "phx_dm_notification_for_user",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 177,
+      "job": "load_phx_dm_scenario_for_user",
+      "target": "phx_dm_scenario_for_user",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 178,
+      "job": "load_phx_dm_scenario_for_advisor",
+      "target": "phx_dm_scenario_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 179,
+      "job": "load_phx_dm_execution_has_tool_call",
+      "target": "phx_dm_execution_has_tool_call",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 180,
+      "job": "load_phx_dm_execution_has_evaluation",
+      "target": "phx_dm_execution_has_evaluation",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 181,
+      "job": "load_phx_dm_execution_has_guardrail_event",
+      "target": "phx_dm_execution_has_guardrail_event",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 182,
+      "job": "load_phx_dm_execution_generated_reasoning",
+      "target": "phx_dm_execution_generated_reasoning",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    }
+  ]
+}

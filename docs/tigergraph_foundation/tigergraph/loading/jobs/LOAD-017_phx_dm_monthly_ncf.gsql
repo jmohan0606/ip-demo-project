@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_monthly_ncf.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_monthly_ncf FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_monthly_ncf
+    VALUES ($"ncf_id", $"month_end", $"ncf_amount")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

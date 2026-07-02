@@ -1,0 +1,104 @@
+/*
+ * GQ-039 — get_agp_program_cohort_summary
+ * Purpose: Aggregate AGP cohort enrollment and milestone status within an organizational scope.
+ * Outputs: cohort counts, milestone summary and member sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_agp_program_cohort_summary(program_id STRING, cohort STRING, scope_type STRING, scope_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    GroupByAccum<STRING milestone_status,
+        SumAccum<INT> progress_count,
+        SumAccum<DOUBLE> attainment_sum,
+        SumAccum<DOUBLE> risk_sum> @@milestone_summary;
+    SumAccum<INT> @@enrollment_count;
+
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    direct_advisors = SELECT a
+        FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+
+    selected_branches = SELECT b
+        FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a
+        FROM selected_branches:b
+            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+
+    selected_markets = SELECT m
+        FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a
+        FROM selected_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_regions = SELECT r
+        FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m
+        FROM selected_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    region_advisors = SELECT a
+        FROM region_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_divisions = SELECT d
+        FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r
+        FROM selected_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    division_markets = SELECT m
+        FROM division_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    division_advisors = SELECT a
+        FROM division_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_firms = SELECT f
+        FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d
+        FROM selected_firms:f
+            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    firm_regions = SELECT r
+        FROM firm_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    firm_markets = SELECT m
+        FROM firm_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    firm_advisors = SELECT a
+        FROM firm_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+
+    enrollments = SELECT e FROM advisors:a
+        -(phx_dm_advisor_has_agp_enrollment)- phx_dm_agp_enrollment:e
+        WHERE cohort == "ALL" OR e.cohort == cohort;
+    programs = SELECT p FROM enrollments:e
+        -(phx_dm_enrollment_in_agp_program)- phx_dm_agp_program:p
+        WHERE p.program_id == program_id;
+    scoped_enrollments = SELECT e FROM programs:p
+        -(rev_phx_dm_enrollment_in_agp_program)- enrollments:e
+        ACCUM @@enrollment_count += 1;
+    progress = SELECT x FROM scoped_enrollments:e
+        -(phx_dm_enrollment_has_milestone_progress)- phx_dm_agp_milestone_progress:x
+        ACCUM @@milestone_summary +=
+            (x.status -> 1, x.attainment_pct, x.risk_score);
+
+    PRINT program_id, cohort, scope_type, scope_id,
+        @@enrollment_count AS enrollment_count,
+        @@milestone_summary AS milestone_summary,
+        programs, scoped_enrollments, progress;
+}
+
+INSTALL QUERY get_agp_program_cohort_summary

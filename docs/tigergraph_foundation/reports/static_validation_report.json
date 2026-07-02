@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "code": "VERTEX_COUNT",
+      "message": "56 vertex types catalogued",
+      "count": 56
+    },
+    {
+      "code": "EDGE_COUNT",
+      "message": "126 directed edge types catalogued",
+      "count": 126
+    },
+    {
+      "code": "REVERSE_EDGE_COUNT",
+      "message": "126 explicit reverse edges catalogued",
+      "count": 126
+    },
+    {
+      "code": "SCHEMA_DECLARATIONS",
+      "message": "Schema declarations and graph membership checked",
+      "count": null
+    },
+    {
+      "code": "MANIFEST_COUNT",
+      "message": "182 manifest-controlled CSV targets",
+      "count": 182
+    },
+    {
+      "code": "CSV_VALIDATION",
+      "message": "Validated 182 CSV files and 109328 data rows",
+      "count": 109328
+    },
+    {
+      "code": "QUERY_COUNT",
+      "message": "43 implemented queries and test cases",
+      "count": 43
+    },
+    {
+      "code": "QUERY_STATIC",
+      "message": "Query placeholders, declarations, edge names, test cases and delimiters checked",
+      "count": null
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "vertices": 56,
+    "edges": 126,
+    "reverse_edges": 126,
+    "manifest_files": 182,
+    "data_rows": 109328,
+    "queries": 43
+  }
+}

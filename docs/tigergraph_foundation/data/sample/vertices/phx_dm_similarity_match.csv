@@ -1,0 +1,213 @@
+similarity_id,entity_type,source_entity_id,target_entity_id,model_version,similarity_score,reason_json,generated_at
+SIM_A001_A010,ADVISOR,A001,A010,v1.0,0.73,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A002_A011,ADVISOR,A002,A011,v1.0,0.74,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A003_A012,ADVISOR,A003,A012,v1.0,0.75,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A004_A013,ADVISOR,A004,A013,v1.0,0.76,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A005_A014,ADVISOR,A005,A014,v1.0,0.77,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A006_A015,ADVISOR,A006,A015,v1.0,0.78,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A007_A016,ADVISOR,A007,A016,v1.0,0.79,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A008_A017,ADVISOR,A008,A017,v1.0,0.8,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A009_A018,ADVISOR,A009,A018,v1.0,0.81,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A010_A019,ADVISOR,A010,A019,v1.0,0.82,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A011_A020,ADVISOR,A011,A020,v1.0,0.83,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A012_A021,ADVISOR,A012,A021,v1.0,0.84,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A013_A022,ADVISOR,A013,A022,v1.0,0.85,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A014_A023,ADVISOR,A014,A023,v1.0,0.86,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A015_A024,ADVISOR,A015,A024,v1.0,0.87,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A016_A025,ADVISOR,A016,A025,v1.0,0.88,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A017_A026,ADVISOR,A017,A026,v1.0,0.89,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A018_A027,ADVISOR,A018,A027,v1.0,0.9,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A019_A028,ADVISOR,A019,A028,v1.0,0.91,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A020_A029,ADVISOR,A020,A029,v1.0,0.72,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A021_A030,ADVISOR,A021,A030,v1.0,0.73,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A022_A031,ADVISOR,A022,A031,v1.0,0.74,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A023_A032,ADVISOR,A023,A032,v1.0,0.75,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A024_A033,ADVISOR,A024,A033,v1.0,0.76,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A025_A034,ADVISOR,A025,A034,v1.0,0.77,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A026_A035,ADVISOR,A026,A035,v1.0,0.78,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A027_A036,ADVISOR,A027,A036,v1.0,0.79,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A028_A037,ADVISOR,A028,A037,v1.0,0.8,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A029_A038,ADVISOR,A029,A038,v1.0,0.81,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A030_A039,ADVISOR,A030,A039,v1.0,0.82,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A031_A040,ADVISOR,A031,A040,v1.0,0.83,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A032_A041,ADVISOR,A032,A041,v1.0,0.84,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A033_A042,ADVISOR,A033,A042,v1.0,0.85,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A034_A043,ADVISOR,A034,A043,v1.0,0.86,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A035_A044,ADVISOR,A035,A044,v1.0,0.87,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A036_A045,ADVISOR,A036,A045,v1.0,0.88,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A037_A046,ADVISOR,A037,A046,v1.0,0.89,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A038_A047,ADVISOR,A038,A047,v1.0,0.9,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A039_A048,ADVISOR,A039,A048,v1.0,0.91,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A040_A049,ADVISOR,A040,A049,v1.0,0.72,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A041_A050,ADVISOR,A041,A050,v1.0,0.73,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A042_A051,ADVISOR,A042,A051,v1.0,0.74,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A043_A052,ADVISOR,A043,A052,v1.0,0.75,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A044_A053,ADVISOR,A044,A053,v1.0,0.76,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A045_A054,ADVISOR,A045,A054,v1.0,0.77,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A046_A055,ADVISOR,A046,A055,v1.0,0.78,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A047_A056,ADVISOR,A047,A056,v1.0,0.79,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A048_A057,ADVISOR,A048,A057,v1.0,0.8,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A049_A058,ADVISOR,A049,A058,v1.0,0.81,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A050_A059,ADVISOR,A050,A059,v1.0,0.82,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A051_A060,ADVISOR,A051,A060,v1.0,0.83,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A052_A001,ADVISOR,A052,A001,v1.0,0.84,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A053_A002,ADVISOR,A053,A002,v1.0,0.85,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A054_A003,ADVISOR,A054,A003,v1.0,0.86,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A055_A004,ADVISOR,A055,A004,v1.0,0.87,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A056_A005,ADVISOR,A056,A005,v1.0,0.88,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A057_A006,ADVISOR,A057,A006,v1.0,0.89,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A058_A007,ADVISOR,A058,A007,v1.0,0.9,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A059_A008,ADVISOR,A059,A008,v1.0,0.91,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_A060_A009,ADVISOR,A060,A009,v1.0,0.72,"[""AUM range"", ""product mix"", ""CRM activity"", ""tenure""]",2026-07-01
+SIM_HH_H0001_H0009,HOUSEHOLD,H0001,H0009,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0002_H0010,HOUSEHOLD,H0002,H0010,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0003_H0011,HOUSEHOLD,H0003,H0011,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0004_H0012,HOUSEHOLD,H0004,H0012,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0005_H0013,HOUSEHOLD,H0005,H0013,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0006_H0014,HOUSEHOLD,H0006,H0014,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0007_H0015,HOUSEHOLD,H0007,H0015,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0008_H0016,HOUSEHOLD,H0008,H0016,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0009_H0017,HOUSEHOLD,H0009,H0017,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0010_H0018,HOUSEHOLD,H0010,H0018,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0011_H0019,HOUSEHOLD,H0011,H0019,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0012_H0020,HOUSEHOLD,H0012,H0020,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0013_H0021,HOUSEHOLD,H0013,H0021,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0014_H0022,HOUSEHOLD,H0014,H0022,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0015_H0023,HOUSEHOLD,H0015,H0023,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0016_H0024,HOUSEHOLD,H0016,H0024,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0017_H0025,HOUSEHOLD,H0017,H0025,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0018_H0026,HOUSEHOLD,H0018,H0026,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0019_H0027,HOUSEHOLD,H0019,H0027,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0020_H0028,HOUSEHOLD,H0020,H0028,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0021_H0029,HOUSEHOLD,H0021,H0029,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0022_H0030,HOUSEHOLD,H0022,H0030,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0023_H0031,HOUSEHOLD,H0023,H0031,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0024_H0032,HOUSEHOLD,H0024,H0032,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0025_H0033,HOUSEHOLD,H0025,H0033,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0026_H0034,HOUSEHOLD,H0026,H0034,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0027_H0035,HOUSEHOLD,H0027,H0035,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0028_H0036,HOUSEHOLD,H0028,H0036,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0029_H0037,HOUSEHOLD,H0029,H0037,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0030_H0038,HOUSEHOLD,H0030,H0038,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0031_H0039,HOUSEHOLD,H0031,H0039,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0032_H0040,HOUSEHOLD,H0032,H0040,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0033_H0041,HOUSEHOLD,H0033,H0041,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0034_H0042,HOUSEHOLD,H0034,H0042,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0035_H0043,HOUSEHOLD,H0035,H0043,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0036_H0044,HOUSEHOLD,H0036,H0044,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0037_H0045,HOUSEHOLD,H0037,H0045,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0038_H0046,HOUSEHOLD,H0038,H0046,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0039_H0047,HOUSEHOLD,H0039,H0047,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0040_H0048,HOUSEHOLD,H0040,H0048,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0041_H0049,HOUSEHOLD,H0041,H0049,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0042_H0050,HOUSEHOLD,H0042,H0050,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0043_H0051,HOUSEHOLD,H0043,H0051,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0044_H0052,HOUSEHOLD,H0044,H0052,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0045_H0053,HOUSEHOLD,H0045,H0053,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0046_H0054,HOUSEHOLD,H0046,H0054,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0047_H0055,HOUSEHOLD,H0047,H0055,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0048_H0056,HOUSEHOLD,H0048,H0056,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0049_H0057,HOUSEHOLD,H0049,H0057,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0050_H0058,HOUSEHOLD,H0050,H0058,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0051_H0059,HOUSEHOLD,H0051,H0059,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0052_H0060,HOUSEHOLD,H0052,H0060,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0053_H0001,HOUSEHOLD,H0053,H0001,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0054_H0002,HOUSEHOLD,H0054,H0002,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0055_H0003,HOUSEHOLD,H0055,H0003,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0056_H0004,HOUSEHOLD,H0056,H0004,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0057_H0005,HOUSEHOLD,H0057,H0005,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0058_H0006,HOUSEHOLD,H0058,H0006,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0059_H0007,HOUSEHOLD,H0059,H0007,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_HH_H0060_H0008,HOUSEHOLD,H0060,H0008,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00001_AC00009,ACCOUNT,AC00001,AC00009,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00002_AC00010,ACCOUNT,AC00002,AC00010,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00003_AC00011,ACCOUNT,AC00003,AC00011,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00004_AC00012,ACCOUNT,AC00004,AC00012,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00005_AC00013,ACCOUNT,AC00005,AC00013,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00006_AC00014,ACCOUNT,AC00006,AC00014,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00007_AC00015,ACCOUNT,AC00007,AC00015,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00008_AC00016,ACCOUNT,AC00008,AC00016,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00009_AC00017,ACCOUNT,AC00009,AC00017,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00010_AC00018,ACCOUNT,AC00010,AC00018,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00011_AC00019,ACCOUNT,AC00011,AC00019,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00012_AC00020,ACCOUNT,AC00012,AC00020,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00013_AC00021,ACCOUNT,AC00013,AC00021,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00014_AC00022,ACCOUNT,AC00014,AC00022,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00015_AC00023,ACCOUNT,AC00015,AC00023,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00016_AC00024,ACCOUNT,AC00016,AC00024,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00017_AC00025,ACCOUNT,AC00017,AC00025,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00018_AC00026,ACCOUNT,AC00018,AC00026,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00019_AC00027,ACCOUNT,AC00019,AC00027,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00020_AC00028,ACCOUNT,AC00020,AC00028,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00021_AC00029,ACCOUNT,AC00021,AC00029,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00022_AC00030,ACCOUNT,AC00022,AC00030,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00023_AC00031,ACCOUNT,AC00023,AC00031,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00024_AC00032,ACCOUNT,AC00024,AC00032,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00025_AC00033,ACCOUNT,AC00025,AC00033,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00026_AC00034,ACCOUNT,AC00026,AC00034,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00027_AC00035,ACCOUNT,AC00027,AC00035,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00028_AC00036,ACCOUNT,AC00028,AC00036,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00029_AC00037,ACCOUNT,AC00029,AC00037,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00030_AC00038,ACCOUNT,AC00030,AC00038,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00031_AC00039,ACCOUNT,AC00031,AC00039,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00032_AC00040,ACCOUNT,AC00032,AC00040,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00033_AC00041,ACCOUNT,AC00033,AC00041,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00034_AC00042,ACCOUNT,AC00034,AC00042,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00035_AC00043,ACCOUNT,AC00035,AC00043,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00036_AC00044,ACCOUNT,AC00036,AC00044,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00037_AC00045,ACCOUNT,AC00037,AC00045,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00038_AC00046,ACCOUNT,AC00038,AC00046,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00039_AC00047,ACCOUNT,AC00039,AC00047,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00040_AC00048,ACCOUNT,AC00040,AC00048,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00041_AC00049,ACCOUNT,AC00041,AC00049,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00042_AC00050,ACCOUNT,AC00042,AC00050,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00043_AC00051,ACCOUNT,AC00043,AC00051,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00044_AC00052,ACCOUNT,AC00044,AC00052,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00045_AC00053,ACCOUNT,AC00045,AC00053,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00046_AC00054,ACCOUNT,AC00046,AC00054,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00047_AC00055,ACCOUNT,AC00047,AC00055,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00048_AC00056,ACCOUNT,AC00048,AC00056,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00049_AC00057,ACCOUNT,AC00049,AC00057,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00050_AC00058,ACCOUNT,AC00050,AC00058,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00051_AC00059,ACCOUNT,AC00051,AC00059,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00052_AC00060,ACCOUNT,AC00052,AC00060,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00053_AC00001,ACCOUNT,AC00053,AC00001,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00054_AC00002,ACCOUNT,AC00054,AC00002,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00055_AC00003,ACCOUNT,AC00055,AC00003,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00056_AC00004,ACCOUNT,AC00056,AC00004,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00057_AC00005,ACCOUNT,AC00057,AC00005,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00058_AC00006,ACCOUNT,AC00058,AC00006,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00059_AC00007,ACCOUNT,AC00059,AC00007,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_AC_AC00060_AC00008,ACCOUNT,AC00060,AC00008,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P001_P009,PRODUCT,P001,P009,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P002_P010,PRODUCT,P002,P010,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P003_P011,PRODUCT,P003,P011,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P004_P012,PRODUCT,P004,P012,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P005_P013,PRODUCT,P005,P013,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P006_P014,PRODUCT,P006,P014,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P007_P015,PRODUCT,P007,P015,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P008_P016,PRODUCT,P008,P016,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P009_P017,PRODUCT,P009,P017,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P010_P018,PRODUCT,P010,P018,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P011_P019,PRODUCT,P011,P019,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P012_P020,PRODUCT,P012,P020,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P013_P021,PRODUCT,P013,P021,v1.1,0.856,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P014_P022,PRODUCT,P014,P022,v1.1,0.868,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P015_P023,PRODUCT,P015,P023,v1.1,0.88,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P016_P024,PRODUCT,P016,P024,v1.1,0.892,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P017_P025,PRODUCT,P017,P025,v1.1,0.904,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P018_P026,PRODUCT,P018,P026,v1.1,0.916,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P019_P027,PRODUCT,P019,P027,v1.1,0.928,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P020_P028,PRODUCT,P020,P028,v1.1,0.7,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P021_P029,PRODUCT,P021,P029,v1.1,0.712,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P022_P030,PRODUCT,P022,P030,v1.1,0.724,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P023_P031,PRODUCT,P023,P031,v1.1,0.736,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P024_P032,PRODUCT,P024,P032,v1.1,0.748,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P025_P001,PRODUCT,P025,P001,v1.1,0.76,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P026_P002,PRODUCT,P026,P002,v1.1,0.772,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P027_P003,PRODUCT,P027,P003,v1.1,0.784,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P028_P004,PRODUCT,P028,P004,v1.1,0.796,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P029_P005,PRODUCT,P029,P005,v1.1,0.808,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P030_P006,PRODUCT,P030,P006,v1.1,0.82,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P031_P007,PRODUCT,P031,P007,v1.1,0.832,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01
+SIM_PR_P032_P008,PRODUCT,P032,P008,v1.1,0.844,"[""normalized feature distance"", ""graph neighborhood overlap"", ""behavior profile""]",2026-07-01

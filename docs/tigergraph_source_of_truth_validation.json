@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "graph_name": "iperform_insights_coaching_demo",
+  "source_of_truth": "tigergraph/",
+  "gsql_folder_exists": false,
+  "missing_vertices": [],
+  "missing_edges": [],
+  "missing_queries": [],
+  "non_prefixed_schema_hits": [],
+  "vertex_count": 23,
+  "edge_count": 20,
+  "query_count": 6
+}

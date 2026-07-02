@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_agp_enrollment.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_agp_enrollment FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_agp_enrollment
+    VALUES ($"enrollment_id", $"cohort", $"start_date", $"expected_end_date", $"actual_end_date", $"current_program_month", $"status")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

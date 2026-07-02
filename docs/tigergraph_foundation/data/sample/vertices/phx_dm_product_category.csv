@@ -1,0 +1,9 @@
+category_id,category_name,status
+CAT01,Managed Accounts,ACTIVE
+CAT02,Brokerage,ACTIVE
+CAT03,Fixed Income,ACTIVE
+CAT04,Equities,ACTIVE
+CAT05,Mutual Funds,ACTIVE
+CAT06,Alternatives,ACTIVE
+CAT07,Cash & Lending,ACTIVE
+CAT08,Insurance,ACTIVE

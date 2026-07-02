@@ -1,0 +1,29 @@
+{
+  "sqlite_db": "data/sqlite/iperform.db",
+  "sqlite_exists": true,
+  "sqlite_size_bytes": 4329472,
+  "chroma_path": "data/chroma",
+  "chroma_exists": true,
+  "chroma_real_created": false,
+  "table_counts": {
+    "phx_dm_feature_definition": 6,
+    "phx_dm_feature_vector": 9902,
+    "phx_dm_local_embedding": 368,
+    "phx_dm_local_similarity_match": 600,
+    "phx_dm_local_prediction_result": 1008,
+    "phx_dm_model_metadata": 6,
+    "phx_dm_local_opportunity": 672,
+    "phx_dm_local_recommendation": 672,
+    "phx_dm_local_feedback_event": 10,
+    "phx_dm_local_outcome_event": 10,
+    "phx_dm_local_learning_signal": 10,
+    "phx_dm_local_context_memory": 182,
+    "phx_dm_local_conversation_turn": 0,
+    "phx_dm_local_reasoning_trace": 0,
+    "phx_dm_knowledge_document_catalog": 4,
+    "phx_dm_knowledge_chunk_catalog": 4,
+    "phx_dm_local_chat_turn": 1,
+    "phx_dm_local_insight_card": 20,
+    "phx_dm_local_coaching_plan": 1
+  }
+}

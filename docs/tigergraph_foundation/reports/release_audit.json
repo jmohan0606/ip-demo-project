@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "BUILD_DEBRIS_SCAN",
+      "detail": "No dependency folders, build outputs, bytecode or runtime databases"
+    },
+    {
+      "check": "ENV_FILE",
+      "detail": "Only documented .env templates are present"
+    },
+    {
+      "check": "SECRET_SCAN",
+      "detail": "No likely credentials or private keys detected"
+    },
+    {
+      "check": "VERSION",
+      "detail": "Package version 0.2.0 is consistent"
+    },
+    {
+      "check": "REQUIRED_FILES",
+      "detail": "11 required release entry points present"
+    }
+  ],
+  "errors": []
+}

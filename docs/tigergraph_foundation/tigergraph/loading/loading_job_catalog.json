@@ -1,0 +1,1458 @@
+[
+  {
+    "order": 1,
+    "job_name": "load_phx_dm_persona_user",
+    "file": "LOAD-001_phx_dm_persona_user.gsql",
+    "csv": "vertices/phx_dm_persona_user.csv",
+    "kind": "vertex",
+    "target": "phx_dm_persona_user"
+  },
+  {
+    "order": 2,
+    "job_name": "load_phx_dm_firm",
+    "file": "LOAD-002_phx_dm_firm.gsql",
+    "csv": "vertices/phx_dm_firm.csv",
+    "kind": "vertex",
+    "target": "phx_dm_firm"
+  },
+  {
+    "order": 3,
+    "job_name": "load_phx_dm_division",
+    "file": "LOAD-003_phx_dm_division.gsql",
+    "csv": "vertices/phx_dm_division.csv",
+    "kind": "vertex",
+    "target": "phx_dm_division"
+  },
+  {
+    "order": 4,
+    "job_name": "load_phx_dm_region",
+    "file": "LOAD-004_phx_dm_region.gsql",
+    "csv": "vertices/phx_dm_region.csv",
+    "kind": "vertex",
+    "target": "phx_dm_region"
+  },
+  {
+    "order": 5,
+    "job_name": "load_phx_dm_market",
+    "file": "LOAD-005_phx_dm_market.gsql",
+    "csv": "vertices/phx_dm_market.csv",
+    "kind": "vertex",
+    "target": "phx_dm_market"
+  },
+  {
+    "order": 6,
+    "job_name": "load_phx_dm_branch",
+    "file": "LOAD-006_phx_dm_branch.gsql",
+    "csv": "vertices/phx_dm_branch.csv",
+    "kind": "vertex",
+    "target": "phx_dm_branch"
+  },
+  {
+    "order": 7,
+    "job_name": "load_phx_dm_advisor",
+    "file": "LOAD-007_phx_dm_advisor.gsql",
+    "csv": "vertices/phx_dm_advisor.csv",
+    "kind": "vertex",
+    "target": "phx_dm_advisor"
+  },
+  {
+    "order": 8,
+    "job_name": "load_phx_dm_rep_pool",
+    "file": "LOAD-008_phx_dm_rep_pool.gsql",
+    "csv": "vertices/phx_dm_rep_pool.csv",
+    "kind": "vertex",
+    "target": "phx_dm_rep_pool"
+  },
+  {
+    "order": 9,
+    "job_name": "load_phx_dm_household",
+    "file": "LOAD-009_phx_dm_household.gsql",
+    "csv": "vertices/phx_dm_household.csv",
+    "kind": "vertex",
+    "target": "phx_dm_household"
+  },
+  {
+    "order": 10,
+    "job_name": "load_phx_dm_account",
+    "file": "LOAD-010_phx_dm_account.gsql",
+    "csv": "vertices/phx_dm_account.csv",
+    "kind": "vertex",
+    "target": "phx_dm_account"
+  },
+  {
+    "order": 11,
+    "job_name": "load_phx_dm_product_category",
+    "file": "LOAD-011_phx_dm_product_category.gsql",
+    "csv": "vertices/phx_dm_product_category.csv",
+    "kind": "vertex",
+    "target": "phx_dm_product_category"
+  },
+  {
+    "order": 12,
+    "job_name": "load_phx_dm_product_subcategory",
+    "file": "LOAD-012_phx_dm_product_subcategory.gsql",
+    "csv": "vertices/phx_dm_product_subcategory.csv",
+    "kind": "vertex",
+    "target": "phx_dm_product_subcategory"
+  },
+  {
+    "order": 13,
+    "job_name": "load_phx_dm_product",
+    "file": "LOAD-013_phx_dm_product.gsql",
+    "csv": "vertices/phx_dm_product.csv",
+    "kind": "vertex",
+    "target": "phx_dm_product"
+  },
+  {
+    "order": 14,
+    "job_name": "load_phx_dm_time_period",
+    "file": "LOAD-014_phx_dm_time_period.gsql",
+    "csv": "vertices/phx_dm_time_period.csv",
+    "kind": "vertex",
+    "target": "phx_dm_time_period"
+  },
+  {
+    "order": 15,
+    "job_name": "load_phx_dm_revenue_transaction",
+    "file": "LOAD-015_phx_dm_revenue_transaction.gsql",
+    "csv": "vertices/phx_dm_revenue_transaction.csv",
+    "kind": "vertex",
+    "target": "phx_dm_revenue_transaction"
+  },
+  {
+    "order": 16,
+    "job_name": "load_phx_dm_monthly_aum",
+    "file": "LOAD-016_phx_dm_monthly_aum.gsql",
+    "csv": "vertices/phx_dm_monthly_aum.csv",
+    "kind": "vertex",
+    "target": "phx_dm_monthly_aum"
+  },
+  {
+    "order": 17,
+    "job_name": "load_phx_dm_monthly_ncf",
+    "file": "LOAD-017_phx_dm_monthly_ncf.gsql",
+    "csv": "vertices/phx_dm_monthly_ncf.csv",
+    "kind": "vertex",
+    "target": "phx_dm_monthly_ncf"
+  },
+  {
+    "order": 18,
+    "job_name": "load_phx_dm_monthly_nnm",
+    "file": "LOAD-018_phx_dm_monthly_nnm.gsql",
+    "csv": "vertices/phx_dm_monthly_nnm.csv",
+    "kind": "vertex",
+    "target": "phx_dm_monthly_nnm"
+  },
+  {
+    "order": 19,
+    "job_name": "load_phx_dm_monthly_product_revenue",
+    "file": "LOAD-019_phx_dm_monthly_product_revenue.gsql",
+    "csv": "vertices/phx_dm_monthly_product_revenue.csv",
+    "kind": "vertex",
+    "target": "phx_dm_monthly_product_revenue"
+  },
+  {
+    "order": 20,
+    "job_name": "load_phx_dm_eligibility",
+    "file": "LOAD-020_phx_dm_eligibility.gsql",
+    "csv": "vertices/phx_dm_eligibility.csv",
+    "kind": "vertex",
+    "target": "phx_dm_eligibility"
+  },
+  {
+    "order": 21,
+    "job_name": "load_phx_dm_crm_activity",
+    "file": "LOAD-021_phx_dm_crm_activity.gsql",
+    "csv": "vertices/phx_dm_crm_activity.csv",
+    "kind": "vertex",
+    "target": "phx_dm_crm_activity"
+  },
+  {
+    "order": 22,
+    "job_name": "load_phx_dm_crm_lead",
+    "file": "LOAD-022_phx_dm_crm_lead.gsql",
+    "csv": "vertices/phx_dm_crm_lead.csv",
+    "kind": "vertex",
+    "target": "phx_dm_crm_lead"
+  },
+  {
+    "order": 23,
+    "job_name": "load_phx_dm_crm_referral",
+    "file": "LOAD-023_phx_dm_crm_referral.gsql",
+    "csv": "vertices/phx_dm_crm_referral.csv",
+    "kind": "vertex",
+    "target": "phx_dm_crm_referral"
+  },
+  {
+    "order": 24,
+    "job_name": "load_phx_dm_crm_opportunity",
+    "file": "LOAD-024_phx_dm_crm_opportunity.gsql",
+    "csv": "vertices/phx_dm_crm_opportunity.csv",
+    "kind": "vertex",
+    "target": "phx_dm_crm_opportunity"
+  },
+  {
+    "order": 25,
+    "job_name": "load_phx_dm_agp_program",
+    "file": "LOAD-025_phx_dm_agp_program.gsql",
+    "csv": "vertices/phx_dm_agp_program.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agp_program"
+  },
+  {
+    "order": 26,
+    "job_name": "load_phx_dm_agp_enrollment",
+    "file": "LOAD-026_phx_dm_agp_enrollment.gsql",
+    "csv": "vertices/phx_dm_agp_enrollment.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agp_enrollment"
+  },
+  {
+    "order": 27,
+    "job_name": "load_phx_dm_agp_milestone",
+    "file": "LOAD-027_phx_dm_agp_milestone.gsql",
+    "csv": "vertices/phx_dm_agp_milestone.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agp_milestone"
+  },
+  {
+    "order": 28,
+    "job_name": "load_phx_dm_agp_milestone_progress",
+    "file": "LOAD-028_phx_dm_agp_milestone_progress.gsql",
+    "csv": "vertices/phx_dm_agp_milestone_progress.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agp_milestone_progress"
+  },
+  {
+    "order": 29,
+    "job_name": "load_phx_dm_goal",
+    "file": "LOAD-029_phx_dm_goal.gsql",
+    "csv": "vertices/phx_dm_goal.csv",
+    "kind": "vertex",
+    "target": "phx_dm_goal"
+  },
+  {
+    "order": 30,
+    "job_name": "load_phx_dm_kpi",
+    "file": "LOAD-030_phx_dm_kpi.gsql",
+    "csv": "vertices/phx_dm_kpi.csv",
+    "kind": "vertex",
+    "target": "phx_dm_kpi"
+  },
+  {
+    "order": 31,
+    "job_name": "load_phx_dm_agp_kpi_measurement",
+    "file": "LOAD-031_phx_dm_agp_kpi_measurement.gsql",
+    "csv": "vertices/phx_dm_agp_kpi_measurement.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agp_kpi_measurement"
+  },
+  {
+    "order": 32,
+    "job_name": "load_phx_dm_coaching_session",
+    "file": "LOAD-032_phx_dm_coaching_session.gsql",
+    "csv": "vertices/phx_dm_coaching_session.csv",
+    "kind": "vertex",
+    "target": "phx_dm_coaching_session"
+  },
+  {
+    "order": 33,
+    "job_name": "load_phx_dm_manager_review",
+    "file": "LOAD-033_phx_dm_manager_review.gsql",
+    "csv": "vertices/phx_dm_manager_review.csv",
+    "kind": "vertex",
+    "target": "phx_dm_manager_review"
+  },
+  {
+    "order": 34,
+    "job_name": "load_phx_dm_feature_snapshot",
+    "file": "LOAD-034_phx_dm_feature_snapshot.gsql",
+    "csv": "vertices/phx_dm_feature_snapshot.csv",
+    "kind": "vertex",
+    "target": "phx_dm_feature_snapshot"
+  },
+  {
+    "order": 35,
+    "job_name": "load_phx_dm_embedding",
+    "file": "LOAD-035_phx_dm_embedding.gsql",
+    "csv": "vertices/phx_dm_embedding.csv",
+    "kind": "vertex",
+    "target": "phx_dm_embedding"
+  },
+  {
+    "order": 36,
+    "job_name": "load_phx_dm_similarity_match",
+    "file": "LOAD-036_phx_dm_similarity_match.gsql",
+    "csv": "vertices/phx_dm_similarity_match.csv",
+    "kind": "vertex",
+    "target": "phx_dm_similarity_match"
+  },
+  {
+    "order": 37,
+    "job_name": "load_phx_dm_prediction_result",
+    "file": "LOAD-037_phx_dm_prediction_result.gsql",
+    "csv": "vertices/phx_dm_prediction_result.csv",
+    "kind": "vertex",
+    "target": "phx_dm_prediction_result"
+  },
+  {
+    "order": 38,
+    "job_name": "load_phx_dm_opportunity",
+    "file": "LOAD-038_phx_dm_opportunity.gsql",
+    "csv": "vertices/phx_dm_opportunity.csv",
+    "kind": "vertex",
+    "target": "phx_dm_opportunity"
+  },
+  {
+    "order": 39,
+    "job_name": "load_phx_dm_recommendation",
+    "file": "LOAD-039_phx_dm_recommendation.gsql",
+    "csv": "vertices/phx_dm_recommendation.csv",
+    "kind": "vertex",
+    "target": "phx_dm_recommendation"
+  },
+  {
+    "order": 40,
+    "job_name": "load_phx_dm_feedback_event",
+    "file": "LOAD-040_phx_dm_feedback_event.gsql",
+    "csv": "vertices/phx_dm_feedback_event.csv",
+    "kind": "vertex",
+    "target": "phx_dm_feedback_event"
+  },
+  {
+    "order": 41,
+    "job_name": "load_phx_dm_outcome_event",
+    "file": "LOAD-041_phx_dm_outcome_event.gsql",
+    "csv": "vertices/phx_dm_outcome_event.csv",
+    "kind": "vertex",
+    "target": "phx_dm_outcome_event"
+  },
+  {
+    "order": 42,
+    "job_name": "load_phx_dm_learning_signal",
+    "file": "LOAD-042_phx_dm_learning_signal.gsql",
+    "csv": "vertices/phx_dm_learning_signal.csv",
+    "kind": "vertex",
+    "target": "phx_dm_learning_signal"
+  },
+  {
+    "order": 43,
+    "job_name": "load_phx_dm_context_memory",
+    "file": "LOAD-043_phx_dm_context_memory.gsql",
+    "csv": "vertices/phx_dm_context_memory.csv",
+    "kind": "vertex",
+    "target": "phx_dm_context_memory"
+  },
+  {
+    "order": 44,
+    "job_name": "load_phx_dm_conversation_turn",
+    "file": "LOAD-044_phx_dm_conversation_turn.gsql",
+    "csv": "vertices/phx_dm_conversation_turn.csv",
+    "kind": "vertex",
+    "target": "phx_dm_conversation_turn"
+  },
+  {
+    "order": 45,
+    "job_name": "load_phx_dm_reasoning_trace",
+    "file": "LOAD-045_phx_dm_reasoning_trace.gsql",
+    "csv": "vertices/phx_dm_reasoning_trace.csv",
+    "kind": "vertex",
+    "target": "phx_dm_reasoning_trace"
+  },
+  {
+    "order": 46,
+    "job_name": "load_phx_dm_document",
+    "file": "LOAD-046_phx_dm_document.gsql",
+    "csv": "vertices/phx_dm_document.csv",
+    "kind": "vertex",
+    "target": "phx_dm_document"
+  },
+  {
+    "order": 47,
+    "job_name": "load_phx_dm_document_chunk",
+    "file": "LOAD-047_phx_dm_document_chunk.gsql",
+    "csv": "vertices/phx_dm_document_chunk.csv",
+    "kind": "vertex",
+    "target": "phx_dm_document_chunk"
+  },
+  {
+    "order": 48,
+    "job_name": "load_phx_dm_playbook",
+    "file": "LOAD-048_phx_dm_playbook.gsql",
+    "csv": "vertices/phx_dm_playbook.csv",
+    "kind": "vertex",
+    "target": "phx_dm_playbook"
+  },
+  {
+    "order": 49,
+    "job_name": "load_phx_dm_best_practice",
+    "file": "LOAD-049_phx_dm_best_practice.gsql",
+    "csv": "vertices/phx_dm_best_practice.csv",
+    "kind": "vertex",
+    "target": "phx_dm_best_practice"
+  },
+  {
+    "order": 50,
+    "job_name": "load_phx_dm_business_glossary_term",
+    "file": "LOAD-050_phx_dm_business_glossary_term.gsql",
+    "csv": "vertices/phx_dm_business_glossary_term.csv",
+    "kind": "vertex",
+    "target": "phx_dm_business_glossary_term"
+  },
+  {
+    "order": 51,
+    "job_name": "load_phx_dm_notification",
+    "file": "LOAD-051_phx_dm_notification.gsql",
+    "csv": "vertices/phx_dm_notification.csv",
+    "kind": "vertex",
+    "target": "phx_dm_notification"
+  },
+  {
+    "order": 52,
+    "job_name": "load_phx_dm_simulation_scenario",
+    "file": "LOAD-052_phx_dm_simulation_scenario.gsql",
+    "csv": "vertices/phx_dm_simulation_scenario.csv",
+    "kind": "vertex",
+    "target": "phx_dm_simulation_scenario"
+  },
+  {
+    "order": 53,
+    "job_name": "load_phx_dm_agent_execution",
+    "file": "LOAD-053_phx_dm_agent_execution.gsql",
+    "csv": "vertices/phx_dm_agent_execution.csv",
+    "kind": "vertex",
+    "target": "phx_dm_agent_execution"
+  },
+  {
+    "order": 54,
+    "job_name": "load_phx_dm_tool_call",
+    "file": "LOAD-054_phx_dm_tool_call.gsql",
+    "csv": "vertices/phx_dm_tool_call.csv",
+    "kind": "vertex",
+    "target": "phx_dm_tool_call"
+  },
+  {
+    "order": 55,
+    "job_name": "load_phx_dm_evaluation_result",
+    "file": "LOAD-055_phx_dm_evaluation_result.gsql",
+    "csv": "vertices/phx_dm_evaluation_result.csv",
+    "kind": "vertex",
+    "target": "phx_dm_evaluation_result"
+  },
+  {
+    "order": 56,
+    "job_name": "load_phx_dm_guardrail_event",
+    "file": "LOAD-056_phx_dm_guardrail_event.gsql",
+    "csv": "vertices/phx_dm_guardrail_event.csv",
+    "kind": "vertex",
+    "target": "phx_dm_guardrail_event"
+  },
+  {
+    "order": 57,
+    "job_name": "load_phx_dm_division_in_firm",
+    "file": "LOAD-057_phx_dm_division_in_firm.gsql",
+    "csv": "edges/phx_dm_division_in_firm.csv",
+    "kind": "edge",
+    "target": "phx_dm_division_in_firm"
+  },
+  {
+    "order": 58,
+    "job_name": "load_phx_dm_region_in_division",
+    "file": "LOAD-058_phx_dm_region_in_division.gsql",
+    "csv": "edges/phx_dm_region_in_division.csv",
+    "kind": "edge",
+    "target": "phx_dm_region_in_division"
+  },
+  {
+    "order": 59,
+    "job_name": "load_phx_dm_market_in_region",
+    "file": "LOAD-059_phx_dm_market_in_region.gsql",
+    "csv": "edges/phx_dm_market_in_region.csv",
+    "kind": "edge",
+    "target": "phx_dm_market_in_region"
+  },
+  {
+    "order": 60,
+    "job_name": "load_phx_dm_branch_in_market",
+    "file": "LOAD-060_phx_dm_branch_in_market.gsql",
+    "csv": "edges/phx_dm_branch_in_market.csv",
+    "kind": "edge",
+    "target": "phx_dm_branch_in_market"
+  },
+  {
+    "order": 61,
+    "job_name": "load_phx_dm_advisor_in_branch",
+    "file": "LOAD-061_phx_dm_advisor_in_branch.gsql",
+    "csv": "edges/phx_dm_advisor_in_branch.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_in_branch"
+  },
+  {
+    "order": 62,
+    "job_name": "load_phx_dm_advisor_in_market",
+    "file": "LOAD-062_phx_dm_advisor_in_market.gsql",
+    "csv": "edges/phx_dm_advisor_in_market.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_in_market"
+  },
+  {
+    "order": 63,
+    "job_name": "load_phx_dm_advisor_in_rep_pool",
+    "file": "LOAD-063_phx_dm_advisor_in_rep_pool.gsql",
+    "csv": "edges/phx_dm_advisor_in_rep_pool.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_in_rep_pool"
+  },
+  {
+    "order": 64,
+    "job_name": "load_phx_dm_user_scoped_to_firm",
+    "file": "LOAD-064_phx_dm_user_scoped_to_firm.gsql",
+    "csv": "edges/phx_dm_user_scoped_to_firm.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_scoped_to_firm"
+  },
+  {
+    "order": 65,
+    "job_name": "load_phx_dm_user_scoped_to_division",
+    "file": "LOAD-065_phx_dm_user_scoped_to_division.gsql",
+    "csv": "edges/phx_dm_user_scoped_to_division.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_scoped_to_division"
+  },
+  {
+    "order": 66,
+    "job_name": "load_phx_dm_user_scoped_to_region",
+    "file": "LOAD-066_phx_dm_user_scoped_to_region.gsql",
+    "csv": "edges/phx_dm_user_scoped_to_region.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_scoped_to_region"
+  },
+  {
+    "order": 67,
+    "job_name": "load_phx_dm_user_scoped_to_market",
+    "file": "LOAD-067_phx_dm_user_scoped_to_market.gsql",
+    "csv": "edges/phx_dm_user_scoped_to_market.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_scoped_to_market"
+  },
+  {
+    "order": 68,
+    "job_name": "load_phx_dm_user_scoped_to_branch",
+    "file": "LOAD-068_phx_dm_user_scoped_to_branch.gsql",
+    "csv": "edges/phx_dm_user_scoped_to_branch.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_scoped_to_branch"
+  },
+  {
+    "order": 69,
+    "job_name": "load_phx_dm_user_represents_advisor",
+    "file": "LOAD-069_phx_dm_user_represents_advisor.gsql",
+    "csv": "edges/phx_dm_user_represents_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_user_represents_advisor"
+  },
+  {
+    "order": 70,
+    "job_name": "load_phx_dm_ddw_manages_rdw",
+    "file": "LOAD-070_phx_dm_ddw_manages_rdw.gsql",
+    "csv": "edges/phx_dm_ddw_manages_rdw.csv",
+    "kind": "edge",
+    "target": "phx_dm_ddw_manages_rdw"
+  },
+  {
+    "order": 71,
+    "job_name": "load_phx_dm_rdw_manages_mdw",
+    "file": "LOAD-071_phx_dm_rdw_manages_mdw.gsql",
+    "csv": "edges/phx_dm_rdw_manages_mdw.csv",
+    "kind": "edge",
+    "target": "phx_dm_rdw_manages_mdw"
+  },
+  {
+    "order": 72,
+    "job_name": "load_phx_dm_mdw_manages_advisor",
+    "file": "LOAD-072_phx_dm_mdw_manages_advisor.gsql",
+    "csv": "edges/phx_dm_mdw_manages_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_mdw_manages_advisor"
+  },
+  {
+    "order": 73,
+    "job_name": "load_phx_dm_advisor_serves_household",
+    "file": "LOAD-073_phx_dm_advisor_serves_household.gsql",
+    "csv": "edges/phx_dm_advisor_serves_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_serves_household"
+  },
+  {
+    "order": 74,
+    "job_name": "load_phx_dm_household_owns_account",
+    "file": "LOAD-074_phx_dm_household_owns_account.gsql",
+    "csv": "edges/phx_dm_household_owns_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_household_owns_account"
+  },
+  {
+    "order": 75,
+    "job_name": "load_phx_dm_product_in_subcategory",
+    "file": "LOAD-075_phx_dm_product_in_subcategory.gsql",
+    "csv": "edges/phx_dm_product_in_subcategory.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_in_subcategory"
+  },
+  {
+    "order": 76,
+    "job_name": "load_phx_dm_subcategory_in_category",
+    "file": "LOAD-076_phx_dm_subcategory_in_category.gsql",
+    "csv": "edges/phx_dm_subcategory_in_category.csv",
+    "kind": "edge",
+    "target": "phx_dm_subcategory_in_category"
+  },
+  {
+    "order": 77,
+    "job_name": "load_phx_dm_account_holds_product",
+    "file": "LOAD-077_phx_dm_account_holds_product.gsql",
+    "csv": "edges/phx_dm_account_holds_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_account_holds_product"
+  },
+  {
+    "order": 78,
+    "job_name": "load_phx_dm_transaction_for_advisor",
+    "file": "LOAD-078_phx_dm_transaction_for_advisor.gsql",
+    "csv": "edges/phx_dm_transaction_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_transaction_for_advisor"
+  },
+  {
+    "order": 79,
+    "job_name": "load_phx_dm_transaction_for_household",
+    "file": "LOAD-079_phx_dm_transaction_for_household.gsql",
+    "csv": "edges/phx_dm_transaction_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_transaction_for_household"
+  },
+  {
+    "order": 80,
+    "job_name": "load_phx_dm_transaction_for_account",
+    "file": "LOAD-080_phx_dm_transaction_for_account.gsql",
+    "csv": "edges/phx_dm_transaction_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_transaction_for_account"
+  },
+  {
+    "order": 81,
+    "job_name": "load_phx_dm_transaction_for_product",
+    "file": "LOAD-081_phx_dm_transaction_for_product.gsql",
+    "csv": "edges/phx_dm_transaction_for_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_transaction_for_product"
+  },
+  {
+    "order": 82,
+    "job_name": "load_phx_dm_transaction_in_period",
+    "file": "LOAD-082_phx_dm_transaction_in_period.gsql",
+    "csv": "edges/phx_dm_transaction_in_period.csv",
+    "kind": "edge",
+    "target": "phx_dm_transaction_in_period"
+  },
+  {
+    "order": 83,
+    "job_name": "load_phx_dm_aum_for_advisor",
+    "file": "LOAD-083_phx_dm_aum_for_advisor.gsql",
+    "csv": "edges/phx_dm_aum_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_aum_for_advisor"
+  },
+  {
+    "order": 84,
+    "job_name": "load_phx_dm_aum_in_period",
+    "file": "LOAD-084_phx_dm_aum_in_period.gsql",
+    "csv": "edges/phx_dm_aum_in_period.csv",
+    "kind": "edge",
+    "target": "phx_dm_aum_in_period"
+  },
+  {
+    "order": 85,
+    "job_name": "load_phx_dm_ncf_for_advisor",
+    "file": "LOAD-085_phx_dm_ncf_for_advisor.gsql",
+    "csv": "edges/phx_dm_ncf_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_ncf_for_advisor"
+  },
+  {
+    "order": 86,
+    "job_name": "load_phx_dm_ncf_in_period",
+    "file": "LOAD-086_phx_dm_ncf_in_period.gsql",
+    "csv": "edges/phx_dm_ncf_in_period.csv",
+    "kind": "edge",
+    "target": "phx_dm_ncf_in_period"
+  },
+  {
+    "order": 87,
+    "job_name": "load_phx_dm_nnm_for_advisor",
+    "file": "LOAD-087_phx_dm_nnm_for_advisor.gsql",
+    "csv": "edges/phx_dm_nnm_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_nnm_for_advisor"
+  },
+  {
+    "order": 88,
+    "job_name": "load_phx_dm_nnm_in_period",
+    "file": "LOAD-088_phx_dm_nnm_in_period.gsql",
+    "csv": "edges/phx_dm_nnm_in_period.csv",
+    "kind": "edge",
+    "target": "phx_dm_nnm_in_period"
+  },
+  {
+    "order": 89,
+    "job_name": "load_phx_dm_product_revenue_for_advisor",
+    "file": "LOAD-089_phx_dm_product_revenue_for_advisor.gsql",
+    "csv": "edges/phx_dm_product_revenue_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_revenue_for_advisor"
+  },
+  {
+    "order": 90,
+    "job_name": "load_phx_dm_product_revenue_for_product",
+    "file": "LOAD-090_phx_dm_product_revenue_for_product.gsql",
+    "csv": "edges/phx_dm_product_revenue_for_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_revenue_for_product"
+  },
+  {
+    "order": 91,
+    "job_name": "load_phx_dm_product_revenue_in_period",
+    "file": "LOAD-091_phx_dm_product_revenue_in_period.gsql",
+    "csv": "edges/phx_dm_product_revenue_in_period.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_revenue_in_period"
+  },
+  {
+    "order": 92,
+    "job_name": "load_phx_dm_eligibility_for_advisor",
+    "file": "LOAD-092_phx_dm_eligibility_for_advisor.gsql",
+    "csv": "edges/phx_dm_eligibility_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_eligibility_for_advisor"
+  },
+  {
+    "order": 93,
+    "job_name": "load_phx_dm_eligibility_for_household",
+    "file": "LOAD-093_phx_dm_eligibility_for_household.gsql",
+    "csv": "edges/phx_dm_eligibility_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_eligibility_for_household"
+  },
+  {
+    "order": 94,
+    "job_name": "load_phx_dm_eligibility_for_product",
+    "file": "LOAD-094_phx_dm_eligibility_for_product.gsql",
+    "csv": "edges/phx_dm_eligibility_for_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_eligibility_for_product"
+  },
+  {
+    "order": 95,
+    "job_name": "load_phx_dm_activity_for_advisor",
+    "file": "LOAD-095_phx_dm_activity_for_advisor.gsql",
+    "csv": "edges/phx_dm_activity_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_activity_for_advisor"
+  },
+  {
+    "order": 96,
+    "job_name": "load_phx_dm_activity_for_household",
+    "file": "LOAD-096_phx_dm_activity_for_household.gsql",
+    "csv": "edges/phx_dm_activity_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_activity_for_household"
+  },
+  {
+    "order": 97,
+    "job_name": "load_phx_dm_activity_for_account",
+    "file": "LOAD-097_phx_dm_activity_for_account.gsql",
+    "csv": "edges/phx_dm_activity_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_activity_for_account"
+  },
+  {
+    "order": 98,
+    "job_name": "load_phx_dm_advisor_has_crm_lead",
+    "file": "LOAD-098_phx_dm_advisor_has_crm_lead.gsql",
+    "csv": "edges/phx_dm_advisor_has_crm_lead.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_crm_lead"
+  },
+  {
+    "order": 99,
+    "job_name": "load_phx_dm_lead_for_household",
+    "file": "LOAD-099_phx_dm_lead_for_household.gsql",
+    "csv": "edges/phx_dm_lead_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_lead_for_household"
+  },
+  {
+    "order": 100,
+    "job_name": "load_phx_dm_lead_generates_crm_opportunity",
+    "file": "LOAD-100_phx_dm_lead_generates_crm_opportunity.gsql",
+    "csv": "edges/phx_dm_lead_generates_crm_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_lead_generates_crm_opportunity"
+  },
+  {
+    "order": 101,
+    "job_name": "load_phx_dm_advisor_has_crm_referral",
+    "file": "LOAD-101_phx_dm_advisor_has_crm_referral.gsql",
+    "csv": "edges/phx_dm_advisor_has_crm_referral.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_crm_referral"
+  },
+  {
+    "order": 102,
+    "job_name": "load_phx_dm_referral_for_household",
+    "file": "LOAD-102_phx_dm_referral_for_household.gsql",
+    "csv": "edges/phx_dm_referral_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_referral_for_household"
+  },
+  {
+    "order": 103,
+    "job_name": "load_phx_dm_referral_generates_crm_opportunity",
+    "file": "LOAD-103_phx_dm_referral_generates_crm_opportunity.gsql",
+    "csv": "edges/phx_dm_referral_generates_crm_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_referral_generates_crm_opportunity"
+  },
+  {
+    "order": 104,
+    "job_name": "load_phx_dm_advisor_has_crm_opportunity",
+    "file": "LOAD-104_phx_dm_advisor_has_crm_opportunity.gsql",
+    "csv": "edges/phx_dm_advisor_has_crm_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_crm_opportunity"
+  },
+  {
+    "order": 105,
+    "job_name": "load_phx_dm_crm_opportunity_for_household",
+    "file": "LOAD-105_phx_dm_crm_opportunity_for_household.gsql",
+    "csv": "edges/phx_dm_crm_opportunity_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_crm_opportunity_for_household"
+  },
+  {
+    "order": 106,
+    "job_name": "load_phx_dm_crm_opportunity_for_account",
+    "file": "LOAD-106_phx_dm_crm_opportunity_for_account.gsql",
+    "csv": "edges/phx_dm_crm_opportunity_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_crm_opportunity_for_account"
+  },
+  {
+    "order": 107,
+    "job_name": "load_phx_dm_crm_opportunity_for_product",
+    "file": "LOAD-107_phx_dm_crm_opportunity_for_product.gsql",
+    "csv": "edges/phx_dm_crm_opportunity_for_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_crm_opportunity_for_product"
+  },
+  {
+    "order": 108,
+    "job_name": "load_phx_dm_advisor_has_agp_enrollment",
+    "file": "LOAD-108_phx_dm_advisor_has_agp_enrollment.gsql",
+    "csv": "edges/phx_dm_advisor_has_agp_enrollment.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_agp_enrollment"
+  },
+  {
+    "order": 109,
+    "job_name": "load_phx_dm_enrollment_in_agp_program",
+    "file": "LOAD-109_phx_dm_enrollment_in_agp_program.gsql",
+    "csv": "edges/phx_dm_enrollment_in_agp_program.csv",
+    "kind": "edge",
+    "target": "phx_dm_enrollment_in_agp_program"
+  },
+  {
+    "order": 110,
+    "job_name": "load_phx_dm_agp_program_has_milestone",
+    "file": "LOAD-110_phx_dm_agp_program_has_milestone.gsql",
+    "csv": "edges/phx_dm_agp_program_has_milestone.csv",
+    "kind": "edge",
+    "target": "phx_dm_agp_program_has_milestone"
+  },
+  {
+    "order": 111,
+    "job_name": "load_phx_dm_enrollment_has_milestone_progress",
+    "file": "LOAD-111_phx_dm_enrollment_has_milestone_progress.gsql",
+    "csv": "edges/phx_dm_enrollment_has_milestone_progress.csv",
+    "kind": "edge",
+    "target": "phx_dm_enrollment_has_milestone_progress"
+  },
+  {
+    "order": 112,
+    "job_name": "load_phx_dm_progress_for_milestone",
+    "file": "LOAD-112_phx_dm_progress_for_milestone.gsql",
+    "csv": "edges/phx_dm_progress_for_milestone.csv",
+    "kind": "edge",
+    "target": "phx_dm_progress_for_milestone"
+  },
+  {
+    "order": 113,
+    "job_name": "load_phx_dm_progress_has_kpi_measurement",
+    "file": "LOAD-113_phx_dm_progress_has_kpi_measurement.gsql",
+    "csv": "edges/phx_dm_progress_has_kpi_measurement.csv",
+    "kind": "edge",
+    "target": "phx_dm_progress_has_kpi_measurement"
+  },
+  {
+    "order": 114,
+    "job_name": "load_phx_dm_measurement_for_kpi",
+    "file": "LOAD-114_phx_dm_measurement_for_kpi.gsql",
+    "csv": "edges/phx_dm_measurement_for_kpi.csv",
+    "kind": "edge",
+    "target": "phx_dm_measurement_for_kpi"
+  },
+  {
+    "order": 115,
+    "job_name": "load_phx_dm_advisor_has_goal",
+    "file": "LOAD-115_phx_dm_advisor_has_goal.gsql",
+    "csv": "edges/phx_dm_advisor_has_goal.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_goal"
+  },
+  {
+    "order": 116,
+    "job_name": "load_phx_dm_advisor_has_kpi",
+    "file": "LOAD-116_phx_dm_advisor_has_kpi.gsql",
+    "csv": "edges/phx_dm_advisor_has_kpi.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_kpi"
+  },
+  {
+    "order": 117,
+    "job_name": "load_phx_dm_coaching_for_advisor",
+    "file": "LOAD-117_phx_dm_coaching_for_advisor.gsql",
+    "csv": "edges/phx_dm_coaching_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_coaching_for_advisor"
+  },
+  {
+    "order": 118,
+    "job_name": "load_phx_dm_coaching_for_enrollment",
+    "file": "LOAD-118_phx_dm_coaching_for_enrollment.gsql",
+    "csv": "edges/phx_dm_coaching_for_enrollment.csv",
+    "kind": "edge",
+    "target": "phx_dm_coaching_for_enrollment"
+  },
+  {
+    "order": 119,
+    "job_name": "load_phx_dm_review_for_advisor",
+    "file": "LOAD-119_phx_dm_review_for_advisor.gsql",
+    "csv": "edges/phx_dm_review_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_review_for_advisor"
+  },
+  {
+    "order": 120,
+    "job_name": "load_phx_dm_review_for_enrollment",
+    "file": "LOAD-120_phx_dm_review_for_enrollment.gsql",
+    "csv": "edges/phx_dm_review_for_enrollment.csv",
+    "kind": "edge",
+    "target": "phx_dm_review_for_enrollment"
+  },
+  {
+    "order": 121,
+    "job_name": "load_phx_dm_advisor_has_feature_snapshot",
+    "file": "LOAD-121_phx_dm_advisor_has_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_advisor_has_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_feature_snapshot"
+  },
+  {
+    "order": 122,
+    "job_name": "load_phx_dm_advisor_has_embedding",
+    "file": "LOAD-122_phx_dm_advisor_has_embedding.gsql",
+    "csv": "edges/phx_dm_advisor_has_embedding.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_embedding"
+  },
+  {
+    "order": 123,
+    "job_name": "load_phx_dm_advisor_has_similarity_match",
+    "file": "LOAD-123_phx_dm_advisor_has_similarity_match.gsql",
+    "csv": "edges/phx_dm_advisor_has_similarity_match.csv",
+    "kind": "edge",
+    "target": "phx_dm_advisor_has_similarity_match"
+  },
+  {
+    "order": 124,
+    "job_name": "load_phx_dm_household_has_feature_snapshot",
+    "file": "LOAD-124_phx_dm_household_has_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_household_has_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_household_has_feature_snapshot"
+  },
+  {
+    "order": 125,
+    "job_name": "load_phx_dm_household_has_embedding",
+    "file": "LOAD-125_phx_dm_household_has_embedding.gsql",
+    "csv": "edges/phx_dm_household_has_embedding.csv",
+    "kind": "edge",
+    "target": "phx_dm_household_has_embedding"
+  },
+  {
+    "order": 126,
+    "job_name": "load_phx_dm_household_has_similarity_match",
+    "file": "LOAD-126_phx_dm_household_has_similarity_match.gsql",
+    "csv": "edges/phx_dm_household_has_similarity_match.csv",
+    "kind": "edge",
+    "target": "phx_dm_household_has_similarity_match"
+  },
+  {
+    "order": 127,
+    "job_name": "load_phx_dm_account_has_feature_snapshot",
+    "file": "LOAD-127_phx_dm_account_has_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_account_has_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_account_has_feature_snapshot"
+  },
+  {
+    "order": 128,
+    "job_name": "load_phx_dm_account_has_embedding",
+    "file": "LOAD-128_phx_dm_account_has_embedding.gsql",
+    "csv": "edges/phx_dm_account_has_embedding.csv",
+    "kind": "edge",
+    "target": "phx_dm_account_has_embedding"
+  },
+  {
+    "order": 129,
+    "job_name": "load_phx_dm_account_has_similarity_match",
+    "file": "LOAD-129_phx_dm_account_has_similarity_match.gsql",
+    "csv": "edges/phx_dm_account_has_similarity_match.csv",
+    "kind": "edge",
+    "target": "phx_dm_account_has_similarity_match"
+  },
+  {
+    "order": 130,
+    "job_name": "load_phx_dm_product_has_feature_snapshot",
+    "file": "LOAD-130_phx_dm_product_has_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_product_has_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_has_feature_snapshot"
+  },
+  {
+    "order": 131,
+    "job_name": "load_phx_dm_product_has_embedding",
+    "file": "LOAD-131_phx_dm_product_has_embedding.gsql",
+    "csv": "edges/phx_dm_product_has_embedding.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_has_embedding"
+  },
+  {
+    "order": 132,
+    "job_name": "load_phx_dm_product_has_similarity_match",
+    "file": "LOAD-132_phx_dm_product_has_similarity_match.gsql",
+    "csv": "edges/phx_dm_product_has_similarity_match.csv",
+    "kind": "edge",
+    "target": "phx_dm_product_has_similarity_match"
+  },
+  {
+    "order": 133,
+    "job_name": "load_phx_dm_similarity_match_targets_advisor",
+    "file": "LOAD-133_phx_dm_similarity_match_targets_advisor.gsql",
+    "csv": "edges/phx_dm_similarity_match_targets_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_similarity_match_targets_advisor"
+  },
+  {
+    "order": 134,
+    "job_name": "load_phx_dm_similarity_match_targets_household",
+    "file": "LOAD-134_phx_dm_similarity_match_targets_household.gsql",
+    "csv": "edges/phx_dm_similarity_match_targets_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_similarity_match_targets_household"
+  },
+  {
+    "order": 135,
+    "job_name": "load_phx_dm_similarity_match_targets_account",
+    "file": "LOAD-135_phx_dm_similarity_match_targets_account.gsql",
+    "csv": "edges/phx_dm_similarity_match_targets_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_similarity_match_targets_account"
+  },
+  {
+    "order": 136,
+    "job_name": "load_phx_dm_similarity_match_targets_product",
+    "file": "LOAD-136_phx_dm_similarity_match_targets_product.gsql",
+    "csv": "edges/phx_dm_similarity_match_targets_product.csv",
+    "kind": "edge",
+    "target": "phx_dm_similarity_match_targets_product"
+  },
+  {
+    "order": 137,
+    "job_name": "load_phx_dm_prediction_for_advisor",
+    "file": "LOAD-137_phx_dm_prediction_for_advisor.gsql",
+    "csv": "edges/phx_dm_prediction_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_prediction_for_advisor"
+  },
+  {
+    "order": 138,
+    "job_name": "load_phx_dm_prediction_for_household",
+    "file": "LOAD-138_phx_dm_prediction_for_household.gsql",
+    "csv": "edges/phx_dm_prediction_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_prediction_for_household"
+  },
+  {
+    "order": 139,
+    "job_name": "load_phx_dm_prediction_for_account",
+    "file": "LOAD-139_phx_dm_prediction_for_account.gsql",
+    "csv": "edges/phx_dm_prediction_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_prediction_for_account"
+  },
+  {
+    "order": 140,
+    "job_name": "load_phx_dm_opportunity_for_advisor",
+    "file": "LOAD-140_phx_dm_opportunity_for_advisor.gsql",
+    "csv": "edges/phx_dm_opportunity_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_opportunity_for_advisor"
+  },
+  {
+    "order": 141,
+    "job_name": "load_phx_dm_opportunity_for_household",
+    "file": "LOAD-141_phx_dm_opportunity_for_household.gsql",
+    "csv": "edges/phx_dm_opportunity_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_opportunity_for_household"
+  },
+  {
+    "order": 142,
+    "job_name": "load_phx_dm_opportunity_for_account",
+    "file": "LOAD-142_phx_dm_opportunity_for_account.gsql",
+    "csv": "edges/phx_dm_opportunity_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_opportunity_for_account"
+  },
+  {
+    "order": 143,
+    "job_name": "load_phx_dm_recommendation_for_advisor",
+    "file": "LOAD-143_phx_dm_recommendation_for_advisor.gsql",
+    "csv": "edges/phx_dm_recommendation_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_for_advisor"
+  },
+  {
+    "order": 144,
+    "job_name": "load_phx_dm_recommendation_for_household",
+    "file": "LOAD-144_phx_dm_recommendation_for_household.gsql",
+    "csv": "edges/phx_dm_recommendation_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_for_household"
+  },
+  {
+    "order": 145,
+    "job_name": "load_phx_dm_recommendation_for_account",
+    "file": "LOAD-145_phx_dm_recommendation_for_account.gsql",
+    "csv": "edges/phx_dm_recommendation_for_account.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_for_account"
+  },
+  {
+    "order": 146,
+    "job_name": "load_phx_dm_prediction_uses_feature_snapshot",
+    "file": "LOAD-146_phx_dm_prediction_uses_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_prediction_uses_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_prediction_uses_feature_snapshot"
+  },
+  {
+    "order": 147,
+    "job_name": "load_phx_dm_opportunity_uses_feature_snapshot",
+    "file": "LOAD-147_phx_dm_opportunity_uses_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_opportunity_uses_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_opportunity_uses_feature_snapshot"
+  },
+  {
+    "order": 148,
+    "job_name": "load_phx_dm_recommendation_uses_feature_snapshot",
+    "file": "LOAD-148_phx_dm_recommendation_uses_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_recommendation_uses_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_uses_feature_snapshot"
+  },
+  {
+    "order": 149,
+    "job_name": "load_phx_dm_opportunity_derived_from_prediction",
+    "file": "LOAD-149_phx_dm_opportunity_derived_from_prediction.gsql",
+    "csv": "edges/phx_dm_opportunity_derived_from_prediction.csv",
+    "kind": "edge",
+    "target": "phx_dm_opportunity_derived_from_prediction"
+  },
+  {
+    "order": 150,
+    "job_name": "load_phx_dm_ai_opportunity_derived_from_crm_opportunity",
+    "file": "LOAD-150_phx_dm_ai_opportunity_derived_from_crm_opportunity.gsql",
+    "csv": "edges/phx_dm_ai_opportunity_derived_from_crm_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_ai_opportunity_derived_from_crm_opportunity"
+  },
+  {
+    "order": 151,
+    "job_name": "load_phx_dm_recommendation_addresses_opportunity",
+    "file": "LOAD-151_phx_dm_recommendation_addresses_opportunity.gsql",
+    "csv": "edges/phx_dm_recommendation_addresses_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_addresses_opportunity"
+  },
+  {
+    "order": 152,
+    "job_name": "load_phx_dm_recommendation_based_on_prediction",
+    "file": "LOAD-152_phx_dm_recommendation_based_on_prediction.gsql",
+    "csv": "edges/phx_dm_recommendation_based_on_prediction.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_based_on_prediction"
+  },
+  {
+    "order": 153,
+    "job_name": "load_phx_dm_recommendation_uses_playbook",
+    "file": "LOAD-153_phx_dm_recommendation_uses_playbook.gsql",
+    "csv": "edges/phx_dm_recommendation_uses_playbook.csv",
+    "kind": "edge",
+    "target": "phx_dm_recommendation_uses_playbook"
+  },
+  {
+    "order": 154,
+    "job_name": "load_phx_dm_feedback_for_recommendation",
+    "file": "LOAD-154_phx_dm_feedback_for_recommendation.gsql",
+    "csv": "edges/phx_dm_feedback_for_recommendation.csv",
+    "kind": "edge",
+    "target": "phx_dm_feedback_for_recommendation"
+  },
+  {
+    "order": 155,
+    "job_name": "load_phx_dm_outcome_for_feedback",
+    "file": "LOAD-155_phx_dm_outcome_for_feedback.gsql",
+    "csv": "edges/phx_dm_outcome_for_feedback.csv",
+    "kind": "edge",
+    "target": "phx_dm_outcome_for_feedback"
+  },
+  {
+    "order": 156,
+    "job_name": "load_phx_dm_learning_from_outcome",
+    "file": "LOAD-156_phx_dm_learning_from_outcome.gsql",
+    "csv": "edges/phx_dm_learning_from_outcome.csv",
+    "kind": "edge",
+    "target": "phx_dm_learning_from_outcome"
+  },
+  {
+    "order": 157,
+    "job_name": "load_phx_dm_learning_updates_recommendation",
+    "file": "LOAD-157_phx_dm_learning_updates_recommendation.gsql",
+    "csv": "edges/phx_dm_learning_updates_recommendation.csv",
+    "kind": "edge",
+    "target": "phx_dm_learning_updates_recommendation"
+  },
+  {
+    "order": 158,
+    "job_name": "load_phx_dm_memory_for_firm",
+    "file": "LOAD-158_phx_dm_memory_for_firm.gsql",
+    "csv": "edges/phx_dm_memory_for_firm.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_firm"
+  },
+  {
+    "order": 159,
+    "job_name": "load_phx_dm_memory_for_division",
+    "file": "LOAD-159_phx_dm_memory_for_division.gsql",
+    "csv": "edges/phx_dm_memory_for_division.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_division"
+  },
+  {
+    "order": 160,
+    "job_name": "load_phx_dm_memory_for_region",
+    "file": "LOAD-160_phx_dm_memory_for_region.gsql",
+    "csv": "edges/phx_dm_memory_for_region.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_region"
+  },
+  {
+    "order": 161,
+    "job_name": "load_phx_dm_memory_for_market",
+    "file": "LOAD-161_phx_dm_memory_for_market.gsql",
+    "csv": "edges/phx_dm_memory_for_market.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_market"
+  },
+  {
+    "order": 162,
+    "job_name": "load_phx_dm_memory_for_branch",
+    "file": "LOAD-162_phx_dm_memory_for_branch.gsql",
+    "csv": "edges/phx_dm_memory_for_branch.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_branch"
+  },
+  {
+    "order": 163,
+    "job_name": "load_phx_dm_memory_for_advisor",
+    "file": "LOAD-163_phx_dm_memory_for_advisor.gsql",
+    "csv": "edges/phx_dm_memory_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_advisor"
+  },
+  {
+    "order": 164,
+    "job_name": "load_phx_dm_memory_for_household",
+    "file": "LOAD-164_phx_dm_memory_for_household.gsql",
+    "csv": "edges/phx_dm_memory_for_household.csv",
+    "kind": "edge",
+    "target": "phx_dm_memory_for_household"
+  },
+  {
+    "order": 165,
+    "job_name": "load_phx_dm_conversation_creates_memory",
+    "file": "LOAD-165_phx_dm_conversation_creates_memory.gsql",
+    "csv": "edges/phx_dm_conversation_creates_memory.csv",
+    "kind": "edge",
+    "target": "phx_dm_conversation_creates_memory"
+  },
+  {
+    "order": 166,
+    "job_name": "load_phx_dm_reasoning_uses_memory",
+    "file": "LOAD-166_phx_dm_reasoning_uses_memory.gsql",
+    "csv": "edges/phx_dm_reasoning_uses_memory.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_uses_memory"
+  },
+  {
+    "order": 167,
+    "job_name": "load_phx_dm_reasoning_uses_feature_snapshot",
+    "file": "LOAD-167_phx_dm_reasoning_uses_feature_snapshot.gsql",
+    "csv": "edges/phx_dm_reasoning_uses_feature_snapshot.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_uses_feature_snapshot"
+  },
+  {
+    "order": 168,
+    "job_name": "load_phx_dm_reasoning_uses_document_chunk",
+    "file": "LOAD-168_phx_dm_reasoning_uses_document_chunk.gsql",
+    "csv": "edges/phx_dm_reasoning_uses_document_chunk.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_uses_document_chunk"
+  },
+  {
+    "order": 169,
+    "job_name": "load_phx_dm_reasoning_uses_crm_activity",
+    "file": "LOAD-169_phx_dm_reasoning_uses_crm_activity.gsql",
+    "csv": "edges/phx_dm_reasoning_uses_crm_activity.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_uses_crm_activity"
+  },
+  {
+    "order": 170,
+    "job_name": "load_phx_dm_reasoning_uses_transaction",
+    "file": "LOAD-170_phx_dm_reasoning_uses_transaction.gsql",
+    "csv": "edges/phx_dm_reasoning_uses_transaction.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_uses_transaction"
+  },
+  {
+    "order": 171,
+    "job_name": "load_phx_dm_reasoning_for_prediction",
+    "file": "LOAD-171_phx_dm_reasoning_for_prediction.gsql",
+    "csv": "edges/phx_dm_reasoning_for_prediction.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_for_prediction"
+  },
+  {
+    "order": 172,
+    "job_name": "load_phx_dm_reasoning_for_opportunity",
+    "file": "LOAD-172_phx_dm_reasoning_for_opportunity.gsql",
+    "csv": "edges/phx_dm_reasoning_for_opportunity.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_for_opportunity"
+  },
+  {
+    "order": 173,
+    "job_name": "load_phx_dm_reasoning_for_recommendation",
+    "file": "LOAD-173_phx_dm_reasoning_for_recommendation.gsql",
+    "csv": "edges/phx_dm_reasoning_for_recommendation.csv",
+    "kind": "edge",
+    "target": "phx_dm_reasoning_for_recommendation"
+  },
+  {
+    "order": 174,
+    "job_name": "load_phx_dm_document_has_chunk",
+    "file": "LOAD-174_phx_dm_document_has_chunk.gsql",
+    "csv": "edges/phx_dm_document_has_chunk.csv",
+    "kind": "edge",
+    "target": "phx_dm_document_has_chunk"
+  },
+  {
+    "order": 175,
+    "job_name": "load_phx_dm_playbook_has_best_practice",
+    "file": "LOAD-175_phx_dm_playbook_has_best_practice.gsql",
+    "csv": "edges/phx_dm_playbook_has_best_practice.csv",
+    "kind": "edge",
+    "target": "phx_dm_playbook_has_best_practice"
+  },
+  {
+    "order": 176,
+    "job_name": "load_phx_dm_notification_for_user",
+    "file": "LOAD-176_phx_dm_notification_for_user.gsql",
+    "csv": "edges/phx_dm_notification_for_user.csv",
+    "kind": "edge",
+    "target": "phx_dm_notification_for_user"
+  },
+  {
+    "order": 177,
+    "job_name": "load_phx_dm_scenario_for_user",
+    "file": "LOAD-177_phx_dm_scenario_for_user.gsql",
+    "csv": "edges/phx_dm_scenario_for_user.csv",
+    "kind": "edge",
+    "target": "phx_dm_scenario_for_user"
+  },
+  {
+    "order": 178,
+    "job_name": "load_phx_dm_scenario_for_advisor",
+    "file": "LOAD-178_phx_dm_scenario_for_advisor.gsql",
+    "csv": "edges/phx_dm_scenario_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_scenario_for_advisor"
+  },
+  {
+    "order": 179,
+    "job_name": "load_phx_dm_execution_has_tool_call",
+    "file": "LOAD-179_phx_dm_execution_has_tool_call.gsql",
+    "csv": "edges/phx_dm_execution_has_tool_call.csv",
+    "kind": "edge",
+    "target": "phx_dm_execution_has_tool_call"
+  },
+  {
+    "order": 180,
+    "job_name": "load_phx_dm_execution_has_evaluation",
+    "file": "LOAD-180_phx_dm_execution_has_evaluation.gsql",
+    "csv": "edges/phx_dm_execution_has_evaluation.csv",
+    "kind": "edge",
+    "target": "phx_dm_execution_has_evaluation"
+  },
+  {
+    "order": 181,
+    "job_name": "load_phx_dm_execution_has_guardrail_event",
+    "file": "LOAD-181_phx_dm_execution_has_guardrail_event.gsql",
+    "csv": "edges/phx_dm_execution_has_guardrail_event.csv",
+    "kind": "edge",
+    "target": "phx_dm_execution_has_guardrail_event"
+  },
+  {
+    "order": 182,
+    "job_name": "load_phx_dm_execution_generated_reasoning",
+    "file": "LOAD-182_phx_dm_execution_generated_reasoning.gsql",
+    "csv": "edges/phx_dm_execution_generated_reasoning.csv",
+    "kind": "edge",
+    "target": "phx_dm_execution_generated_reasoning"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "missing_files": [],
+  "checks": {
+    "ui_remediation_present": true,
+    "tg_source_truth_present": true,
+    "graph_name_correct": true,
+    "query_contracts_prefixed": true,
+    "conflicting_gsql_removed": true,
+    "restpp_loader_present": true
+  }
+}

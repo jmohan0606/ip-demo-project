@@ -1,0 +1,16 @@
+{
+  "missing_files": [],
+  "validated_files": [
+    "frontend/components/graph-explorer/graph-explorer-workspace.tsx",
+    "frontend/components/graph-explorer/graph-node-card.tsx",
+    "frontend/app/(dashboard)/graph-explorer/page.tsx",
+    "frontend/lib/api/graph_explorer.ts",
+    "frontend/lib/types/graph_explorer.ts"
+  ],
+  "terms": [
+    "Graph Canvas",
+    "Node Details",
+    "Explainability Paths",
+    "Traversal Use Cases"
+  ]
+}

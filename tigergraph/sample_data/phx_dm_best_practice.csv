@@ -1,0 +1,4 @@
+best_practice_id,best_practice_name,practice_type,description,status,playbook_id
+BP001,Increase review meeting cadence,CRM,Meet with high-value households quarterly.,Active,PB001
+BP002,Target households with idle cash,Product Opportunity,Review cash balances and suitability.,Active,PB001
+BP003,Weekly AGP manager review,Coaching,Review on/off track goals weekly.,Active,PB003

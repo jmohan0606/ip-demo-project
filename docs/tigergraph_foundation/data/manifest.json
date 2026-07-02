@@ -1,0 +1,4082 @@
+{
+  "version": "1.1",
+  "graph_name": "iperform_insights_coaching_demo",
+  "batch_size": 500,
+  "files": [
+    {
+      "order": 1,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_persona_user.csv",
+      "target": "phx_dm_persona_user",
+      "id_column": "user_id",
+      "columns": {
+        "user_id": "user_id",
+        "display_name": "display_name",
+        "email": "email",
+        "role_code": "role_code",
+        "status": "status",
+        "default_scope_type": "default_scope_type",
+        "default_scope_id": "default_scope_id"
+      },
+      "required_columns": [
+        "user_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 85
+    },
+    {
+      "order": 2,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_firm.csv",
+      "target": "phx_dm_firm",
+      "id_column": "firm_id",
+      "columns": {
+        "firm_id": "firm_id",
+        "firm_name": "firm_name",
+        "firm_code": "firm_code",
+        "status": "status"
+      },
+      "required_columns": [
+        "firm_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 1
+    },
+    {
+      "order": 3,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_division.csv",
+      "target": "phx_dm_division",
+      "id_column": "division_id",
+      "columns": {
+        "division_id": "division_id",
+        "division_name": "division_name",
+        "division_code": "division_code",
+        "status": "status"
+      },
+      "required_columns": [
+        "division_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 3
+    },
+    {
+      "order": 4,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_region.csv",
+      "target": "phx_dm_region",
+      "id_column": "region_id",
+      "columns": {
+        "region_id": "region_id",
+        "region_name": "region_name",
+        "region_code": "region_code",
+        "status": "status"
+      },
+      "required_columns": [
+        "region_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 6
+    },
+    {
+      "order": 5,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_market.csv",
+      "target": "phx_dm_market",
+      "id_column": "market_id",
+      "columns": {
+        "market_id": "market_id",
+        "market_name": "market_name",
+        "market_code": "market_code",
+        "status": "status"
+      },
+      "required_columns": [
+        "market_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 12
+    },
+    {
+      "order": 6,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_branch.csv",
+      "target": "phx_dm_branch",
+      "id_column": "branch_id",
+      "columns": {
+        "branch_id": "branch_id",
+        "branch_name": "branch_name",
+        "branch_code": "branch_code",
+        "status": "status",
+        "city": "city",
+        "state": "state"
+      },
+      "required_columns": [
+        "branch_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 7,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_advisor.csv",
+      "target": "phx_dm_advisor",
+      "id_column": "advisor_id",
+      "columns": {
+        "advisor_id": "advisor_id",
+        "advisor_name": "advisor_name",
+        "employee_id": "employee_id",
+        "status": "status",
+        "hire_date": "hire_date",
+        "tenure_months": "tenure_months",
+        "agp_flag": "agp_flag",
+        "segment": "segment"
+      },
+      "required_columns": [
+        "advisor_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 60
+    },
+    {
+      "order": 8,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_rep_pool.csv",
+      "target": "phx_dm_rep_pool",
+      "id_column": "rep_pool_id",
+      "columns": {
+        "rep_pool_id": "rep_pool_id",
+        "pool_name": "pool_name",
+        "pool_type": "pool_type",
+        "status": "status"
+      },
+      "required_columns": [
+        "rep_pool_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 6
+    },
+    {
+      "order": 9,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_household.csv",
+      "target": "phx_dm_household",
+      "id_column": "household_id",
+      "columns": {
+        "household_id": "household_id",
+        "household_name": "household_name",
+        "segment": "segment",
+        "risk_profile": "risk_profile",
+        "status": "status",
+        "total_aum": "total_aum",
+        "state": "state"
+      },
+      "required_columns": [
+        "household_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 360
+    },
+    {
+      "order": 10,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_account.csv",
+      "target": "phx_dm_account",
+      "id_column": "account_id",
+      "columns": {
+        "account_id": "account_id",
+        "account_name": "account_name",
+        "account_type": "account_type",
+        "status": "status",
+        "opened_date": "opened_date",
+        "current_value": "current_value"
+      },
+      "required_columns": [
+        "account_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 720
+    },
+    {
+      "order": 11,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_product_category.csv",
+      "target": "phx_dm_product_category",
+      "id_column": "category_id",
+      "columns": {
+        "category_id": "category_id",
+        "category_name": "category_name",
+        "status": "status"
+      },
+      "required_columns": [
+        "category_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 8
+    },
+    {
+      "order": 12,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_product_subcategory.csv",
+      "target": "phx_dm_product_subcategory",
+      "id_column": "subcategory_id",
+      "columns": {
+        "subcategory_id": "subcategory_id",
+        "subcategory_name": "subcategory_name",
+        "status": "status"
+      },
+      "required_columns": [
+        "subcategory_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 16
+    },
+    {
+      "order": 13,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_product.csv",
+      "target": "phx_dm_product",
+      "id_column": "product_id",
+      "columns": {
+        "product_id": "product_id",
+        "product_name": "product_name",
+        "product_code": "product_code",
+        "risk_level": "risk_level",
+        "managed_flag": "managed_flag",
+        "status": "status"
+      },
+      "required_columns": [
+        "product_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 64
+    },
+    {
+      "order": 14,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_time_period.csv",
+      "target": "phx_dm_time_period",
+      "id_column": "period_id",
+      "columns": {
+        "period_id": "period_id",
+        "period_type": "period_type",
+        "start_date": "start_date",
+        "end_date": "end_date",
+        "year": "year",
+        "quarter": "quarter",
+        "month": "month",
+        "label": "label"
+      },
+      "required_columns": [
+        "period_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 15,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_revenue_transaction.csv",
+      "target": "phx_dm_revenue_transaction",
+      "id_column": "transaction_id",
+      "columns": {
+        "transaction_id": "transaction_id",
+        "transaction_date": "transaction_date",
+        "revenue_amount": "revenue_amount",
+        "transaction_type": "transaction_type",
+        "quantity": "quantity",
+        "gross_amount": "gross_amount",
+        "source_system": "source_system"
+      },
+      "required_columns": [
+        "transaction_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10080
+    },
+    {
+      "order": 16,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_monthly_aum.csv",
+      "target": "phx_dm_monthly_aum",
+      "id_column": "aum_id",
+      "columns": {
+        "aum_id": "aum_id",
+        "month_end": "month_end",
+        "aum_amount": "aum_amount"
+      },
+      "required_columns": [
+        "aum_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 1440
+    },
+    {
+      "order": 17,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_monthly_ncf.csv",
+      "target": "phx_dm_monthly_ncf",
+      "id_column": "ncf_id",
+      "columns": {
+        "ncf_id": "ncf_id",
+        "month_end": "month_end",
+        "ncf_amount": "ncf_amount"
+      },
+      "required_columns": [
+        "ncf_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 1440
+    },
+    {
+      "order": 18,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_monthly_nnm.csv",
+      "target": "phx_dm_monthly_nnm",
+      "id_column": "nnm_id",
+      "columns": {
+        "nnm_id": "nnm_id",
+        "month_end": "month_end",
+        "nnm_amount": "nnm_amount"
+      },
+      "required_columns": [
+        "nnm_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 1440
+    },
+    {
+      "order": 19,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_monthly_product_revenue.csv",
+      "target": "phx_dm_monthly_product_revenue",
+      "id_column": "product_revenue_id",
+      "columns": {
+        "product_revenue_id": "product_revenue_id",
+        "month_end": "month_end",
+        "revenue_amount": "revenue_amount"
+      },
+      "required_columns": [
+        "product_revenue_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 4320
+    },
+    {
+      "order": 20,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_eligibility.csv",
+      "target": "phx_dm_eligibility",
+      "id_column": "eligibility_id",
+      "columns": {
+        "eligibility_id": "eligibility_id",
+        "eligibility_type": "eligibility_type",
+        "eligible_flag": "eligible_flag",
+        "reason": "reason",
+        "effective_date": "effective_date",
+        "expiration_date": "expiration_date"
+      },
+      "required_columns": [
+        "eligibility_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 122
+    },
+    {
+      "order": 21,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_crm_activity.csv",
+      "target": "phx_dm_crm_activity",
+      "id_column": "activity_id",
+      "columns": {
+        "activity_id": "activity_id",
+        "activity_type": "activity_type",
+        "activity_date": "activity_date",
+        "status": "status",
+        "subject": "subject",
+        "notes_summary": "notes_summary",
+        "next_action": "next_action",
+        "next_action_date": "next_action_date",
+        "sentiment": "sentiment"
+      },
+      "required_columns": [
+        "activity_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 300
+    },
+    {
+      "order": 22,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_crm_lead.csv",
+      "target": "phx_dm_crm_lead",
+      "id_column": "lead_id",
+      "columns": {
+        "lead_id": "lead_id",
+        "source": "source",
+        "created_date": "created_date",
+        "due_date": "due_date",
+        "status": "status",
+        "completed_date": "completed_date",
+        "converted_flag": "converted_flag",
+        "priority": "priority",
+        "estimated_value": "estimated_value"
+      },
+      "required_columns": [
+        "lead_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 300
+    },
+    {
+      "order": 23,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_crm_referral.csv",
+      "target": "phx_dm_crm_referral",
+      "id_column": "referral_id",
+      "columns": {
+        "referral_id": "referral_id",
+        "source": "source",
+        "received_date": "received_date",
+        "due_date": "due_date",
+        "status": "status",
+        "completed_date": "completed_date",
+        "converted_flag": "converted_flag",
+        "priority": "priority",
+        "estimated_value": "estimated_value"
+      },
+      "required_columns": [
+        "referral_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 180
+    },
+    {
+      "order": 24,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_crm_opportunity.csv",
+      "target": "phx_dm_crm_opportunity",
+      "id_column": "crm_opportunity_id",
+      "columns": {
+        "crm_opportunity_id": "crm_opportunity_id",
+        "name": "name",
+        "stage": "stage",
+        "amount": "amount",
+        "probability": "probability",
+        "expected_close_date": "expected_close_date",
+        "status": "status",
+        "next_action": "next_action",
+        "next_action_date": "next_action_date",
+        "source_type": "source_type"
+      },
+      "required_columns": [
+        "crm_opportunity_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 180
+    },
+    {
+      "order": 25,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agp_program.csv",
+      "target": "phx_dm_agp_program",
+      "id_column": "program_id",
+      "columns": {
+        "program_id": "program_id",
+        "program_name": "program_name",
+        "duration_months": "duration_months",
+        "status": "status",
+        "start_date": "start_date",
+        "end_date": "end_date"
+      },
+      "required_columns": [
+        "program_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 1
+    },
+    {
+      "order": 26,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agp_enrollment.csv",
+      "target": "phx_dm_agp_enrollment",
+      "id_column": "enrollment_id",
+      "columns": {
+        "enrollment_id": "enrollment_id",
+        "cohort": "cohort",
+        "start_date": "start_date",
+        "expected_end_date": "expected_end_date",
+        "actual_end_date": "actual_end_date",
+        "current_program_month": "current_program_month",
+        "status": "status"
+      },
+      "required_columns": [
+        "enrollment_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 27,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agp_milestone.csv",
+      "target": "phx_dm_agp_milestone",
+      "id_column": "milestone_id",
+      "columns": {
+        "milestone_id": "milestone_id",
+        "sequence_no": "sequence_no",
+        "milestone_month": "milestone_month",
+        "milestone_name": "milestone_name",
+        "due_offset_days": "due_offset_days",
+        "active_flag": "active_flag"
+      },
+      "required_columns": [
+        "milestone_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 8
+    },
+    {
+      "order": 28,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agp_milestone_progress.csv",
+      "target": "phx_dm_agp_milestone_progress",
+      "id_column": "milestone_progress_id",
+      "columns": {
+        "milestone_progress_id": "milestone_progress_id",
+        "due_date": "due_date",
+        "status": "status",
+        "attainment_pct": "attainment_pct",
+        "risk_score": "risk_score",
+        "evaluated_at": "evaluated_at"
+      },
+      "required_columns": [
+        "milestone_progress_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 192
+    },
+    {
+      "order": 29,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_goal.csv",
+      "target": "phx_dm_goal",
+      "id_column": "goal_id",
+      "columns": {
+        "goal_id": "goal_id",
+        "goal_name": "goal_name",
+        "goal_type": "goal_type",
+        "target_value": "target_value",
+        "unit": "unit",
+        "start_date": "start_date",
+        "end_date": "end_date",
+        "status": "status"
+      },
+      "required_columns": [
+        "goal_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 30,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_kpi.csv",
+      "target": "phx_dm_kpi",
+      "id_column": "kpi_id",
+      "columns": {
+        "kpi_id": "kpi_id",
+        "kpi_name": "kpi_name",
+        "kpi_code": "kpi_code",
+        "unit": "unit",
+        "direction": "direction",
+        "status": "status"
+      },
+      "required_columns": [
+        "kpi_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 5
+    },
+    {
+      "order": 31,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agp_kpi_measurement.csv",
+      "target": "phx_dm_agp_kpi_measurement",
+      "id_column": "measurement_id",
+      "columns": {
+        "measurement_id": "measurement_id",
+        "target_value": "target_value",
+        "actual_value": "actual_value",
+        "attainment_pct": "attainment_pct",
+        "status": "status",
+        "measured_at": "measured_at"
+      },
+      "required_columns": [
+        "measurement_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 960
+    },
+    {
+      "order": 32,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_coaching_session.csv",
+      "target": "phx_dm_coaching_session",
+      "id_column": "session_id",
+      "columns": {
+        "session_id": "session_id",
+        "session_date": "session_date",
+        "coach_user_id": "coach_user_id",
+        "session_type": "session_type",
+        "status": "status",
+        "summary": "summary",
+        "action_items_json": "action_items_json",
+        "next_session_date": "next_session_date"
+      },
+      "required_columns": [
+        "session_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 72
+    },
+    {
+      "order": 33,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_manager_review.csv",
+      "target": "phx_dm_manager_review",
+      "id_column": "review_id",
+      "columns": {
+        "review_id": "review_id",
+        "review_date": "review_date",
+        "reviewer_user_id": "reviewer_user_id",
+        "review_type": "review_type",
+        "rating": "rating",
+        "summary": "summary",
+        "status": "status"
+      },
+      "required_columns": [
+        "review_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 34,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_feature_snapshot.csv",
+      "target": "phx_dm_feature_snapshot",
+      "id_column": "feature_snapshot_id",
+      "columns": {
+        "feature_snapshot_id": "feature_snapshot_id",
+        "entity_type": "entity_type",
+        "entity_id": "entity_id",
+        "feature_group": "feature_group",
+        "feature_version": "feature_version",
+        "snapshot_time": "snapshot_time",
+        "features_json": "features_json",
+        "source_lineage_json": "source_lineage_json"
+      },
+      "required_columns": [
+        "feature_snapshot_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 212
+    },
+    {
+      "order": 35,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_embedding.csv",
+      "target": "phx_dm_embedding",
+      "id_column": "embedding_id",
+      "columns": {
+        "embedding_id": "embedding_id",
+        "entity_type": "entity_type",
+        "entity_id": "entity_id",
+        "model_name": "model_name",
+        "model_version": "model_version",
+        "dimensions": "dimensions",
+        "vector_preview": "vector_preview",
+        "generated_at": "generated_at"
+      },
+      "required_columns": [
+        "embedding_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 212
+    },
+    {
+      "order": 36,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_similarity_match.csv",
+      "target": "phx_dm_similarity_match",
+      "id_column": "similarity_id",
+      "columns": {
+        "similarity_id": "similarity_id",
+        "entity_type": "entity_type",
+        "source_entity_id": "source_entity_id",
+        "target_entity_id": "target_entity_id",
+        "model_version": "model_version",
+        "similarity_score": "similarity_score",
+        "reason_json": "reason_json",
+        "generated_at": "generated_at"
+      },
+      "required_columns": [
+        "similarity_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 212
+    },
+    {
+      "order": 37,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_prediction_result.csv",
+      "target": "phx_dm_prediction_result",
+      "id_column": "prediction_id",
+      "columns": {
+        "prediction_id": "prediction_id",
+        "prediction_type": "prediction_type",
+        "target_type": "target_type",
+        "target_id": "target_id",
+        "score": "score",
+        "confidence": "confidence",
+        "risk_band": "risk_band",
+        "severity": "severity",
+        "horizon_days": "horizon_days",
+        "explanation": "explanation",
+        "status": "status",
+        "generated_at": "generated_at"
+      },
+      "required_columns": [
+        "prediction_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 120
+    },
+    {
+      "order": 38,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_opportunity.csv",
+      "target": "phx_dm_opportunity",
+      "id_column": "opportunity_id",
+      "columns": {
+        "opportunity_id": "opportunity_id",
+        "opportunity_type": "opportunity_type",
+        "category": "category",
+        "target_type": "target_type",
+        "target_id": "target_id",
+        "score": "score",
+        "severity": "severity",
+        "estimated_revenue_impact": "estimated_revenue_impact",
+        "impact_summary": "impact_summary",
+        "status": "status",
+        "generated_at": "generated_at"
+      },
+      "required_columns": [
+        "opportunity_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 120
+    },
+    {
+      "order": 39,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_recommendation.csv",
+      "target": "phx_dm_recommendation",
+      "id_column": "recommendation_id",
+      "columns": {
+        "recommendation_id": "recommendation_id",
+        "recommendation_type": "recommendation_type",
+        "title": "title",
+        "action_text": "action_text",
+        "priority_score": "priority_score",
+        "severity": "severity",
+        "confidence": "confidence",
+        "estimated_revenue_impact": "estimated_revenue_impact",
+        "impact_summary": "impact_summary",
+        "status": "status",
+        "due_date": "due_date",
+        "generated_at": "generated_at"
+      },
+      "required_columns": [
+        "recommendation_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 120
+    },
+    {
+      "order": 40,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_feedback_event.csv",
+      "target": "phx_dm_feedback_event",
+      "id_column": "feedback_id",
+      "columns": {
+        "feedback_id": "feedback_id",
+        "action": "action",
+        "reason_code": "reason_code",
+        "reason_text": "reason_text",
+        "created_at": "created_at",
+        "user_id": "user_id"
+      },
+      "required_columns": [
+        "feedback_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 36
+    },
+    {
+      "order": 41,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_outcome_event.csv",
+      "target": "phx_dm_outcome_event",
+      "id_column": "outcome_id",
+      "columns": {
+        "outcome_id": "outcome_id",
+        "outcome_type": "outcome_type",
+        "outcome_value": "outcome_value",
+        "outcome_unit": "outcome_unit",
+        "observed_at": "observed_at",
+        "notes": "notes"
+      },
+      "required_columns": [
+        "outcome_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 36
+    },
+    {
+      "order": 42,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_learning_signal.csv",
+      "target": "phx_dm_learning_signal",
+      "id_column": "learning_signal_id",
+      "columns": {
+        "learning_signal_id": "learning_signal_id",
+        "signal_type": "signal_type",
+        "reward": "reward",
+        "score_delta": "score_delta",
+        "signal_json": "signal_json",
+        "created_at": "created_at"
+      },
+      "required_columns": [
+        "learning_signal_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 36
+    },
+    {
+      "order": 43,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_context_memory.csv",
+      "target": "phx_dm_context_memory",
+      "id_column": "memory_id",
+      "columns": {
+        "memory_id": "memory_id",
+        "memory_type": "memory_type",
+        "subject_type": "subject_type",
+        "subject_id": "subject_id",
+        "content": "content",
+        "source_type": "source_type",
+        "source_id": "source_id",
+        "confidence": "confidence",
+        "effective_date": "effective_date",
+        "expiration_date": "expiration_date",
+        "status": "status"
+      },
+      "required_columns": [
+        "memory_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 136
+    },
+    {
+      "order": 44,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_conversation_turn.csv",
+      "target": "phx_dm_conversation_turn",
+      "id_column": "turn_id",
+      "columns": {
+        "turn_id": "turn_id",
+        "conversation_id": "conversation_id",
+        "turn_no": "turn_no",
+        "speaker": "speaker",
+        "content": "content",
+        "created_at": "created_at",
+        "intent": "intent"
+      },
+      "required_columns": [
+        "turn_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 45,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_reasoning_trace.csv",
+      "target": "phx_dm_reasoning_trace",
+      "id_column": "reasoning_id",
+      "columns": {
+        "reasoning_id": "reasoning_id",
+        "artifact_type": "artifact_type",
+        "artifact_id": "artifact_id",
+        "reasoning_steps_json": "reasoning_steps_json",
+        "evidence_json": "evidence_json",
+        "model_name": "model_name",
+        "prompt_version": "prompt_version",
+        "confidence": "confidence",
+        "created_at": "created_at"
+      },
+      "required_columns": [
+        "reasoning_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 120
+    },
+    {
+      "order": 46,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_document.csv",
+      "target": "phx_dm_document",
+      "id_column": "document_id",
+      "columns": {
+        "document_id": "document_id",
+        "title": "title",
+        "document_type": "document_type",
+        "source": "source",
+        "version": "version",
+        "status": "status",
+        "published_date": "published_date"
+      },
+      "required_columns": [
+        "document_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 8
+    },
+    {
+      "order": 47,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_document_chunk.csv",
+      "target": "phx_dm_document_chunk",
+      "id_column": "chunk_id",
+      "columns": {
+        "chunk_id": "chunk_id",
+        "chunk_no": "chunk_no",
+        "content": "content",
+        "token_count": "token_count",
+        "embedding_ref": "embedding_ref"
+      },
+      "required_columns": [
+        "chunk_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 24
+    },
+    {
+      "order": 48,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_playbook.csv",
+      "target": "phx_dm_playbook",
+      "id_column": "playbook_id",
+      "columns": {
+        "playbook_id": "playbook_id",
+        "playbook_name": "playbook_name",
+        "category": "category",
+        "version": "version",
+        "status": "status",
+        "summary": "summary"
+      },
+      "required_columns": [
+        "playbook_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 6
+    },
+    {
+      "order": 49,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_best_practice.csv",
+      "target": "phx_dm_best_practice",
+      "id_column": "best_practice_id",
+      "columns": {
+        "best_practice_id": "best_practice_id",
+        "title": "title",
+        "category": "category",
+        "summary": "summary",
+        "status": "status"
+      },
+      "required_columns": [
+        "best_practice_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 6
+    },
+    {
+      "order": 50,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_business_glossary_term.csv",
+      "target": "phx_dm_business_glossary_term",
+      "id_column": "term_id",
+      "columns": {
+        "term_id": "term_id",
+        "term": "term",
+        "definition": "definition",
+        "domain": "domain",
+        "status": "status"
+      },
+      "required_columns": [
+        "term_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 6
+    },
+    {
+      "order": 51,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_notification.csv",
+      "target": "phx_dm_notification",
+      "id_column": "notification_id",
+      "columns": {
+        "notification_id": "notification_id",
+        "notification_type": "notification_type",
+        "title": "title",
+        "message": "message",
+        "severity": "severity",
+        "status": "status",
+        "created_at": "created_at",
+        "due_date": "due_date"
+      },
+      "required_columns": [
+        "notification_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 60
+    },
+    {
+      "order": 52,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_simulation_scenario.csv",
+      "target": "phx_dm_simulation_scenario",
+      "id_column": "scenario_id",
+      "columns": {
+        "scenario_id": "scenario_id",
+        "scenario_type": "scenario_type",
+        "scope_type": "scope_type",
+        "scope_id": "scope_id",
+        "assumptions_json": "assumptions_json",
+        "baseline_json": "baseline_json",
+        "projected_json": "projected_json",
+        "created_at": "created_at"
+      },
+      "required_columns": [
+        "scenario_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 53,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_agent_execution.csv",
+      "target": "phx_dm_agent_execution",
+      "id_column": "execution_id",
+      "columns": {
+        "execution_id": "execution_id",
+        "agent_name": "agent_name",
+        "workflow_name": "workflow_name",
+        "persona": "persona",
+        "scope_type": "scope_type",
+        "scope_id": "scope_id",
+        "status": "status",
+        "started_at": "started_at",
+        "completed_at": "completed_at",
+        "latency_ms": "latency_ms",
+        "model_name": "model_name",
+        "prompt_version": "prompt_version"
+      },
+      "required_columns": [
+        "execution_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 54,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_tool_call.csv",
+      "target": "phx_dm_tool_call",
+      "id_column": "tool_call_id",
+      "columns": {
+        "tool_call_id": "tool_call_id",
+        "tool_name": "tool_name",
+        "operation": "operation",
+        "request_summary": "request_summary",
+        "response_summary": "response_summary",
+        "status": "status",
+        "latency_ms": "latency_ms",
+        "error_code": "error_code"
+      },
+      "required_columns": [
+        "tool_call_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 55,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_evaluation_result.csv",
+      "target": "phx_dm_evaluation_result",
+      "id_column": "evaluation_id",
+      "columns": {
+        "evaluation_id": "evaluation_id",
+        "evaluator": "evaluator",
+        "relevance_score": "relevance_score",
+        "groundedness_score": "groundedness_score",
+        "safety_score": "safety_score",
+        "confidence_score": "confidence_score",
+        "threshold": "threshold",
+        "passed": "passed"
+      },
+      "required_columns": [
+        "evaluation_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 56,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_guardrail_event.csv",
+      "target": "phx_dm_guardrail_event",
+      "id_column": "guardrail_event_id",
+      "columns": {
+        "guardrail_event_id": "guardrail_event_id",
+        "event_type": "event_type",
+        "severity": "severity",
+        "action": "action",
+        "matched_rule": "matched_rule",
+        "redacted_content": "redacted_content",
+        "created_at": "created_at"
+      },
+      "required_columns": [
+        "guardrail_event_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 10
+    },
+    {
+      "order": 57,
+      "kind": "edge",
+      "file": "edges/phx_dm_division_in_firm.csv",
+      "target": "phx_dm_division_in_firm",
+      "from_type": "phx_dm_division",
+      "to_type": "phx_dm_firm",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_division.csv",
+        "vertices/phx_dm_firm.csv"
+      ],
+      "expected_rows": 3
+    },
+    {
+      "order": 58,
+      "kind": "edge",
+      "file": "edges/phx_dm_region_in_division.csv",
+      "target": "phx_dm_region_in_division",
+      "from_type": "phx_dm_region",
+      "to_type": "phx_dm_division",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_region.csv",
+        "vertices/phx_dm_division.csv"
+      ],
+      "expected_rows": 6
+    },
+    {
+      "order": 59,
+      "kind": "edge",
+      "file": "edges/phx_dm_market_in_region.csv",
+      "target": "phx_dm_market_in_region",
+      "from_type": "phx_dm_market",
+      "to_type": "phx_dm_region",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_market.csv",
+        "vertices/phx_dm_region.csv"
+      ],
+      "expected_rows": 12
+    },
+    {
+      "order": 60,
+      "kind": "edge",
+      "file": "edges/phx_dm_branch_in_market.csv",
+      "target": "phx_dm_branch_in_market",
+      "from_type": "phx_dm_branch",
+      "to_type": "phx_dm_market",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_branch.csv",
+        "vertices/phx_dm_market.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 61,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_in_branch.csv",
+      "target": "phx_dm_advisor_in_branch",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_branch",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_branch.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 62,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_in_market.csv",
+      "target": "phx_dm_advisor_in_market",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_market",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_market.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 63,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_in_rep_pool.csv",
+      "target": "phx_dm_advisor_in_rep_pool",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_rep_pool",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_rep_pool.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 64,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_scoped_to_firm.csv",
+      "target": "phx_dm_user_scoped_to_firm",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_firm",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "primary_scope": "primary_scope"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_firm.csv"
+      ],
+      "expected_rows": 3
+    },
+    {
+      "order": 65,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_scoped_to_division.csv",
+      "target": "phx_dm_user_scoped_to_division",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_division",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "primary_scope": "primary_scope"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_division.csv"
+      ],
+      "expected_rows": 3
+    },
+    {
+      "order": 66,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_scoped_to_region.csv",
+      "target": "phx_dm_user_scoped_to_region",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_region",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "primary_scope": "primary_scope"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_region.csv"
+      ],
+      "expected_rows": 6
+    },
+    {
+      "order": 67,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_scoped_to_market.csv",
+      "target": "phx_dm_user_scoped_to_market",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_market",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "primary_scope": "primary_scope"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_market.csv"
+      ],
+      "expected_rows": 12
+    },
+    {
+      "order": 68,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_scoped_to_branch.csv",
+      "target": "phx_dm_user_scoped_to_branch",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_branch",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "primary_scope": "primary_scope"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_branch.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 69,
+      "kind": "edge",
+      "file": "edges/phx_dm_user_represents_advisor.csv",
+      "target": "phx_dm_user_represents_advisor",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 70,
+      "kind": "edge",
+      "file": "edges/phx_dm_ddw_manages_rdw.csv",
+      "target": "phx_dm_ddw_manages_rdw",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_persona_user",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "effective_date": "effective_date"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_persona_user.csv"
+      ],
+      "expected_rows": 6
+    },
+    {
+      "order": 71,
+      "kind": "edge",
+      "file": "edges/phx_dm_rdw_manages_mdw.csv",
+      "target": "phx_dm_rdw_manages_mdw",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_persona_user",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "effective_date": "effective_date"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_persona_user.csv"
+      ],
+      "expected_rows": 12
+    },
+    {
+      "order": 72,
+      "kind": "edge",
+      "file": "edges/phx_dm_mdw_manages_advisor.csv",
+      "target": "phx_dm_mdw_manages_advisor",
+      "from_type": "phx_dm_persona_user",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "effective_date": "effective_date"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_persona_user.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 73,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_serves_household.csv",
+      "target": "phx_dm_advisor_serves_household",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "relationship_start": "relationship_start",
+        "primary_flag": "primary_flag"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 360
+    },
+    {
+      "order": 74,
+      "kind": "edge",
+      "file": "edges/phx_dm_household_owns_account.csv",
+      "target": "phx_dm_household_owns_account",
+      "from_type": "phx_dm_household",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "ownership_pct": "ownership_pct"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_household.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 720
+    },
+    {
+      "order": 75,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_in_subcategory.csv",
+      "target": "phx_dm_product_in_subcategory",
+      "from_type": "phx_dm_product",
+      "to_type": "phx_dm_product_subcategory",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_product.csv",
+        "vertices/phx_dm_product_subcategory.csv"
+      ],
+      "expected_rows": 64
+    },
+    {
+      "order": 76,
+      "kind": "edge",
+      "file": "edges/phx_dm_subcategory_in_category.csv",
+      "target": "phx_dm_subcategory_in_category",
+      "from_type": "phx_dm_product_subcategory",
+      "to_type": "phx_dm_product_category",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_product_subcategory.csv",
+        "vertices/phx_dm_product_category.csv"
+      ],
+      "expected_rows": 16
+    },
+    {
+      "order": 77,
+      "kind": "edge",
+      "file": "edges/phx_dm_account_holds_product.csv",
+      "target": "phx_dm_account_holds_product",
+      "from_type": "phx_dm_account",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id",
+        "market_value": "market_value",
+        "allocation_pct": "allocation_pct",
+        "as_of_date": "as_of_date"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_account.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 2880
+    },
+    {
+      "order": 78,
+      "kind": "edge",
+      "file": "edges/phx_dm_transaction_for_advisor.csv",
+      "target": "phx_dm_transaction_for_advisor",
+      "from_type": "phx_dm_revenue_transaction",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_revenue_transaction.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 10080
+    },
+    {
+      "order": 79,
+      "kind": "edge",
+      "file": "edges/phx_dm_transaction_for_household.csv",
+      "target": "phx_dm_transaction_for_household",
+      "from_type": "phx_dm_revenue_transaction",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_revenue_transaction.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 10080
+    },
+    {
+      "order": 80,
+      "kind": "edge",
+      "file": "edges/phx_dm_transaction_for_account.csv",
+      "target": "phx_dm_transaction_for_account",
+      "from_type": "phx_dm_revenue_transaction",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_revenue_transaction.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 10080
+    },
+    {
+      "order": 81,
+      "kind": "edge",
+      "file": "edges/phx_dm_transaction_for_product.csv",
+      "target": "phx_dm_transaction_for_product",
+      "from_type": "phx_dm_revenue_transaction",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_revenue_transaction.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 10080
+    },
+    {
+      "order": 82,
+      "kind": "edge",
+      "file": "edges/phx_dm_transaction_in_period.csv",
+      "target": "phx_dm_transaction_in_period",
+      "from_type": "phx_dm_revenue_transaction",
+      "to_type": "phx_dm_time_period",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_revenue_transaction.csv",
+        "vertices/phx_dm_time_period.csv"
+      ],
+      "expected_rows": 10080
+    },
+    {
+      "order": 83,
+      "kind": "edge",
+      "file": "edges/phx_dm_aum_for_advisor.csv",
+      "target": "phx_dm_aum_for_advisor",
+      "from_type": "phx_dm_monthly_aum",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_aum.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 84,
+      "kind": "edge",
+      "file": "edges/phx_dm_aum_in_period.csv",
+      "target": "phx_dm_aum_in_period",
+      "from_type": "phx_dm_monthly_aum",
+      "to_type": "phx_dm_time_period",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_aum.csv",
+        "vertices/phx_dm_time_period.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 85,
+      "kind": "edge",
+      "file": "edges/phx_dm_ncf_for_advisor.csv",
+      "target": "phx_dm_ncf_for_advisor",
+      "from_type": "phx_dm_monthly_ncf",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_ncf.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 86,
+      "kind": "edge",
+      "file": "edges/phx_dm_ncf_in_period.csv",
+      "target": "phx_dm_ncf_in_period",
+      "from_type": "phx_dm_monthly_ncf",
+      "to_type": "phx_dm_time_period",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_ncf.csv",
+        "vertices/phx_dm_time_period.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 87,
+      "kind": "edge",
+      "file": "edges/phx_dm_nnm_for_advisor.csv",
+      "target": "phx_dm_nnm_for_advisor",
+      "from_type": "phx_dm_monthly_nnm",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_nnm.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 88,
+      "kind": "edge",
+      "file": "edges/phx_dm_nnm_in_period.csv",
+      "target": "phx_dm_nnm_in_period",
+      "from_type": "phx_dm_monthly_nnm",
+      "to_type": "phx_dm_time_period",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_nnm.csv",
+        "vertices/phx_dm_time_period.csv"
+      ],
+      "expected_rows": 1440
+    },
+    {
+      "order": 89,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_revenue_for_advisor.csv",
+      "target": "phx_dm_product_revenue_for_advisor",
+      "from_type": "phx_dm_monthly_product_revenue",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_product_revenue.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 4320
+    },
+    {
+      "order": 90,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_revenue_for_product.csv",
+      "target": "phx_dm_product_revenue_for_product",
+      "from_type": "phx_dm_monthly_product_revenue",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_product_revenue.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 4320
+    },
+    {
+      "order": 91,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_revenue_in_period.csv",
+      "target": "phx_dm_product_revenue_in_period",
+      "from_type": "phx_dm_monthly_product_revenue",
+      "to_type": "phx_dm_time_period",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_monthly_product_revenue.csv",
+        "vertices/phx_dm_time_period.csv"
+      ],
+      "expected_rows": 4320
+    },
+    {
+      "order": 92,
+      "kind": "edge",
+      "file": "edges/phx_dm_eligibility_for_advisor.csv",
+      "target": "phx_dm_eligibility_for_advisor",
+      "from_type": "phx_dm_eligibility",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_eligibility.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 93,
+      "kind": "edge",
+      "file": "edges/phx_dm_eligibility_for_household.csv",
+      "target": "phx_dm_eligibility_for_household",
+      "from_type": "phx_dm_eligibility",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_eligibility.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 94,
+      "kind": "edge",
+      "file": "edges/phx_dm_eligibility_for_product.csv",
+      "target": "phx_dm_eligibility_for_product",
+      "from_type": "phx_dm_eligibility",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_eligibility.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 32
+    },
+    {
+      "order": 95,
+      "kind": "edge",
+      "file": "edges/phx_dm_activity_for_advisor.csv",
+      "target": "phx_dm_activity_for_advisor",
+      "from_type": "phx_dm_crm_activity",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_activity.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 300
+    },
+    {
+      "order": 96,
+      "kind": "edge",
+      "file": "edges/phx_dm_activity_for_household.csv",
+      "target": "phx_dm_activity_for_household",
+      "from_type": "phx_dm_crm_activity",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_activity.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 300
+    },
+    {
+      "order": 97,
+      "kind": "edge",
+      "file": "edges/phx_dm_activity_for_account.csv",
+      "target": "phx_dm_activity_for_account",
+      "from_type": "phx_dm_crm_activity",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_activity.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 300
+    },
+    {
+      "order": 98,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_crm_lead.csv",
+      "target": "phx_dm_advisor_has_crm_lead",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_crm_lead",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_crm_lead.csv"
+      ],
+      "expected_rows": 300
+    },
+    {
+      "order": 99,
+      "kind": "edge",
+      "file": "edges/phx_dm_lead_for_household.csv",
+      "target": "phx_dm_lead_for_household",
+      "from_type": "phx_dm_crm_lead",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_lead.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 300
+    },
+    {
+      "order": 100,
+      "kind": "edge",
+      "file": "edges/phx_dm_lead_generates_crm_opportunity.csv",
+      "target": "phx_dm_lead_generates_crm_opportunity",
+      "from_type": "phx_dm_crm_lead",
+      "to_type": "phx_dm_crm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_lead.csv",
+        "vertices/phx_dm_crm_opportunity.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 101,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_crm_referral.csv",
+      "target": "phx_dm_advisor_has_crm_referral",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_crm_referral",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_crm_referral.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 102,
+      "kind": "edge",
+      "file": "edges/phx_dm_referral_for_household.csv",
+      "target": "phx_dm_referral_for_household",
+      "from_type": "phx_dm_crm_referral",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_referral.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 103,
+      "kind": "edge",
+      "file": "edges/phx_dm_referral_generates_crm_opportunity.csv",
+      "target": "phx_dm_referral_generates_crm_opportunity",
+      "from_type": "phx_dm_crm_referral",
+      "to_type": "phx_dm_crm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_referral.csv",
+        "vertices/phx_dm_crm_opportunity.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 104,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_crm_opportunity.csv",
+      "target": "phx_dm_advisor_has_crm_opportunity",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_crm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_crm_opportunity.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 105,
+      "kind": "edge",
+      "file": "edges/phx_dm_crm_opportunity_for_household.csv",
+      "target": "phx_dm_crm_opportunity_for_household",
+      "from_type": "phx_dm_crm_opportunity",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_opportunity.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 106,
+      "kind": "edge",
+      "file": "edges/phx_dm_crm_opportunity_for_account.csv",
+      "target": "phx_dm_crm_opportunity_for_account",
+      "from_type": "phx_dm_crm_opportunity",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_opportunity.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 107,
+      "kind": "edge",
+      "file": "edges/phx_dm_crm_opportunity_for_product.csv",
+      "target": "phx_dm_crm_opportunity_for_product",
+      "from_type": "phx_dm_crm_opportunity",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_crm_opportunity.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 180
+    },
+    {
+      "order": 108,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_agp_enrollment.csv",
+      "target": "phx_dm_advisor_has_agp_enrollment",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_agp_enrollment",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_agp_enrollment.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 109,
+      "kind": "edge",
+      "file": "edges/phx_dm_enrollment_in_agp_program.csv",
+      "target": "phx_dm_enrollment_in_agp_program",
+      "from_type": "phx_dm_agp_enrollment",
+      "to_type": "phx_dm_agp_program",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_enrollment.csv",
+        "vertices/phx_dm_agp_program.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 110,
+      "kind": "edge",
+      "file": "edges/phx_dm_agp_program_has_milestone.csv",
+      "target": "phx_dm_agp_program_has_milestone",
+      "from_type": "phx_dm_agp_program",
+      "to_type": "phx_dm_agp_milestone",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_program.csv",
+        "vertices/phx_dm_agp_milestone.csv"
+      ],
+      "expected_rows": 8
+    },
+    {
+      "order": 111,
+      "kind": "edge",
+      "file": "edges/phx_dm_enrollment_has_milestone_progress.csv",
+      "target": "phx_dm_enrollment_has_milestone_progress",
+      "from_type": "phx_dm_agp_enrollment",
+      "to_type": "phx_dm_agp_milestone_progress",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_enrollment.csv",
+        "vertices/phx_dm_agp_milestone_progress.csv"
+      ],
+      "expected_rows": 192
+    },
+    {
+      "order": 112,
+      "kind": "edge",
+      "file": "edges/phx_dm_progress_for_milestone.csv",
+      "target": "phx_dm_progress_for_milestone",
+      "from_type": "phx_dm_agp_milestone_progress",
+      "to_type": "phx_dm_agp_milestone",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_milestone_progress.csv",
+        "vertices/phx_dm_agp_milestone.csv"
+      ],
+      "expected_rows": 192
+    },
+    {
+      "order": 113,
+      "kind": "edge",
+      "file": "edges/phx_dm_progress_has_kpi_measurement.csv",
+      "target": "phx_dm_progress_has_kpi_measurement",
+      "from_type": "phx_dm_agp_milestone_progress",
+      "to_type": "phx_dm_agp_kpi_measurement",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_milestone_progress.csv",
+        "vertices/phx_dm_agp_kpi_measurement.csv"
+      ],
+      "expected_rows": 960
+    },
+    {
+      "order": 114,
+      "kind": "edge",
+      "file": "edges/phx_dm_measurement_for_kpi.csv",
+      "target": "phx_dm_measurement_for_kpi",
+      "from_type": "phx_dm_agp_kpi_measurement",
+      "to_type": "phx_dm_kpi",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agp_kpi_measurement.csv",
+        "vertices/phx_dm_kpi.csv"
+      ],
+      "expected_rows": 960
+    },
+    {
+      "order": 115,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_goal.csv",
+      "target": "phx_dm_advisor_has_goal",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_goal",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_goal.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 116,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_kpi.csv",
+      "target": "phx_dm_advisor_has_kpi",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_kpi",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_kpi.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 117,
+      "kind": "edge",
+      "file": "edges/phx_dm_coaching_for_advisor.csv",
+      "target": "phx_dm_coaching_for_advisor",
+      "from_type": "phx_dm_coaching_session",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_coaching_session.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 72
+    },
+    {
+      "order": 118,
+      "kind": "edge",
+      "file": "edges/phx_dm_coaching_for_enrollment.csv",
+      "target": "phx_dm_coaching_for_enrollment",
+      "from_type": "phx_dm_coaching_session",
+      "to_type": "phx_dm_agp_enrollment",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_coaching_session.csv",
+        "vertices/phx_dm_agp_enrollment.csv"
+      ],
+      "expected_rows": 72
+    },
+    {
+      "order": 119,
+      "kind": "edge",
+      "file": "edges/phx_dm_review_for_advisor.csv",
+      "target": "phx_dm_review_for_advisor",
+      "from_type": "phx_dm_manager_review",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_manager_review.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 120,
+      "kind": "edge",
+      "file": "edges/phx_dm_review_for_enrollment.csv",
+      "target": "phx_dm_review_for_enrollment",
+      "from_type": "phx_dm_manager_review",
+      "to_type": "phx_dm_agp_enrollment",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_manager_review.csv",
+        "vertices/phx_dm_agp_enrollment.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 121,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_feature_snapshot.csv",
+      "target": "phx_dm_advisor_has_feature_snapshot",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 122,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_embedding.csv",
+      "target": "phx_dm_advisor_has_embedding",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_embedding",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_embedding.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 123,
+      "kind": "edge",
+      "file": "edges/phx_dm_advisor_has_similarity_match.csv",
+      "target": "phx_dm_advisor_has_similarity_match",
+      "from_type": "phx_dm_advisor",
+      "to_type": "phx_dm_similarity_match",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_advisor.csv",
+        "vertices/phx_dm_similarity_match.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 124,
+      "kind": "edge",
+      "file": "edges/phx_dm_household_has_feature_snapshot.csv",
+      "target": "phx_dm_household_has_feature_snapshot",
+      "from_type": "phx_dm_household",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_household.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 125,
+      "kind": "edge",
+      "file": "edges/phx_dm_household_has_embedding.csv",
+      "target": "phx_dm_household_has_embedding",
+      "from_type": "phx_dm_household",
+      "to_type": "phx_dm_embedding",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_household.csv",
+        "vertices/phx_dm_embedding.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 126,
+      "kind": "edge",
+      "file": "edges/phx_dm_household_has_similarity_match.csv",
+      "target": "phx_dm_household_has_similarity_match",
+      "from_type": "phx_dm_household",
+      "to_type": "phx_dm_similarity_match",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_household.csv",
+        "vertices/phx_dm_similarity_match.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 127,
+      "kind": "edge",
+      "file": "edges/phx_dm_account_has_feature_snapshot.csv",
+      "target": "phx_dm_account_has_feature_snapshot",
+      "from_type": "phx_dm_account",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_account.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 128,
+      "kind": "edge",
+      "file": "edges/phx_dm_account_has_embedding.csv",
+      "target": "phx_dm_account_has_embedding",
+      "from_type": "phx_dm_account",
+      "to_type": "phx_dm_embedding",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_account.csv",
+        "vertices/phx_dm_embedding.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 129,
+      "kind": "edge",
+      "file": "edges/phx_dm_account_has_similarity_match.csv",
+      "target": "phx_dm_account_has_similarity_match",
+      "from_type": "phx_dm_account",
+      "to_type": "phx_dm_similarity_match",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_account.csv",
+        "vertices/phx_dm_similarity_match.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 130,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_has_feature_snapshot.csv",
+      "target": "phx_dm_product_has_feature_snapshot",
+      "from_type": "phx_dm_product",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_product.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 32
+    },
+    {
+      "order": 131,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_has_embedding.csv",
+      "target": "phx_dm_product_has_embedding",
+      "from_type": "phx_dm_product",
+      "to_type": "phx_dm_embedding",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_product.csv",
+        "vertices/phx_dm_embedding.csv"
+      ],
+      "expected_rows": 32
+    },
+    {
+      "order": 132,
+      "kind": "edge",
+      "file": "edges/phx_dm_product_has_similarity_match.csv",
+      "target": "phx_dm_product_has_similarity_match",
+      "from_type": "phx_dm_product",
+      "to_type": "phx_dm_similarity_match",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_product.csv",
+        "vertices/phx_dm_similarity_match.csv"
+      ],
+      "expected_rows": 32
+    },
+    {
+      "order": 133,
+      "kind": "edge",
+      "file": "edges/phx_dm_similarity_match_targets_advisor.csv",
+      "target": "phx_dm_similarity_match_targets_advisor",
+      "from_type": "phx_dm_similarity_match",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_similarity_match.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 134,
+      "kind": "edge",
+      "file": "edges/phx_dm_similarity_match_targets_household.csv",
+      "target": "phx_dm_similarity_match_targets_household",
+      "from_type": "phx_dm_similarity_match",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_similarity_match.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 135,
+      "kind": "edge",
+      "file": "edges/phx_dm_similarity_match_targets_account.csv",
+      "target": "phx_dm_similarity_match_targets_account",
+      "from_type": "phx_dm_similarity_match",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_similarity_match.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 136,
+      "kind": "edge",
+      "file": "edges/phx_dm_similarity_match_targets_product.csv",
+      "target": "phx_dm_similarity_match_targets_product",
+      "from_type": "phx_dm_similarity_match",
+      "to_type": "phx_dm_product",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_similarity_match.csv",
+        "vertices/phx_dm_product.csv"
+      ],
+      "expected_rows": 32
+    },
+    {
+      "order": 137,
+      "kind": "edge",
+      "file": "edges/phx_dm_prediction_for_advisor.csv",
+      "target": "phx_dm_prediction_for_advisor",
+      "from_type": "phx_dm_prediction_result",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_prediction_result.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 138,
+      "kind": "edge",
+      "file": "edges/phx_dm_prediction_for_household.csv",
+      "target": "phx_dm_prediction_for_household",
+      "from_type": "phx_dm_prediction_result",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_prediction_result.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 139,
+      "kind": "edge",
+      "file": "edges/phx_dm_prediction_for_account.csv",
+      "target": "phx_dm_prediction_for_account",
+      "from_type": "phx_dm_prediction_result",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_prediction_result.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 140,
+      "kind": "edge",
+      "file": "edges/phx_dm_opportunity_for_advisor.csv",
+      "target": "phx_dm_opportunity_for_advisor",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 141,
+      "kind": "edge",
+      "file": "edges/phx_dm_opportunity_for_household.csv",
+      "target": "phx_dm_opportunity_for_household",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 142,
+      "kind": "edge",
+      "file": "edges/phx_dm_opportunity_for_account.csv",
+      "target": "phx_dm_opportunity_for_account",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 143,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_for_advisor.csv",
+      "target": "phx_dm_recommendation_for_advisor",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 144,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_for_household.csv",
+      "target": "phx_dm_recommendation_for_household",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 145,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_for_account.csv",
+      "target": "phx_dm_recommendation_for_account",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_account",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_account.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 146,
+      "kind": "edge",
+      "file": "edges/phx_dm_prediction_uses_feature_snapshot.csv",
+      "target": "phx_dm_prediction_uses_feature_snapshot",
+      "from_type": "phx_dm_prediction_result",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_prediction_result.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 147,
+      "kind": "edge",
+      "file": "edges/phx_dm_opportunity_uses_feature_snapshot.csv",
+      "target": "phx_dm_opportunity_uses_feature_snapshot",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 148,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_uses_feature_snapshot.csv",
+      "target": "phx_dm_recommendation_uses_feature_snapshot",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 149,
+      "kind": "edge",
+      "file": "edges/phx_dm_opportunity_derived_from_prediction.csv",
+      "target": "phx_dm_opportunity_derived_from_prediction",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_prediction_result",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_prediction_result.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 150,
+      "kind": "edge",
+      "file": "edges/phx_dm_ai_opportunity_derived_from_crm_opportunity.csv",
+      "target": "phx_dm_ai_opportunity_derived_from_crm_opportunity",
+      "from_type": "phx_dm_opportunity",
+      "to_type": "phx_dm_crm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_opportunity.csv",
+        "vertices/phx_dm_crm_opportunity.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 151,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_addresses_opportunity.csv",
+      "target": "phx_dm_recommendation_addresses_opportunity",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_opportunity.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 152,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_based_on_prediction.csv",
+      "target": "phx_dm_recommendation_based_on_prediction",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_prediction_result",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_prediction_result.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 153,
+      "kind": "edge",
+      "file": "edges/phx_dm_recommendation_uses_playbook.csv",
+      "target": "phx_dm_recommendation_uses_playbook",
+      "from_type": "phx_dm_recommendation",
+      "to_type": "phx_dm_playbook",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_recommendation.csv",
+        "vertices/phx_dm_playbook.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 154,
+      "kind": "edge",
+      "file": "edges/phx_dm_feedback_for_recommendation.csv",
+      "target": "phx_dm_feedback_for_recommendation",
+      "from_type": "phx_dm_feedback_event",
+      "to_type": "phx_dm_recommendation",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_feedback_event.csv",
+        "vertices/phx_dm_recommendation.csv"
+      ],
+      "expected_rows": 36
+    },
+    {
+      "order": 155,
+      "kind": "edge",
+      "file": "edges/phx_dm_outcome_for_feedback.csv",
+      "target": "phx_dm_outcome_for_feedback",
+      "from_type": "phx_dm_outcome_event",
+      "to_type": "phx_dm_feedback_event",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_outcome_event.csv",
+        "vertices/phx_dm_feedback_event.csv"
+      ],
+      "expected_rows": 36
+    },
+    {
+      "order": 156,
+      "kind": "edge",
+      "file": "edges/phx_dm_learning_from_outcome.csv",
+      "target": "phx_dm_learning_from_outcome",
+      "from_type": "phx_dm_learning_signal",
+      "to_type": "phx_dm_outcome_event",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_learning_signal.csv",
+        "vertices/phx_dm_outcome_event.csv"
+      ],
+      "expected_rows": 36
+    },
+    {
+      "order": 157,
+      "kind": "edge",
+      "file": "edges/phx_dm_learning_updates_recommendation.csv",
+      "target": "phx_dm_learning_updates_recommendation",
+      "from_type": "phx_dm_learning_signal",
+      "to_type": "phx_dm_recommendation",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_learning_signal.csv",
+        "vertices/phx_dm_recommendation.csv"
+      ],
+      "expected_rows": 36
+    },
+    {
+      "order": 158,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_firm.csv",
+      "target": "phx_dm_memory_for_firm",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_firm",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_firm.csv"
+      ],
+      "expected_rows": 1
+    },
+    {
+      "order": 159,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_division.csv",
+      "target": "phx_dm_memory_for_division",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_division",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_division.csv"
+      ],
+      "expected_rows": 3
+    },
+    {
+      "order": 160,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_region.csv",
+      "target": "phx_dm_memory_for_region",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_region",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_region.csv"
+      ],
+      "expected_rows": 6
+    },
+    {
+      "order": 161,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_market.csv",
+      "target": "phx_dm_memory_for_market",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_market",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_market.csv"
+      ],
+      "expected_rows": 12
+    },
+    {
+      "order": 162,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_branch.csv",
+      "target": "phx_dm_memory_for_branch",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_branch",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_branch.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 163,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_advisor.csv",
+      "target": "phx_dm_memory_for_advisor",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 164,
+      "kind": "edge",
+      "file": "edges/phx_dm_memory_for_household.csv",
+      "target": "phx_dm_memory_for_household",
+      "from_type": "phx_dm_context_memory",
+      "to_type": "phx_dm_household",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_context_memory.csv",
+        "vertices/phx_dm_household.csv"
+      ],
+      "expected_rows": 30
+    },
+    {
+      "order": 165,
+      "kind": "edge",
+      "file": "edges/phx_dm_conversation_creates_memory.csv",
+      "target": "phx_dm_conversation_creates_memory",
+      "from_type": "phx_dm_conversation_turn",
+      "to_type": "phx_dm_context_memory",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_conversation_turn.csv",
+        "vertices/phx_dm_context_memory.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 166,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_uses_memory.csv",
+      "target": "phx_dm_reasoning_uses_memory",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_context_memory",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_context_memory.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 167,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_uses_feature_snapshot.csv",
+      "target": "phx_dm_reasoning_uses_feature_snapshot",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_feature_snapshot",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_feature_snapshot.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 168,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_uses_document_chunk.csv",
+      "target": "phx_dm_reasoning_uses_document_chunk",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_document_chunk",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_document_chunk.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 169,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_uses_crm_activity.csv",
+      "target": "phx_dm_reasoning_uses_crm_activity",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_crm_activity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_crm_activity.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 170,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_uses_transaction.csv",
+      "target": "phx_dm_reasoning_uses_transaction",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_revenue_transaction",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_revenue_transaction.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 171,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_for_prediction.csv",
+      "target": "phx_dm_reasoning_for_prediction",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_prediction_result",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_prediction_result.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 172,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_for_opportunity.csv",
+      "target": "phx_dm_reasoning_for_opportunity",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_opportunity",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_opportunity.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 173,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_for_recommendation.csv",
+      "target": "phx_dm_reasoning_for_recommendation",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_recommendation",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_recommendation.csv"
+      ],
+      "expected_rows": 120
+    },
+    {
+      "order": 174,
+      "kind": "edge",
+      "file": "edges/phx_dm_document_has_chunk.csv",
+      "target": "phx_dm_document_has_chunk",
+      "from_type": "phx_dm_document",
+      "to_type": "phx_dm_document_chunk",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_document.csv",
+        "vertices/phx_dm_document_chunk.csv"
+      ],
+      "expected_rows": 24
+    },
+    {
+      "order": 175,
+      "kind": "edge",
+      "file": "edges/phx_dm_playbook_has_best_practice.csv",
+      "target": "phx_dm_playbook_has_best_practice",
+      "from_type": "phx_dm_playbook",
+      "to_type": "phx_dm_best_practice",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_playbook.csv",
+        "vertices/phx_dm_best_practice.csv"
+      ],
+      "expected_rows": 6
+    },
+    {
+      "order": 176,
+      "kind": "edge",
+      "file": "edges/phx_dm_notification_for_user.csv",
+      "target": "phx_dm_notification_for_user",
+      "from_type": "phx_dm_notification",
+      "to_type": "phx_dm_persona_user",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_notification.csv",
+        "vertices/phx_dm_persona_user.csv"
+      ],
+      "expected_rows": 60
+    },
+    {
+      "order": 177,
+      "kind": "edge",
+      "file": "edges/phx_dm_scenario_for_user.csv",
+      "target": "phx_dm_scenario_for_user",
+      "from_type": "phx_dm_simulation_scenario",
+      "to_type": "phx_dm_persona_user",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_simulation_scenario.csv",
+        "vertices/phx_dm_persona_user.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 178,
+      "kind": "edge",
+      "file": "edges/phx_dm_scenario_for_advisor.csv",
+      "target": "phx_dm_scenario_for_advisor",
+      "from_type": "phx_dm_simulation_scenario",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_simulation_scenario.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 179,
+      "kind": "edge",
+      "file": "edges/phx_dm_execution_has_tool_call.csv",
+      "target": "phx_dm_execution_has_tool_call",
+      "from_type": "phx_dm_agent_execution",
+      "to_type": "phx_dm_tool_call",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agent_execution.csv",
+        "vertices/phx_dm_tool_call.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 180,
+      "kind": "edge",
+      "file": "edges/phx_dm_execution_has_evaluation.csv",
+      "target": "phx_dm_execution_has_evaluation",
+      "from_type": "phx_dm_agent_execution",
+      "to_type": "phx_dm_evaluation_result",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agent_execution.csv",
+        "vertices/phx_dm_evaluation_result.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 181,
+      "kind": "edge",
+      "file": "edges/phx_dm_execution_has_guardrail_event.csv",
+      "target": "phx_dm_execution_has_guardrail_event",
+      "from_type": "phx_dm_agent_execution",
+      "to_type": "phx_dm_guardrail_event",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agent_execution.csv",
+        "vertices/phx_dm_guardrail_event.csv"
+      ],
+      "expected_rows": 10
+    },
+    {
+      "order": 182,
+      "kind": "edge",
+      "file": "edges/phx_dm_execution_generated_reasoning.csv",
+      "target": "phx_dm_execution_generated_reasoning",
+      "from_type": "phx_dm_agent_execution",
+      "to_type": "phx_dm_reasoning_trace",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_agent_execution.csv",
+        "vertices/phx_dm_reasoning_trace.csv"
+      ],
+      "expected_rows": 10
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+scenario_id,scenario_type,scope_type,scope_id,assumptions_json,baseline_json,projected_json,created_at
+SCEN001,AGP_CRM_IMPROVEMENT,ADVISOR,A001,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN002,AGP_CRM_IMPROVEMENT,ADVISOR,A002,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN003,AGP_CRM_IMPROVEMENT,ADVISOR,A003,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN004,AGP_CRM_IMPROVEMENT,ADVISOR,A004,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN005,AGP_CRM_IMPROVEMENT,ADVISOR,A005,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN006,AGP_CRM_IMPROVEMENT,ADVISOR,A006,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN007,AGP_CRM_IMPROVEMENT,ADVISOR,A007,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN008,AGP_CRM_IMPROVEMENT,ADVISOR,A008,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN009,AGP_CRM_IMPROVEMENT,ADVISOR,A009,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01
+SCEN010,AGP_CRM_IMPROVEMENT,ADVISOR,A010,"{""complete_pending_leads"": 3, ""improve_referral_conversion_pct"": 10}","{""risk_score"": 82}","{""risk_score"": 55}",2026-07-01

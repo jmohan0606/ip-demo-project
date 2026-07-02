@@ -1,0 +1,121 @@
+prediction_id,prediction_type,target_type,target_id,score,confidence,risk_band,severity,horizon_days,explanation,status,generated_at
+PRED_A001,AGP_OFF_TRACK_RISK,ADVISOR,A001,90,0.73,CRITICAL,CRITICAL,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A002,AGP_OFF_TRACK_RISK,ADVISOR,A002,91,0.74,CRITICAL,CRITICAL,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A003,AGP_OFF_TRACK_RISK,ADVISOR,A003,92,0.75,CRITICAL,CRITICAL,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A004,AGP_OFF_TRACK_RISK,ADVISOR,A004,93,0.76,CRITICAL,CRITICAL,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A005,AGP_OFF_TRACK_RISK,ADVISOR,A005,68.4,0.77,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A006,AGP_OFF_TRACK_RISK,ADVISOR,A006,40.0,0.78,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A007,AGP_OFF_TRACK_RISK,ADVISOR,A007,51.6,0.79,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A008,AGP_OFF_TRACK_RISK,ADVISOR,A008,53.2,0.8,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A009,AGP_OFF_TRACK_RISK,ADVISOR,A009,64.8,0.81,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A010,AGP_OFF_TRACK_RISK,ADVISOR,A010,76.4,0.82,URGENT,URGENT,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A011,AGP_OFF_TRACK_RISK,ADVISOR,A011,48.0,0.83,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A012,AGP_OFF_TRACK_RISK,ADVISOR,A012,59.6,0.84,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A013,AGP_OFF_TRACK_RISK,ADVISOR,A013,71.2,0.85,URGENT,URGENT,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A014,AGP_OFF_TRACK_RISK,ADVISOR,A014,42.8,0.86,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A015,AGP_OFF_TRACK_RISK,ADVISOR,A015,84.4,0.72,URGENT,URGENT,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A016,AGP_OFF_TRACK_RISK,ADVISOR,A016,56.0,0.73,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A017,AGP_OFF_TRACK_RISK,ADVISOR,A017,67.6,0.74,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A018,AGP_OFF_TRACK_RISK,ADVISOR,A018,79.2,0.75,URGENT,URGENT,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A019,AGP_OFF_TRACK_RISK,ADVISOR,A019,50.8,0.76,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A020,AGP_OFF_TRACK_RISK,ADVISOR,A020,46.4,0.77,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A021,AGP_OFF_TRACK_RISK,ADVISOR,A021,58.0,0.78,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A022,AGP_OFF_TRACK_RISK,ADVISOR,A022,59.6,0.79,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A023,AGP_OFF_TRACK_RISK,ADVISOR,A023,71.2,0.8,URGENT,URGENT,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A024,AGP_OFF_TRACK_RISK,ADVISOR,A024,42.8,0.81,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A025,REVENUE_DECLINE_RISK,ADVISOR,A025,38.4,0.82,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A026,REVENUE_DECLINE_RISK,ADVISOR,A026,48.2,0.83,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A027,REVENUE_DECLINE_RISK,ADVISOR,A027,34.0,0.84,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A028,REVENUE_DECLINE_RISK,ADVISOR,A028,43.8,0.85,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A029,REVENUE_DECLINE_RISK,ADVISOR,A029,53.6,0.86,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A030,REVENUE_DECLINE_RISK,ADVISOR,A030,39.4,0.72,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A031,REVENUE_DECLINE_RISK,ADVISOR,A031,49.2,0.73,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A032,REVENUE_DECLINE_RISK,ADVISOR,A032,35.0,0.74,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A033,REVENUE_DECLINE_RISK,ADVISOR,A033,44.8,0.75,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A034,REVENUE_DECLINE_RISK,ADVISOR,A034,54.6,0.76,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A035,REVENUE_DECLINE_RISK,ADVISOR,A035,40.4,0.77,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A036,REVENUE_DECLINE_RISK,ADVISOR,A036,50.2,0.78,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A037,REVENUE_DECLINE_RISK,ADVISOR,A037,60.0,0.79,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A038,REVENUE_DECLINE_RISK,ADVISOR,A038,45.8,0.8,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A039,REVENUE_DECLINE_RISK,ADVISOR,A039,55.6,0.81,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A040,REVENUE_DECLINE_RISK,ADVISOR,A040,25.4,0.82,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A041,REVENUE_DECLINE_RISK,ADVISOR,A041,35.2,0.83,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A042,REVENUE_DECLINE_RISK,ADVISOR,A042,45.0,0.84,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A043,REVENUE_DECLINE_RISK,ADVISOR,A043,30.8,0.85,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A044,REVENUE_DECLINE_RISK,ADVISOR,A044,40.6,0.86,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A045,REVENUE_DECLINE_RISK,ADVISOR,A045,50.4,0.72,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A046,REVENUE_DECLINE_RISK,ADVISOR,A046,36.2,0.73,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A047,REVENUE_DECLINE_RISK,ADVISOR,A047,46.0,0.74,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A048,REVENUE_DECLINE_RISK,ADVISOR,A048,31.8,0.75,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A049,REVENUE_DECLINE_RISK,ADVISOR,A049,41.6,0.76,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A050,REVENUE_DECLINE_RISK,ADVISOR,A050,51.4,0.77,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A051,REVENUE_DECLINE_RISK,ADVISOR,A051,37.2,0.78,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A052,REVENUE_DECLINE_RISK,ADVISOR,A052,47.0,0.79,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A053,REVENUE_DECLINE_RISK,ADVISOR,A053,56.8,0.8,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A054,REVENUE_DECLINE_RISK,ADVISOR,A054,42.6,0.81,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A055,REVENUE_DECLINE_RISK,ADVISOR,A055,52.4,0.82,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A056,REVENUE_DECLINE_RISK,ADVISOR,A056,38.2,0.83,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A057,REVENUE_DECLINE_RISK,ADVISOR,A057,48.0,0.84,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A058,REVENUE_DECLINE_RISK,ADVISOR,A058,57.8,0.85,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A059,REVENUE_DECLINE_RISK,ADVISOR,A059,43.6,0.86,ATTENTION,ATTENTION,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_A060,REVENUE_DECLINE_RISK,ADVISOR,A060,37.4,0.72,INFO,INFO,45,"Weighted deterministic score from revenue, CRM, peer and AGP features.",ACTIVE,2026-07-01
+PRED_HH_H0001,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0001,43,0.71,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0002,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0002,54,0.72,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0003,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0003,65,0.73,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0004,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0004,76,0.74,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0005,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0005,87,0.75,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0006,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0006,32,0.76,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0007,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0007,43,0.77,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0008,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0008,54,0.78,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0009,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0009,65,0.79,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0010,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0010,76,0.8,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0011,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0011,87,0.81,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0012,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0012,32,0.82,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0013,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0013,43,0.83,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0014,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0014,54,0.84,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0015,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0015,65,0.85,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0016,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0016,76,0.86,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0017,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0017,87,0.87,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0018,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0018,32,0.88,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0019,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0019,43,0.89,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0020,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0020,54,0.7,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0021,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0021,65,0.71,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0022,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0022,76,0.72,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0023,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0023,87,0.73,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0024,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0024,32,0.74,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0025,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0025,43,0.75,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0026,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0026,54,0.76,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0027,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0027,65,0.77,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0028,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0028,76,0.78,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0029,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0029,87,0.79,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_HH_H0030,HOUSEHOLD_GROWTH_POTENTIAL,HOUSEHOLD,H0030,32,0.8,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00001,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00001,43,0.71,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00002,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00002,54,0.72,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00003,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00003,65,0.73,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00004,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00004,76,0.74,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00005,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00005,87,0.75,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00006,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00006,32,0.76,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00007,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00007,43,0.77,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00008,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00008,54,0.78,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00009,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00009,65,0.79,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00010,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00010,76,0.8,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00011,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00011,87,0.81,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00012,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00012,32,0.82,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00013,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00013,43,0.83,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00014,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00014,54,0.84,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00015,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00015,65,0.85,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00016,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00016,76,0.86,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00017,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00017,87,0.87,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00018,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00018,32,0.88,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00019,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00019,43,0.89,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00020,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00020,54,0.7,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00021,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00021,65,0.71,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00022,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00022,76,0.72,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00023,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00023,87,0.73,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00024,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00024,32,0.74,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00025,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00025,43,0.75,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00026,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00026,54,0.76,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00027,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00027,65,0.77,ATTENTION,ATTENTION,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00028,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00028,76,0.78,URGENT,URGENT,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00029,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00029,87,0.79,CRITICAL,CRITICAL,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01
+PRED_AC_AC00030,ACCOUNT_CONCENTRATION_RISK,ACCOUNT,AC00030,32,0.8,INFO,INFO,60,Deterministic showcase score computed from versioned graph-derived features.,ACTIVE,2026-07-01

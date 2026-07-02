@@ -1,0 +1,129 @@
+/*
+ * GQ-004 — get_revenue_summary_by_scope
+ * Purpose: Aggregate revenue, AUM, NCF, NNM and entity counts for a hierarchy scope.
+ * Outputs: scope summary accumulator object
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_revenue_summary_by_scope(scope_type STRING, scope_id STRING, period_type STRING, start_date DATETIME, end_date DATETIME) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    SumAccum<DOUBLE> @@revenue;
+    SumAccum<DOUBLE> @@aum;
+    SumAccum<DOUBLE> @@ncf;
+    SumAccum<DOUBLE> @@nnm;
+    SumAccum<INT> @@transaction_count;
+    SumAccum<INT> @@advisor_count;
+    SumAccum<INT> @@household_count;
+    SumAccum<INT> @@account_count;
+    BOOL valid_period_type = period_type == "LTM" OR period_type == "YTD"
+        OR period_type == "MONTH" OR period_type == "QUARTER"
+        OR period_type == "ANNUAL" OR period_type == "CUSTOM";
+
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    direct_advisors = SELECT a
+        FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+
+    selected_branches = SELECT b
+        FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a
+        FROM selected_branches:b
+            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+
+    selected_markets = SELECT m
+        FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a
+        FROM selected_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_regions = SELECT r
+        FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m
+        FROM selected_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    region_advisors = SELECT a
+        FROM region_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_divisions = SELECT d
+        FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r
+        FROM selected_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    division_markets = SELECT m
+        FROM division_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    division_advisors = SELECT a
+        FROM division_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_firms = SELECT f
+        FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d
+        FROM selected_firms:f
+            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    firm_regions = SELECT r
+        FROM firm_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    firm_markets = SELECT m
+        FROM firm_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    firm_advisors = SELECT a
+        FROM firm_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+
+    counted_advisors = SELECT a FROM advisors:a ACCUM @@advisor_count += 1;
+    households = SELECT h FROM advisors:a
+        -(phx_dm_advisor_serves_household)- phx_dm_household:h;
+    counted_households = SELECT h FROM households:h ACCUM @@household_count += 1;
+    accounts = SELECT ac FROM households:h
+        -(phx_dm_household_owns_account)- phx_dm_account:ac;
+    counted_accounts = SELECT ac FROM accounts:ac ACCUM @@account_count += 1;
+
+    transactions = SELECT tx FROM advisors:a
+        -(rev_phx_dm_transaction_for_advisor)- phx_dm_revenue_transaction:tx
+        WHERE valid_period_type
+          AND tx.transaction_date >= start_date AND tx.transaction_date <= end_date
+        ACCUM @@revenue += tx.revenue_amount,
+              @@transaction_count += 1;
+
+    aum_rows = SELECT x FROM advisors:a
+        -(rev_phx_dm_aum_for_advisor)- phx_dm_monthly_aum:x
+        WHERE valid_period_type AND x.month_end == end_date
+        ACCUM @@aum += x.aum_amount;
+    ncf_rows = SELECT x FROM advisors:a
+        -(rev_phx_dm_ncf_for_advisor)- phx_dm_monthly_ncf:x
+        WHERE valid_period_type AND x.month_end >= start_date AND x.month_end <= end_date
+        ACCUM @@ncf += x.ncf_amount;
+    nnm_rows = SELECT x FROM advisors:a
+        -(rev_phx_dm_nnm_for_advisor)- phx_dm_monthly_nnm:x
+        WHERE valid_period_type AND x.month_end >= start_date AND x.month_end <= end_date
+        ACCUM @@nnm += x.nnm_amount;
+
+    PRINT scope_type, scope_id, period_type, start_date, end_date,
+        @@revenue AS total_revenue,
+        @@aum AS ending_aum,
+        @@ncf AS total_ncf,
+        @@nnm AS total_nnm,
+        @@transaction_count AS transaction_count,
+        @@advisor_count AS advisor_count,
+        @@household_count AS household_count,
+        @@account_count AS account_count;
+}
+
+INSTALL QUERY get_revenue_summary_by_scope

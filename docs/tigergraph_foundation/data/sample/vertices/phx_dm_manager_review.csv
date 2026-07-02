@@ -1,0 +1,25 @@
+review_id,review_date,reviewer_user_id,review_type,rating,summary,status
+REVIEW001,2026-06-16,U_MDW01,AGP_MILESTONE,3.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW002,2026-06-16,U_MDW02,AGP_MILESTONE,3.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW003,2026-06-16,U_MDW03,AGP_MILESTONE,4.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW004,2026-06-16,U_MDW04,AGP_MILESTONE,4.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW005,2026-06-16,U_MDW05,AGP_MILESTONE,2.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW006,2026-06-16,U_MDW06,AGP_MILESTONE,3.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW007,2026-06-16,U_MDW07,AGP_MILESTONE,3.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW008,2026-06-16,U_MDW08,AGP_MILESTONE,4.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW009,2026-06-16,U_MDW09,AGP_MILESTONE,4.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW010,2026-06-16,U_MDW10,AGP_MILESTONE,2.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW011,2026-06-16,U_MDW11,AGP_MILESTONE,3.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW012,2026-06-16,U_MDW12,AGP_MILESTONE,3.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW013,2026-06-16,U_MDW01,AGP_MILESTONE,4.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW014,2026-06-16,U_MDW02,AGP_MILESTONE,4.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW015,2026-06-16,U_MDW03,AGP_MILESTONE,2.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW016,2026-06-16,U_MDW04,AGP_MILESTONE,3.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW017,2026-06-16,U_MDW05,AGP_MILESTONE,3.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW018,2026-06-16,U_MDW06,AGP_MILESTONE,4.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW019,2026-06-16,U_MDW07,AGP_MILESTONE,4.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW020,2026-06-16,U_MDW08,AGP_MILESTONE,2.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW021,2026-06-16,U_MDW09,AGP_MILESTONE,3.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW022,2026-06-16,U_MDW10,AGP_MILESTONE,3.5,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW023,2026-06-16,U_MDW11,AGP_MILESTONE,4.0,Manager review of AGP progress and CRM activity.,COMPLETED
+REVIEW024,2026-06-16,U_MDW12,AGP_MILESTONE,4.5,Manager review of AGP progress and CRM activity.,COMPLETED

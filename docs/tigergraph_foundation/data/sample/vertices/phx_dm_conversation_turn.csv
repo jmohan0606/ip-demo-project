@@ -1,0 +1,11 @@
+turn_id,conversation_id,turn_no,speaker,content,created_at,intent
+TURN001_1,CONV001,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN002_1,CONV002,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN003_1,CONV003,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN004_1,CONV004,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN005_1,CONV005,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN006_1,CONV006,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN007_1,CONV007,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN008_1,CONV008,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN009_1,CONV009,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING
+TURN010_1,CONV010,1,USER,Why am I off track and what should I do next?,2026-07-01,COACHING

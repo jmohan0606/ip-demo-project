@@ -1,0 +1,7 @@
+term_id,term,definition,domain,status
+TERM001,AUM,Assets under management.,WEALTH_MANAGEMENT,ACTIVE
+TERM002,NCF,Net cash flow.,WEALTH_MANAGEMENT,ACTIVE
+TERM003,NNM,Net new money.,WEALTH_MANAGEMENT,ACTIVE
+TERM004,AGP,24-month Advisor Growth Program.,WEALTH_MANAGEMENT,ACTIVE
+TERM005,Opportunity,Actionable growth or risk potential.,WEALTH_MANAGEMENT,ACTIVE
+TERM006,Recommendation,Suggested next best action.,WEALTH_MANAGEMENT,ACTIVE

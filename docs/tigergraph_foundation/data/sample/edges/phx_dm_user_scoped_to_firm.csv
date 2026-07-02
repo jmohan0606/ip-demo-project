@@ -1,0 +1,4 @@
+from_id,to_id,primary_scope
+U_EXEC,F001,True
+U_ADMIN,F001,True
+U_COMP,F001,True

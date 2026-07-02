@@ -1,0 +1,65 @@
+product_id,product_name,product_code,risk_level,managed_flag,status
+P001,Managed Accounts Subcategory 1 Product 1,PRD001,MEDIUM,True,ACTIVE
+P002,Managed Accounts Subcategory 2 Product 2,PRD002,HIGH,True,ACTIVE
+P003,Brokerage Subcategory 1 Product 3,PRD003,LOW,False,ACTIVE
+P004,Brokerage Subcategory 2 Product 4,PRD004,MEDIUM,False,ACTIVE
+P005,Fixed Income Subcategory 1 Product 5,PRD005,HIGH,False,ACTIVE
+P006,Fixed Income Subcategory 2 Product 6,PRD006,LOW,False,ACTIVE
+P007,Equities Subcategory 1 Product 7,PRD007,MEDIUM,False,ACTIVE
+P008,Equities Subcategory 2 Product 8,PRD008,HIGH,False,ACTIVE
+P009,Mutual Funds Subcategory 1 Product 9,PRD009,LOW,False,ACTIVE
+P010,Mutual Funds Subcategory 2 Product 10,PRD010,MEDIUM,False,ACTIVE
+P011,Alternatives Subcategory 1 Product 11,PRD011,HIGH,False,ACTIVE
+P012,Alternatives Subcategory 2 Product 12,PRD012,LOW,False,ACTIVE
+P013,Cash & Lending Subcategory 1 Product 13,PRD013,MEDIUM,False,ACTIVE
+P014,Cash & Lending Subcategory 2 Product 14,PRD014,HIGH,False,ACTIVE
+P015,Insurance Subcategory 1 Product 15,PRD015,LOW,False,ACTIVE
+P016,Insurance Subcategory 2 Product 16,PRD016,MEDIUM,False,ACTIVE
+P017,Managed Accounts Subcategory 1 Product 17,PRD017,HIGH,True,ACTIVE
+P018,Managed Accounts Subcategory 2 Product 18,PRD018,LOW,True,ACTIVE
+P019,Brokerage Subcategory 1 Product 19,PRD019,MEDIUM,False,ACTIVE
+P020,Brokerage Subcategory 2 Product 20,PRD020,HIGH,False,ACTIVE
+P021,Fixed Income Subcategory 1 Product 21,PRD021,LOW,False,ACTIVE
+P022,Fixed Income Subcategory 2 Product 22,PRD022,MEDIUM,False,ACTIVE
+P023,Equities Subcategory 1 Product 23,PRD023,HIGH,False,ACTIVE
+P024,Equities Subcategory 2 Product 24,PRD024,LOW,False,ACTIVE
+P025,Mutual Funds Subcategory 1 Product 25,PRD025,MEDIUM,False,ACTIVE
+P026,Mutual Funds Subcategory 2 Product 26,PRD026,HIGH,False,ACTIVE
+P027,Alternatives Subcategory 1 Product 27,PRD027,LOW,False,ACTIVE
+P028,Alternatives Subcategory 2 Product 28,PRD028,MEDIUM,False,ACTIVE
+P029,Cash & Lending Subcategory 1 Product 29,PRD029,HIGH,False,ACTIVE
+P030,Cash & Lending Subcategory 2 Product 30,PRD030,LOW,False,ACTIVE
+P031,Insurance Subcategory 1 Product 31,PRD031,MEDIUM,False,ACTIVE
+P032,Insurance Subcategory 2 Product 32,PRD032,HIGH,False,ACTIVE
+P033,Managed Accounts Subcategory 1 Product 33,PRD033,LOW,True,ACTIVE
+P034,Managed Accounts Subcategory 2 Product 34,PRD034,MEDIUM,True,ACTIVE
+P035,Brokerage Subcategory 1 Product 35,PRD035,HIGH,False,ACTIVE
+P036,Brokerage Subcategory 2 Product 36,PRD036,LOW,False,ACTIVE
+P037,Fixed Income Subcategory 1 Product 37,PRD037,MEDIUM,False,ACTIVE
+P038,Fixed Income Subcategory 2 Product 38,PRD038,HIGH,False,ACTIVE
+P039,Equities Subcategory 1 Product 39,PRD039,LOW,False,ACTIVE
+P040,Equities Subcategory 2 Product 40,PRD040,MEDIUM,False,ACTIVE
+P041,Mutual Funds Subcategory 1 Product 41,PRD041,HIGH,False,ACTIVE
+P042,Mutual Funds Subcategory 2 Product 42,PRD042,LOW,False,ACTIVE
+P043,Alternatives Subcategory 1 Product 43,PRD043,MEDIUM,False,ACTIVE
+P044,Alternatives Subcategory 2 Product 44,PRD044,HIGH,False,ACTIVE
+P045,Cash & Lending Subcategory 1 Product 45,PRD045,LOW,False,ACTIVE
+P046,Cash & Lending Subcategory 2 Product 46,PRD046,MEDIUM,False,ACTIVE
+P047,Insurance Subcategory 1 Product 47,PRD047,HIGH,False,ACTIVE
+P048,Insurance Subcategory 2 Product 48,PRD048,LOW,False,ACTIVE
+P049,Managed Accounts Subcategory 1 Product 49,PRD049,MEDIUM,True,ACTIVE
+P050,Managed Accounts Subcategory 2 Product 50,PRD050,HIGH,True,ACTIVE
+P051,Brokerage Subcategory 1 Product 51,PRD051,LOW,False,ACTIVE
+P052,Brokerage Subcategory 2 Product 52,PRD052,MEDIUM,False,ACTIVE
+P053,Fixed Income Subcategory 1 Product 53,PRD053,HIGH,False,ACTIVE
+P054,Fixed Income Subcategory 2 Product 54,PRD054,LOW,False,ACTIVE
+P055,Equities Subcategory 1 Product 55,PRD055,MEDIUM,False,ACTIVE
+P056,Equities Subcategory 2 Product 56,PRD056,HIGH,False,ACTIVE
+P057,Mutual Funds Subcategory 1 Product 57,PRD057,LOW,False,ACTIVE
+P058,Mutual Funds Subcategory 2 Product 58,PRD058,MEDIUM,False,ACTIVE
+P059,Alternatives Subcategory 1 Product 59,PRD059,HIGH,False,ACTIVE
+P060,Alternatives Subcategory 2 Product 60,PRD060,LOW,False,ACTIVE
+P061,Cash & Lending Subcategory 1 Product 61,PRD061,MEDIUM,False,ACTIVE
+P062,Cash & Lending Subcategory 2 Product 62,PRD062,HIGH,False,ACTIVE
+P063,Insurance Subcategory 1 Product 63,PRD063,LOW,False,ACTIVE
+P064,Insurance Subcategory 2 Product 64,PRD064,MEDIUM,False,ACTIVE

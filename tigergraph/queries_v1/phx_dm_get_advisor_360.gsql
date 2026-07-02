@@ -1,0 +1,9 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_get_advisor_360(STRING advisor_id, STRING period) FOR GRAPH iperform_insights_coaching_demo {
+  A = SELECT a FROM {phx_dm_advisor.*}:a WHERE a.advisor_id == advisor_id;
+  H = SELECT h FROM A:a -(phx_dm_serves_household:e)-> phx_dm_household:h;
+  ACC = SELECT acc FROM H:h -(phx_dm_owns_account:e)-> phx_dm_account:acc;
+  O = SELECT o FROM H:h -(phx_dm_has_opportunity:e)-> phx_dm_opportunity:o;
+  PRINT A, H, ACC, O, period AS period;
+}

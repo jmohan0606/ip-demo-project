@@ -1,0 +1,11 @@
+tool_call_id,tool_name,operation,request_summary,response_summary,status,latency_ms,error_code
+TOOL001,TigerGraph,get_context_for_agent,Advisor A001 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL002,TigerGraph,get_context_for_agent,Advisor A002 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL003,TigerGraph,get_context_for_agent,Advisor A003 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL004,TigerGraph,get_context_for_agent,Advisor A004 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL005,TigerGraph,get_context_for_agent,Advisor A005 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL006,TigerGraph,get_context_for_agent,Advisor A006 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL007,TigerGraph,get_context_for_agent,Advisor A007 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL008,TigerGraph,get_context_for_agent,Advisor A008 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL009,TigerGraph,get_context_for_agent,Advisor A009 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,
+TOOL010,TigerGraph,get_context_for_agent,Advisor A010 context,"Returned revenue, CRM, AGP, features and memory.",SUCCESS,420,

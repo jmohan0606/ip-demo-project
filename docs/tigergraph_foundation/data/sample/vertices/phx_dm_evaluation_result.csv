@@ -1,0 +1,11 @@
+evaluation_id,evaluator,relevance_score,groundedness_score,safety_score,confidence_score,threshold,passed
+EVAL001,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL002,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL003,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL004,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL005,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL006,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL007,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL008,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL009,groundedness-check,0.91,0.94,0.99,0.87,0.8,True
+EVAL010,groundedness-check,0.91,0.94,0.99,0.87,0.8,True

@@ -1,0 +1,11 @@
+/* Generated fallback GSQL loading job for vertices/phx_dm_context_memory.csv.
+ * The React/FastAPI RESTPP loader is the primary ingestion path.
+ * This job is provided for direct server-side loading and compile verification.
+ */
+USE GRAPH iperform_insights_coaching_demo
+CREATE LOADING JOB load_phx_dm_context_memory FOR GRAPH iperform_insights_coaching_demo {
+  DEFINE FILENAME input_file;
+  LOAD input_file TO VERTEX phx_dm_context_memory
+    VALUES ($"memory_id", $"memory_type", $"subject_type", $"subject_id", $"content", $"source_type", $"source_id", $"confidence", $"effective_date", $"expiration_date", $"status")
+    USING HEADER="true", SEPARATOR=",", EOL="\n";
+}

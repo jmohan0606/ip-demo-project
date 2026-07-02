@@ -1,0 +1,7 @@
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY phx_dm_getSimilarHouseholds(STRING householdId) FOR GRAPH iperform_insights_coaching_demo {
+  SourceMatches = SELECT s FROM phx_dm_similarity_match:s
+                  WHERE s.source_entity_type == "Household" AND s.source_entity_id == householdId;
+  PRINT SourceMatches AS similarity_matches;
+}
