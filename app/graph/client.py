@@ -201,6 +201,8 @@ class MockGraphClient:
     """
 
     def __init__(self, store: FoundationGraphStore | None = None) -> None:
+        import app.graph.queries  # noqa: F401 — registers every GQ implementation
+
         self.store = store or get_foundation_store()
         # runtime upserts (AI artifacts written back to the graph) — kept separate
         # from the seeded foundation data so statistics can distinguish them.
