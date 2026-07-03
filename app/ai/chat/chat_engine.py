@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from app.ai.adapters.adapter_factory import ModelAdapterFactory
 from app.ai.chat.context_assembler import ChatContextAssembler
+from app.llm.client import get_llm_client
 from app.models.ai_chat import ChatRequest, ChatResponse
-from app.models.enums import AdapterProvider
 from app.shared.ids import timestamp_id
 
 
 class AiAssistantChatEngine:
     def __init__(self) -> None:
         self.context_assembler = ChatContextAssembler()
-        self.adapter = ModelAdapterFactory.create(AdapterProvider.OPENAI)
+        self.llm = get_llm_client()  # Section 2 adapter: mock | claude | real
 
     def answer(self, request: ChatRequest) -> ChatResponse:
         conversation_id = request.conversation_id or timestamp_id("conv")
@@ -39,9 +38,10 @@ Instructions:
 Answer with evidence. Include what data was used and what next action should be taken.
 """
 
-        raw_answer = self.adapter.generate_text(
-            prompt=prompt,
-            system_prompt="You are iPerform Insights & Coaching AI Assistant.",
+        raw_answer = self.llm.generate(
+            prompt,
+            {"system_prompt": "You are iPerform Insights & Coaching AI Assistant. "
+                              "Answer using only the provided context; cite concrete figures."},
         )
 
         # Mock adapter gives generic answer, so augment with deterministic evidence response.
@@ -92,6 +92,6 @@ Answer with evidence. Include what data was used and what next action should be 
             "",
             "Next action: review the evidence and, if the recommendation is accepted or completed, capture feedback so future ranking can improve.",
         ])
-        if raw_answer and "MockModelAdapter" not in raw_answer:
+        if raw_answer and "[mock-llm" not in raw_answer:
             lines.extend(["", "AI generated note:", raw_answer])
         return "\n".join(lines)

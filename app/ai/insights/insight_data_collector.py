@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.models.features import FeatureMaterializationRequest
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
 from app.models.opportunities import OpportunitySearchRequest
 from app.models.predictions import PredictionSearchRequest
@@ -26,7 +27,7 @@ class InsightDataCollector:
         if scope_type == "Advisor":
             advisor_features = self.features.get_vector("Advisor", scope_id, "advisor_growth_features")
             if advisor_features is None:
-                self.features.materialize({"feature_groups": [], "force_refresh": True})
+                self.features.materialize(FeatureMaterializationRequest(feature_groups=[], force_refresh=True))
                 advisor_features = self.features.get_vector("Advisor", scope_id, "advisor_growth_features")
 
         preds = self.predictions.list_predictions(PredictionSearchRequest(entity_id=entity_id, limit=20))

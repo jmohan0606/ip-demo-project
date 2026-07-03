@@ -269,3 +269,23 @@ verify_mock_queries 43/43 0 failures; frontend tsc+build green; deleted modules 
 files (removed leftover .pyc cruft); .env safe (only .example tracked, 0 leaked keys).
 FLAG (not a false claim): runtime SQLite DBs are git-tracked (data/feature_store/*.db,
 data/sqlite/*.db) — hygiene smell, verification runs mutate them; consider gitignoring.
+
+## Session 2 (cont.) — Phase 2 TigerGraph live re-verification (in progress)
+
+Resumed the live load. Progress: schema (56V/126E) + 182 jobs installed; vertex load advanced
+40 -> 51/56 types (23,521 rows) after running the QUOTE-fixed jobs for the 16 previously-empty
+JSON-column types.
+
+**4th real-engine finding (isolated by controlled single-row tests):** TigerGraph 4.2.3 GSQL
+file-loader with `QUOTE="double"` fails on any field that contains BOTH a doubled-quote escape
+(`""`) AND the separator comma inside that quoted field. Confirmed by binary search:
+  - plain string + date-only DATETIME .......... loads OK
+  - `""`-JSON, NO internal comma + date-only .... loads OK
+  - `""`-JSON WITH internal comma .............. 0 objects, "Invalid Attributes" (column shift)
+Root cause: the tokenizer mis-splits on the internal comma, shifting subsequent columns so the
+DATETIME attribute receives JSON text -> whole row rejected. Affects exactly the 5 vertex types
+whose JSON columns hold arrays/objects with internal commas: reasoning_trace, similarity_match,
+learning_signal, coaching_session, simulation_scenario. (crm_activity loaded fine: its
+comma-bearing free-text column has no `""`.) Report upstream alongside findings 1-3.
+Correct production path is RESTPP JSON upsert (the foundation package's real ingestion service,
+and our RealGraphClient.upsert), which bypasses the CSV tokenizer entirely.
