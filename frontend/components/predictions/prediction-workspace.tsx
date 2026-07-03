@@ -1,72 +1,149 @@
 "use client";
 
-import { BrainCircuit, LineChart, Target, TrendingUp } from "lucide-react";
-import { getForecastSeries, getPredictionDrivers, getPredictionModels } from "@/lib/api/predictions_workspace";
-import { ForecastChart } from "@/components/predictions/forecast-chart";
-import { PredictionModelCard } from "@/components/predictions/prediction-model-card";
-import { PredictionDriversPanel } from "@/components/predictions/prediction-drivers-panel";
-import { KpiCard } from "@/components/cards/kpi-card";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useEffect, useState } from "react";
 
-export function PredictionWorkspace() {
-  const forecast = getForecastSeries();
-  const models = getPredictionModels();
-  const drivers = getPredictionDrivers();
+import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
+import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { apiClient } from "@/lib/api/client";
+import { colors, type } from "@/styles/tokens";
+
+interface Contribution {
+  feature: string;
+  value: number | string | null;
+  points: number;
+  why: string;
+}
+
+interface Prediction {
+  prediction_id: string;
+  prediction_type: string;
+  score: number;
+  risk_band: string;
+  severity: string;
+  confidence: number;
+  horizon_days: number;
+  contributions: Contribution[];
+  feature_snapshot_id: string;
+  explanation: string;
+  enrolled?: boolean;
+}
+
+export function PredictionWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const run = useCallback(async () => {
+    setBusy(true);
+    try {
+      const data = await apiClient.post<{ predictions: Prediction[] }>(`/predictions/run/${advisorId}`);
+      setPredictions(data.predictions.filter((p) => p.enrolled !== false));
+    } finally {
+      setBusy(false);
+    }
+  }, [advisorId]);
+
+  useEffect(() => {
+    void run();
+  }, [run]);
 
   return (
-    <div className="animate-slide-up space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
+      <div className="flex items-center justify-between">
         <div>
-          <Badge variant="glass">Prediction & Forecasting</Badge>
-          <h2 className="mt-3 text-3xl font-black tracking-tight">Revenue, NNM, AUM & Opportunity Forecasting</h2>
-          <p className="mt-2 max-w-3xl text-muted-foreground">
-            Forecast advisor outcomes using feature store signals, graph embeddings, GNN-ready features, CRM activity, AGP status and recommendation feedback.
+          <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Prediction &amp; Forecasting</h1>
+          <p className={type.body} style={{ color: colors.text.secondary }}>
+            Transparent scoring for advisor {advisorId} — every point of every score is attributed to a
+            named feature and persisted with a reasoning trace.
           </p>
         </div>
-        <Badge variant="success">Scikit-Learn + Graph/GNN Ready</Badge>
+        <button
+          onClick={() => void run()}
+          disabled={busy}
+          className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
+          style={{ backgroundColor: colors.primary }}
+        >
+          {busy ? "Scoring…" : "Re-run predictions"}
+        </button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Revenue Forecast Lift" value="+13.3%" change="+5.1%" icon={LineChart} />
-        <KpiCard label="NNM Risk Score" value="Medium" change="-2.1%" icon={TrendingUp} variant="risk" />
-        <KpiCard label="AGP Goal Probability" value="71%" change="+8.4%" icon={Target} variant="insight" />
-        <KpiCard label="Opportunity Propensity" value="84%" change="+6.2%" icon={BrainCircuit} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <KpiStatCard label="Active predictions" value={String(predictions.length)} />
+        <KpiStatCard
+          label="Highest risk"
+          value={predictions.length ? `${Math.max(...predictions.map((p) => p.score))}/100` : "—"}
+        />
+        <KpiStatCard
+          label="Avg confidence"
+          value={
+            predictions.length
+              ? `${Math.round((predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length) * 100)}%`
+              : "—"
+          }
+        />
+        <KpiStatCard label="Snapshot" value={predictions[0]?.feature_snapshot_id.slice(0, 14) ?? "—"} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Forecast</CardTitle>
-            <CardDescription>Baseline vs forecast with confidence band.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ForecastChart data={forecast} />
-          </CardContent>
-        </Card>
-
-        <PredictionDriversPanel drivers={drivers} />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {predictions.map((prediction) => (
+          <AiContentCard
+            key={prediction.prediction_id}
+            title={prediction.prediction_type.replaceAll("_", " ")}
+            footer={
+              <EvidenceTracePills
+                items={[
+                  { kind: "pred", id: prediction.prediction_id },
+                  { kind: "features", id: prediction.feature_snapshot_id },
+                  { kind: "trace", id: `REASON_${prediction.prediction_id}` },
+                ]}
+              />
+            }
+          >
+            <div className="flex items-baseline gap-2">
+              <span className={type.kpiValue} style={{ color: colors.text.primary }}>{prediction.score}</span>
+              <span className={type.data} style={{ color: colors.text.muted }}>/100 risk</span>
+              <SeverityBadge value={prediction.severity} />
+            </div>
+            <p className={`mt-1 ${type.data}`} style={{ color: colors.text.muted }}>
+              confidence {(prediction.confidence * 100).toFixed(0)}% · horizon {prediction.horizon_days} days
+            </p>
+            <p className={`mt-2 ${type.body}`} style={{ color: colors.text.secondary }}>{prediction.explanation}</p>
+            <div className="mt-3 space-y-1">
+              <div className={type.label} style={{ color: colors.text.muted }}>Feature contributions</div>
+              {prediction.contributions.map((contribution) => {
+                const maxPoints = Math.max(...prediction.contributions.map((c) => c.points), 1);
+                return (
+                  <div key={contribution.feature} className="flex items-center gap-2">
+                    <span
+                      className={`w-56 truncate font-mono ${type.data}`}
+                      style={{ color: colors.text.primary }}
+                      title={contribution.why}
+                    >
+                      {contribution.feature}
+                    </span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: "#F1F5F9" }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${(contribution.points / maxPoints) * 100}%`,
+                          backgroundColor: contribution.points > 0 ? colors.warning : colors.surface.border,
+                        }}
+                      />
+                    </div>
+                    <span className={`w-12 text-right font-mono ${type.data}`} style={{ color: colors.text.secondary }}>
+                      +{contribution.points}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </AiContentCard>
+        ))}
+        {predictions.length === 0 && !busy ? (
+          <p className={type.body} style={{ color: colors.text.muted }}>No active predictions.</p>
+        ) : null}
       </div>
-
-      <div>
-        <h3 className="mb-4 text-xl font-black">Prediction Models</h3>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {models.map((model) => <PredictionModelCard key={model.modelId} model={model} />)}
-        </div>
-      </div>
-
-      <Card className="insight-gradient">
-        <CardHeader>
-          <CardTitle>Explainability Summary</CardTitle>
-          <CardDescription>Why the prediction changed and how the result should be used.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <div>Revenue forecast is primarily lifted by managed revenue mix and CRM meeting cadence.</div>
-          <div>NNM risk remains medium because outflows are concentrated in a small set of high-AUM households.</div>
-          <div>GNN opportunity propensity uses graph relationships between advisor, households, accounts, products, opportunities and recommendation outcomes.</div>
-          <div>Fallback behavior supports Scikit-Learn when XGBoost or graph-native models are unavailable.</div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
