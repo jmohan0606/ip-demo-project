@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { Advisor360Workspace } from "@/components/advisor360/advisor360-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Advisor 360" blueprint="ADV-360" />;
+  return <Advisor360Workspace />;
 }
