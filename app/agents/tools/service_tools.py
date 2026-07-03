@@ -32,19 +32,30 @@ class AgentToolbox:
     def build_embeddings(self) -> dict[str, Any]:
         return EmbeddingSimilarityService().build_embeddings_and_similarity(EmbeddingBuildRequest(entity_types=[EmbeddingEntityType.ADVISOR, EmbeddingEntityType.HOUSEHOLD], top_k_similarity=3, write_to_tigergraph=False)).model_dump()
     def run_predictions(self, entity_id: str | None = None) -> list[dict[str, Any]]:
-        from app.models.predictions import PredictionSearchRequest
-        from app.services.prediction_service import PredictionService
-        return PredictionService().list_predictions(PredictionSearchRequest(entity_id=entity_id, limit=20))
+        # New Phase-7 pipeline: transparent scored predictions with contributions.
+        if not entity_id:
+            return []
+        from app.prediction.service import PredictionService as PipelinePredictionService
+        preds = PipelinePredictionService().predict_advisor(entity_id)["predictions"]
+        return [p for p in preds if p.get("score") is not None]
 
     def run_opportunities(self, entity_id: str | None = None) -> list[dict[str, Any]]:
-        from app.models.opportunities import OpportunitySearchRequest
-        from app.services.opportunity_service import OpportunityService
-        return OpportunityService().list_opportunities(OpportunitySearchRequest(entity_id=entity_id, limit=20))
+        # New Phase-8 detection: severity-composed AI opportunities with lineage.
+        if not entity_id:
+            return []
+        from app.opportunities.service import OpportunityDetectionService
+        return OpportunityDetectionService().detect_for_advisor(entity_id)["opportunities"]
 
     def run_recommendations(self, entity_id: str | None = None) -> list[dict[str, Any]]:
-        from app.models.recommendations import RecommendationSearchRequest
-        from app.services.recommendation_service import RecommendationService
-        return RecommendationService().list_recommendations(RecommendationSearchRequest(entity_id=entity_id, limit=20))
+        # New Phase-8/9 pipeline: learning-weighted next-best-actions. Map priority_score
+        # onto the 'score' key the agent nodes read.
+        if not entity_id:
+            return []
+        from app.recommendations.service import RecommendationService as PipelineRecommendationService
+        recs = PipelineRecommendationService().generate_for_advisor(entity_id)["recommendations"]
+        for rec in recs:
+            rec.setdefault("score", rec.get("priority_score"))
+        return recs
 
     def generate_insights(self, scope_type: str, scope_id: str, persona: str, time_period: str, question: str) -> dict[str, Any]:
         return InsightsCoachingService().generate_dashboard_payload(InsightRequest(scope_type=InsightScopeType(scope_type), scope_id=scope_id, persona=persona, time_period=time_period, question=question, write_to_tigergraph=False, write_to_memory=True)).model_dump()
