@@ -325,3 +325,33 @@ It is fully verified, instant, and serves all 109,328 rows. local_real is a docu
 option for a larger box (schema+jobs proven to install; RealGraphClient proven to query/upsert).
 Phase 2's core purpose — validate the package compiles/loads on a real engine — is achieved to
 the limit this hardware allows; further live validation is deferred to a machine with more cores/RAM.
+
+## Session 2 (cont.) — AI Assistant page + Consolidation sweep
+
+**AI Assistant page (Phase 10 part 5):** rebuilt on real /ai-chat/ask + /agentic-ai/run
+(advisor A001, no hardcoded fallback). Chat mode grounds in memory/knowledge/insights with
+confidence + reasoning + evidence; agentic mode exposes the multi-agent reasoning path.
+Fixed the insights materialize dict bug + wired LLMClient into the chat engine.
+
+**Consolidation sweep:**
+- Part 1: deleted 7 backend *-runtime/*-activation routers + 8 hidden frontend runtime routes,
+  their components and API modules, and the orphaned old embeddings/memory-explainability
+  components. Backend 38->31 routes; frontend 29->18 routes; both build clean.
+- Part 2: rewired AgentToolbox (run_predictions/opportunities/recommendations) to the new
+  Phase 7/8/9 services. Agentic workflow now surfaces real pipeline artifacts (verified
+  recs:3 evidence:5 for A020). Agentic console connects to the same pipeline as /recommendations.
+
+**Consolidation NOT yet done (gated / deferred):**
+- Runtime-family backend MODULES (app/features old files, app/memory, app/recommendations old
+  runtime files, graph_runtime, knowledge_runtime) remain on disk, now dormant — still imported
+  by orchestration/tools.py, ui_integrated services, and app/agents feature/embedding tools.
+  Full deletion needs those last callers repointed (feature/embedding agent tools still use old
+  FeatureStoreService/EmbeddingSimilarityService).
+- /ui-integrated router+services retained: still the data source for 5 unbuilt Phase 11 pages
+  (knowledge, whatif, integrated-dashboard, graph-explorer, documents). Delete during Phase 11.
+- /orchestration backend router retained (real engine, no frontend); dedup-vs-/agentic-ai
+  decision deferred.
+
+Next (Phase 11 breadth): command centers (Exec/DDW/RDW/MDW), Revenue Intelligence, Hierarchy
+Explorer, Book of Business, AGP/CRM pages, Graph Explorer, Knowledge, Admin, Data Health (3B);
+then delete /ui-integrated + remaining runtime modules once their consumers are rebuilt.
