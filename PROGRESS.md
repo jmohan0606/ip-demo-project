@@ -229,3 +229,43 @@ GSQL fixes need upstreaming; LLMClient not yet consumed by insight/chat services
 AI pages will wire it).
 Next: 1) finish TigerGraph load + install 43 queries + run query cases (local_real);
 2) Phase 10 — design system tokens/primitives, then pipeline pages; 3) consolidation sweep.
+
+## Session 2 — 2026-07-03 — Live API chain verification (real curl output, advisor A001/A020)
+
+Verification demanded concrete proof, not status claims. All commands run against a live
+`uvicorn app.api.main:app` (GRAPH_CLIENT_MODE=mock, 109,328 rows). Every stage links to the
+previous stage's real output IDs:
+
+- **STEP 1 feature engineering** — `POST /features/compute/A001` → snapshot `FS_A001_20260703_v2.0`,
+  33 features. `managed_revenue_ratio=0.1123` lineage = GQ-006, `43474.27/387293.22`, product
+  ids [P001,P002,P049,P050]. REAL, math checks.
+- **STEP 2 predictions** — `POST /predictions/run/A001` → PRED_REVDECL (16.7) + PRED_AGPRISK
+  (25.8), both cite `feature_snapshot_id: FS_A001_20260703_v2.0` (matches Step 1); every
+  contribution's `value` equals the Step-1 feature value (peer_gap -41.78, overdue 3,
+  kpi_on_track 0.275). REAL, linked.
+- **STEP 3 opportunities** — `POST /opportunities/detect/A001` → OPP_PIPELINE (65.4) +
+  OPP_MANAGEDMIX (49.5), same snapshot. A001 is a healthy advisor (pred scores <40) so the
+  two prediction-derived rules correctly did NOT fire (`derived_from_prediction: None`); the
+  two feature-driven rules did. OPP_MANAGEDMIX impact $55,235.76 = 387293.22×(0.35-0.1123)×0.6.
+  Honest: for A001 this link is None by design.
+- **PREDICTION→OPPORTUNITY link proven separately** on at-risk advisors: A015/A020 produce
+  OPP_AGPRESCUE with `derived_from_prediction: PRED_AGPRISK_A0xx`. A020: AGP pred score 56.8
+  (≥40) → OPP_AGPRESCUE_A020 → REC_OPP_AGPRESCUE_A020 `based_on PRED_AGPRISK_A020_v2.0`.
+  The link is live, not dead — it fires when the score crosses threshold.
+- **STEP 4 recommendations** — `POST /recommendations/generate/A001`: learned weights already
+  re-ordered output — MANAGED_MIX (49.5×1.25=61.9) outranks CRM_EXECUTION (65.4×0.84=54.9)
+  despite lower base. Each rec links to its Step-3 opportunity_id.
+- **STEP 5 evidence** — `GET /explainability/recommendation/REC_OPP_MANAGEDMIX_A001_v2.0`:
+  chain recommendation→opportunity→FS_A001_20260703_v2.0→PB001→reasoning; reasoning trace
+  records applied weight 1.25 and base→adjusted 49.5→61.9.
+- **STEP 6 feedback loop (the centerpiece) — PROVEN** via real HTTP:
+  BEFORE weights {CRM 0.84, MANAGED 1.25}, order [MANAGED_MIX 61.9, CRM_EXECUTION 54.9].
+  3× COMPLETE on CRM (0.84→1.14) + 3× REJECT on MANAGED (1.25→1.01).
+  AFTER weights {CRM 1.14, MANAGED 1.01}, order [CRM_EXECUTION 74.6, MANAGED_MIX 50.0].
+  **Ranking flipped as a direct result of feedback.** Loop is closed and live.
+
+Verification-pass housekeeping: all 11 claimed commits present; foundation validators 4/4 PASS;
+verify_mock_queries 43/43 0 failures; frontend tsc+build green; deleted modules have 0 tracked
+files (removed leftover .pyc cruft); .env safe (only .example tracked, 0 leaked keys).
+FLAG (not a false claim): runtime SQLite DBs are git-tracked (data/feature_store/*.db,
+data/sqlite/*.db) — hygiene smell, verification runs mutate them; consider gitignoring.
