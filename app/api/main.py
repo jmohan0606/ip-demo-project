@@ -1,11 +1,4 @@
 from __future__ import annotations
-from app.api.routers.llm_activation import router as llm_activation_router
-from app.api.routers.tigergraph_activation import router as tigergraph_activation_router
-from app.api.routers.memory_runtime import router as memory_runtime_router
-from app.api.routers.recommendation_runtime import router as recommendation_runtime_router
-from app.api.routers.feature_runtime import router as feature_runtime_router
-from app.api.routers.knowledge_runtime import router as knowledge_runtime_router
-from app.api.routers.graph_runtime import router as graph_runtime_router
 from app.api.routers.orchestration import router as orchestration_router
 from app.api.routers.ui_integrated_expanded import router as ui_integrated_expanded_router
 from app.api.routers.ui_integrated import router as ui_integrated_router
@@ -90,13 +83,6 @@ app.include_router(config_status_router)
 app.include_router(ui_integrated_router)
 app.include_router(ui_integrated_expanded_router)
 app.include_router(orchestration_router)
-app.include_router(graph_runtime_router)
-app.include_router(knowledge_runtime_router)
-app.include_router(feature_runtime_router)
-app.include_router(recommendation_runtime_router)
-app.include_router(memory_runtime_router)
-app.include_router(tigergraph_activation_router)
-app.include_router(llm_activation_router)
 
 app.add_middleware(
     CORSMiddleware,
