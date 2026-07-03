@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { RecommendationsWorkspace } from "@/components/recommendations/recommendations-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Opportunities & Recommendations" blueprint="AI-OPP / COACH" />;
+  return <RecommendationsWorkspace />;
 }

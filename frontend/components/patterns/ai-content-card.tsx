@@ -1,0 +1,25 @@
+import type { ReactNode } from "react";
+
+import { colors, type } from "@/styles/tokens";
+
+/** Card treatment for AI-generated content — always carries the AI chip so
+ * generated text is never presented as human/system copy. */
+export function AiContentCard({ title, children, footer }: { title: string; children: ReactNode; footer?: ReactNode }) {
+  return (
+    <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
+      <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: colors.surface.border }}>
+        <h3 className={type.cardTitle} style={{ color: colors.text.primary }}>{title}</h3>
+        <span
+          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]"
+          style={{ color: colors.aiAccent, backgroundColor: "#F5F3FF", border: `1px solid #DDD6FE` }}
+        >
+          ✦ AI Generated
+        </span>
+      </div>
+      <div className="px-4 py-3">{children}</div>
+      {footer ? (
+        <div className="border-t px-4 py-2" style={{ borderColor: colors.surface.border }}>{footer}</div>
+      ) : null}
+    </div>
+  );
+}
