@@ -172,12 +172,60 @@ repo root are the OLD graph assets and are superseded by the foundation package'
 - Settings extended: GRAPH_CLIENT_MODE, LLM_CLIENT_MODE, TIGERGRAPH_RESTPP_URL,
   ANTHROPIC_API_KEY/MODEL, AZURE_OPENAI_*, FOUNDATION_DIR.
 
-Completed: 0B audit; Phase 1 foundation (verified: app boots, adapters live, store loads 109,328 rows).
-In progress: Phase 2 — local TigerGraph Docker attempt.
-Known issues / deferred: `/recommendations` engine broken (rebuild Phase 8); `/ui-integrated/*`
-still present until Phase 10/11 page rebuilds; frontend still calls losing-family endpoints
-until rebuild; old `tigergraph/sample_data` (51 CSVs) still feeds `app/feature_store` until
-Phase 3/5 repoints it at the foundation data; services not yet consuming GraphClient/LLMClient
-(Phase 3+ wires them).
-Next: 1) Phase 2 — local TigerGraph Docker; 2) Phase 3 — GQ-### mock+real call sites;
-3) Phase 4 — AGP/CRM modules.
+### Phase 3: Data access layer — COMPLETE (mock side; live install in progress)
+
+All 43 GQ-### catalog queries implemented as Python equivalents for MockGraphClient
+(`app/graph/queries/`), mirroring GSQL traversals and PRINT output keys, RESTPP-style vertex
+envelopes. Verified with `scripts/verify_mock_queries.py` against the package's own 43-case
+contract: 43/43 execute, 0 hard failures. 3 empty-required results are data-truthful, not
+bugs: U_EXEC has no notifications in the data; the GQ-038 case's scenario_type
+`AGP_ACTIVITY_IMPROVEMENT` doesn't exist in the data (only `AGP_CRM_IMPROVEMENT` — package-
+internal inconsistency to report upstream); GQ-043 correctly finds 0 issues in a
+verified-clean graph.
+
+### Phase 2: Local TigerGraph (Docker Community Edition 4.2.3) — schema+jobs installed, load in progress
+
+Container up on this 2-core/8GB codespace (all 16 services Online). **Two real-engine
+incompatibilities found that static validation could not catch** (the whole point of doing
+this early):
+1. `gsql -f` rejects the trailing `;` after `WITH primary_id_as_attribute=...` /
+   `WITH REVERSE_EDGE=...` DDL clauses → fixed mechanically (strip trailing semicolons);
+   all 56 vertices + 126 edges + graph created successfully.
+2. All 182 loading jobs fail semantic check as shipped: `USING HEADER="true"` with `$"col"`
+   references requires an initialized `DEFINE FILENAME` → fixed mechanically (initialize
+   each FILENAME to the container CSV path); all 182 jobs then compile. Both fixes need to
+   go back into the foundation package + its validators (report upstream).
+Data load via `RUN LOADING JOB` running in background. 43 query INSTALL (C++ compile) still
+pending — slow on 2 cores; will run after load completes.
+
+### Phases 4-9: Full AI pipeline — COMPLETE and verified end-to-end (mock mode)
+
+- **Phase 4** `app/agp/` + `app/crm/`: real domain logic per AGP-001..006 / CRM-001..005,
+  over GraphClient only. AGP-004 on/off-track score preserves components + explanation.
+- **Phase 5** `app/features/engineering.py`: 33 Feature_Catalog features with per-feature
+  lineage (source query + evidence ids); versioned snapshot persisted to SQLite AND as
+  phx_dm_feature_snapshot vertex + edge.
+- **Phase 6** `app/embeddings/service.py`: deterministic versioned feature-projection
+  (spec Section 10 wording followed; labeled a simulation), 60 advisors, 300 similarity
+  matches persisted with reason features.
+- **Phase 7** `app/prediction/service.py`: REVENUE_DECLINE_RISK + AGP_OFF_TRACK_RISK with
+  transparent contributions, confidence, severity bands, persisted reasoning traces.
+- **Phase 8** `app/opportunities/service.py` (4 rules, severity composed 25/25/20/15/15 per
+  spec Section 7) + `app/recommendations/service.py` (playbook-mapped actions, ranked by
+  base score x learned family weight; rebuilt after the 0B clobbered-engine finding).
+- **Phase 9** `app/feedback/service.py`: feedback actions persist feedback → outcome →
+  learning-signal artifacts and move the family weight read at ranking time.
+  **Verified: two feedback rounds flip the ranking order** (CRM_EXECUTION 65.4→54.9 w=0.84
+  vs MANAGED_MIX 49.5→59.4 w=1.2). GQ-029 traces the complete chain for A001:
+  recommendation → opportunity → feature snapshot → playbook → reasoning → feedback →
+  outcome → learning. Routers rewired; verified over HTTP.
+
+Completed: 0B; Phases 1, 3(mock), 4, 5, 6, 7, 8, 9. Pipeline demo core works end-to-end.
+In progress: Phase 2 TigerGraph data load (background); query INSTALL pending.
+Known issues / deferred: runtime-family modules (app/features old files, app/memory,
+*-runtime routers) still present — consolidation sweep planned with Phase 10 page rebuilds;
+`/ui-integrated/*` + orchestration ToolRuntime rewire pending Phase 10; foundation-package
+GSQL fixes need upstreaming; LLMClient not yet consumed by insight/chat services (Phase 10
+AI pages will wire it).
+Next: 1) finish TigerGraph load + install 43 queries + run query cases (local_real);
+2) Phase 10 — design system tokens/primitives, then pipeline pages; 3) consolidation sweep.
