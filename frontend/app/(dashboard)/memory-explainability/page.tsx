@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { ExplainabilityWorkspace } from "@/components/explainability/explainability-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Memory Timeline & Explainability" blueprint="Explainability Explorer" />;
+  return <ExplainabilityWorkspace />;
 }
