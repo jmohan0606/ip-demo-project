@@ -1,6 +1,11 @@
 from fastapi import APIRouter
+
 from app.services.adapter_status_service import AdapterStatusService
 from app.shared.responses import ok
-router=APIRouter(prefix='/adapters', tags=['Adapters'])
-@router.get('/model')
-def model_adapter_status(): return ok(data=AdapterStatusService().model_adapter_status())
+
+router = APIRouter(prefix="/adapters", tags=["Adapters"])
+
+
+@router.get("/status")
+def adapter_status():
+    return ok(data=AdapterStatusService().status())

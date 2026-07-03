@@ -1,10 +1,22 @@
-from app.ai.adapters.adapter_factory import ModelAdapterFactory
+from __future__ import annotations
+
 from app.config.settings import get_settings
-from app.models.enums import AdapterProvider
-from app.shared.exceptions import ConfigurationError
+from app.graph.client import get_graph_client
+from app.llm.client import get_llm_client
+
+
 class AdapterStatusService:
-    def model_adapter_status(self) -> dict:
-        s=get_settings(); adapter=ModelAdapterFactory.create(AdapterProvider.OPENAI); name=adapter.__class__.__name__
-        return {'selected_provider':AdapterProvider.OPENAI,'active_adapter':name,'openai_configured':bool(s.openai_api_key),'smart_sdk_available':False,'fallback_active':name=='MockModelAdapter'}
-    def validate_openai_ready(self) -> None:
-        if not get_settings().openai_api_key: raise ConfigurationError('OPENAI_API_KEY is required for OpenAI model execution.')
+    """Reports which GraphClient/LLMClient implementations are active (Section 2)."""
+
+    def status(self) -> dict:
+        settings = get_settings()
+        graph_health = get_graph_client().health()
+        llm = get_llm_client()
+        return {
+            "graph_client_mode": settings.graph_client_mode,
+            "graph": graph_health,
+            "llm_client_mode": settings.llm_client_mode,
+            "llm": llm.describe(),
+            "anthropic_configured": bool(settings.anthropic_api_key),
+            "azure_openai_configured": bool(settings.azure_openai_endpoint and settings.azure_openai_api_key),
+        }

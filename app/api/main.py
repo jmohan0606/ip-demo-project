@@ -21,12 +21,8 @@ from app.config.settings import get_settings
 from app.models.common import HealthResponse
 from app.shared.logging import configure_logging
 from app.api.routers.config_status import router as config_status_router
-from app.api.routers.deep_hardening import router as deep_hardening_router
-from app.api.routers.runtime_validation import router as runtime_validation_router
-from app.api.routers.final_audit import router as final_audit_router
 from app.api.routers.agentic_ai import router as agentic_ai_router
 from app.api.routers.graph_access import router as graph_access_router
-from app.api.routers.demo_run import router as demo_run_router
 from app.api.routers.ai_chat import router as ai_chat_router
 from app.api.routers.insights_coaching import router as insights_coaching_router
 from app.api.routers.feedback_learning import router as feedback_learning_router
@@ -38,7 +34,6 @@ from app.api.routers.features import router as features_router
 from app.api.routers.memory import router as memory_router
 from app.api.routers.knowledge import router as knowledge_router
 from app.api.routers.ingestion import router as ingestion_router
-from app.api.routers.demo_data import router as demo_data_router
 from app.api.routers.tigergraph_foundation import router as tigergraph_foundation_router
 configure_logging(); settings=get_settings()
 app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching')
@@ -53,7 +48,6 @@ app.include_router(manifest_router)
 
 app.include_router(tigergraph_foundation_router)
 
-app.include_router(demo_data_router)
 
 app.include_router(ingestion_router)
 
@@ -77,17 +71,13 @@ app.include_router(insights_coaching_router)
 
 app.include_router(ai_chat_router)
 
-app.include_router(demo_run_router)
 
 app.include_router(graph_access_router)
 
 app.include_router(agentic_ai_router)
 
-app.include_router(final_audit_router)
 
-app.include_router(runtime_validation_router)
 
-app.include_router(deep_hardening_router)
 app.include_router(config_status_router)
 app.include_router(ui_integrated_router)
 app.include_router(ui_integrated_expanded_router)

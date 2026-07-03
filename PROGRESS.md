@@ -144,10 +144,40 @@ package data via `MockGraphClient`; `tigergraph/{schema,loading,queries_v1,queri
 repo root are the OLD graph assets and are superseded by the foundation package's
 `tigergraph/` tree.
 
-Completed: Section 0B audit (all 5 steps); backend compiles again; fake remediation layer gone.
-In progress: —
+### Phase 1: Foundation (Streamlit removal + adapter pattern) — COMPLETE
+
+- Deleted `app/ui/` (Streamlit, 1,376 lines) and removed `streamlit` + `plotly` (Streamlit-only)
+  from `pyproject.toml`; added `anthropic` + `httpx`; fixed setuptools flat-layout config.
+- Deleted legacy self-audit scaffolding per 0B decision: `app/audit/`, `app/hardening/`,
+  `app/runtime_validation/`, routers `/final-audit`, `/deep-hardening`, `/runtime-validation`,
+  `/demo-run`, `/demo-data`, their service facades, `app/orchestration/demo_orchestrator.py`,
+  and the stale tests that exercised them. Frontend `endpoints.ts` cleaned of dead routes.
+- **Adapter pattern (Section 2) built and verified:**
+  - `app/graph/foundation_store.py` — `FoundationGraphStore` loads the foundation package's
+    182 CSVs via `data/manifest.json` into typed vertex/edge indexes with out/in traversal
+    helpers. Verified: 56 vertex types, 126 edge types, 24,031 + 85,297 = 109,328 rows,
+    zero manifest row-count mismatches, ~1.7s load.
+  - `app/graph/client.py` — `GraphClient` Protocol; `RealGraphClient` (httpx RESTPP, ported
+    from the foundation package client, serves both local_real and real modes);
+    `MockGraphClient` (same envelope, backed by the store, `MOCK_QUERY_IMPLS` registry +
+    `@mock_query` decorator for Phase 3 GQ implementations); `get_graph_client()` selected by
+    `GRAPH_CLIENT_MODE`.
+  - `app/llm/client.py` — `LLMClient` Protocol; shared `_render_messages` so identical
+    system/user content reaches all three backends; `MockLLMClient` (deterministic),
+    `ClaudeLLMClient` (anthropic SDK, default `claude-haiku-4-5-20251001`), `RealLLMClient`
+    (Azure OpenAI); `get_llm_client()` selected by `LLM_CLIENT_MODE`. SDK imports live only
+    inside their respective classes.
+  - `.env.example` (mock/mock defaults); `.env` remains user-provided and gitignored.
+  - `/adapters/status` endpoint reports active modes (verified live over HTTP).
+- Settings extended: GRAPH_CLIENT_MODE, LLM_CLIENT_MODE, TIGERGRAPH_RESTPP_URL,
+  ANTHROPIC_API_KEY/MODEL, AZURE_OPENAI_*, FOUNDATION_DIR.
+
+Completed: 0B audit; Phase 1 foundation (verified: app boots, adapters live, store loads 109,328 rows).
+In progress: Phase 2 — local TigerGraph Docker attempt.
 Known issues / deferred: `/recommendations` engine broken (rebuild Phase 8); `/ui-integrated/*`
 still present until Phase 10/11 page rebuilds; frontend still calls losing-family endpoints
-until rebuild; real GSQL still unvalidated against a live engine (Phase 2).
-Next: 1) Phase 1 — delete Streamlit + scaffolding, build GraphClient/LLMClient adapters;
-2) Phase 2 — local TigerGraph Docker attempt; 3) Phase 3 — GQ-### data access layer.
+until rebuild; old `tigergraph/sample_data` (51 CSVs) still feeds `app/feature_store` until
+Phase 3/5 repoints it at the foundation data; services not yet consuming GraphClient/LLMClient
+(Phase 3+ wires them).
+Next: 1) Phase 2 — local TigerGraph Docker; 2) Phase 3 — GQ-### mock+real call sites;
+3) Phase 4 — AGP/CRM modules.

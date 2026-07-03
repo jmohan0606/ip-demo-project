@@ -1,0 +1,285 @@
+from __future__ import annotations
+
+import json
+from typing import Any, Callable, Protocol
+
+import httpx
+
+from app.config.settings import get_settings
+from app.graph.foundation_store import FoundationGraphStore, get_foundation_store
+
+
+class GraphClientError(RuntimeError):
+    pass
+
+
+class PartialUpsertError(GraphClientError):
+    def __init__(self, message: str, response: dict, accepted: int, requested: int):
+        super().__init__(message)
+        self.response = response
+        self.accepted = accepted
+        self.requested = requested
+
+
+class GraphClient(Protocol):
+    """Adapter interface every service depends on (Section 2 of the rebuild brief).
+
+    Implementations must never leak transport specifics: business logic sees only
+    query names from the GSQL_Queries catalog (GQ-###) plus generic upsert/health.
+    """
+
+    def run_query(self, query_name: str, params: dict | None = None) -> dict: ...
+
+    def upsert(self, entry: dict, records: list[dict]) -> dict: ...
+
+    def health(self) -> dict: ...
+
+    def statistics(self, kind: str = "vertex", target_type: str = "*") -> dict: ...
+
+
+class RealGraphClient:
+    """RESTPP-backed client, ported from the TigerGraph Foundation package
+    (docs/tigergraph_foundation/backend/app/services/tigergraph_client.py).
+
+    Used both for GRAPH_CLIENT_MODE=local_real (Docker Community Edition on
+    localhost) and GRAPH_CLIENT_MODE=real (client site) — only env config differs.
+    """
+
+    def __init__(self) -> None:
+        settings = get_settings()
+        base = settings.tigergraph_restpp_url.rstrip("/")
+        self.base = base if base.endswith("/restpp") else base + "/restpp"
+        self.graph_name = settings.tigergraph_graph
+        self.verify_ssl = settings.tigergraph_verify_ssl
+        self.timeout = settings.tigergraph_timeout_seconds
+        self.headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        if settings.tigergraph_token:
+            self.headers["Authorization"] = f"Bearer {settings.tigergraph_token}"
+
+    def _client(self) -> httpx.Client:
+        return httpx.Client(verify=self.verify_ssl, timeout=self.timeout)
+
+    def health(self) -> dict:
+        try:
+            with self._client() as client:
+                response = client.get(f"{self.base}/echo", headers=self.headers)
+                response.raise_for_status()
+            return {"healthy": True, "mode": "real", "graph": self.graph_name, "restpp_url": self.base}
+        except Exception as exc:
+            return {"healthy": False, "mode": "real", "graph": self.graph_name, "restpp_url": self.base, "error": str(exc)}
+
+    def run_query(self, query_name: str, params: dict | None = None) -> dict:
+        with self._client() as client:
+            response = client.get(
+                f"{self.base}/query/{self.graph_name}/{query_name}",
+                headers=self.headers,
+                params=params or {},
+            )
+            response.raise_for_status()
+            data = response.json()
+        if data.get("error"):
+            raise GraphClientError(data.get("message") or f"TigerGraph query failed: {query_name}")
+        return data
+
+    def _attributes(self, entry: dict, row: dict, excluded: set[str]) -> dict:
+        attributes: dict[str, dict[str, Any]] = {}
+        for source_column, graph_attribute in entry.get("columns", {}).items():
+            if source_column in excluded:
+                continue
+            value = row.get(source_column)
+            if value in ("", None):
+                continue
+            attributes[graph_attribute] = {"value": _coerce(value)}
+        return attributes
+
+    def build_payload(self, entry: dict, records: list[dict]) -> dict:
+        if entry["kind"] == "vertex":
+            target = entry["target"]
+            id_col = entry["id_column"]
+            vertices: dict[str, dict] = {target: {}}
+            for row in records:
+                vertex_id = str(row[id_col]).strip()
+                if not vertex_id:
+                    raise GraphClientError(f"Blank vertex id in {entry['file']}")
+                vertices[target][vertex_id] = self._attributes(entry, row, {id_col})
+            return {"vertices": vertices}
+
+        edge_name = entry["target"]
+        edges: dict = {entry["from_type"]: {}}
+        for row in records:
+            from_id = str(row[entry["from_column"]]).strip()
+            to_id = str(row[entry["to_column"]]).strip()
+            if not from_id or not to_id:
+                raise GraphClientError(f"Blank edge endpoint in {entry['file']}")
+            target_map = (
+                edges.setdefault(entry["from_type"], {})
+                .setdefault(from_id, {})
+                .setdefault(edge_name, {})
+                .setdefault(entry["to_type"], {})
+            )
+            target_map[to_id] = self._attributes(entry, row, {entry["from_column"], entry["to_column"]})
+        return {"edges": edges}
+
+    @staticmethod
+    def _accepted_count(data: dict, kind: str) -> int:
+        key = "accepted_vertices" if kind == "vertex" else "accepted_edges"
+        if isinstance(data.get(key), int):
+            return int(data[key])
+        total = 0
+        results = data.get("results", [])
+        if isinstance(results, list):
+            for item in results:
+                if isinstance(item, dict):
+                    value = item.get(key)
+                    if isinstance(value, int):
+                        total += value
+        return total
+
+    def upsert(self, entry: dict, records: list[dict]) -> dict:
+        if not records:
+            return {"accepted_vertices": 0, "accepted_edges": 0, "errors": []}
+        payload = self.build_payload(entry, records)
+        params = {"vertex_must_exist": "true"} if entry["kind"] == "edge" else None
+        with self._client() as client:
+            response = client.post(
+                f"{self.base}/graph/{self.graph_name}",
+                headers=self.headers,
+                params=params,
+                content=json.dumps(payload),
+            )
+            response.raise_for_status()
+            data = response.json()
+        if data.get("error"):
+            raise GraphClientError(data.get("message") or f"TigerGraph upsert failed for {entry['target']}")
+        accepted = self._accepted_count(data, entry["kind"])
+        if accepted != len(records):
+            raise PartialUpsertError(
+                f"TigerGraph accepted {accepted} of {len(records)} requested {entry['kind']} records for {entry['target']}",
+                data,
+                accepted,
+                len(records),
+            )
+        return data
+
+    def statistics(self, kind: str = "vertex", target_type: str = "*") -> dict:
+        if kind not in {"vertex", "edge"}:
+            raise ValueError("kind must be vertex or edge")
+        function = "stat_vertex_number" if kind == "vertex" else "stat_edge_number"
+        payload = {"function": function, "type": target_type}
+        with self._client() as client:
+            response = client.post(
+                f"{self.base}/builtins/{self.graph_name}", headers=self.headers, content=json.dumps(payload)
+            )
+            response.raise_for_status()
+            data = response.json()
+        if data.get("error"):
+            raise GraphClientError(data.get("message") or f"TigerGraph builtin failed: {function}")
+        return data
+
+
+# Registry of Python implementations of the GQ-### catalog queries, keyed by the
+# installed query name (e.g. "get_org_hierarchy"). Populated by app/graph/queries/
+# modules via the @mock_query decorator (Phase 3).
+MOCK_QUERY_IMPLS: dict[str, Callable[[FoundationGraphStore, dict], list[dict]]] = {}
+
+
+def mock_query(name: str):
+    def register(fn: Callable[[FoundationGraphStore, dict], list[dict]]):
+        MOCK_QUERY_IMPLS[name] = fn
+        return fn
+
+    return register
+
+
+class MockGraphClient:
+    """Same interface and result envelope as RealGraphClient, backed by the
+    foundation package's 182 verified CSVs loaded into FoundationGraphStore.
+
+    Each GQ-### query has a Python equivalent registered in MOCK_QUERY_IMPLS that
+    traverses the same vertices/edges the GSQL version traverses, returning the
+    same result keys, so services cannot tell which mode is active.
+    """
+
+    def __init__(self, store: FoundationGraphStore | None = None) -> None:
+        self.store = store or get_foundation_store()
+        # runtime upserts (AI artifacts written back to the graph) — kept separate
+        # from the seeded foundation data so statistics can distinguish them.
+        self.runtime_vertices: dict[str, dict[str, dict]] = {}
+        self.runtime_edges: list[dict] = []
+
+    def health(self) -> dict:
+        return {
+            "healthy": self.store.loaded,
+            "mode": "mock",
+            "graph": get_settings().tigergraph_graph,
+            "load_report": self.store.load_report,
+        }
+
+    def run_query(self, query_name: str, params: dict | None = None) -> dict:
+        impl = MOCK_QUERY_IMPLS.get(query_name)
+        if impl is None:
+            raise GraphClientError(
+                f"MockGraphClient has no implementation registered for query '{query_name}'. "
+                f"Registered: {sorted(MOCK_QUERY_IMPLS)}"
+            )
+        results = impl(self.store, params or {})
+        return {"error": False, "results": results, "mode": "mock", "query": query_name}
+
+    def upsert(self, entry: dict, records: list[dict]) -> dict:
+        accepted = 0
+        if entry["kind"] == "vertex":
+            bucket = self.runtime_vertices.setdefault(entry["target"], {})
+            id_col = entry["id_column"]
+            for row in records:
+                bucket[str(row[id_col])] = row
+                accepted += 1
+            return {"error": False, "accepted_vertices": accepted, "accepted_edges": 0, "mode": "mock"}
+        for row in records:
+            self.runtime_edges.append({"edge": entry["target"], **row})
+            accepted += 1
+        return {"error": False, "accepted_vertices": 0, "accepted_edges": accepted, "mode": "mock"}
+
+    def statistics(self, kind: str = "vertex", target_type: str = "*") -> dict:
+        stats = self.store.statistics()
+        counts = stats["vertex_counts"] if kind == "vertex" else stats["edge_counts"]
+        if target_type != "*":
+            counts = {target_type: counts.get(target_type, 0)}
+        return {"error": False, "results": [{"counts": counts}], "mode": "mock"}
+
+
+_graph_client: GraphClient | None = None
+
+
+def get_graph_client() -> GraphClient:
+    """Select the GraphClient per GRAPH_CLIENT_MODE (mock | local_real | real)."""
+    global _graph_client
+    if _graph_client is None:
+        mode = get_settings().graph_client_mode.lower()
+        if mode in {"local_real", "real"}:
+            _graph_client = RealGraphClient()
+        elif mode == "mock":
+            _graph_client = MockGraphClient()
+        else:
+            raise GraphClientError(f"Unknown GRAPH_CLIENT_MODE '{mode}' (expected mock|local_real|real)")
+    return _graph_client
+
+
+def reset_graph_client() -> None:
+    global _graph_client
+    _graph_client = None
+
+
+def _coerce(value: Any):
+    if isinstance(value, (bool, int, float)) or value is None:
+        return value
+    text = str(value).strip()
+    if text.lower() in {"true", "false"}:
+        return text.lower() == "true"
+    try:
+        return int(text)
+    except ValueError:
+        pass
+    try:
+        return float(text)
+    except ValueError:
+        return text

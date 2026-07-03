@@ -14,9 +14,21 @@ class Settings(BaseSettings):
     app_version: str = Field(default="11.0.1", alias="APP_VERSION")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
+    # Adapter selection (Section 2 of the rebuild brief)
+    graph_client_mode: str = Field(default="mock", alias="GRAPH_CLIENT_MODE")  # mock | local_real | real
+    llm_client_mode: str = Field(default="mock", alias="LLM_CLIENT_MODE")  # mock | claude | real
+
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
     openai_embedding_model: str = Field(default="text-embedding-3-small", alias="OPENAI_EMBEDDING_MODEL")
+
+    azure_openai_endpoint: str | None = Field(default=None, alias="AZURE_OPENAI_ENDPOINT")
+    azure_openai_api_key: str | None = Field(default=None, alias="AZURE_OPENAI_API_KEY")
+    azure_openai_deployment: str = Field(default="gpt-4o-mini", alias="AZURE_OPENAI_DEPLOYMENT")
+    azure_openai_api_version: str = Field(default="2024-06-01", alias="AZURE_OPENAI_API_VERSION")
+
+    anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
+    anthropic_model: str = Field(default="claude-haiku-4-5-20251001", alias="ANTHROPIC_MODEL")
 
     tigergraph_host: str | None = Field(default=None, alias="TIGERGRAPH_HOST")
     tigergraph_username: str | None = Field(default=None, alias="TIGERGRAPH_USERNAME")
@@ -25,6 +37,13 @@ class Settings(BaseSettings):
     tigergraph_token: str | None = Field(default=None, alias="TIGERGRAPH_TOKEN")
     tigergraph_graph: str = Field(default="iperform_insights_coaching_demo", alias="TIGERGRAPH_GRAPH")
     tigergraph_schema_prefix: str = Field(default="phx_dm_", alias="TIGERGRAPH_SCHEMA_PREFIX")
+    tigergraph_restpp_url: str = Field(default="http://localhost:14240/restpp", alias="TIGERGRAPH_RESTPP_URL")
+    tigergraph_verify_ssl: bool = Field(default=True, alias="TIGERGRAPH_VERIFY_SSL")
+    tigergraph_timeout_seconds: int = Field(default=120, alias="TIGERGRAPH_TIMEOUT_SECONDS")
+    graph_load_batch_size: int = Field(default=500, alias="GRAPH_LOAD_BATCH_SIZE")
+
+    # TigerGraph Foundation package (Section 3 — source of truth for schema/data/queries)
+    foundation_dir: str = Field(default="docs/tigergraph_foundation", alias="FOUNDATION_DIR")
 
     # TigerGraph MCP-first graph access
     graph_access_strategy: str = "mcp_rest_mock"
