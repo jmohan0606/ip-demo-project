@@ -228,16 +228,39 @@ class MockGraphClient:
         return {"error": False, "results": results, "mode": "mock", "query": query_name}
 
     def upsert(self, entry: dict, records: list[dict]) -> dict:
+        """Writes into the same indexes the query implementations traverse —
+        mirroring real TigerGraph, where upserted artifacts are immediately
+        visible to installed queries (the traceability chain depends on this)."""
         accepted = 0
         if entry["kind"] == "vertex":
-            bucket = self.runtime_vertices.setdefault(entry["target"], {})
+            vertex_type = entry["target"]
             id_col = entry["id_column"]
             for row in records:
-                bucket[str(row[id_col])] = row
+                vertex_id = str(row[id_col])
+                attrs = {graph_attr: row.get(src) for src, graph_attr in entry.get("columns", {}).items()}
+                existing = self.store.vertices[vertex_type].get(vertex_id, {})
+                self.store.vertices[vertex_type][vertex_id] = {**existing, **attrs}
+                self.runtime_vertices.setdefault(vertex_type, {})[vertex_id] = attrs
                 accepted += 1
             return {"error": False, "accepted_vertices": accepted, "accepted_edges": 0, "mode": "mock"}
+        edge_name = entry["target"]
+        from_col, to_col = entry["from_column"], entry["to_column"]
         for row in records:
-            self.runtime_edges.append({"edge": entry["target"], **row})
+            from_id, to_id = str(row[from_col]), str(row[to_col])
+            attrs = {
+                graph_attr: row.get(src)
+                for src, graph_attr in entry.get("columns", {}).items()
+                if src not in (from_col, to_col)
+            }
+            already = any(t == to_id for t, _ in self.store.out_index[edge_name].get(from_id, []))
+            if not already:
+                self.store.edges[edge_name].append(
+                    {"from_type": entry["from_type"], "from_id": from_id,
+                     "to_type": entry["to_type"], "to_id": to_id, "attrs": attrs}
+                )
+                self.store.out_index[edge_name][from_id].append((to_id, attrs))
+                self.store.in_index[edge_name][to_id].append((from_id, attrs))
+            self.runtime_edges.append({"edge": edge_name, **row})
             accepted += 1
         return {"error": False, "accepted_vertices": 0, "accepted_edges": accepted, "mode": "mock"}
 
