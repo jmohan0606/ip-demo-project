@@ -1,5 +1,5 @@
-import { DocumentIngestionRemediation } from "@/components/remediation/dense-ui";
+import { PendingRebuild } from "@/components/pending/pending-rebuild";
 
 export default function Page() {
-  return <DocumentIngestionRemediation />;
+  return <PendingRebuild title="Data Ingestion & Sync" blueprint="DATA (Data Health)" />;
 }

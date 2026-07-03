@@ -1,5 +1,5 @@
-import { RevenueAnalyticsRemediation } from "@/components/remediation/dense-ui";
+import { PendingRebuild } from "@/components/pending/pending-rebuild";
 
 export default function Page() {
-  return <RevenueAnalyticsRemediation />;
+  return <PendingRebuild title="Revenue Intelligence" blueprint="REV-INTEL" />;
 }

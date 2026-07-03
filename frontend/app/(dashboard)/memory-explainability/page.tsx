@@ -1,5 +1,5 @@
-import { MemoryExplainabilityRemediation } from "@/components/remediation/dense-ui";
+import { PendingRebuild } from "@/components/pending/pending-rebuild";
 
 export default function Page() {
-  return <MemoryExplainabilityRemediation />;
+  return <PendingRebuild title="Memory Timeline & Explainability" blueprint="Explainability Explorer" />;
 }

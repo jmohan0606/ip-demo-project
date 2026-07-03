@@ -41,3 +41,4 @@ data/uploads/*
 !data/uploads/.gitkeep
 docs/ui_runtime/screenshots/*
 !docs/ui_runtime/screenshots/.gitkeep
+*.tsbuildinfo

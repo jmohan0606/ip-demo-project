@@ -1,4 +1,4 @@
-from app.api.routers.ui_remediation import router as ui_remediation_router
+from __future__ import annotations
 from app.api.routers.llm_activation import router as llm_activation_router
 from app.api.routers.tigergraph_activation import router as tigergraph_activation_router
 from app.api.routers.memory_runtime import router as memory_runtime_router
@@ -9,7 +9,6 @@ from app.api.routers.graph_runtime import router as graph_runtime_router
 from app.api.routers.orchestration import router as orchestration_router
 from app.api.routers.ui_integrated_expanded import router as ui_integrated_expanded_router
 from app.api.routers.ui_integrated import router as ui_integrated_router
-from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.middleware.error_handlers import register_exception_handlers
@@ -108,4 +107,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(ui_remediation_router)

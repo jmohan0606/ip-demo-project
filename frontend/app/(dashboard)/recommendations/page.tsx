@@ -1,5 +1,5 @@
-import { RecommendationsRemediation } from "@/components/remediation/dense-ui";
+import { PendingRebuild } from "@/components/pending/pending-rebuild";
 
 export default function Page() {
-  return <RecommendationsRemediation />;
+  return <PendingRebuild title="Opportunities & Recommendations" blueprint="AI-OPP / COACH" />;
 }

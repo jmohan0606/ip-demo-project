@@ -1,5 +1,5 @@
-import { GraphExplorerRemediation } from "@/components/remediation/dense-ui";
+import { PendingRebuild } from "@/components/pending/pending-rebuild";
 
 export default function Page() {
-  return <GraphExplorerRemediation />;
+  return <PendingRebuild title="Knowledge Graph Explorer" blueprint="Graph Explorer" />;
 }
