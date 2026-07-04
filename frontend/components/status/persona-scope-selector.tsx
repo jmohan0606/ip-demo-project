@@ -1,23 +1,56 @@
 "use client";
-import { useMemo } from "react";
+
 import { useShellContext } from "@/components/layout/shell-context";
-import type { Persona, ScopeType, TimePeriod } from "@/lib/types/navigation";
-import { getAvailableScopes } from "@/lib/scope-options";
-const personas: Persona[] = ["Firm", "Division", "Region", "Market", "Advisor", "MDW", "DDW"];
-const scopeTypes: ScopeType[] = ["Firm", "Division", "Region", "Market", "Advisor"];
-const periods: TimePeriod[] = ["MTD", "QTD", "YTD", "LTM", "Custom"];
-const compareOptions = ["Prior Period", "Prior Year", "Peer Benchmark", "None"] as const;
+import { HierarchyBreadcrumb } from "@/components/status/hierarchy-breadcrumb";
+import type { Persona, TimePeriod } from "@/lib/types/navigation";
+
+const personas: Persona[] = ["Advisor", "AGP", "DDW", "MDW"];
+const periods: TimePeriod[] = ["MTD", "QTD", "YTD", "LTM"];
+
+const personaLabel: Record<Persona, string> = {
+  Advisor: "Advisor",
+  AGP: "AGP Program",
+  DDW: "DDW · Division Lead",
+  MDW: "MDW · Enterprise Lead",
+};
+
+/** The real filter bar: Persona · Hierarchy breadcrumb · Time Period.
+ * Replaces the old duplicate Advisor/Advisor dropdown pair. */
 export function PersonaScopeSelector() {
-  const context = useShellContext();
-  const scopes = useMemo(() => getAvailableScopes(context.scopeType), [context.scopeType]);
+  const ctx = useShellContext();
   const cls = "h-8 rounded-lg border border-border bg-background px-2 text-[12px] font-semibold";
   return (
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-      <select className={cls} value={context.persona} onChange={(event) => context.setPersona(event.target.value as Persona)}>{personas.map((value) => <option key={value}>{value}</option>)}</select>
-      <select className={cls} value={context.scopeType} onChange={(event) => context.setScopeType(event.target.value as ScopeType)}>{scopeTypes.map((value) => <option key={value}>{value}</option>)}</select>
-      <select className={cls} value={context.scopeId} onChange={(event) => context.setScopeId(event.target.value)}>{scopes.map((scope) => <option key={scope.scopeId} value={scope.scopeId}>{scope.label}</option>)}</select>
-      <select className={cls} value={context.period} onChange={(event) => context.setPeriod(event.target.value as TimePeriod)}>{periods.map((value) => <option key={value}>{value}</option>)}</select>
-      <select className={cls} value={context.compareTo} onChange={(event) => context.setCompareTo(event.target.value as typeof compareOptions[number])}>{compareOptions.map((value) => <option key={value}>{value}</option>)}</select>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <label className="flex items-center gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Persona</span>
+        <select
+          className={cls}
+          value={ctx.persona}
+          onChange={(e) => ctx.setPersona(e.target.value as Persona)}
+        >
+          {personas.map((p) => (
+            <option key={p} value={p}>{personaLabel[p]}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="flex min-w-0 items-center gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Hierarchy</span>
+        <HierarchyBreadcrumb />
+      </label>
+
+      <label className="flex items-center gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Period</span>
+        <select
+          className={cls}
+          value={ctx.period}
+          onChange={(e) => ctx.setPeriod(e.target.value as TimePeriod)}
+        >
+          {periods.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }

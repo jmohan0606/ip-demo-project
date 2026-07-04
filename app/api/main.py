@@ -30,6 +30,7 @@ from app.api.routers.agp import router as agp_router
 from app.api.routers.crm import router as crm_router
 from app.api.routers.explainability import router as explainability_router
 from app.api.routers.advisor360 import router as advisor360_router
+from app.api.routers.hierarchy import router as hierarchy_router
 from app.api.routers.tigergraph_foundation import router as tigergraph_foundation_router
 configure_logging(); settings=get_settings()
 app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching')
@@ -50,6 +51,7 @@ app.include_router(agp_router)
 app.include_router(crm_router)
 app.include_router(explainability_router)
 app.include_router(advisor360_router)
+app.include_router(hierarchy_router)
 
 app.include_router(knowledge_router)
 

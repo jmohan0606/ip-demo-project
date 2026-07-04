@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import { AccountMixDonut, type AccountMixSlice } from "@/components/charts/account-mix-donut";
 import { AdvisorRevenueTrend, type AdvisorTrendPoint } from "@/components/charts/advisor-revenue-trend";
+import { useShellContext } from "@/components/layout/shell-context";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
+import { resolveScope } from "@/lib/api/hierarchy";
 import { colors, type } from "@/styles/tokens";
 
 interface Vertex {
@@ -38,7 +40,10 @@ const money = (value: unknown) =>
   value === null || value === undefined ? "—" : `$${Math.round(Number(value)).toLocaleString()}`;
 
 export function Advisor360Workspace() {
+  const shell = useShellContext();
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
+  // Advisor 360 follows the shell scope: an Advisor scope pins that advisor; a
+  // rollup scope (Firm/Division/…) falls back to the first advisor beneath it.
   const [advisorId, setAdvisorId] = useState("A001");
   const [data, setData] = useState<Advisor360Response | null>(null);
   const [busy, setBusy] = useState(false);
@@ -49,6 +54,16 @@ export function Advisor360Workspace() {
       .then((response) => setAdvisors(response.advisors))
       .catch(() => setAdvisors([]));
   }, []);
+
+  useEffect(() => {
+    if (shell.scopeType === "Advisor") {
+      setAdvisorId(shell.scopeId);
+    } else {
+      resolveScope(shell.scopeType, shell.scopeId)
+        .then((r) => setAdvisorId(r.advisor_ids[0] ?? "A001"))
+        .catch(() => undefined);
+    }
+  }, [shell.scopeType, shell.scopeId]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -85,7 +100,10 @@ export function Advisor360Workspace() {
         </div>
         <select
           value={advisorId}
-          onChange={(event) => setAdvisorId(event.target.value)}
+          onChange={(event) => {
+            const opt = advisors.find((a) => a.advisor_id === event.target.value);
+            shell.setScope("Advisor", event.target.value, opt?.advisor_name ?? event.target.value);
+          }}
           className="rounded-lg border px-2.5 py-1.5 text-[13px]"
           style={{ borderColor: colors.surface.border, color: colors.text.primary }}
         >

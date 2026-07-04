@@ -1,34 +1,45 @@
 import type { Persona, ScopeType } from "@/lib/types/navigation";
-import type { ScopeOption } from "@/lib/types/shell";
+import type { HierarchyNode } from "@/lib/types/shell";
 
-export const scopeOptions: ScopeOption[] = [
-  { scopeType: "Firm", scopeId: "FIRM001", label: "US Wealth Management" },
-  { scopeType: "Division", scopeId: "DIV01", label: "Northeast Division", parentLabel: "US Wealth Management" },
-  { scopeType: "Division", scopeId: "DIV02", label: "Central Division", parentLabel: "US Wealth Management" },
-  { scopeType: "Region", scopeId: "REG0101", label: "New York Region", parentLabel: "Northeast Division" },
-  { scopeType: "Region", scopeId: "REG0201", label: "Midwest Region", parentLabel: "Central Division" },
-  { scopeType: "Market", scopeId: "MKT010101", label: "Manhattan Market", parentLabel: "New York Region" },
-  { scopeType: "Market", scopeId: "MKT020101", label: "Chicago Market", parentLabel: "Midwest Region" },
-  { scopeType: "Advisor", scopeId: "ADV0001", label: "Avery Morgan", parentLabel: "Manhattan Market" },
-  { scopeType: "Advisor", scopeId: "ADV0002", label: "Jordan Patel", parentLabel: "Manhattan Market" },
-  { scopeType: "Advisor", scopeId: "ADV0003", label: "Taylor Brooks", parentLabel: "Chicago Market" }
-];
-
+// Default scope entry point per persona (real graph ids). Advisors land on one
+// advisor; leadership personas land at their rollup level. Labels are filled in
+// once the real hierarchy tree loads.
 export const defaultScopeByPersona: Record<Persona, { scopeType: ScopeType; scopeId: string }> = {
-  Firm: { scopeType: "Firm", scopeId: "FIRM001" },
-  Division: { scopeType: "Division", scopeId: "DIV01" },
-  Region: { scopeType: "Region", scopeId: "REG0101" },
-  Market: { scopeType: "Market", scopeId: "MKT010101" },
-  Advisor: { scopeType: "Advisor", scopeId: "ADV0001" },
-  MDW: { scopeType: "Market", scopeId: "MKT010101" },
-  DDW: { scopeType: "Division", scopeId: "DIV01" }
+  Advisor: { scopeType: "Advisor", scopeId: "A001" },
+  AGP: { scopeType: "Firm", scopeId: "F001" },
+  DDW: { scopeType: "Division", scopeId: "D01" },
+  MDW: { scopeType: "Firm", scopeId: "F001" },
 };
 
-export function getScopeLabel(scopeId: string): string {
-  return scopeOptions.find((item) => item.scopeId === scopeId)?.label ?? scopeId;
+export const SCOPE_LEVELS: ScopeType[] = ["Firm", "Division", "Region", "Market", "Advisor"];
+
+/** Depth-first search for a node in the hierarchy tree. */
+export function findNode(root: HierarchyNode | null, scopeId: string): HierarchyNode | null {
+  if (!root) return null;
+  if (root.scope_id === scopeId) return root;
+  for (const child of root.children ?? []) {
+    const found = findNode(child, scopeId);
+    if (found) return found;
+  }
+  return null;
 }
 
-export function getAvailableScopes(scopeType?: ScopeType): ScopeOption[] {
-  if (!scopeType) return scopeOptions;
-  return scopeOptions.filter((item) => item.scopeType === scopeType);
+/** Ancestor path from the firm down to (and including) the target node. */
+export function pathTo(root: HierarchyNode | null, scopeId: string): HierarchyNode[] {
+  if (!root) return [];
+  if (root.scope_id === scopeId) return [root];
+  for (const child of root.children ?? []) {
+    const sub = pathTo(child, scopeId);
+    if (sub.length) return [root, ...sub];
+  }
+  return [];
+}
+
+/** Immediate children of the node at the given scopeId (its selectable descendants). */
+export function childrenOf(root: HierarchyNode | null, scopeId: string): HierarchyNode[] {
+  return findNode(root, scopeId)?.children ?? [];
+}
+
+export function getScopeLabel(scopeId: string): string {
+  return scopeId;
 }

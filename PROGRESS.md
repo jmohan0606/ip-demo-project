@@ -496,3 +496,22 @@ Preceded by: **PART 2** filter-bar fix (persona + hierarchy breadcrumb + system-
 applied to all pages), **PART 3** What-If Simulator, **PART 4** hierarchy scope-aware data plumbing.
 
 Blockers: none. React Flow not yet a dependency — will add for the graph explorer (part 5 item 4).
+
+## Session 4 (cont.) — PART 2: Filter bar fix (Section 5B item 2) — DONE
+
+- **Removed the duplicate "Advisor / Advisor" dropdown pair** (was persona + scopeType both
+  showing "Advisor"). Filter bar is now **Persona · Hierarchy breadcrumb · Period**.
+- **Real hierarchy breadcrumb** driven by the graph: new `app/api/routers/hierarchy.py`
+  (`/hierarchy/tree` = Firm>Div>Region>Market>Advisor from real edges; `/hierarchy/resolve` =
+  advisor ids under a scope via `resolve_scope_advisor_ids`). Breadcrumb renders
+  `Northstar Wealth Management › Division 1 › Region 1 › Market 1 › Avery Diaz` with real names;
+  each level is a sibling dropdown + a drill-in select. **Verified it actually scopes data**:
+  changing the Advisor level Avery Diaz→Reese Patel re-fetched advisor-360 (h1 changed).
+- **System-status pill**: `SystemStatusPill` reads `/adapters/status` → "● All Systems
+  Operational" (teal) / "Degraded" (amber), replacing the ambiguous "Ready" button + Graph:MOCK.
+- Persona type reduced to the 4 architecture personas (Advisor/AGP/DDW/MDW); `defaultScopeByPersona`
+  now uses real ids (A001/D01/F001). Shell context gained `scopeLabel`, `hierarchy`, `setScope`.
+- advisor-360 wired to shell scope (Advisor scope pins the advisor; rollup scope → first
+  descendant). Full scope-consumption across pages is PART 4.
+- tsc clean; build green (21 routes). New components: hierarchy-breadcrumb, system-status-pill;
+  filter bar rewritten. Screenshot: scratchpad/audit_screens/part2-filterbar.png.
