@@ -35,6 +35,14 @@ export const navigationItems: NavigationItem[] = [
     group: "Advisor"
   },
   {
+    id: "coaching-reviews",
+    label: "Coaching & Reviews",
+    description: "Coaching sessions, action items and manager reviews per advisor.",
+    href: "/coaching-reviews",
+    iconName: "BookOpenCheck",
+    group: "Advisor"
+  },
+  {
     id: "crm-activities",
     label: "CRM Activities",
     description: "Leads, referrals, opportunities, pipeline stages and overdue work per advisor.",

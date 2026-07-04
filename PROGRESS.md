@@ -667,3 +667,16 @@ opportunity ingest cleanly and demonstrate the real batch/checkpoint flow).
   new "Contact" icon). Page + route wired.
 - tsc clean; build green (/crm-activities 11.4 kB). Nav now 18 items. CRM endpoints HTTP-verified
   (A001: 3-stage pipeline, real leads/referrals with overdue flags).
+
+## Session 4 (cont.) — PART 5 breadth — Coaching & Reviews (gap #19, new page) — DONE
+
+- **Backend** `app/coaching/service.py` (`CoachingReviewService`) + `GET /coaching/advisor/{id}`
+  (router wired). Reads real `phx_dm_coaching_session` + `phx_dm_manager_review` vertices via the
+  `*_for_advisor` edges; parses `action_items_json`; summarizes session/review counts, avg rating,
+  open vs total action items. Verified A001: 3 sessions, 1 review (rating 3.0), 6 action items.
+- **Frontend** new page `components/coaching/coaching-reviews-workspace.tsx`: KPIs (sessions/
+  reviews/avg-rating/open-actions), coaching-session cards (type, status, summary, action-item
+  checklist, next session), manager-review cards (star rating, reviewer, status), evidence.
+  Scope-following advisor picker. `lib/api/coaching.ts` client. Added to nav (Advisor group,
+  BookOpenCheck icon).
+- tsc clean; build green (/coaching-reviews 4.62 kB). Nav now 19 items.
