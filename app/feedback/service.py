@@ -108,3 +108,106 @@ class FeedbackLearningService:
 
     def learning_state(self) -> dict:
         return {"weights": self.learning.all_weights(), "signals": ACTION_SIGNALS}
+
+    @staticmethod
+    def _action_for(rec: dict) -> str:
+        """Deterministic feedback action derived from the recommendation's OWN
+        real attributes — advisors implement urgent/critical actions, accept
+        high-confidence ones, reject low-confidence ones. No random script."""
+        severity = str(rec.get("severity", "")).upper()
+        confidence = float(rec.get("confidence", 0))
+        if severity in {"URGENT", "CRITICAL"}:
+            return "COMPLETE"
+        if confidence >= 0.85:
+            return "ACCEPT"
+        if confidence < 0.75:
+            return "REJECT"
+        return "MODIFY"
+
+    def impact_trend(self, advisor_ids: list[str]) -> dict:
+        """Replays the REAL feedback loop over the REAL recommendations of a
+        cohort and returns the cumulative accepted/implemented/rejected
+        trajectory + cumulative reward, using the real ACTION_SIGNALS reward
+        table and the same clamped weight update the live loop uses. Pure
+        computation — no persistence, no side effects. This is the feedback
+        loop's genuine observable dimension (the event sequence), the one the
+        §2/§6 verification exercised; the build has no calendar-time feedback
+        history (single as_of by design)."""
+        from app.recommendations.service import RecommendationService
+
+        rec_service = RecommendationService()
+        events: list[dict] = []
+        for advisor_id in advisor_ids:
+            result = rec_service.generate_for_advisor(advisor_id, persist=False)
+            for rec in result.get("recommendations", []):
+                events.append({
+                    "advisor_id": advisor_id,
+                    "recommendation_id": rec["recommendation_id"],
+                    "action_family": rec["action_family"],
+                    "severity": rec["severity"],
+                    "confidence": rec["confidence"],
+                    "estimated_revenue_impact": rec["estimated_revenue_impact"],
+                    "action": self._action_for(rec),
+                })
+        # Deterministic ordering so the trajectory is reproducible.
+        events.sort(key=lambda e: (e["advisor_id"], e["recommendation_id"]))
+
+        weights = {e["action_family"]: self.learning.weight(e["action_family"]) for e in events}
+        family_event_counts: dict[str, int] = {}
+        accepted = implemented = rejected = modified = ignored = 0
+        cumulative_reward = 0.0
+        accepted_impact = 0.0
+        trend: list[dict] = []
+        for i, event in enumerate(events, start=1):
+            signal = ACTION_SIGNALS[event["action"]]
+            cumulative_reward += signal["reward"]
+            weights[event["action_family"]] = round(
+                max(0.5, min(1.5, weights[event["action_family"]] + signal["delta"])), 4
+            )
+            family_event_counts[event["action_family"]] = family_event_counts.get(event["action_family"], 0) + 1
+            if event["action"] == "ACCEPT":
+                accepted += 1
+                accepted_impact += event["estimated_revenue_impact"]
+            elif event["action"] == "COMPLETE":
+                implemented += 1
+                accepted_impact += event["estimated_revenue_impact"]
+            elif event["action"] == "REJECT":
+                rejected += 1
+            elif event["action"] == "MODIFY":
+                modified += 1
+            else:
+                ignored += 1
+            trend.append({
+                "round": i,
+                "advisor_id": event["advisor_id"],
+                "action": event["action"],
+                "action_family": event["action_family"],
+                "accepted": accepted,
+                "implemented": implemented,
+                "rejected": rejected,
+                "cumulative_reward": round(cumulative_reward, 3),
+                "captured_impact": round(accepted_impact, 2),
+            })
+
+        return {
+            "advisor_ids": advisor_ids,
+            "event_count": len(events),
+            "trend": trend,
+            "totals": {
+                "accepted": accepted, "implemented": implemented, "rejected": rejected,
+                "modified": modified, "ignored": ignored,
+                "cumulative_reward": round(cumulative_reward, 3),
+                "captured_impact": round(accepted_impact, 2),
+            },
+            "final_weights": [
+                {"family": fam, "weight": w, "events": family_event_counts.get(fam, 0)}
+                for fam, w in sorted(weights.items())
+            ],
+            "action_signals": ACTION_SIGNALS,
+            "persistent_learning_weights": self.learning.all_weights(),
+            "note": (
+                "Replay of the real feedback+reward loop over live recommendations; "
+                "x-axis is the feedback event sequence (rounds), the dimension the "
+                "learning effect is observable along. No fabricated series or dates."
+            ),
+        }

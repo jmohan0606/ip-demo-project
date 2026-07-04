@@ -2,9 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { EmbeddingScatter, type ProjectionPoint } from "@/components/charts/embedding-scatter";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { apiClient } from "@/lib/api/client";
 import { colors, type } from "@/styles/tokens";
+
+interface Projection {
+  advisor_id: string;
+  source_dimensions: number;
+  reduction: string;
+  explained_variance_ratio: number[];
+  point_count: number;
+  points: ProjectionPoint[];
+}
 
 interface Snapshot {
   snapshot_id: string;
@@ -26,6 +36,7 @@ interface SimilarResponse {
 export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [similar, setSimilar] = useState<SimilarResponse | null>(null);
+  const [projection, setProjection] = useState<Projection | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -35,6 +46,7 @@ export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string
       const snap = await apiClient.get<Snapshot | null>(`/features/snapshot/${advisorId}`);
       setSnapshot(snap);
       setSimilar(await apiClient.get<SimilarResponse>(`/embeddings/similar/${advisorId}`).catch(() => null));
+      setProjection(await apiClient.get<Projection>(`/embeddings/projection/${advisorId}`).catch(() => null));
     } finally {
       setBusy(false);
     }
@@ -84,6 +96,57 @@ export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string
         <KpiStatCard label="Feature count" value={String(featureNames.length)} />
         <KpiStatCard label="Version" value={snapshot?.feature_version ?? "—"} />
         <KpiStatCard label="As of" value={snapshot?.snapshot_time ?? "—"} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2 rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Embedding projection</h2>
+          <p className={type.data} style={{ color: colors.text.muted }}>
+            Every point is a real advisor embedding vector projected to 2D — {advisorId} and its
+            nearest cohort stand out from the book.
+          </p>
+          {projection && projection.points.length ? (
+            <div className="mt-2">
+              <EmbeddingScatter points={projection.points} explainedVariance={projection.explained_variance_ratio} />
+            </div>
+          ) : (
+            <div className="mt-2 h-[300px] animate-pulse rounded-lg bg-slate-100" />
+          )}
+        </div>
+
+        <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Similar advisors</h2>
+          <p className={type.data} style={{ color: colors.text.muted }}>
+            {similar?.simulation_note ?? "Cosine similarity over the deterministic feature projection."}
+          </p>
+          <div className="mt-2 space-y-1.5">
+            {(similar?.matches ?? []).map((match) => (
+              <div
+                key={match.target_entity_id}
+                className="flex items-center justify-between rounded-lg border px-2.5 py-1.5"
+                style={{ borderColor: colors.surface.border }}
+              >
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.warning }} />
+                  <span className={`font-mono ${type.data}`} style={{ color: colors.text.primary }}>
+                    {match.target_entity_id}
+                  </span>
+                </span>
+                <span className={type.data} style={{ color: colors.text.muted }}>
+                  {match.reason_features.slice(0, 2).join(", ")}
+                </span>
+                <span className="font-mono text-[12px] font-bold" style={{ color: colors.primary }}>
+                  {match.similarity_score.toFixed(3)}
+                </span>
+              </div>
+            ))}
+            {!similar?.matches?.length ? (
+              <p className={type.data} style={{ color: colors.text.muted }}>
+                No matches yet — run POST /embeddings/build.
+              </p>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -143,37 +206,6 @@ export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string
                 Select a feature row to inspect which query and evidence produced its value.
               </p>
             )}
-          </div>
-
-          <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
-            <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Similar advisors</h2>
-            <p className={type.data} style={{ color: colors.text.muted }}>
-              {similar?.simulation_note ?? "Cosine similarity over the deterministic feature projection."}
-            </p>
-            <div className="mt-2 space-y-1.5">
-              {(similar?.matches ?? []).map((match) => (
-                <div
-                  key={match.target_entity_id}
-                  className="flex items-center justify-between rounded-lg border px-2.5 py-1.5"
-                  style={{ borderColor: colors.surface.border }}
-                >
-                  <span className={`font-mono ${type.data}`} style={{ color: colors.text.primary }}>
-                    {match.target_entity_id}
-                  </span>
-                  <span className={type.data} style={{ color: colors.text.muted }}>
-                    {match.reason_features.slice(0, 2).join(", ")}
-                  </span>
-                  <span className="font-mono text-[12px] font-bold" style={{ color: colors.primary }}>
-                    {match.similarity_score.toFixed(3)}
-                  </span>
-                </div>
-              ))}
-              {!similar?.matches?.length ? (
-                <p className={type.data} style={{ color: colors.text.muted }}>
-                  No matches yet — run POST /embeddings/build.
-                </p>
-              ) : null}
-            </div>
           </div>
         </div>
       </div>

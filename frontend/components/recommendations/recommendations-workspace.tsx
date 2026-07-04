@@ -2,12 +2,23 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ImpactTrendChart, type ImpactPoint } from "@/components/charts/impact-trend-chart";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
 import { colors, type } from "@/styles/tokens";
+
+interface ImpactTrend {
+  event_count: number;
+  trend: ImpactPoint[];
+  totals: {
+    accepted: number; implemented: number; rejected: number;
+    cumulative_reward: number; captured_impact: number;
+  };
+  final_weights: Array<{ family: string; weight: number; events: number }>;
+}
 
 interface Recommendation {
   recommendation_id: string;
@@ -36,6 +47,7 @@ const FEEDBACK_ACTIONS = ["ACCEPT", "COMPLETE", "MODIFY", "IGNORE", "REJECT"] as
 
 export function RecommendationsWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
   const [data, setData] = useState<GenerateResponse | null>(null);
+  const [impact, setImpact] = useState<ImpactTrend | null>(null);
   const [busy, setBusy] = useState(false);
   const [lastEffect, setLastEffect] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +67,13 @@ export function RecommendationsWorkspace({ advisorId = "A001" }: { advisorId?: s
   useEffect(() => {
     void generate();
   }, [generate]);
+
+  useEffect(() => {
+    apiClient
+      .get<ImpactTrend>("/feedback-learning/impact-trend")
+      .then(setImpact)
+      .catch(() => setImpact(null));
+  }, []);
 
   const submitFeedback = async (rec: Recommendation, action: string) => {
     setBusy(true);
@@ -105,6 +124,56 @@ export function RecommendationsWorkspace({ advisorId = "A001" }: { advisorId?: s
           label="Learning families"
           value={String(data?.learning_weights.length ?? 0)}
         />
+      </div>
+
+      <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Recommendation impact</h2>
+            <p className={type.data} style={{ color: colors.text.muted }}>
+              Accepted / implemented / rejected as the real feedback loop is applied across the live
+              recommendation set — the same reward signal that re-ranks the queue.
+            </p>
+          </div>
+          {impact ? (
+            <div className="flex gap-4">
+              <div className="text-right">
+                <div className={type.label} style={{ color: colors.text.muted }}>Captured impact</div>
+                <div className="font-mono text-[16px] font-bold" style={{ color: colors.positive }}>
+                  ${Math.round(impact.totals.captured_impact).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={type.label} style={{ color: colors.text.muted }}>Net reward</div>
+                <div className="font-mono text-[16px] font-bold" style={{ color: colors.text.primary }}>
+                  {impact.totals.cumulative_reward.toFixed(1)}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+        {impact && impact.trend.length ? (
+          <div className="mt-2">
+            <ImpactTrendChart data={impact.trend} />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {impact.final_weights.map((w) => (
+                <span
+                  key={w.family}
+                  className="rounded-md border px-2 py-1 text-[11px]"
+                  style={{ borderColor: colors.surface.border, color: colors.text.secondary }}
+                >
+                  {w.family} weight{" "}
+                  <span className="font-mono font-bold" style={{ color: w.weight >= 1 ? colors.positive : colors.negative }}>
+                    {w.weight.toFixed(2)}
+                  </span>{" "}
+                  ({w.events} events)
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="mt-2 h-[240px] animate-pulse rounded-lg bg-slate-100" />
+        )}
       </div>
 
       {lastEffect ? (

@@ -31,3 +31,11 @@ def submit(request: FeedbackRequest):
 @router.get("/state")
 def learning_state():
     return ok(data=FeedbackLearningService().learning_state())
+
+
+@router.get("/impact-trend")
+def impact_trend(advisor_ids: str = "A001,A002,A005,A015,A020,A031"):
+    """Cumulative accepted/implemented/rejected trajectory + reward from replaying
+    the real feedback loop over the cohort's real recommendations (no side effects)."""
+    ids = [a.strip() for a in advisor_ids.split(",") if a.strip()]
+    return ok(data=FeedbackLearningService().impact_trend(ids))

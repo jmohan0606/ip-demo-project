@@ -1019,3 +1019,115 @@ build layered under the newer token system. Cleanest fix for #1: delete the
 `.compact-shell h1/h2/h3` rules (let the token classes take effect) or reconcile the token values
 to 22/16/13. Deferred to the Phase-11 sweep (not changed here, per the "confirm before Phase 11"
 hold).
+
+---
+
+## 13. Chart-type conformance — 3 pipeline pages get real data visualizations (2026-07-04)
+
+Per the new Section-1B "visualization-type rule": data whose mockup concept is a chart must be
+rendered as that chart, backed by real API computation, not a number/table. Three pipeline pages
+got real Recharts visualizations. The dataviz skill was loaded first; every multi-series palette
+was run through its validator. Working mode `GRAPH_CLIENT_MODE=mock` (109,328 rows),
+`EMBEDDING_CLIENT_MODE=local`. Charts render live in a headless-Chromium capture (not mocked).
+
+### Palettes validated (dataviz `validate_palette.js`, light surface)
+```
+donut 4-cat  #2563EB,#14B8A6,#7C3AED,#F59E0B      -> ALL CHECKS PASS
+impact 3-ser #14B8A6,#2563EB,#DC2626              -> ALL CHECKS PASS
+scatter pair #2563EB(target),#F59E0B(similar)     -> PASS (CVD ΔE 141.8; blue+violet FAILED
+              deutan ΔE 1.7 and was rejected — amber chosen instead). "other" = neutral gray
+              background (intentional de-emphasis + smaller marker, not a competing category).
+```
+Contrast WARNs (teal/amber < 3:1) are satisfied by the required relief: legends + direct value
+labels + adjacent table/list on every chart.
+
+### 1. Advisor 360 — revenue trend line + account-mix donut
+
+- **Backend:** `/advisor/360/{id}` extended with `revenue_trend` (GQ-005
+  `get_revenue_trend_by_scope`, period_grain=MONTH — the SAME data the Revenue Agent reads) and
+  `account_mix` (graph accounts aggregated by `account_type`, real `current_value`).
+- **Real data proof (A001):**
+  ```
+  revenue_trend: 24 months  first {Aug 2024, $28,997.49, 7 txns} … last {Jul 2026, $31,429.17}
+  account_mix: BROKERAGE $464,765 (3) · MANAGED $451,699 (3) · TRUST $380,263 (3) · IRA $369,572 (3)
+  ```
+- **Line chart** shows the real 24-month movement (non-zero y-baseline fitted to the data range so
+  month-to-month change is visible; tooltip carries absolute $ + txn count). **Donut** = book
+  composition by account type (28/27/23/22%), legend + $ values + %.
+- **Honest substitution:** the ask was a *household-segment* donut, but A001's 6 households are
+  **all `AFFLUENT`** (monoculture in the seed) — a 1-slice donut violates the dataviz "is it even
+  a chart" rule, so account-type composition (real, varied) is the meaningful breakdown. Segment
+  data does exist; it just doesn't vary, so it stays in the households table (where the mockup
+  puts it) rather than a fake pie.
+
+### 2. Feature/Embeddings — real PCA 2D projection scatter
+
+- **Backend:** `/embeddings/projection/{id}` — loads all persisted advisor embedding vectors
+  (SQLite `embeddings`, 8-dim deterministic feature-projection, **60 real vectors**), runs
+  **sklearn `PCA(n_components=2)`** (real dimensionality reduction, no fabricated coordinates),
+  role-tags the target advisor + its top-k cosine-similar peers.
+- **Real data proof (A001):**
+  ```
+  reduction: PCA · source_dimensions: 8 · point_count: 60
+  explained_variance_ratio: [0.5754, 0.1391]   (PC1 57.5%, PC2 13.9% — real variance)
+  roles: {target: 1, similar: 5, other: 54}
+  target A001 at (-0.6945, -0.4081); similar A004 0.858 / A007 0.844 / A003 0.831 …
+  ```
+- **Scatter** renders 60 points: target = large blue, 5 similar = amber (size + hue = secondary
+  encoding), 54 others = small faded gray. The screenshot shows the **similar advisors genuinely
+  cluster around the target** in the projection — the reduction and the embedding agree, which is
+  itself evidence the vectors are real. The similar-advisors list sits in the adjacent panel with
+  matching amber dots and the same cosine scores.
+
+### 3. Recommendations — recommendation-impact-over-sequence line
+
+- **Backend:** `/feedback-learning/impact-trend` — replays the REAL feedback loop over the REAL
+  recommendations of a 6-advisor cohort (`RecommendationService.generate_for_advisor`,
+  `persist=False`), each action derived deterministically from the rec's own attributes
+  (URGENT/CRITICAL→COMPLETE, conf≥0.85→ACCEPT, conf<0.75→REJECT, else MODIFY), accumulated with
+  the real `ACTION_SIGNALS` reward table and the same clamped weight update the live loop uses.
+  **Pure computation — no persistence, no side effects.**
+- **Honest framing (important):** the live feedback loop writes to the graph with a **fixed
+  `as_of` date** and persists only `learning_weights` — the build has **no calendar-time feedback
+  history by design**; the loop's effect is observable along the feedback *sequence* (exactly what
+  §2/§6 verified: "3× COMPLETE → 0.84→0.94→1.04→1.14"). So the x-axis is the **feedback round**,
+  not an invented calendar date. No placeholder trend lines.
+- **Real data proof:**
+  ```
+  16 events over 6 advisors' real recs
+  accepted 0→8, implemented 0→2, rejected 0→6 ; net reward 3.8 ; captured impact $1,435,424
+  final weights: CRM_EXECUTION 1.50 (10 events, up)  MANAGED_MIX 0.53 (6 events, down)
+  ```
+  The MANAGED_MIX (0.71-confidence product-push) recs are rejected → its weight falls to 0.53
+  while CRM_EXECUTION rises to the 1.5 cap — the **§2-verified both-directions learning behavior**,
+  now shown as a chart. Three stepped lines with a legend; the weight badges below tie it to the
+  live learning state.
+
+### Rendering verification (headless Chromium, real DOM)
+```
+advisor-360:         2 recharts surfaces; revenue line-curve height 124px (real oscillation),
+                     donut 4 slices
+features-embeddings: scatter 60 pts (1 target blue, 5 similar amber, 54 gray), PCA note PC1 58%/PC2 14%
+recommendations:     3 line-curves present — #14B8A6 h177, #DC2626 h111, #2563EB h44 (real rises)
+```
+Fix applied mid-verification: Recharts line-draw animation left lines mid-draw at capture time →
+set `isAnimationActive={false}` on all line series (the scatter already had it); revenue-trend
+y-axis switched from 0-baseline (which flattened the $28-38K band into a top sliver) to a
+data-fitted non-zero baseline. `tsc` clean; `npm run build` green (21 routes).
+
+### Screenshots
+```
+/tmp/claude-1000/.../scratchpad/audit_screens/chart-advisor-360.png
+/tmp/claude-1000/.../scratchpad/audit_screens/chart-features-embeddings.png
+/tmp/claude-1000/.../scratchpad/audit_screens/chart-recommendations.png
+```
+
+### CLAUDE.md
+Section 1B gained the **Visualization-type rule** (concept→form mapping; chart real data with
+tokens; table/list only where the mockup uses one; don't chart non-charts) — a standing
+requirement for the chart-dense Phase-11 pages.
+
+**New chart components** (token-based, distinct from the older `charts/revenue-trend-chart.tsx`
+used by the out-of-scope exec dashboard): `charts/advisor-revenue-trend.tsx`,
+`charts/account-mix-donut.tsx`, `charts/embedding-scatter.tsx`, `charts/impact-trend-chart.tsx`.
+Not done (unchanged): Phase-11 breadth pages; dormant runtime-module deletion.

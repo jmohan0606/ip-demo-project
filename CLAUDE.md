@@ -137,6 +137,25 @@ not per-chart hardcoded color arrays. Motion (Framer Motion) is restrained and p
 transitions, subtle hover/press states, loading skeletons that match final layout shape — not
 decorative animation.
 
+**Visualization-type rule (mandatory):** every page must render data using the SAME
+visualization type the reference mockup uses for that concept — a plain number or table is not an
+acceptable substitute when the mockup shows a chart. Map concept → form:
+- trend / change over time → **line chart** (e.g. monthly revenue/AUM, recommendation impact
+  over the feedback sequence);
+- part-of-whole / category breakdown → **donut/pie** (e.g. book composition by account type),
+  but only when the categories actually vary — a single-category donut is not a chart, use the
+  table/number instead;
+- comparison across items → **bar chart** (e.g. product-mix revenue, peer benchmark);
+- embedding / feature-vector space → **2D projection scatter** via real dimensionality
+  reduction (PCA or similar) over the real vectors — never fabricated coordinates;
+- entity relationships → **network/graph diagram**.
+Use table/list ONLY where the mockup itself uses a table/list (households table, recommendation
+queue, evidence list) — and conversely, do NOT chart things that were never charts. Recharts is
+the chart library; every chart reads real API data and the shared color tokens (validate any
+multi-series categorical palette against the dataviz skill's checker), never decorative sample
+data. This applies to Phase-11 pages too (Exec/DDW/RDW command centers, Revenue Intelligence,
+Book of Business) — they are the most chart-dense screens in the set.
+
 **Quality gate:** after Step 0, and again after the first 2-3 pages are built, take a screenshot
 of the running app and compare side-by-side against the corresponding reference mockup before
 continuing to the next page. Note and fix any drift (density, color, type weight) immediately —

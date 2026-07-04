@@ -252,6 +252,52 @@ class EmbeddingSimilarityService:
                 [{"from_id": from_id, "to_id": to_id}],
             )
 
+    def projection(self, advisor_id: str, top_k: int = 5) -> dict:
+        """Real 2D dimensionality reduction (PCA) of the persisted advisor
+        embedding vectors — every point is a real vector from the embeddings
+        table, projected 8D -> 2D. No fabricated coordinates. The target advisor
+        and its top-k cosine-similar peers are role-tagged for the scatter."""
+        from sklearn.decomposition import PCA
+
+        embeddings = self._load_embeddings()
+        if not embeddings:
+            self.build_advisor_embeddings()
+            embeddings = self._load_embeddings()
+        ids = sorted(embeddings)
+        matrix = [embeddings[i] for i in ids]
+
+        similar_ids = {
+            m["target_entity_id"] for m in self.similar_advisors(advisor_id, top_k)["matches"]
+        }
+        sim_scores = {
+            m["target_entity_id"]: m["similarity_score"]
+            for m in self.similar_advisors(advisor_id, top_k)["matches"]
+        }
+
+        pca = PCA(n_components=2, random_state=0)
+        coords = pca.fit_transform(matrix)
+
+        points = []
+        for advisor, (x, y) in zip(ids, coords):
+            role = "target" if advisor == advisor_id else ("similar" if advisor in similar_ids else "other")
+            points.append({
+                "advisor_id": advisor,
+                "x": round(float(x), 4),
+                "y": round(float(y), 4),
+                "role": role,
+                "similarity": sim_scores.get(advisor),
+            })
+        return {
+            "advisor_id": advisor_id,
+            "model": EMBEDDING_MODEL,
+            "version": EMBEDDING_VERSION,
+            "source_dimensions": EMBEDDING_DIM,
+            "reduction": "PCA",
+            "explained_variance_ratio": [round(float(v), 4) for v in pca.explained_variance_ratio_],
+            "point_count": len(points),
+            "points": points,
+        }
+
     def similar_advisors(self, advisor_id: str, top_k: int = 5) -> dict:
         with sqlite3.connect(self.db_path) as conn:
             rows = conn.execute(

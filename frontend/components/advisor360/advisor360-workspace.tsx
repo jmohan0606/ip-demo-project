@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { AccountMixDonut, type AccountMixSlice } from "@/components/charts/account-mix-donut";
+import { AdvisorRevenueTrend, type AdvisorTrendPoint } from "@/components/charts/advisor-revenue-trend";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
@@ -28,6 +30,8 @@ interface Advisor360Response {
     referral_summary: Record<string, number>;
     pipeline: Array<{ stage: string; opportunity_count: number; pipeline_amount: number }>;
   };
+  revenue_trend: AdvisorTrendPoint[];
+  account_mix: AccountMixSlice[];
 }
 
 const money = (value: unknown) =>
@@ -99,6 +103,25 @@ export function Advisor360Workspace() {
         <KpiStatCard label="AUM" value={money(features.aum_total)} />
         <KpiStatCard label="NNM 3m" value={money(features.nnm_3m)} />
         <KpiStatCard label="Households" value={String(counts.households)} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border bg-white p-4 shadow-sm lg:col-span-2" style={{ borderColor: colors.surface.border }}>
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Revenue trend</h2>
+          {data && data.revenue_trend?.length ? (
+            <div className="mt-2"><AdvisorRevenueTrend data={data.revenue_trend} /></div>
+          ) : (
+            <div className="mt-2 h-[220px] animate-pulse rounded-lg bg-slate-100" />
+          )}
+        </div>
+        <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Book by account type</h2>
+          {data && data.account_mix?.length ? (
+            <div className="mt-3"><AccountMixDonut data={data.account_mix} /></div>
+          ) : (
+            <div className="mt-3 h-[180px] animate-pulse rounded-lg bg-slate-100" />
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

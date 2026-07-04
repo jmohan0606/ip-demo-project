@@ -17,3 +17,9 @@ def build_embeddings():
 @router.get("/similar/{advisor_id}")
 def similar_advisors(advisor_id: str, top_k: int = 5):
     return ok(data=EmbeddingSimilarityService().similar_advisors(advisor_id, top_k))
+
+
+@router.get("/projection/{advisor_id}")
+def projection(advisor_id: str, top_k: int = 5):
+    """PCA 2D projection of the real persisted embedding vectors for the scatter plot."""
+    return ok(data=EmbeddingSimilarityService().projection(advisor_id, top_k))
