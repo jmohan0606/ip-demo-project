@@ -1,22 +1,65 @@
 "use client";
-import { useState } from "react";
-import { FileText, UploadCloud, Database, CheckCircle2 } from "lucide-react";
-import { useApiContextPayload } from "@/components/layout/shell-context";
-import { ingestKnowledgeDocument } from "@/lib/api/integrated-ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { KpiCard } from "@/components/cards/kpi-card";
+
+import { useEffect, useState } from "react";
+
+import { DocumentUpload } from "@/components/knowledge/document-upload";
+import { listKnowledgeDocuments, type CatalogDocument } from "@/lib/api/knowledge";
+import { colors, type } from "@/styles/tokens";
+
 export function DocumentIngestionWorkspace() {
-  const context = useApiContextPayload();
-  const [content, setContent] = useState("Client-first conversations and aligned solutions drive higher adoption of advisory and managed offerings.");
-  const [result, setResult] = useState<any | null>(null);
-  async function ingest() { setResult(await ingestKnowledgeDocument(context, "advisor_playbook_demo.txt", "playbook", content)); }
+  const [docs, setDocs] = useState<CatalogDocument[]>([]);
+
+  async function refresh() {
+    try {
+      setDocs(await listKnowledgeDocuments());
+    } catch {
+      /* best-effort catalog */
+    }
+  }
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
   return (
-    <div className="space-y-3">
-      <div><Badge variant="glass">Document Ingestion Pipeline</Badge><h2 className="mt-2 text-[22px] font-black">Knowledge Documents → Chroma</h2><p className="text-[12px] text-muted-foreground">Upload, chunk, index, validate, and expose documents to AI Assistant and recommendation explainability.</p></div>
-      <div className="grid gap-2 md:grid-cols-4"><KpiCard label="Documents Indexed" value="42" change="+5" icon={FileText} /><KpiCard label="Chunks" value="1,284" change="+211" icon={Database} variant="insight" /><KpiCard label="Collection" value="Ready" change="Chroma" icon={CheckCircle2} variant="insight" /><KpiCard label="Pipeline" value="Mock" change="API-backed" icon={UploadCloud} /></div>
-      <Card><CardHeader className="p-3"><CardTitle className="text-[13px]">Upload / Paste Document Content</CardTitle></CardHeader><CardContent className="space-y-3 p-3"><textarea className="h-36 w-full rounded-lg border p-3 text-[12px]" value={content} onChange={(e) => setContent(e.target.value)} /><Button variant="premium" className="gap-2" onClick={ingest}><UploadCloud className="h-4 w-4" />Ingest to Chroma</Button>{result && <div className="rounded-xl border bg-good-soft p-3 text-[12px]"><strong>Indexed:</strong> {result.document_name} · {result.chunks_created} chunks · {result.chroma_collection}</div>}</CardContent></Card>
+    <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
+      <div>
+        <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Document Ingestion</h1>
+        <p className={type.body} style={{ color: colors.text.secondary }}>
+          Upload firm documents through the real pipeline — parse, chunk, embed (sentence-transformers)
+          and index to Chroma. Ingested documents become retrievable in the Knowledge Hub and cited in
+          RAG answers, coaching cards and recommendation explainability.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <DocumentUpload onUploaded={() => void refresh()} />
+        <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: colors.surface.border }}>
+            <h3 className={type.cardTitle} style={{ color: colors.text.primary }}>Indexed corpus</h3>
+            <span className={type.data} style={{ color: colors.text.muted }}>{docs.length} documents</span>
+          </div>
+          <div className="max-h-[420px] overflow-auto">
+            {docs.length === 0 ? (
+              <p className={`px-4 py-3 ${type.data}`} style={{ color: colors.text.muted }}>No documents indexed yet.</p>
+            ) : (
+              <ul className="divide-y" style={{ borderColor: colors.surface.border }}>
+                {docs.map((d) => (
+                  <li key={d.document_id} className="flex items-center justify-between gap-2 px-4 py-2">
+                    <span className={type.data} style={{ color: colors.text.primary }}>{d.document_name}</span>
+                    <span
+                      className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                      style={{ backgroundColor: colors.surface.canvas, color: colors.text.secondary }}
+                    >
+                      {d.document_category || d.document_type || "General"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

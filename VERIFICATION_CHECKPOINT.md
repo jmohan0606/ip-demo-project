@@ -802,3 +802,220 @@ the follow-up-discipline chunk without being told the feature values.
   otherwise-mock mode — deliberate, per instruction: the mock embedding path is fully replaced).
 - Not done (out of 2C-i scope): frontend knowledge page rebuild (2C-ii, awaiting confirmation);
   physical deletion of the dormant runtime-family modules (Phase-11 sweep, unchanged).
+
+---
+
+## 11. Part 2C-ii — Knowledge Hub page + document upload UI (2026-07-04)
+
+Scope: frontend/wiring only. Repoint the Knowledge page off the fake `/ui-integrated`
+retrieval onto the real RAG path (`/knowledge/ask` → `RagGenerationService`), and add a real
+document-upload UI that drives the same 2C-i ingestion pipeline. **Verified in an actual
+headless-Chromium browser session (Playwright), not curl** — a live document uploaded end to end.
+
+### Backend added
+- `POST /knowledge/upload` (`app/api/routers/knowledge.py`) — accepts a multipart file
+  (PDF/DOCX/PPTX/TXT/MD), saves it under `data/documents/uploads/` (now gitignored), then runs
+  the **same** `KnowledgeManagementService.ingest_document` path 2C-i built (real parser → chunk
+  → sentence-transformers embed → Chroma → catalog + graph link). Auto-assigns category via the
+  existing `_category_for` when not supplied; unsupported suffix → `fail(...)`. Returns
+  document_id / document_name / chunks_created / assigned category / status.
+
+### Frontend added / rewired
+- `frontend/lib/api/knowledge.ts` — real client: `askKnowledge` (`/knowledge/ask`),
+  `listKnowledgeDocuments` (`/knowledge/documents`), `uploadKnowledgeDocument` (multipart
+  `/knowledge/upload`). Typed to the RAG response (`found`/`answer`/`sources[]`/`generated_by`/
+  `retrieval`).
+- `frontend/components/knowledge/knowledge-workspace.tsx` — **rebuilt** as the Knowledge Hub
+  (was calling fake `searchKnowledgeIntegrated` → `/ui-integrated/knowledge/search`). Ask box +
+  suggestion chips → grounded `AiContentCard` answer (AI-Generated chip) + a cited-sources card
+  showing each source's document name, category badge, similarity meter (color-graded) and
+  excerpt; honest not-found rendered distinctly. Upload + live corpus list in the side column.
+  Built from the Section-1B tokens/patterns (`colors`/`type`/`AiContentCard`), not a generic list.
+- `frontend/components/knowledge/document-upload.tsx` — shared real upload widget (file picker +
+  category select + result card showing chunks created / assigned category / document id).
+- `frontend/components/documents/document-ingestion-workspace.tsx` — **rewired** off the fake
+  `ingestKnowledgeDocument` (`/ui-integrated/documents/ingest`) to render the same real
+  `DocumentUpload` + indexed-corpus list.
+
+### Browser verification (Playwright, headless Chromium) — live document, end to end
+
+Uploaded a document that does **not** exist in the 9-doc corpus (`orion_liquidity_directive.txt`,
+a made-up "Orion Liquidity Directive"), through the real page UI:
+
+```
+== /knowledge page ==
+Upload result rendered on page:
+  Indexed ✓ orion_liquidity_directive.txt — 1 chunk · category Practice Guideline · DOC_dcbc0ec113f0
+
+Asked (typed into the page): "What does an advisor have to file before moving an
+  Orion-restricted household into a new managed mandate?"
+Grounded answer card cites [1] orion_liquidity_directive.txt (similarity 0.6811) — the
+  live-uploaded doc ranks #1, quoting the Orion waiver text back.
+Cited sources (5): 1) orion_liquidity_directive.txt 0.681  2) client_review_procedures.txt 0.494 …
+
+Network calls captured to :8000 (the real backend, not /ui-integrated):
+  GET  /graph-access/health
+  GET  /knowledge/documents
+  POST /knowledge/upload      <-- live ingestion
+  GET  /knowledge/documents
+  POST /knowledge/ask         <-- real RAG
+
+Assertions:
+  hit /knowledge/upload : YES
+  hit /knowledge/ask    : YES
+  hit fake /ui-* path   : no (good)
+  answer cites the live-uploaded doc : YES
+  OVERALL: PASS
+```
+
+Standalone `/document-ingestion` route re-checked the same way: upload renders
+`Indexed ✓ … 1 chunk · Practice Guideline`; captured calls = `POST /knowledge/upload` (+ catalog
+refresh), **zero `/ui-integrated`**. PASS.
+
+This is the full 2C-ii ask: upload one new document live → it becomes retrievable → a question
+that should surface it returns a real grounded answer citing it — proven through real browser
+network traffic on the real endpoints.
+
+### Housekeeping / honest notes
+- `tsc --noEmit` clean; `npm run build` green (18 routes). Backend imports clean, upload +
+  ask verified live over HTTP first, then through the browser.
+- Verification-induced mutations reverted: `data/feature_store/iperform_features.db` restored;
+  test upload files removed from `data/documents/uploads/` (now gitignored so runtime uploads
+  are never committed — the deliverable corpus stays `data/documents/sample_knowledge/`). The
+  test docs' Chroma vectors are transient runtime state (Chroma dir already gitignored).
+- Working mode: `GRAPH_CLIENT_MODE=mock`, `LLM_CLIENT_MODE=mock` (answer prose is the
+  deterministic `[mock-llm …]` draft, but it grounds in the real retrieved passage — swapping to
+  `claude` changes only prose, verified in §10), `EMBEDDING_CLIENT_MODE=local` (real 384-dim
+  sentence-transformers, so retrieval/similarity are genuine — the 0.681 Orion match is a real
+  cosine score).
+- Visual QA (Section-1B gate): full-page screenshot compared against the app's design system —
+  dark sidebar + light canvas, AI-Generated chip, category badges, color-graded similarity
+  meters, dense enterprise type scale. Consistent with the other rebuilt pipeline pages.
+- Not done (deferred, unchanged): physical deletion of dormant runtime-family modules and the
+  remaining `/ui-integrated` router (Phase-11 sweep). This closes out 2C.
+
+---
+
+## 12. Visual design system audit — 7 pages, pre-Phase-11 (2026-07-04)
+
+All 7 built pages screenshotted at **1440×900 desktop viewport** (full page) via Playwright
+(headless Chromium, same tool as the §11 browser verification), then self-audited against
+Section 1B. Every value below is a `getComputedStyle` read from the **live rendered DOM**
+(scoped to `<main>`), not the intended token — the point was to catch where rendered ≠ intended.
+
+### Screenshots on disk
+```
+/tmp/claude-1000/-workspaces-ip-demo-project/5a62b380-e96f-41cc-a45a-1a5fe1297a87/scratchpad/audit_screens/
+  recommendations.png        (/recommendations)
+  features-embeddings.png     (/features-embeddings)
+  memory-explainability.png   (/memory-explainability)
+  predictions.png             (/predictions)
+  advisor-360.png             (/advisor-360)
+  knowledge-hub.png           (/knowledge)
+  document-ingestion.png      (/document-ingestion)
+  badge-info.png              (severity badge — Info state, cropped)
+  badge-attention.png         (severity badge — Attention state, cropped)
+```
+(Scratchpad paths — screenshots are transient verification artifacts, not committed; the
+`docs/ui_runtime/screenshots/` repo folder is gitignored by policy.)
+
+### 12.1 Font sizes — labels vs data vs headings (measured px)
+
+| Role | Measured (rendered) | Token intends (`tokens.ts`) | Verdict |
+|---|---|---|---|
+| Page title `h1` | **22px / w700 / none** (all 7 pages) | `pageTitle` = **20px** | ⚠️ overridden |
+| Section title `h2` | **16px / w600** | (no token maps to h2) | from global |
+| Card/rec title `h3` | **13px / w600** | `cardTitle` = **14px** | ⚠️ overridden |
+| Uppercase labels | **11px / w600 / letter-spacing 0.88px** | `label` = 11px w600 tracking 0.08em (=0.88px) | ✅ exact |
+| Category chips | 10px / w600 / ls 0.25px | (chip variant) | intentional smaller chip |
+| Table data / values | 12px tabular (td), 13px body | `data` 12px / `body` 13px | ✅ match |
+
+**Root cause of the heading mismatch (headline finding):** `app/globals.css:65-68` carries a
+legacy type system from the earlier "Part 15.1 compact" build:
+```css
+.compact-shell h1 { font-size: 22px; }
+.compact-shell h2 { font-size: 16px; }
+.compact-shell h3 { font-size: 13px; }
+```
+`AppShell` wraps the whole app in `.compact-shell` (`app-shell.tsx:30`). `.compact-shell h1`
+(CSS specificity 0,1,1) beats Tailwind's arbitrary `text-[20px]` (0,1,0) that `type.pageTitle`
+emits — so **every heading takes its size from the compact-shell globals, and the `tokens.ts`
+heading sizes (`pageTitle` 20 / `cardTitle` 14) are effectively dead** for `<h1/h2/h3>`.
+Font-weight from the tokens survives (globals set no weight) → `h1` still w700, `h3` w600.
+Net: rendering is *uniform* across all 7 pages (no per-page drift), but it violates Section 1B's
+"token system = single source of truth" — two type systems coexist and the older one wins for
+headings.
+
+### 12.2 Icons (lucide-react)
+
+- **Page content (`<main>`): ZERO icons on all 7 pages** — `main.querySelectorAll('svg')` empty
+  everywhere; no `lucide-react` import in any of the 7 workspace components.
+- **Sidebar only: 17 lucide SVGs** — `lucide-layout-dashboard, chart-line, activity,
+  sliders-horizontal, bot, book-open-check, network, git-branch, cloud-upload, shield-check,
+  brain-circuit, chevron-left`, etc.
+- ⚠️ **Deviation from the 1B composite spec:** the KPI stat card is specified as
+  "**icon** + label + value + delta badge" (and `KpiCard` accepts an icon prop), but the rendered
+  KPI tiles (`predictions.png`, `advisor-360.png`) are **label + value only — no icon, no delta
+  badge**. Clean and consistent, but a narrower card than the blueprint.
+
+### 12.3 Card spacing / padding (measured)
+
+- **Radius: 18px, uniform** across all cards on all pages — correct, `tailwind.config` maps
+  `rounded-xl: "18px"`. The legacy `.compact-card` (12px) exists but **no page uses it**
+  (grep clean).
+- **Padding** (most→least common): `12px 16px` (px-4 py-3, card header/body); `16px` (p-4);
+  inner stat tiles `10px` (px-2.5 py-2). Two vertical rhythms (12/16px) coexist — minor.
+- Shadow: soft `0 4px 18px rgba(15,23,42,.06)` — consistent subtle elevation.
+
+### 12.4 Severity / status palette — 2-state evidence
+
+`SeverityBadge` renders the `severity` tokens **exactly** (measured rgb → hex):
+
+| State | Measured color | Measured bg | Measured border | Token | Match |
+|---|---|---|---|---|---|
+| **Info** (`badge-info.png`; predictions, advisor-360) | rgb(29,78,216)=`#1D4ED8` | rgb(239,246,255)=`#EFF6FF` | rgb(191,219,254)=`#BFDBFE` | `severity.info` | ✅ exact |
+| **Attention** (`badge-attention.png`; recommendations, memory) | rgb(180,83,9)=`#B45309` | rgb(255,251,235)=`#FFFBEB` | rgb(253,230,138)=`#FDE68A` | `severity.attention` | ✅ exact |
+
+Both cropped screenshots confirm visually (blue INFO pill, amber ATTENTION pill). The
+**AI-Generated chip** is likewise consistent: violet `#7C3AED` on `#F5F3FF`/`#DDD6FE`, 10px,
+identical on predictions and recommendations.
+- **Urgent/Critical not rendered** in these snapshots — advisor A001's data sits in the
+  info/attention range; those token entries exist but have no live evidence here.
+- ⚠️ **Latent risk:** a *second* status system lives in globals (`.status-good/warn/bad` =
+  green/amber/red + `.bg-*-soft`). **None of the 7 pages use it** (grep clean) → no conflict
+  today, but it's an unremoved parallel palette a future page could pick up instead of the
+  severity tokens.
+
+### 12.5 Table styling (features-embeddings 3×33, advisor-360 4×6)
+
+Measured, **identical on both table pages**:
+
+| Element | Measured |
+|---|---|
+| `th` | 11px / w600 / **uppercase** / padding `8px 12px` / color `#94A3B8` (muted) / no own border |
+| `td` | 12px / w400 / padding `6px 12px` / color `#0F172A` (primary) |
+| Row separator | `border-b` on `<tr>`, color `#E2E8F0` (`surface.border`), `last:border-0` |
+
+✅ Matches Section 1B "dense enterprise data-table sizing" precisely: 11px uppercase muted
+headers, 12px data rows, tight `py-1.5`/`py-2` padding. Consistent between the two pages.
+
+### 12.6 Bottom line
+
+**Matches 1B:** label typography (11px/0.08em, exact), severity badge palette (exact, 2 states
+proven with cropped evidence), AI-Generated chip, table styling (exact + consistent across both
+tables), card radius (18px uniform), and — importantly — **strong cross-page consistency**
+(nothing drifts page-to-page).
+
+**Does NOT match 1B:**
+1. **Heading sizes come from legacy `.compact-shell` globals, not the tokens** — `pageTitle`
+   renders 22px (token 20), `cardTitle` renders 13px (token 14). Two type systems coexist; the
+   global wins by specificity. Clearest violation of "tokens = single source of truth."
+2. **KPI cards omit the icon + delta badge** the 1B composite spec calls for (label + value only).
+3. **A second, unused status palette** (`.status-*` / `.bg-*-soft`) still lives in globals —
+   dormant on these pages but a latent inconsistency.
+
+None of these are per-page drift or fake data — they are residue of the earlier "compact-shell"
+build layered under the newer token system. Cleanest fix for #1: delete the
+`.compact-shell h1/h2/h3` rules (let the token classes take effect) or reconcile the token values
+to 22/16/13. Deferred to the Phase-11 sweep (not changed here, per the "confirm before Phase 11"
+hold).

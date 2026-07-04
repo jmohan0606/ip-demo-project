@@ -409,3 +409,29 @@ Completed (backend only, per instruction; frontend 2C-ii not started):
 Known issues / deferred: dormant runtime-family module files still on disk (Phase-11 sweep,
 unchanged); fastapi now 0.139.0 (lazy router registration — live HTTP verified fine).
 Next: await confirmation, then 2C-ii (frontend knowledge/RAG page); then Phase 11 breadth.
+
+## Session 3 (cont.) — 2026-07-04 — Part 2C-ii: Knowledge Hub page + document upload UI (see VERIFICATION_CHECKPOINT.md §11)
+
+Completed (frontend/wiring; closes out 2C). **Verified in a real headless-Chromium browser
+(Playwright), not curl** — a live document uploaded end to end:
+- **Backend:** `POST /knowledge/upload` (multipart PDF/DOCX/PPTX/TXT) → saves to
+  `data/documents/uploads/` (gitignored) → runs the SAME `ingest_document` pipeline 2C-i built
+  (real parser → chunk → sentence-transformers embed → Chroma → catalog + graph link) →
+  returns document/chunks/assigned-category. Auto-category via existing `_category_for`.
+- **Knowledge Hub** (`knowledge-workspace.tsx`): rebuilt OFF fake `/ui-integrated/knowledge/search`
+  ONTO real `/knowledge/ask` (RagGenerationService). Ask box + suggestion chips → grounded
+  `AiContentCard` answer + cited-sources card (doc name, category badge, color-graded similarity
+  meter, excerpt); honest not-found rendered distinctly. Side column: shared upload widget +
+  live corpus list. Built from Section-1B tokens/patterns.
+- **Shared `document-upload.tsx`** (real `/knowledge/upload`); standalone `/document-ingestion`
+  route rewired off fake `/ui-integrated/documents/ingest` onto it.
+- **Browser proof:** uploaded a doc NOT in the corpus (`orion_liquidity_directive.txt`) via the
+  page → "Indexed ✓ 1 chunk · Practice Guideline"; asked a question about it → grounded answer
+  cites it #1 at similarity 0.681. Captured network: `POST /knowledge/upload` + `POST
+  /knowledge/ask`, ZERO `/ui-integrated`. `/document-ingestion` re-checked same way: PASS.
+- tsc clean; `npm run build` green (18 routes). Verification mutations reverted
+  (feature_store.db restored, test uploads removed); `data/documents/uploads/` now gitignored.
+
+Known issues / deferred: unchanged — dormant runtime-family modules + `/ui-integrated` router
+removal is the Phase-11 sweep.
+Next: **await confirmation before starting Phase 11 breadth pages** (per instruction).

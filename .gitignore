@@ -39,6 +39,9 @@ temp/
 # Local runtime outputs
 data/uploads/*
 !data/uploads/.gitkeep
+# Runtime document uploads (ingested via /knowledge/upload; corpus lives in
+# data/documents/sample_knowledge, uploads are runtime-only)
+data/documents/uploads/
 docs/ui_runtime/screenshots/*
 !docs/ui_runtime/screenshots/.gitkeep
 *.tsbuildinfo
