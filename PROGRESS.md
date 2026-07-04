@@ -355,3 +355,31 @@ Fixed the insights materialize dict bug + wired LLMClient into the chat engine.
 Next (Phase 11 breadth): command centers (Exec/DDW/RDW/MDW), Revenue Intelligence, Hierarchy
 Explorer, Book of Business, AGP/CRM pages, Graph Explorer, Knowledge, Admin, Data Health (3B);
 then delete /ui-integrated + remaining runtime modules once their consumers are rebuilt.
+
+## Session 3 — 2026-07-04 — Part 2B: new agent logic (see VERIFICATION_CHECKPOINT.md §8)
+
+Completed (all with real before/after evidence, mock + claude modes):
+- **Revenue Agent** (`app/agents/nodes/revenue_agent.py`): real revenue analysis over
+  GraphClient (GQ-004/005/006/008 — LTM, 3m momentum/direction, managed share, top products,
+  market-peer gap/percentile). Figures cross-check against the Phase-5 snapshot lineage.
+- **Coaching Agent** (`app/agents/nodes/coaching_agent.py`): authors the mockup AI Coaching
+  Card (Recommendation/Shoutout/Action Steps/Guideline Basis) via get_llm_client(), grounded
+  in the advisor's real snapshot + recs/opps/preds + compliance verdict. Claude-mode runs:
+  A001 11.4s / A020 8.7s, advisor-specific figures throughout, visible-error-only fallback.
+- **Compliance Agent** (`app/agents/nodes/compliance_agent.py`): replaces the deleted System-B
+  "Passed" stub with 4 real rules (prohibited claims / advisory-without-suitability disclosure /
+  ≥$50k supervisory review / <0.60 confidence guardrail). All 4 statuses proven reachable;
+  always runs after recommendation_agent (supervisor invariant); verdicts on each rec + run.
+- Supervisor rewritten: keyword intents for revenue/coaching/compliance, canonical ORDER,
+  coaching auto-pulls opportunity->recommendation->compliance ahead of itself. Roster 10->13.
+  AgenticResponse gained additive revenue_analysis/compliance_review/coaching_card fields.
+- 2A carry-over: InsightGenerationEngine repointed ModelAdapterFactory -> get_llm_client()
+  (exec summary + coaching-plan message; visible degradation on LLM error).
+
+Known issues / deferred:
+- FLAGGED: InsightDataCollector still reads the OLD FeatureStoreService — advisor feature
+  vector returns zeros (Claude summary honestly said "no measurable activity"). Rewire to the
+  Phase-5 pipeline in the consolidation sweep (existing deferred item).
+- 2C (knowledge/RAG generation step, real semantic embeddings) NOT started, per instruction.
+
+Next: await confirmation, then Part 2C; then Phase 11 breadth + consolidation sweep remainder.

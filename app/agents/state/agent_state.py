@@ -42,6 +42,9 @@ class AgenticResponse(BaseModel):
     recommendations: list[dict[str, Any]] = Field(default_factory=list)
     opportunities: list[dict[str, Any]] = Field(default_factory=list)
     predictions: list[dict[str, Any]] = Field(default_factory=list)
+    revenue_analysis: dict[str, Any] | None = None
+    compliance_review: dict[str, Any] | None = None
+    coaching_card: dict[str, Any] | None = None
     confidence: float = 0.80
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

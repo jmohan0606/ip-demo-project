@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from app.ai.adapters.adapter_factory import ModelAdapterFactory
-from app.models.enums import AdapterProvider
+from app.llm.client import get_llm_client
 from app.models.insights_coaching import (
     CoachingPlan, CoachingTone, InsightCard, InsightCardType, InsightDashboardPayload,
     InsightEvidence, InsightRequest, InsightScopeType
@@ -11,15 +10,32 @@ from app.shared.ids import timestamp_id
 
 class InsightGenerationEngine:
     def __init__(self) -> None:
-        self.adapter = ModelAdapterFactory.create(AdapterProvider.OPENAI)
+        # Section-2 LLMClient adapter (mock | claude | real) — replaces the old
+        # ModelAdapterFactory path that silently fell back to MockModelAdapter.
+        self.llm = get_llm_client()
+
+    def _llm_text(self, prompt: str, context: dict) -> str:
+        try:
+            return self.llm.generate(prompt, context)
+        except Exception as exc:  # visible degradation, never a silent mock swap
+            return f"(LLM unavailable: {exc})"
 
     def generate_payload(self, request: InsightRequest, data: dict) -> InsightDashboardPayload:
         cards = self._deterministic_cards(request, data)
 
-        # Use adapter lightly for summary. Mock adapter will return deterministic fallback.
-        ai_summary = self.adapter.generate_text(
-            prompt=f"Summarize coaching insights for {request.scope_type.value} {request.scope_id} using {len(cards)} insight cards.",
-            system_prompt="Return a concise executive summary.",
+        ai_summary = self._llm_text(
+            f"Summarize the coaching insights for {request.scope_type.value} {request.scope_id} "
+            "in 2-3 sentences, citing the concrete figures provided.",
+            {
+                "system_prompt": (
+                    "You are the iPerform insights engine for a wealth-management firm. Return a "
+                    "concise executive summary grounded ONLY in the insight cards provided — cite "
+                    "their figures, never invent data."
+                ),
+                "insight_cards": " | ".join(
+                    f"[{c.severity}] {c.title}: {c.summary}" for c in cards
+                ),
+            },
         ) if request.include_ai_generation else ""
 
         executive_summary = self._executive_summary(request, cards, ai_summary)
@@ -154,13 +170,27 @@ class InsightGenerationEngine:
         if request.persona in {"Firm", "DDW"}:
             tone = CoachingTone.EXECUTIVE
 
+        summary = self._llm_text(
+            f"Write a 2-sentence coaching message for {request.scope_type.value} {request.scope_id} "
+            f"in a {tone.value} tone, grounded in the focus areas and actions provided.",
+            {
+                "system_prompt": (
+                    "You are the iPerform coaching engine for a wealth-management firm. Write a "
+                    "specific, encouraging coaching message using ONLY the focus areas and actions "
+                    "provided; be compliance-aware and do not invent figures."
+                ),
+                "focus_areas": "; ".join(focus[:5]),
+                "next_best_actions": "; ".join(actions[:8]),
+            },
+        ) if request.include_ai_generation else f"Coaching plan generated for {request.scope_type.value} {request.scope_id}."
+
         return CoachingPlan(
             coaching_plan_id=timestamp_id("coachplan"),
             scope_type=request.scope_type,
             scope_id=request.scope_id,
             persona=request.persona,
             tone=tone,
-            summary=f"Coaching plan generated for {request.scope_type.value} {request.scope_id}.",
+            summary=summary,
             focus_areas=focus[:5],
             next_best_actions=actions[:8],
             manager_review_notes=[
