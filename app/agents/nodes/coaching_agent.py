@@ -61,8 +61,11 @@ class CoachingAgent(BaseAgent):
                     'in the positive signals provided; if none were provided, acknowledge effort honestly '
                     'without inventing wins), "## Action Steps" (3-4 numbered, concrete steps derived from '
                     'the recommended action and opportunity evidence), "## Guideline Basis" (which playbook '
-                    'and compliance/suitability guardrails this guidance rests on, citing the playbook id '
-                    'and compliance status provided). Use only the data provided — never invent figures.'
+                    'and compliance/suitability guardrails this guidance rests on: quote or closely '
+                    'paraphrase the retrieved guideline passages provided, naming their source documents, '
+                    'and cite the playbook id and compliance status provided; if no guideline passages were '
+                    'provided, say the basis is the playbook and compliance review only). '
+                    'Use only the data provided — never invent figures or policy text.'
                 ),
                 'advisor': advisor_id,
                 'feature_snapshot': snapshot.snapshot_id,
@@ -99,6 +102,26 @@ class CoachingAgent(BaseAgent):
                        or 'all rules passed')
                 )
 
+            # Ground the Guideline Basis in actual retrieved document text (same
+            # RAG retrieval path as the knowledge agent), not just a playbook id.
+            guideline_sources = []
+            try:
+                from app.knowledge.rag_service import RagGenerationService
+                guideline_query = ' '.join(filter(None, [
+                    (top_rec or {}).get('category'),
+                    (top_rec or {}).get('title'),
+                    (top_rec or {}).get('action_text'),
+                ])) or 'advisor coaching best practices'
+                guideline_sources = RagGenerationService().retrieve(guideline_query, top_k=2)
+                if guideline_sources:
+                    context['guideline_passages'] = ' || '.join(
+                        f"from \"{s['document_name']}\" ({s['document_category']}, "
+                        f"similarity {s['similarity']}): {s['excerpt'][:400]}"
+                        for s in guideline_sources
+                    )
+            except Exception as exc:
+                state.errors.append(f'Guideline retrieval unavailable for coaching card: {exc}')
+
             prompt = f'Write the AI Coaching Card for advisor {advisor_id}.'
             llm = get_llm_client()
             try:
@@ -122,6 +145,15 @@ class CoachingAgent(BaseAgent):
                     'playbook_id': (top_rec or {}).get('playbook_id'),
                     'compliance_status': (compliance or {}).get('status'),
                     'positive_signals': positives,
+                    'guideline_sources': [
+                        {
+                            'document_name': s['document_name'],
+                            'document_category': s['document_category'],
+                            'chunk_id': s['chunk_id'],
+                            'similarity': s['similarity'],
+                        }
+                        for s in guideline_sources
+                    ],
                 },
             }
             state.context['coaching_card'] = card

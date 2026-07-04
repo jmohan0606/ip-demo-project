@@ -1,5 +1,4 @@
 from __future__ import annotations
-from app.knowledge import get_knowledge_runtime
 
 from datetime import datetime
 from typing import Any
@@ -146,13 +145,27 @@ def get_memory_explainability_data(context: dict[str, Any]) -> dict[str, Any]:
 
 
 def search_knowledge(request: dict[str, Any]) -> dict[str, Any]:
+    # Consolidated onto the single real RAG path (semantic embeddings + Chroma),
+    # replacing the old knowledge_runtime mock-vector-store path.
+    from app.knowledge.rag_service import RagGenerationService
+
     query = request.get("query", "managed account growth playbook")
-    runtime_result = get_knowledge_runtime().search(query, top_k=5).to_dict()
-    data = runtime_result.get("data", {})
+    rag = RagGenerationService().answer(query, top_k=5)
     return {
         "query": query,
-        "results": data.get("results", []),
-        "collection": data.get("collection", "iperform_knowledge_base"),
-        "knowledge_runtime": runtime_result,
+        "results": [
+            {
+                "title": s["document_name"],
+                "source": s["document_category"],
+                "score": s["similarity"],
+                "snippet": s["excerpt"][:300],
+                "metadata": {"chunk_id": s["chunk_id"], "document_id": s["document_id"]},
+            }
+            for s in rag["sources"]
+        ],
+        "answer": rag["answer"],
+        "found": rag["found"],
+        "generated_by": rag["generated_by"],
+        "collection": rag["retrieval"]["collection_name"],
         "agent_trace": _trace("knowledge_search", ["KnowledgeAgent", "ChromaSearchTool", "CitationAgent"]),
     }

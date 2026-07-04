@@ -38,7 +38,9 @@ class KnowledgeVectorStore:
                 document_id=meta.get("document_id", ""),
                 document_name=meta.get("document_name", ""),
                 chunk_text=doc,
-                score=None if dist is None else float(dist),
+                # Collection uses cosine distance; report cosine similarity so
+                # higher = more relevant everywhere downstream.
+                score=None if dist is None else round(1.0 - float(dist), 4),
                 metadata=meta,
             ))
         return out

@@ -1,0 +1,39 @@
+CRM Engagement Guide: Pipeline Hygiene and Follow-Up Discipline
+
+Purpose: Give advisors and their district leaders a common standard for working leads,
+referrals, and opportunities inside the CRM so that pipeline value reflects reality and
+no committed follow-up is silently dropped.
+
+Lead handling standards:
+- Every new lead must be acknowledged within 2 business days of assignment. Leads
+  untouched for 10 business days are flagged to the district director.
+- Record the lead source (client referral, partner referral, marketing campaign,
+  walk-in, event) at creation. Referral-sourced leads convert at roughly twice the
+  rate of campaign leads and should be prioritized in the weekly call block.
+- A lead moves to qualified only after a documented discovery conversation covering
+  household assets, current provider relationships, and a stated financial need.
+
+Follow-up discipline:
+- Any activity marked "follow-up required" must carry a due date. An overdue follow-up
+  is a coaching signal, not just a task: three or more overdue follow-ups on one book
+  correlates with stalled pipeline and should trigger a pipeline review conversation.
+- After every client or prospect meeting, log a summary activity within 24 hours,
+  including next step, owner, and date. Meetings without a logged next step are the
+  single largest cause of pipeline leakage observed in field reviews.
+
+Opportunity stage standards:
+- An opportunity's amount must be an evidence-based estimate (stated investable assets
+  or documented account transfer intent), never a placeholder. Review amounts at every
+  stage change.
+- Weighted pipeline value = amount x stage probability. Stage probabilities are set
+  firm-wide (Discovery 20%, Proposal 45%, Verbal Commit 75%, Closing 90%) and must not
+  be overridden per opportunity.
+- Opportunities inactive for 30 days should be moved to stalled and either re-engaged
+  with a dated plan or closed-lost honestly. A clean pipeline a leader can trust beats
+  an inflated one every time.
+
+Weekly cadence for advisors:
+1. Monday: clear or reschedule every overdue follow-up before booking new activity.
+2. Midweek: work the qualified-lead call block, referrals first.
+3. Friday: update opportunity stages and amounts; verify the weighted pipeline number
+   you would stand behind in a district review.

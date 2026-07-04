@@ -1,0 +1,37 @@
+Advisor Growth Plan (AGP) Program Overview — Field Edition
+
+What the AGP is: a 12-month, milestone-based growth program agreed between each advisor
+and their market director at the start of the program year. It converts the advisor's
+annual revenue and asset goals into quarterly milestones and monthly KPI expectations,
+so that "on track" or "off track" is a matter of evidence, not opinion.
+
+Program structure:
+- Goal layer: full-year targets for production revenue, net new money (NNM), and
+  managed-asset share, set relative to the advisor's trailing year and market averages.
+- Milestone layer: quarterly checkpoints (Month 3, 6, 9, 12), each with an attainment
+  percentage. Milestone attainment below 85% at any checkpoint moves the advisor to
+  the attention tier; below 70% is urgent and requires a written recovery plan.
+- KPI layer: the monthly execution indicators that predict milestone attainment —
+  client review completion rate, CRM follow-up currency (no overdue follow-ups older
+  than 10 days), qualified-lead additions, and managed-account proposal count.
+
+On-track / off-track scoring:
+The AGP risk score combines milestone attainment, KPI on-track ratio, and activity
+recency into a 0-100 scale. Scores under 40 are considered on track; 40-60 warrants
+attention; above 60 is off track and triggers a coaching conversation with the market
+director within two weeks. The score exists to focus coaching where the plan is
+actually slipping — it is not a compensation input.
+
+Coaching cadence:
+- Monthly: advisor and district director review the KPI layer (15 minutes, evidence
+  from the dashboard, not recollection).
+- Quarterly: milestone review; celebrate what is genuinely ahead of plan, agree the
+  one or two execution changes most likely to close any gap.
+- Recovery plans name specific activities and dates (e.g., "complete the 12 overdue
+  reviews by March 15"), never generic intentions ("improve activity").
+
+What good looks like by year end:
+Milestone attainment at or above 95%, KPI on-track ratio above 0.75, NNM positive in
+at least three of four quarters, and a managed-asset share moving toward the advisor's
+agreed mix target. Advisors who hit these markers two years running are the program's
+mentor pool for the incoming class.

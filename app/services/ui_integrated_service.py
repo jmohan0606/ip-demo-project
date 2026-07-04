@@ -1,5 +1,4 @@
 from __future__ import annotations
-from app.knowledge import get_knowledge_runtime
 from datetime import datetime
 from typing import Any
 

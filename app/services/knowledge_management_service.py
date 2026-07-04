@@ -44,7 +44,7 @@ class KnowledgeManagementService:
                 "document_category": document.document_category,
                 "collection_name": request.collection_name,
             })
-        embeddings = [self.embedder.embed(c.chunk_text) for c in chunks]
+        embeddings = self.embedder.embed_many([c.chunk_text for c in chunks]) if chunks else []
         indexed = self.vector_store.upsert_chunks(request.collection_name, chunks, embeddings, document.document_name, document.document_category)
         document.status = KnowledgeDocumentStatus.INDEXED
         self.catalog.save_document(document, {"collection_name": request.collection_name, "chunk_count": len(chunks), "indexed_count": indexed})
@@ -59,15 +59,26 @@ class KnowledgeManagementService:
             sample_dir = Path("data/documents/sample_knowledge")
         results = []
         for file_path in sorted(sample_dir.glob("*.txt")):
-            category = "Practice Guideline"
-            if "compliance" in file_path.name:
-                category = "Compliance"
-            elif "agp" in file_path.name:
-                category = "AGP Guide"
-            elif "glossary" in file_path.name:
-                category = "Glossary"
+            category = self._category_for(file_path.name)
             results.append(self.ingest_document(KnowledgeIngestionRequest(source_path=str(file_path), document_category=category)))
         return results
+
+    @staticmethod
+    def _category_for(file_name: str) -> str:
+        name = file_name.lower()
+        if "compliance" in name or "policy" in name or "procedure" in name:
+            return "Compliance"
+        if "agp" in name:
+            return "AGP Guide"
+        if "glossary" in name:
+            return "Glossary"
+        if "playbook" in name:
+            return "Playbook"
+        if "market" in name or "research" in name:
+            return "Research"
+        if "crm" in name or "engagement" in name:
+            return "CRM Engagement"
+        return "Practice Guideline"
 
     def search(self, request: KnowledgeSearchRequest) -> KnowledgeSearchResponse:
         embedding = self.embedder.embed(request.query)

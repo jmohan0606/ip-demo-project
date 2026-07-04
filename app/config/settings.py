@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # Adapter selection (Section 2 of the rebuild brief)
     graph_client_mode: str = Field(default="mock", alias="GRAPH_CLIENT_MODE")  # mock | local_real | real
     llm_client_mode: str = Field(default="mock", alias="LLM_CLIENT_MODE")  # mock | claude | real
+    embedding_client_mode: str = Field(default="local", alias="EMBEDDING_CLIENT_MODE")  # local | azure
+    local_embedding_model: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2", alias="LOCAL_EMBEDDING_MODEL"
+    )
 
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
@@ -25,6 +29,9 @@ class Settings(BaseSettings):
     azure_openai_endpoint: str | None = Field(default=None, alias="AZURE_OPENAI_ENDPOINT")
     azure_openai_api_key: str | None = Field(default=None, alias="AZURE_OPENAI_API_KEY")
     azure_openai_deployment: str = Field(default="gpt-4o-mini", alias="AZURE_OPENAI_DEPLOYMENT")
+    azure_openai_embedding_deployment: str = Field(
+        default="text-embedding-3-small", alias="AZURE_OPENAI_EMBEDDING_DEPLOYMENT"
+    )
     azure_openai_api_version: str = Field(default="2024-06-01", alias="AZURE_OPENAI_API_VERSION")
 
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")

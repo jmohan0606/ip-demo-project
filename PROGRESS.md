@@ -383,3 +383,29 @@ Known issues / deferred:
 - 2C (knowledge/RAG generation step, real semantic embeddings) NOT started, per instruction.
 
 Next: await confirmation, then Part 2C; then Phase 11 breadth + consolidation sweep remainder.
+
+## Session 3 (cont.) — 2026-07-04 — Part 2C-i: real embeddings + RAG generation (see VERIFICATION_CHECKPOINT.md §10)
+
+Completed (backend only, per instruction; frontend 2C-ii not started):
+- **EmbeddingClient adapter** (`app/llm/embedding_client.py`): Protocol + `LocalEmbeddingClient`
+  (sentence-transformers all-MiniLM-L6-v2, 384-dim, NEW DEFAULT) + `AzureOpenAIEmbeddingClient`;
+  `EMBEDDING_CLIENT_MODE=local|azure`. sha256-random mock embeddings fully replaced on the live
+  path; `/adapters/status` reports the embedding adapter.
+- **Corpus 4→9 documents** (19 chunks): CRM engagement guide, prospecting playbook, client
+  review/suitability procedures (incl. the $50k threshold COMP-003 enforces), AGP program
+  overview, 2026-Q2 market research. Chroma rebuilt on cosine space; scores now = similarity.
+- **Semantic proof**: 5/5 category-targeted queries rank the intended document #1 with real
+  cosine margins (e.g. AGP query 0.7264 vs 0.39 next-doc).
+- **RagGenerationService** (`app/knowledge/rag_service.py`): retrieve → grounded prompt →
+  get_llm_client() → answer + cited sources; 0.30 similarity floor with honest not-found (no
+  LLM call, no hallucination). Exposed as AgentToolbox.ask_knowledge + POST /knowledge/ask.
+  Retrieval paths consolidated: /ui-integrated/knowledge/search repointed off the mock
+  knowledge_runtime onto this one real path.
+- **Agent wiring**: RagKnowledgeAgent now does real RAG (generated cited answer, was
+  retrieval-only). Coaching Agent's Guideline Basis quotes actual retrieved document text
+  (guideline_sources in grounding) — before it cited only playbook_id/compliance status.
+  Claude-mode before/after evidence for A001 in §10.
+
+Known issues / deferred: dormant runtime-family module files still on disk (Phase-11 sweep,
+unchanged); fastapi now 0.139.0 (lazy router registration — live HTTP verified fine).
+Next: await confirmation, then 2C-ii (frontend knowledge/RAG page); then Phase 11 breadth.

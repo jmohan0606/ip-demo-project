@@ -27,6 +27,10 @@ class AgentToolbox:
         return ContextService().build_context_package(MemoryRetrievalRequest(scope_type=scope, scope_id=scope_id, query=question, limit=10)).model_dump()
     def search_knowledge(self, question: str) -> dict[str, Any]:
         return KnowledgeManagementService().search(KnowledgeSearchRequest(query=question, top_k=5)).model_dump()
+    def ask_knowledge(self, question: str, top_k: int = 5) -> dict[str, Any]:
+        # Full RAG: retrieval + grounded generation with cited sources.
+        from app.knowledge.rag_service import RagGenerationService
+        return RagGenerationService().answer(question, top_k=top_k)
     def materialize_features(self) -> list[dict[str, Any]]:
         return [r.model_dump() for r in FeatureStoreService().materialize(FeatureMaterializationRequest())]
     def build_embeddings(self) -> dict[str, Any]:

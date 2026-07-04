@@ -19,6 +19,17 @@ def ingest_samples():
 def search(request: KnowledgeSearchRequest):
     return ok(data=KnowledgeManagementService().search(request).model_dump())
 
+@router.post("/ask")
+def ask(request: KnowledgeSearchRequest):
+    """Full RAG: retrieve top-k -> grounded prompt -> LLMClient -> answer + cited sources."""
+    from app.knowledge.rag_service import RagGenerationService
+    return ok(data=RagGenerationService().answer(
+        question=request.query,
+        top_k=request.top_k,
+        collection_name=request.collection_name,
+        document_category=request.document_category,
+    ))
+
 @router.get("/documents")
 def documents():
     return ok(data=KnowledgeManagementService().list_documents())

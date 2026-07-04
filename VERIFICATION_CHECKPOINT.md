@@ -643,3 +643,162 @@ Housekeeping: full compileall clean; verification-induced SQLite mutation revert
 `LLM_CLIENT_MODE=claude` inline-env only (persisted default remains mock). Minor cosmetic note:
 Claude occasionally prefixes its summary with a markdown heading (A001 run) — presentation-layer
 trim, not a grounding issue. 2C still not started.
+
+---
+
+## 10. Part 2C-i — real embeddings, expanded corpus, RAG generation, agent cross-wiring (2026-07-04)
+
+Scope: backend only, per instruction. `EmbeddingClient` adapter (sentence-transformers local
+default, fully replacing the sha256-random mock), 9-document corpus, semantic re-embed with
+proof of discrimination, a reusable `RagGenerationService` (retrieve → grounded prompt →
+`get_llm_client()` → answer + citations), wired into RagKnowledgeAgent AND the Coaching Agent.
+Frontend (2C-ii) deliberately not started.
+
+### 1. EmbeddingClient adapter (`app/llm/embedding_client.py`)
+
+- `EmbeddingClient` Protocol (`embed` / `embed_many` / `describe`), same Section-2 pattern as
+  LLMClient: SDK imports live only inside implementations.
+- `LocalEmbeddingClient` — sentence-transformers `all-MiniLM-L6-v2` (384-dim, L2-normalized),
+  free/local, **the new default**. `AzureOpenAIEmbeddingClient` — env-configured
+  (`AZURE_OPENAI_EMBEDDING_DEPLOYMENT`, default `text-embedding-3-small`) for the client site.
+- `EMBEDDING_CLIENT_MODE=local|azure` in settings + `.env.example`; module-level singleton so
+  the model loads once per process (~20s cold, instant after).
+- The sha256 mock path is GONE from the live path: `KnowledgeEmbeddingService` (used by
+  ingest + search) now delegates to `get_embedding_client()` — the old
+  `ModelAdapterFactory`→`MockModelAdapter.embed_text` import is removed. (The
+  `DeterministicEmbeddingProvider` file survives only inside the dormant runtime family, which
+  is no longer reachable from any live path — see consolidation below.)
+- `/adapters/status` now reports the embedding adapter (verified over HTTP):
+  `"embedding_client_mode": "local", "embedding": {"mode": "local", "model":
+  "sentence-transformers/all-MiniLM-L6-v2", "dimensions": 384}`.
+
+### 2. Corpus expanded 4 → 9 documents (19 chunks)
+
+New documents (substantive, category-spanning, in `data/documents/sample_knowledge/`):
+`crm_engagement_guide.txt` (CRM Engagement), `advisor_prospecting_playbook.txt` (Playbook),
+`client_review_procedures.txt` (Compliance policy incl. the $50,000 supervisory-review
+threshold that COMP-003 enforces in code), `agp_program_overview.txt` (AGP Guide),
+`market_research_notes_2026q2.txt` (Research) — plus the original 4 (compliance policy,
+AGP coaching guide, managed-account playbook, glossary). Ingested via `ingest_sample_knowledge`
+with a filename→category mapper:
+
+```
+ingested 9 documents, 19 chunks, all status=indexed  (chroma count: 19)
+  DOC_… advisor_prospecting_playbook.txt  Playbook        chunks=3
+  DOC_… agp_program_overview.txt          AGP Guide       chunks=3
+  DOC_… client_review_procedures.txt      Compliance      chunks=3
+  DOC_… crm_engagement_guide.txt          CRM Engagement  chunks=3
+  DOC_… market_research_notes_2026q2.txt  Research        chunks=3   (+ the original 4)
+```
+
+Chroma collection recreated with cosine space (`hnsw:space=cosine`); old 64-dim sha256 vectors
+wiped. `KnowledgeSearchResult.score` is now cosine **similarity** (1 − distance, higher =
+better) instead of raw distance.
+
+### 3. Semantic correctness — real similarity scores, right document wins every time
+
+Five category-targeted queries, top-4 with scores (mock LLM irrelevant here — this is pure
+retrieval; threshold disabled to show the full ranking):
+
+```
+"What dollar threshold requires supervisory principal review…?"
+  +0.6424 client_review_procedures.txt (Compliance)      <- correct #1, next-doc gap 0.27
+"How do I get more referrals from my existing clients?"
+  +0.5072 advisor_prospecting_playbook.txt (Playbook)    <- correct #1
+"When does an advisor's AGP milestone attainment trigger a recovery plan?"
+  +0.7264 agp_program_overview.txt (AGP Guide)           <- correct #1, top-3 all AGP
+"What is the standard for handling overdue follow-ups in the pipeline?"
+  +0.7057 crm_engagement_guide.txt (CRM Engagement)      <- correct #1, top-3 all CRM guide
+"What are clients doing with cash allocations this year?"
+  +0.5911 market_research_notes_2026q2.txt (Research)    <- correct #1
+```
+
+All 5/5 rank the intended document first with clear margins — the sha256 vectors could not do
+this (their similarity was arbitrary). This is semantic retrieval, not a code-path claim.
+
+### 4. RagGenerationService (`app/knowledge/rag_service.py`) — reusable, not page-glue
+
+`retrieve()` → top-k chunks above a 0.30 cosine floor as citable source dicts;
+`answer()` → numbered source passages into a grounded prompt → `get_llm_client().generate()`
+→ `{question, found, answer, sources[{chunk_id, document_id, document_name, category,
+similarity, excerpt}], generated_by, retrieval}`. Same evidence bar as every pipeline stage.
+Consumers wired this session: `RagKnowledgeAgent`, Coaching Agent guideline retrieval,
+`AgentToolbox.ask_knowledge`, `POST /knowledge/ask`, and `/ui-integrated/knowledge/search`.
+
+**Consolidation of the two divergent retrieval paths:** Path B
+(`/ui-integrated/knowledge/search` → `knowledge_runtime` → `MockPersistentVectorStore` with
+canned docs) now calls `RagGenerationService` — both live surfaces go through the ONE real
+path (real embeddings + Chroma + generation). The dormant runtime-family files stay on disk
+only because `memory_runtime`/`recommendation_runtime` (already on the Phase-11 deletion list)
+still import them; no live route reaches them for knowledge anymore.
+
+**Claude-mode generation, two queries, meaningfully different (real tokens, authorized):**
+```
+Q1 "What dollar threshold requires supervisory principal review…?"  (8.00s, claude-haiku-4-5)
+  sources: client_review_procedures.txt ×3 (0.64/0.48/0.45)
+  -> "…recommendations with estimated revenue impact or transfer value at or above $50,000
+      require supervisory principal review before presentation to the client [1]. The
+      reviewing principal must be independent of the recommending advisor's production
+      credit [1]."          <- exact policy content, inline [n] citations
+Q2 "How should an advisor rebuild referral-led growth in a slowing book?"  (2.75s)
+  sources: advisor_prospecting_playbook.txt ×3 (0.58/0.56/0.55)
+  -> four Plays summarized with per-passage citations [1][2][3], direct quotes from the
+     playbook, plus the playbook's own metrics (3-5 households/quarter, 50%+ referral ratio)
+```
+Different questions → different documents retrieved → different grounded answers.
+
+**Edge case — honest not-found (no hallucination, no LLM call):**
+```
+"How do I configure kubernetes cluster autoscaling for the trading platform?"
+  found: False | sources: [] | generated_by: {mode: none, reason: no passages above threshold}
+  answer: "No relevant guidance was found in the knowledge base for this question…"
+```
+Also verified over live HTTP: `POST /knowledge/ask` returns found=True with sources for the
+policy question and found=False/0 sources for the kubernetes question (mock mode).
+
+### 5. Agent cross-wiring
+
+**RagKnowledgeAgent (before → after):** was retrieval-only (`search_knowledge`, evidence =
+raw chunks, §6.2 finding "no generation step"). Now calls `ask_knowledge` (full RAG): stores
+the generated answer + citations in `state.context['knowledge']`, evidence items carry
+similarity scores and [n] numbering, reasoning step reports generation mode; honest-not-found
+becomes its own reasoning step. Live agentic run (claude mode, 23.2s):
+```
+route: context -> graph -> rag_knowledge -> recommendation -> compliance -> explainability -> assistant
+"RAG Knowledge Agent generated a grounded answer via claude LLM citing 5 document passage(s)."
+RAG evidence: [1] client_review_procedures.txt 0.5721, [2] 0.4848, [3] 0.4495,
+              [4] compliance_recommendation_policy.txt 0.4351, [5] agp_program_overview.txt 0.4110
+```
+
+**Coaching Agent "Guideline Basis" (before → after, same advisor A001):**
+- BEFORE (§8, claude run): grounding = playbook id + compliance status only; Guideline Basis
+  could cite nothing but "PB001 + COMP-003 supervisory review at the $50,000 threshold".
+- AFTER (claude run 25.8s): the agent retrieves guideline passages for the top
+  recommendation via the same `RagGenerationService.retrieve` and the card **quotes the actual
+  retrieved document text**; grounding gains `guideline_sources`:
+```
+guideline_sources: crm_engagement_guide.txt chunk_0001 (sim 0.6402), chunk_0000 (sim 0.5791)
+## Guideline Basis
+"This guidance rests on playbook PB001 (Pipeline Acceleration) and the CRM Engagement Guide
+ (source: crm_engagement_guide.txt) … *'Any activity marked "follow-up required" must carry a
+ due date. An overdue follow-up is a coaching signal, not just a task: three or more overdue
+ follow-ups on one book correlates with stalled pipeline…'* … Compliance Status: NEEDS_REVIEW
+ ([COMP-003]). The estimated $129,600 revenue impact meets materiality ($50,000 threshold)…"
+```
+The retrieved passage is exactly on-point for A001's real situation (top rec = pipeline
+acceleration, 3 overdue follow-ups from the §2-verified snapshot) — semantic retrieval picked
+the follow-up-discipline chunk without being told the feature values.
+
+### Housekeeping / honest notes
+- `sentence-transformers>=3.0.0` added to pyproject; torch installed CPU-only (codespace has
+  no GPU). First model load ~20s per process; cached afterward.
+- Environment note: fastapi is at 0.139.0 (lazy `_IncludedRouter` registration — route
+  introspection changed, but the live server was verified over HTTP: /adapters/status,
+  /knowledge/ask found + not-found paths all serve).
+- Verification-induced SQLite/memory mutations reverted; the knowledge catalog re-ingest
+  (9 docs / 19 chunks) is the deliverable state and is kept. Chroma dir remains gitignored.
+- `LLM_CLIENT_MODE=claude` was inline-env only for the spot checks above; persisted default
+  remains mock. `EMBEDDING_CLIENT_MODE` default is `local` (real semantic vectors even in
+  otherwise-mock mode — deliberate, per instruction: the mock embedding path is fully replaced).
+- Not done (out of 2C-i scope): frontend knowledge page rebuild (2C-ii, awaiting confirmation);
+  physical deletion of the dormant runtime-family modules (Phase-11 sweep, unchanged).
