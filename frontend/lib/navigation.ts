@@ -35,6 +35,14 @@ export const navigationItems: NavigationItem[] = [
     group: "Advisor"
   },
   {
+    id: "crm-activities",
+    label: "CRM Activities",
+    description: "Leads, referrals, opportunities, pipeline stages and overdue work per advisor.",
+    href: "/crm-activities",
+    iconName: "Contact",
+    group: "Advisor"
+  },
+  {
     id: "peer-benchmarking",
     label: "Peer Benchmarking",
     description: "Percentile radar vs the scope's peer group + nearest peers from the similarity model.",

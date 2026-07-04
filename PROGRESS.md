@@ -654,3 +654,16 @@ opportunity ingest cleanly and demonstrate the real batch/checkpoint flow).
   Scope-following advisor picker. Added to nav (Advisor group, new "Radar" lucide icon wired into
   the sidebar iconMap) — first new nav route added this phase.
 - tsc clean; build green (/peer-benchmarking 8.89 kB). Nav now 17 items.
+
+## Session 4 (cont.) — PART 5 breadth — CRM Activities (gap #18, new page) — DONE
+
+- **New page** on the existing real `/crm` backend (no new backend needed — leads/referrals/
+  opportunities/pipeline/work-summary already real). `components/crm/crm-activities-workspace.tsx`
+  + `charts/crm-pipeline-funnel.tsx` (Recharts **Funnel** — the mockup's pipeline-stage viz per
+  1B): KPIs (total/weighted pipeline, open opps, overdue), pipeline funnel by stage (real summed
+  amounts, canonical stage order), opportunities table, and leads + referrals tables (overdue rows
+  highlighted). Scope-following advisor picker.
+- `lib/api/crm.ts` client (pipeline/opportunities/leads/referrals). Added to nav (Advisor group,
+  new "Contact" icon). Page + route wired.
+- tsc clean; build green (/crm-activities 11.4 kB). Nav now 18 items. CRM endpoints HTTP-verified
+  (A001: 3-stage pipeline, real leads/referrals with overdue flags).
