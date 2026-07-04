@@ -1,38 +1,43 @@
 from __future__ import annotations
 
-from app.models.features import FeatureMaterializationRequest
+from app.features.engineering import FeatureEngineeringService
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
-from app.models.opportunities import OpportunitySearchRequest
-from app.models.predictions import PredictionSearchRequest
-from app.models.recommendations import RecommendationSearchRequest
+from app.opportunities.service import OpportunityDetectionService
+from app.prediction.service import PredictionService as PipelinePredictionService
+from app.recommendations.service import RecommendationService as PipelineRecommendationService
 from app.services.context_service import ContextService
-from app.services.feature_store_service import FeatureStoreService
-from app.services.opportunity_service import OpportunityService
-from app.services.prediction_service import PredictionService
-from app.services.recommendation_service import RecommendationService
 
 
 class InsightDataCollector:
+    """Collects grounding data from the Phase-5..9 pipeline (the same feature/
+    prediction/opportunity/recommendation services the agents read) — replaces the
+    old FeatureStoreService family, whose vectors returned zeros for current data."""
+
     def __init__(self) -> None:
-        self.features = FeatureStoreService()
-        self.predictions = PredictionService()
-        self.opportunities = OpportunityService()
-        self.recommendations = RecommendationService()
         self.context = ContextService()
 
     def collect_for_scope(self, scope_type: str, scope_id: str, question: str | None = None) -> dict:
-        entity_id = scope_id if scope_type == "Advisor" else None
-
         advisor_features = None
-        if scope_type == "Advisor":
-            advisor_features = self.features.get_vector("Advisor", scope_id, "advisor_growth_features")
-            if advisor_features is None:
-                self.features.materialize(FeatureMaterializationRequest(feature_groups=[], force_refresh=True))
-                advisor_features = self.features.get_vector("Advisor", scope_id, "advisor_growth_features")
+        preds: list[dict] = []
+        opps: list[dict] = []
+        recs: list[dict] = []
 
-        preds = self.predictions.list_predictions(PredictionSearchRequest(entity_id=entity_id, limit=20))
-        opps = self.opportunities.list_opportunities(OpportunitySearchRequest(entity_id=entity_id, limit=20))
-        recs = self.recommendations.list_recommendations(RecommendationSearchRequest(entity_id=entity_id, limit=20))
+        if scope_type == "Advisor":
+            snapshot = FeatureEngineeringService().compute_advisor_snapshot(scope_id)
+            advisor_features = {
+                "entity_type": "Advisor",
+                "entity_id": scope_id,
+                "feature_snapshot_id": snapshot.snapshot_id,
+                "feature_version": snapshot.feature_version,
+                "features": snapshot.values(),
+                "lineage": snapshot.lineage(),
+            }
+            preds = [
+                p for p in PipelinePredictionService().predict_advisor(scope_id)["predictions"]
+                if p.get("score") is not None
+            ]
+            opps = OpportunityDetectionService().detect_for_advisor(scope_id)["opportunities"]
+            recs = PipelineRecommendationService().generate_for_advisor(scope_id)["recommendations"]
 
         context_package = None
         if scope_type in {"Advisor", "Market", "Region", "Division", "Firm"}:

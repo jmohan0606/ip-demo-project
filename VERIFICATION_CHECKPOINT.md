@@ -590,3 +590,56 @@ compliance (the card cites the verdict).
 `coaching_card` (frontend unaffected). Full `compileall` clean; backend boots (30 routes);
 verification-induced SQLite mutation reverted; `LLM_CLIENT_MODE=claude` was inline-env only —
 persisted default remains mock. Stopped after 2B; 2C (knowledge/embeddings) not started.
+
+---
+
+## 9. Insight collector repointed to the Phase-5..9 pipeline (2026-07-04, pre-2C fix)
+
+Closes the §8 flag: `InsightDataCollector` read the OLD `FeatureStoreService` family, whose
+`advisor_growth_features` vector returned zeros — Claude's §8 summary honestly reported
+"no measurable activity" for an advisor with $387K LTM revenue.
+
+### Change
+- `InsightDataCollector` now collects from the same pipeline everything else reads:
+  `FeatureEngineeringService.compute_advisor_snapshot` (33 features + snapshot id + lineage),
+  Phase-7 `predict_advisor`, Phase-8 `detect_for_advisor`, Phase-9 `generate_for_advisor`.
+  Old imports (`FeatureStoreService`, old prediction/opportunity/recommendation facades) removed.
+- `InsightGenerationEngine._deterministic_cards` remapped to the pipeline keys: real feature
+  names (`revenue_growth_3m_pct`, `managed_revenue_ratio`, `nnm_3m`/`ncf_3m`,
+  `overdue_followup_count`, `kpi_on_track_ratio`), `AGP_OFF_TRACK_RISK` on the 0-100 scale
+  (was "AGP Goal Risk" on 0-1), opportunity `impact_summary`/severity mapping, recommendation
+  `priority_score` (= base x learned weight, cited in the card's reasoning steps).
+
+### BEFORE (from §8, claude mode)
+```
+"Advisor A001 shows no measurable activity across key performance metrics: revenue signal is
+ 0.0, NNM is 0.0, and NCF is 0.0, with zero CRM activity recorded…"
+```
+
+### AFTER — mock mode cards (A001), every figure from the live pipeline
+```
+[Medium] Revenue: LTM revenue 387293.22, 3m growth 23.3%, managed mix 11.23%, NNM 102080.0, NCF 127600.0
+[Low   ] AGP: off-track risk 25.8/100; 3 overdue follow-ups; KPI on-track ratio 0.275
+[Medium] Top Opportunity: PIPELINE_ACCELERATION 65.4 — "$405,000 of open CRM pipeline ($324,000 weighted)…"
+[High  ] Next Best Action: priority 74.6 (base x learned CRM_EXECUTION weight 1.14 from the §2 feedback rounds)
+```
+All values match the §2-verified chain (FS_A001 snapshot: 387293.22 / 0.1123 / 25.8 / 65.4;
+priority 74.6 is the §2 post-feedback ranking figure — the learning loop shows up in the cards).
+
+### AFTER — claude mode (real latency, advisor-specific, non-zero)
+```
+A001 (5.01s): "…solid revenue momentum with LTM revenue of $387.3K and strong 3-month growth of
+  23.3%, supported by 3-month NNM of $102.1K … off-track score of 25.8/100, driven primarily by
+  3 overdue follow-ups and a low KPI on-track ratio of 0.275. With $405K in open CRM pipeline
+  ($324K weighted) currently stalled…"
+A020 (3.50s): "…LTM revenue of $539,262.90 and strong 3-month growth of 9.51% … AGP execution
+  risk with an off-track score of 56.8/100 driven by 2 overdue follow-ups and a KPI on-track
+  ratio of 0.375…"
+```
+Two advisors → different figures, all traceable (A020's 56.8 is exactly the §2-verified
+PRED_AGPRISK_A020 score). Coaching-plan messages likewise cite the real focus areas. Zeros gone.
+
+Housekeeping: full compileall clean; verification-induced SQLite mutation reverted;
+`LLM_CLIENT_MODE=claude` inline-env only (persisted default remains mock). Minor cosmetic note:
+Claude occasionally prefixes its summary with a markdown heading (A001 run) — presentation-layer
+trim, not a grounding issue. 2C still not started.

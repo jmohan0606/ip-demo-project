@@ -52,17 +52,26 @@ class InsightGenerationEngine:
             context_summary=(data.get("context_package") or {}).get("context_summary"),
         )
 
+    @staticmethod
+    def _opp_severity(severity: str | None) -> str:
+        return {"CRITICAL": "High", "URGENT": "High", "ATTENTION": "Medium"}.get(
+            (severity or "").upper(), "Low")
+
     def _deterministic_cards(self, request: InsightRequest, data: dict) -> list[InsightCard]:
-        features = (data.get("advisor_features") or {}).get("features", {}) if data.get("advisor_features") else {}
+        payload = data.get("advisor_features") or {}
+        features = payload.get("features", {})
+        snapshot_id = payload.get("feature_snapshot_id", "no snapshot")
         predictions = data.get("predictions") or []
         opportunities = data.get("opportunities") or []
         recommendations = data.get("recommendations") or []
 
         revenue = float(features.get("revenue_ltm", 0) or 0)
-        managed_pct = float(features.get("managed_revenue_pct", 0) or 0)
-        nnm = float(features.get("nnm_ltm", 0) or 0)
-        ncf = float(features.get("ncf_ltm", 0) or 0)
-        crm_count = float(features.get("crm_activity_count", 0) or 0)
+        growth_pct = float(features.get("revenue_growth_3m_pct", 0) or 0)
+        managed_pct = round(float(features.get("managed_revenue_ratio", 0) or 0) * 100, 2)
+        nnm = float(features.get("nnm_3m", 0) or 0)
+        ncf = float(features.get("ncf_3m", 0) or 0)
+        overdue = int(features.get("overdue_followup_count", 0) or 0)
+        kpi_on_track = float(features.get("kpi_on_track_ratio", 0) or 0)
 
         cards: list[InsightCard] = []
 
@@ -70,17 +79,20 @@ class InsightGenerationEngine:
             insight_id=timestamp_id("ins"),
             card_type=InsightCardType.REVENUE,
             title="Revenue and NNM Performance Summary",
-            summary=f"Revenue signal is {round(revenue,2)}, managed revenue mix is {round(managed_pct,2)}%, NNM is {round(nnm,2)}, and NCF is {round(ncf,2)}.",
+            summary=(f"LTM revenue is {round(revenue,2)} with 3-month growth of {round(growth_pct,2)}%; "
+                     f"managed revenue mix is {round(managed_pct,2)}%, 3-month NNM is {round(nnm,2)} "
+                     f"and NCF is {round(ncf,2)}."),
             severity="High" if nnm < 0 or ncf < 0 else "Medium",
             confidence=0.86,
             evidence=[
-                InsightEvidence(source="Feature Store", title="Revenue LTM", detail="Materialized advisor growth feature", value=round(revenue,2)),
-                InsightEvidence(source="Feature Store", title="Managed Revenue %", detail="Managed revenue share", value=round(managed_pct,2)),
-                InsightEvidence(source="Feature Store", title="NNM LTM", detail="Net new money signal", value=round(nnm,2)),
+                InsightEvidence(source="Feature Engineering", title="Revenue LTM", detail=f"Phase-5 snapshot {snapshot_id}", value=round(revenue,2)),
+                InsightEvidence(source="Feature Engineering", title="Revenue Growth 3M %", detail="Two 3-month GQ-004 windows", value=round(growth_pct,2)),
+                InsightEvidence(source="Feature Engineering", title="Managed Revenue %", detail="GQ-006 managed share of product mix", value=round(managed_pct,2)),
+                InsightEvidence(source="Feature Engineering", title="NNM 3M", detail="Net new money signal", value=round(nnm,2)),
             ],
             reasoning_steps=[
-                "Retrieved advisor growth feature vector.",
-                "Compared revenue, managed revenue, NNM and NCF signals.",
+                f"Computed advisor feature snapshot {snapshot_id} via the Phase-5 pipeline.",
+                "Compared revenue level/growth, managed mix, NNM and NCF signals.",
                 "Flagged higher severity when NNM or NCF is negative.",
             ],
             recommended_actions=[
@@ -89,23 +101,26 @@ class InsightGenerationEngine:
             ],
         ))
 
-        agp_preds = [p for p in predictions if p.get("prediction_type") == "AGP Goal Risk"]
-        agp_score = float(agp_preds[0]["score"]) if agp_preds else 0
+        agp_preds = [p for p in predictions if p.get("prediction_type") == "AGP_OFF_TRACK_RISK"]
+        agp_pred = agp_preds[0] if agp_preds else None
+        agp_score = float(agp_pred["score"]) if agp_pred else 0.0
         cards.append(InsightCard(
             insight_id=timestamp_id("ins"),
             card_type=InsightCardType.AGP,
             title="AGP Goal and Coaching Status",
-            summary=f"AGP risk score is {round(agp_score,3)}. CRM activity count is {int(crm_count)} and should be reviewed as a leading indicator.",
-            severity="High" if agp_score >= .7 else "Medium" if agp_score >= .4 else "Low",
-            confidence=0.82,
+            summary=(f"AGP off-track risk score is {round(agp_score,1)}/100. {overdue} overdue follow-up(s) "
+                     f"and a KPI on-track ratio of {round(kpi_on_track,3)} are the leading indicators."),
+            severity="High" if agp_score >= 70 else "Medium" if agp_score >= 40 else "Low",
+            confidence=float(agp_pred.get("confidence", 0.82)) if agp_pred else 0.82,
             evidence=[
-                InsightEvidence(source="Prediction Engine", title="AGP Goal Risk", detail="Local sklearn risk score", value=round(agp_score,3)),
-                InsightEvidence(source="Feature Store", title="CRM Activity Count", detail="CRM engagement feature", value=int(crm_count)),
+                InsightEvidence(source="Prediction Engine", title="AGP_OFF_TRACK_RISK", detail=(agp_pred or {}).get("explanation", "No AGP prediction (advisor may not be enrolled)"), value=round(agp_score,1)),
+                InsightEvidence(source="Feature Engineering", title="Overdue Follow-ups", detail="CRM execution feature", value=overdue),
+                InsightEvidence(source="Feature Engineering", title="KPI On-Track Ratio", detail="AGP KPI measurements on/off track", value=round(kpi_on_track,3)),
             ],
             reasoning_steps=[
-                "Retrieved AGP risk prediction.",
-                "Reviewed CRM activity as leading indicator.",
-                "Mapped risk score into coaching severity.",
+                "Retrieved the Phase-7 AGP off-track risk prediction with contributions.",
+                "Reviewed overdue follow-ups and KPI on-track ratio as leading indicators.",
+                "Mapped the 0-100 risk score into coaching severity (>=70 High, >=40 Medium).",
             ],
             recommended_actions=[
                 "MDW/DDW should review off-track AGP KPIs.",
@@ -118,16 +133,16 @@ class InsightGenerationEngine:
             insight_id=timestamp_id("ins"),
             card_type=InsightCardType.OPPORTUNITY,
             title="Top Opportunity",
-            summary=(f"Top opportunity is {top_opp['opportunity_type']} with score {round(float(top_opp['score']),3)}." if top_opp else "No opportunity has been generated yet."),
-            severity=(top_opp.get("priority", "Medium") if top_opp else "Low"),
+            summary=(top_opp.get("impact_summary") or f"Top opportunity is {top_opp['category']} scoring {round(float(top_opp['score']),1)}." if top_opp else "No opportunity has been generated yet."),
+            severity=self._opp_severity(top_opp.get("severity")) if top_opp else "Low",
             confidence=0.84 if top_opp else 0.50,
             evidence=[
-                InsightEvidence(source="Opportunity Engine", title="Top Opportunity", detail=top_opp.get("description", "") if top_opp else "No opportunity", value=top_opp.get("score") if top_opp else None)
+                InsightEvidence(source="Opportunity Engine", title=(top_opp.get("category", "Top Opportunity") if top_opp else "No opportunity"), detail=(f"{top_opp['opportunity_id']} severity {top_opp.get('severity')}, est. impact ${float(top_opp.get('estimated_revenue_impact') or 0):,.2f}" if top_opp else "Run opportunity detection"), value=top_opp.get("score") if top_opp else None)
             ],
             reasoning_steps=[
-                "Retrieved ranked opportunities.",
-                "Selected highest scoring open opportunity.",
-                "Prepared coaching action based on opportunity type.",
+                "Retrieved Phase-8 severity-composed AI opportunities.",
+                "Selected the highest scoring open opportunity.",
+                "Prepared coaching action based on opportunity category.",
             ],
             recommended_actions=[
                 "Review top opportunity evidence before advisor action.",
@@ -141,12 +156,14 @@ class InsightGenerationEngine:
             card_type=InsightCardType.RECOMMENDATION,
             title="Recommended Next Best Action",
             summary=(top_rec["action_text"] if top_rec else "No recommendation has been generated yet."),
-            severity="High" if top_rec and float(top_rec.get("score", 0)) > .75 else "Medium",
+            severity="High" if top_rec and float(top_rec.get("priority_score", 0)) >= 70 else "Medium",
             confidence=float(top_rec.get("confidence", .65)) if top_rec else 0.50,
             evidence=[
-                InsightEvidence(source="Recommendation Engine", title="Recommendation", detail=top_rec.get("rationale", "") if top_rec else "No recommendation", value=top_rec.get("score") if top_rec else None)
+                InsightEvidence(source="Recommendation Engine", title=(top_rec.get("title", "Recommendation") if top_rec else "No recommendation"), detail=(f"{top_rec['recommendation_id']} addresses {top_rec.get('opportunity_id')}" if top_rec else "Run recommendation engine"), value=top_rec.get("priority_score") if top_rec else None)
             ],
-            reasoning_steps=(top_rec.get("reasoning_steps", []) if top_rec else ["Generate recommendations to enable this insight."]),
+            reasoning_steps=([
+                f"Ranked by adjusted priority {top_rec['priority_score']} = base {top_rec.get('base_priority_score')} x learned weight {top_rec.get('learning_weight')}.",
+            ] if top_rec else ["Generate recommendations to enable this insight."]),
             recommended_actions=[top_rec["action_text"]] if top_rec else ["Run recommendation engine."],
         ))
 
