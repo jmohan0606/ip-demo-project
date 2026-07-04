@@ -725,3 +725,28 @@ they slipped through the Part-1 "built" classification exactly like data-ingesti
   ON_TRACK counts from cohort-summary); coaching sessions list. Scope-following advisor picker.
 - `lib/api/agp.ts` + `charts/agp-cohort-bars.tsx`. tsc clean; build green (/agp 5.43 kB, was 1.55
   kB fake).
+
+## Session 4 (cont.) — PART 5 breadth — Recommendation ROI + Admin REBUILT (were FAKE) — DONE
+
+Completed the fake-page remediation (all 3 rebuilt; verified via Playwright, 0 console errors):
+- **Recommendation ROI (gap #5)** — real on `/feedback-learning/impact-trend` +
+  `/recommendations/generate`. Cumulative-reward RL curve (16 rounds), learned per-family weights
+  bar (CRM_EXECUTION 1.5 / MANAGED_MIX 0.53 vs baseline 1.0), and a **base × learning_weight =
+  priority re-ranking table** — makes the DoD learning-loop centerpiece literally visible.
+  Screenshot s3_recommendation-roi.png confirms real data ($1.4M captured impact, 57% accept, cum
+  reward 3.8). Charts=2, table rows=2, 0 errors.
+- **Admin / Data Quality (gap #7)** — real on `/adapters/status` + `/ingestion/entities`. KPIs
+  (vertex/edge rows 24k/85k, row-count mismatches 0, ingestion entities 15); three adapter cards
+  (Graph mock / LLM mock deterministic-template / Embedding local MiniLM-384) exposing the actual
+  mock/local/real swap-in points; data-load-integrity panel. 0 errors.
+- **AGP (gap #3)** re-verified: h2 "Avery Diaz · AGP Goals & Coaching", cohort chart renders, 0
+  errors.
+
+Fake-page sweep complete: agp, recommendation-roi, admin, data-ingestion all now real (4 pages
+that Part-1 had mis-marked "built"). Note logged: two learning-weight sources differ by design
+(persisted state weights 1.14/1.01 applied to recs vs replay-simulation final_weights 1.5/0.53) —
+both real, labeled distinctly.
+
+Server-management note: `next start` caches the build at launch; after a rebuild the old server
+must be killed by PID (pkill was unreliable here) and restarted, else Playwright tests a stale
+build (caused a spurious FAIL round that cleared after a clean restart).
