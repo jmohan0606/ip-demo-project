@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { RevenueAnalyticsWorkspace } from "@/components/revenue/revenue-analytics-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Revenue Intelligence" blueprint="REV-INTEL" />;
+  return <RevenueAnalyticsWorkspace />;
 }

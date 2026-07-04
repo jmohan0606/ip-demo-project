@@ -584,3 +584,18 @@ Next: PART 5 breadth pages per Part-1 gap table priority — #2 Revenue Analytic
 #3 AGP Workspace, #4 Knowledge Graph Explorer, #5 Recommendation ROI, then remaining stubs
 (data-ingestion nav wire, graph-explorer) and new pages (CRM Activities, Coaching & Reviews,
 Peer Benchmarking).
+
+## Session 4 (cont.) — PART 5 breadth — Revenue Analytics (gap #2) — DONE
+
+- **Backend** `app/revenue/analytics.py` (`RevenueAnalyticsService`) + `GET /revenue/analytics`
+  (router wired in main.py). Scope-aware; from REAL `phx_dm_revenue_transaction` records under the
+  scope's advisors it computes: monthly revenue trend (24 mo), channel mix (TRAIL/FEE/COMMISSION/
+  INTEREST), per-child revenue breakdown (drill-down), and KPIs (total, tx count, avg/advisor,
+  top channel). Verified consistent: Σ child revenue == firm total ($74,630,622).
+- **Page** `components/revenue/revenue-analytics-workspace.tsx` replaces the `/revenue-analytics`
+  stub: 4 KPI cards, 24-month area trend, channel donut, revenue-by-child bar (click drills the
+  shell scope), evidence footer — all scope-aware via the breadcrumb, tokens/Recharts per 1B.
+- HTTP-verified Firm (24 trend pts, 3 divisions) + Advisor (own revenue, no children). tsc clean;
+  build green (/revenue-analytics 9.14 kB, was stub).
+- Note: backend dev server must be launched via the harness background runner (plain `&` gets
+  reaped when the tool call returns); running on :8010 for verification.
