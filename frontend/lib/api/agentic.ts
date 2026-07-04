@@ -29,5 +29,12 @@ export interface AgenticRun {
 }
 
 export async function runAgenticWorkflow(question: string, advisorId: string): Promise<AgenticRun> {
-  return apiClient.post<AgenticRun>("/agentic-ai/run", { question, advisor_id: advisorId });
+  // The agentic workflow keys off scope_id/scope_type (not advisor_id) — every
+  // agent reads state.request.scope_id as the advisor, so send those fields or
+  // the run silently falls back to the default advisor.
+  return apiClient.post<AgenticRun>("/agentic-ai/run", {
+    question,
+    scope_type: "Advisor",
+    scope_id: advisorId,
+  });
 }

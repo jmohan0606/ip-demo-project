@@ -11,9 +11,13 @@ import type { HierarchyNode, ShellContextState } from "@/lib/types/shell";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [persona, setPersonaState] = useState<Persona>("Advisor");
-  const [scopeType, setScopeType] = useState<ScopeType>("Advisor");
-  const [scopeId, setScopeId] = useState("A001");
-  const [scopeLabel, setScopeLabel] = useState("Avery Diaz");
+  // Land on Firm scope so the flagship Executive Dashboard (the default route)
+  // shows firm-wide rollups immediately; the useEffect below corrects the label
+  // once the real hierarchy tree loads. Persona stays Advisor (scope is a
+  // separate data-control lens per the hierarchy breadcrumb).
+  const [scopeType, setScopeType] = useState<ScopeType>("Firm");
+  const [scopeId, setScopeId] = useState("F001");
+  const [scopeLabel, setScopeLabel] = useState("Northstar Wealth Management");
   const [period, setPeriod] = useState<TimePeriod>("YTD");
   const [compareTo, setCompareTo] = useState<ShellContextState["compareTo"]>("Prior Year");
   const [hierarchy, setHierarchy] = useState<HierarchyNode | null>(null);

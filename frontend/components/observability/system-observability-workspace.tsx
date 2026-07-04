@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Bot, PlayCircle, Workflow, ShieldCheck, Network, Brain, Sparkles } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
+import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
 import { runAgenticWorkflow, type AgenticRun } from "@/lib/api/agentic";
 import { fetchAdapterStatus, type AdapterStatus } from "@/lib/api/admin";
@@ -23,6 +24,7 @@ function durationMs(a: string | null, b: string | null): string {
 export function SystemObservabilityWorkspace() {
   const shell = useShellContext();
   const [advisorId, setAdvisorId] = useState("A001");
+  const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
   const [question, setQuestion] = useState("How can this advisor grow revenue?");
   const [run, setRun] = useState<AgenticRun | null>(null);
   const [adapters, setAdapters] = useState<AdapterStatus | null>(null);
@@ -30,6 +32,10 @@ export function SystemObservabilityWorkspace() {
 
   useEffect(() => {
     fetchAdapterStatus().then(setAdapters).catch(() => setAdapters(null));
+    apiClient
+      .get<{ advisors: Array<{ advisor_id: string; advisor_name: string | null }> }>("/advisor/list")
+      .then((r) => setAdvisors(r.advisors))
+      .catch(() => setAdvisors([]));
   }, []);
 
   useEffect(() => {
@@ -72,6 +78,16 @@ export function SystemObservabilityWorkspace() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <select
+            className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
+            value={advisorId}
+            onChange={(e) => setAdvisorId(e.target.value)}
+          >
+            {advisors.length === 0 && <option value={advisorId}>{advisorId}</option>}
+            {advisors.map((a) => (
+              <option key={a.advisor_id} value={a.advisor_id}>{a.advisor_name ?? a.advisor_id}</option>
+            ))}
+          </select>
           <input
             className="h-8 w-64 rounded-lg border border-border bg-background px-2 text-[12px]"
             value={question}

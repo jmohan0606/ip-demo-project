@@ -26,7 +26,7 @@ class AgenticRequest(BaseModel):
     question: str
     persona: str = 'Advisor'
     scope_type: str = 'Advisor'
-    scope_id: str = 'ADV0001'
+    scope_id: str = 'A001'
     time_period: str = 'YTD'
     requested_capabilities: list[str] = Field(default_factory=list)
     write_to_memory: bool = True

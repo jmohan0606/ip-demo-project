@@ -820,3 +820,32 @@ Known issues / deferred (documented above, none blocking):
 Next: (1) Client Intelligence 360 (gap #21, last unbuilt mockup page, lower priority); (2) fix the
 agentic-ai ADV0001 id mismatch so agent evidence carries real revenue; (3) reconcile ingestion
 sample-CSV columns with manifest required_columns; (4) optional dashboard default-scope tweak.
+
+## Session 4 (cont.) — Two flagship-page regressions fixed — DONE
+
+**1. Agentic-ai advisor_id handling (Revenue-Agent $0 bug).** Root cause: `AgenticRequest`
+(app/agents/state/agent_state.py) has no `advisor_id` field — every agent keys off
+`state.request.scope_id`, which defaulted to `'ADV0001'` (a non-existent advisor in the A001-keyed
+store), so all GQ revenue queries returned empty → $0. The frontend was also sending the ignored
+`advisor_id` field. Fixes: (a) default `scope_id: 'ADV0001'` → `'A001'`; (b) frontend
+`lib/api/agentic.ts` now sends `{question, scope_type:'Advisor', scope_id: advisorId}` (not
+advisor_id); (c) added an advisor picker to the Agent Orchestration page (parity with the other
+pipeline pages, and required to drive per-advisor runs).
+   - **Verified via the actual page (Playwright, 0 console errors)**: run for A001 → Revenue Agent
+     "LTM $387,293, momentum +17.7%, peer gap -41.8%"; run for A020 (Riley Adams) → "LTM
+     $539,262.90, momentum +2.4%, managed share 15.1%, peer avg $717,599.88, percentile 33".
+     Both match the verified snapshots exactly (A001 revenue_ltm 387,293.22 / AUM 10,018,200;
+     A020 revenue_ltm 539,262.90 / AUM 25,990,000). Screenshots fix_agents_A001/A020.png.
+
+**2. Executive Dashboard default landing scope → Firm.** `app-shell.tsx` initial scope changed
+from Advisor/A001 to **Firm/F001** (label "Northstar Wealth Management", corrected from the live
+tree on mount). Persona stays Advisor — scope is a separate breadcrumb-driven data lens, and
+setPersona still re-syncs scope only when actively changed, so the Advisor-persona pipeline pages
+are unaffected (they resolve Firm → first advisor as before).
+   - **Verified (Playwright, 0 errors)**: /dashboard lands as "Northstar Wealth Management
+     Overview" — 60 advisors, $38.4M revenue, $2.1B AUM, revenue-by-division bar (2 charts), status
+     donut (50/8/0/2), 8-row top-advisor table — meaningful rollup with no manual scope change.
+     Screenshot fix_dashboard.png.
+
+Both: tsc clean, build green (22 routes). The agentic ADV0001 known-issue from the prior summary is
+now resolved.
