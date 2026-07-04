@@ -680,3 +680,30 @@ opportunity ingest cleanly and demonstrate the real batch/checkpoint flow).
   Scope-following advisor picker. `lib/api/coaching.ts` client. Added to nav (Advisor group,
   BookOpenCheck icon).
 - tsc clean; build green (/coaching-reviews 4.62 kB). Nav now 19 items.
+
+## Session 4 (cont.) — PART 3/4/5 runtime verification (Playwright, real browser) — DONE
+
+Drove the production build (Next `start` on :3000, backend on :8000) with Playwright across all 8
+new/rebuilt pages, capturing console errors + screenshots (scratchpad/s2_*.png):
+
+- **All 8 pages render with 0 console errors and real data populated**: /dashboard ("Avery Diaz
+  Overview", KPIs + top-advisor table + evidence), /revenue-analytics (24-mo area trend + channel
+  donut with real % + KPIs), /what-if, /graph-explorer (ReactFlow: Avery Diaz centered with the
+  prediction→opportunity→recommendation AI artifacts + households/CRM/AGP nodes, labeled edges,
+  minimap, legend — 19 nodes/18 edges), /peer-benchmarking, /crm-activities, /coaching-reviews,
+  /data-ingestion. Backend endpoints also HTTP-200 verified for a different advisor (A012) to
+  confirm generality.
+- Screenshots reviewed: dashboard + revenue-analytics + graph-explorer look on-design (token
+  colors, dense enterprise type scale, hierarchy breadcrumb, "All Systems Operational" pill).
+- First-load `networkidle` timed out once on /dashboard (Next first-request compile); re-verified
+  with domcontentloaded → renders clean, 0 errors.
+- CORS note: backend allow_origins is :3000/:3001 only — serving the frontend on any other port
+  blocks fetches (cosmetic, dev-only). Fine for the standard :3000 dev/demo setup.
+
+Deferred / minor (not blocking, logged for polish):
+- Executive Dashboard child-breakdown bar + status donut only render at rollup scopes (Firm/
+  Division/Region/Market) — correct by design (an Advisor has no children), but the global default
+  persona is Advisor, so the flagship dashboard lands on a single-advisor view. Consider defaulting
+  the Executive Dashboard nav entry to Firm scope, or a DDW persona default, for a stronger landing.
+- Graph Explorer radial layout is slightly crowded at the bottom cluster (minor node/edge-label
+  overlap); pan/zoom/fitView work. Could switch to a tiered dagre layout later.
