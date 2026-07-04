@@ -750,3 +750,34 @@ both real, labeled distinctly.
 Server-management note: `next start` caches the build at launch; after a rebuild the old server
 must be killed by PID (pkill was unreliable here) and restarted, else Playwright tests a stale
 build (caused a spurious FAIL round that cleared after a clean restart).
+
+## Session 4 (cont.) — PART 5 breadth — Agent Orchestration & Observability REBUILT (gap #6, was FAKE) — DONE
+
+Found a **5th fake page**: `/agents` (`system-observability-workspace.tsx`) rendered entirely from
+hardcoded arrays in `lib/api/observability.ts` (fabricated service health, agent executions,
+success rates, cost metrics, error events) — FOUND-005, and it's the agentic-pipeline page (the #1
+demo priority).
+
+- Rebuilt real on `/agentic-ai/run` + `/adapters/status`. A **live "Run Workflow"** button executes
+  the real supervisor→agents orchestration and renders the ACTUAL trace: reasoning route (5 steps:
+  supervisor→context→graph→revenue→explainability→ai_assistant), **6 agent tasks** (agent, real
+  instruction, completed status, real per-task durations 1–346 ms), evidence cards (Context Memory/
+  TigerGraph/Revenue Agent with scores), final agent + confidence KPIs, and live adapter-mode cards
+  (graph mock / llm mock deterministic-template / embedding local MiniLM-384). Verified via
+  Playwright: 6 task rows, 5 route steps, 0 console errors (screenshot s4_agents.png).
+- Deleted the fake `lib/api/observability.ts`, `lib/types/observability.ts`, and the 4 fake child
+  components (agent-metrics-table, error-events-panel, service-health-grid, workflow-trace-list) —
+  only this workspace used them. `lib/api/agentic.ts` added.
+- tsc clean; build green (/agents 6.49 kB).
+
+**Fake-page sweep now covers 5 pages** (data-ingestion, agp, recommendation-roi, admin, agents) —
+all were mis-marked "built" in the Part-1 audit and are now genuinely real. Remaining pages audited
+(advisor-360, features-embeddings, memory-explainability, predictions, ai-assistant, knowledge,
+document-ingestion) all have real API calls — no further fakes found.
+
+Known backend issue (pre-existing, NOT introduced here, flag for owner): the agentic-ai service
+defaults to advisor id `ADV0001`, which does not resolve in the A001-keyed feature/graph store, so
+the Revenue-Agent evidence inside a run reports $0 LTM even when advisor_id="A001" is passed. The
+orchestration/trace mechanism is fully real; only the revenue figures inside the agent's evidence
+are zeroed by the id mismatch. Same root cause as the earlier InsightDataCollector zero-features
+note. Needs the agentic service to honor the passed advisor_id / use the A001 id space.
