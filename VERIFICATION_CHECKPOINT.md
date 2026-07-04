@@ -276,3 +276,123 @@ These are wiring gaps, not adapter bugs — the adapter itself works end-to-end 
 `settings.py` remains `mock` (confirmed `get_settings().llm_client_mode == "mock"`, no `.env`
 written). Test-induced SQLite mutations reverted; tree clean. Phase 11 breadth-page work
 continues on **mock** (no real tokens for routine pages).
+
+---
+
+## 6. Agent inventory + RAG pipeline + orchestration audit — 2026-07-04 (investigation only, no fixes)
+
+### 6.1 Agent inventory
+
+There are **two parallel agent systems** (the same duplicate pattern the 0B audit found elsewhere).
+
+**System A — `app/agents/nodes/` (10 agents).** Reachable: `/agentic-ai/run` →
+`AgenticAiService` → `AdvisorCoachingAgentGraph` → `AgentRegistry`. This is the one the AI
+Assistant page's "agentic" mode uses. Executes via LangGraph `StateGraph` with a sequential
+fallback. Every node is **pure logic/tool-calling except the final composer**:
+
+| Node (System A) | Spec agent it maps to | Reachable? | NL output? | LLM wiring |
+|---|---|---|---|---|
+| `SupervisorAgent` | **Supervisor** | ✅ via /agentic-ai | no (keyword routing) | n/a |
+| `ContextRetrievalAgent` | **Context** + **Memory** (one node covers both) | ✅ | no (retrieval) | n/a |
+| `TigerGraphGraphAgent` | **Graph** | ✅ | no | n/a |
+| `PredictionAgent` | **Prediction** | ✅ | no (calls new pipeline) | n/a |
+| `OpportunityAgent` | **Opportunity** | ✅ | no (calls new pipeline) | n/a |
+| `RecommendationAgent` | **Recommendation** | ✅ | no (calls new pipeline) | n/a |
+| `RagKnowledgeAgent` | **Knowledge** | ✅ (but its tool is broken — see 6.2) | no (retrieval) | n/a |
+| `ExplainabilityAgent` | **Explainability** | ✅ | no (consolidates evidence) | n/a |
+| `FeedbackLearningAgent` | no spec match (Feedback) | ✅ | no (retrieval) | n/a |
+| `AiAssistantAgent` | no spec match (final composer) | ✅ | **YES** | **hardcoded/templated `'\n'.join(lines)` — no LLM** |
+
+**System B — `app/orchestration/agents.py` (15 agents:** Supervisor, Context, DashboardInsight,
+Advisor360, Opportunity, Recommendation, Compliance, Graph, FeatureEmbedding, Knowledge,
+Prediction, MemoryExplainability, FeedbackLearning, ResponseComposer). Reachable only via
+`/orchestration/run` — **which has no frontend** (route deleted in the consolidation sweep) and
+whose `ToolRuntime` still points at the old runtime family + fake `/ui-integrated` data. All are
+pure logic/tool-callers; **none generate NL** (`ResponseComposerAgent` assembles a trace dict;
+`ComplianceAgent` is a stub that stamps `"Passed"`). Effectively **dormant**.
+
+**System C — `app/agents/ai_assistant_runtime.py` (`AiAssistantRuntime`).** Was exposed via
+`/llm-activation` (deleted in the sweep) → now **orphaned/unreachable**. Notably it *does* call a
+real LLM (`get_llm_runtime().chat(...)`, the old azure-first-with-mock runtime) — the only agent
+code that authors NL via an LLM — but nothing reaches it anymore.
+
+**Mapping vs the spec's 12 intended agents:**
+- Implemented & reachable (System A): Supervisor, Context, Memory (folded into Context),
+  Prediction, Opportunity, Recommendation, Knowledge, Graph, Explainability.
+- **Revenue agent — not implemented** (no standalone class; revenue prediction is folded into
+  `PredictionAgent`).
+- **Coaching agent — not implemented** as a distinct agent (coaching output is produced by the
+  recommendation flow + the templated composer; System B has DashboardInsight/Advisor360, not Coaching).
+- **Compliance agent — implemented only in dormant System B, and only as a stub** (`rec.setdefault("compliance","Passed")`). No real compliance logic; not reachable.
+- Extra (not in spec's list): `FeedbackLearningAgent`, `AiAssistantAgent` (composer).
+
+**NL-generation summary:** across BOTH live systems, the only agent that emits natural language is
+System A's `AiAssistantAgent`, and it is **templated string composition, not LLM-generated**
+(consistent with the insight/coaching finding in §5). No live agent authors NL through
+`get_llm_client()`. The only LLM-authoring agent (System C) is orphaned.
+
+### 6.2 RAG pipeline — what actually exists end to end
+
+**Ingestion (`KnowledgeManagementService.ingest_document`)** — structurally real: parse → chunk →
+embed → upsert to vector store → catalog + TigerGraph document link. But:
+- **Parsing is `.txt`-only.** `DocumentParser.parse` returns a literal placeholder string for
+  PDF (`"[PDF placeholder extraction …] Install a PDF parser later."`) and for DOCX/PPTX. **No
+  real PDF/Office extraction, no OCR anywhere.**
+- **Embeddings are mock.** `KnowledgeEmbeddingService` uses `ModelAdapterFactory` →
+  `MockModelAdapter.embed_text`, which is a `sha256`-seeded `random` vector — deterministic but
+  **not semantic**. Vector similarity over these is effectively arbitrary. (Same silent-mock
+  path as the insight bug; ignores `LLM_CLIENT_MODE`.)
+
+**Vector store** — the architecture *intends* real ChromaDB (`chromadb.PersistentClient`), which
+matches the original spec. **But at runtime it is currently broken:** `list_collections()` /
+`search()` raise `chromadb.errors.InternalError: table collections already exists`. The existing
+`data/chroma/chroma.sqlite3` was created by an older "sqlite persistent fallback" (when chromadb
+wasn't installed — see `chroma_creation_error.txt: "No module named 'chromadb'"` and
+`runtime_chroma_validation.json: implementation = sqlite_persistent_vector_collection_fallback`)
+and is now schema-incompatible with the real chromadb that is presently installed. So **nothing
+usable is stored in real Chroma right now**; the only populated artifact is a 4-row keyword JSON
+index (`preloaded_knowledge_index.json`) used by a keyword fallback.
+
+**Two divergent search paths (duplicate implementations):**
+- **Path A — agentic RAG agent** → `AgentToolbox.search_knowledge` → `KnowledgeManagementService.search`
+  → real Chroma → **fails today** with the InternalError above.
+- **Path B — the Knowledge frontend** → `/ui-integrated/knowledge/search` →
+  `knowledge_runtime.search` → **`MockPersistentVectorStore`** (`fallback_used: True`), returning
+  canned mock documents ("Managed Account Growth Playbook", "NNM Recovery Conversation Guide").
+
+**Is it real RAG?** No. Both paths do **retrieval only — there is no generation step over the
+retrieved chunks.** `search()` returns `KnowledgeSearchResponse(query, results)`; no agent or
+service feeds retrieved content into an LLM to author an answer. So "Knowledge" today =
+(mock-embedded or mock-store) chunk retrieval, not retrieval-augmented *generation*.
+
+### 6.3 Supervisor / orchestration routing
+
+**A real routing layer exists, but only for one surface.** System A's `SupervisorAgent.run()`
+performs **keyword-based intent classification** — it lowercases the question and appends agents
+to a `route_plan` by keyword match (`'predict'/'risk'/'revenue'→prediction_agent`,
+`'recommend'/'next best'→recommendation_agent`, `'policy'/'compliance'/'knowledge'→rag_knowledge_agent`,
+etc.), always bracketed by context+graph at the front and explainability+assistant at the end.
+`AdvisorCoachingAgentGraph` then executes that plan through LangGraph (sequential fallback). This
+is reachable via `/agentic-ai/run` (AI Assistant "agentic" mode).
+
+**But it is not the app's routing model.** Every other page calls its own fixed endpoint directly
+(`/features`, `/predictions`, `/opportunities`, `/recommendations`, `/advisor/360`, etc.) with no
+supervisor in the path. So routing today = **fixed per-page endpoints for the whole app, plus a
+single real keyword-based supervisor** on the one agentic endpoint. The routing is **keyword-based,
+not LLM intent-classification**. System B has its own `SupervisorAgent` too, but it's dormant
+(no frontend).
+
+### 6.4 Plainly: exists / dormant / missing / mis-wired
+
+- **Exists & reachable:** System-A agent graph (10 nodes) via /agentic-ai with a real keyword
+  supervisor; pipeline agents correctly call the new prediction/opportunity/recommendation services.
+- **Dormant:** System B (`/orchestration`, no UI, old fake data); System C (`AiAssistantRuntime`,
+  the only LLM-authoring agent, orphaned after /llm-activation deletion).
+- **Missing entirely (architecturally absent, not just unwired):** a distinct **Revenue agent**;
+  a distinct **Coaching agent**; **real Compliance logic** (only a `"Passed"` stub exists); any
+  **generation step in the RAG path** (retrieval-only); real **PDF/OCR document parsing**; real
+  **semantic embeddings** for knowledge (mock only).
+- **Mis-wired:** the agentic composer emits templated NL instead of using `get_llm_client()`; the
+  Knowledge frontend reads the mock runtime path via fake `/ui-integrated` rather than the real
+  `/knowledge` service; the real `/knowledge` (Chroma) path is currently broken by a stale
+  sqlite file.
