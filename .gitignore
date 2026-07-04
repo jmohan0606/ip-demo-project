@@ -42,3 +42,8 @@ data/uploads/*
 docs/ui_runtime/screenshots/*
 !docs/ui_runtime/screenshots/.gitkeep
 *.tsbuildinfo
+
+# ChromaDB runtime state (regenerated at runtime; must not be committed — a stale
+# fallback sqlite here previously corrupted the real chromadb client)
+data/chroma/chroma.sqlite3
+data/chroma/*/
