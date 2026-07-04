@@ -396,3 +396,69 @@ not LLM intent-classification**. System B has its own `SupervisorAgent` too, but
   Knowledge frontend reads the mock runtime path via fake `/ui-integrated` rather than the real
   `/knowledge` service; the real `/knowledge` (Chroma) path is currently broken by a stale
   sqlite file.
+
+---
+
+## 7. Part 2A — mechanical fixes (2026-07-04, real before/after evidence)
+
+### Fix 1 — Chroma repaired
+- **Before:** `chromadb.PersistentClient(...).list_collections()` →
+  `InternalError: table collections already exists` (stale sqlite from an old
+  "sqlite_persistent_vector_collection_fallback" written when chromadb wasn't installed).
+- **Action:** deleted `data/chroma/chroma.sqlite3` + `chroma_creation_error.txt`; gitignored
+  chroma runtime binaries; `git rm --cached` the tracked sqlite.
+- **After (clean run):**
+  ```
+  fresh list_collections: []
+  count after add: 2
+  query ids: ['t1', 't2'] | docs: ['managed account review playboo', 'NNM recovery outreach guide']
+  selftest collection deleted; remaining: []
+  ```
+  list/add/query/delete all succeed, no errors.
+
+### Fix 2 — real document parsing
+- **Before:** `DocumentParser.parse` returned literal placeholders — PDF →
+  `"[PDF placeholder extraction … Install a PDF parser later.]"`, DOCX/PPTX similar.
+- **Action:** added `pypdf`, `python-docx`, `python-pptx` (deps + pyproject); implemented
+  `_parse_pdf` (per-page), `_parse_docx` (paragraphs + tables), `_parse_pptx` (per-slide text).
+- **After (real generated samples):**
+  ```
+  sample.pdf (167 chars):  "Managed Account Growth Playbook\nTarget households with over 500k…\n\nPage 2: … compliance before recommending."
+  sample.docx (117 chars): "NNM Recovery Conversation Guide\nContact households with negative net cash flow…\nStage | Action"
+  sample.pptx (85 chars):  "[Slide 1]\nAGP Coaching Framework\nMonth 3 milestone: revenue growth and CRM execution."
+  ```
+  No OCR — scanned/image-only PDFs still yield little text (documented, not a regression).
+
+### Fix 3 — agentic composer authors via LLMClient (was templated)
+- **Before:** `AiAssistantAgent` built the answer with `'\n'.join(lines)` — no LLM.
+- **Action:** assembles the same structured context (top rec/opp/pred, evidence sources,
+  reasoning path) and calls `get_llm_client().generate(...)`. Reasoning steps + evidence
+  unchanged; only the prose is now LLM-authored. Exception-only fallback records a visible error.
+- **After — mock mode:** `[mock-llm a5e853e9] … Deterministic draft based on: scope=Advisor A020 …`
+  (routes through the adapter, not string-join).
+- **After — claude mode (5.76s latency, real prose citing real figures):**
+  ```
+  **Top Recommendation for Advisor A020: Close the AGP Milestone Execution Gap**
+  Your most critical action is to complete overdue lead and referral follow-ups and advance your
+  highest-value CRM opportunity before the AGP milestone due date, with an estimated impact of
+  $64,711.55 (priority score: 85.3). … run managed-account review sprints for your top households
+  to compound momentum across multiple revenue streams. …
+  ```
+  Multi-second latency + figure-grounded natural language = genuine LLM authoring.
+
+### Fix 4 — deleted dormant System B
+- `git rm app/orchestration app/api/routers/orchestration.py`; stripped import+registration from
+  `app/api/main.py`. No frontend refs, only its own router imported it. Backend 31→30 routes,
+  `compileall` clean. `grep orchestration app/**/*.py` → empty.
+
+### Fix 5 — deleted orphaned System C (`AiAssistantRuntime`)
+- `git rm app/agents/ai_assistant_runtime.py`. Nothing imported it (post `/llm-activation`
+  deletion). Its LLM-chat + memory-writeback are already covered by the new path
+  (`get_llm_client()` + `AiAssistantChatService.save_conversation_turn`) — nothing unique to
+  merge. `grep AiAssistantRuntime|llm-activation` → empty. Backend 30 routes.
+- **Left for Part 2B:** `app/llm/llm_runtime.py` + `app/ai/adapters/*` still back the
+  insight-summary/coaching-card and knowledge-embedding paths (silent-mock); rewiring those to
+  `get_llm_client()` / real embeddings is 2B, not done here.
+
+**Net after 2A:** Chroma works; real doc parsing; the one NL-authoring live agent now uses the
+Section-2 adapter; two dead agent systems removed. Backend boots at 30 routes and compiles clean.
