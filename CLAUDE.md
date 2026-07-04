@@ -137,29 +137,21 @@ not per-chart hardcoded color arrays. Motion (Framer Motion) is restrained and p
 transitions, subtle hover/press states, loading skeletons that match final layout shape — not
 decorative animation.
 
-**Visualization-type rule (mandatory):** every page must render data using the SAME
-visualization type the reference mockup uses for that concept — a plain number or table is not an
-acceptable substitute when the mockup shows a chart. Map concept → form:
-- trend / change over time → **line chart** (e.g. monthly revenue/AUM, recommendation impact
-  over the feedback sequence);
-- part-of-whole / category breakdown → **donut/pie** (e.g. book composition by account type),
-  but only when the categories actually vary — a single-category donut is not a chart, use the
-  table/number instead;
-- comparison across items → **bar chart** (e.g. product-mix revenue, peer benchmark);
-- embedding / feature-vector space → **2D projection scatter** via real dimensionality
-  reduction (PCA or similar) over the real vectors — never fabricated coordinates;
-- entity relationships → **network/graph diagram**.
-Use table/list ONLY where the mockup itself uses a table/list (households table, recommendation
-queue, evidence list) — and conversely, do NOT chart things that were never charts. Recharts is
-the chart library; every chart reads real API data and the shared color tokens (validate any
-multi-series categorical palette against the dataviz skill's checker), never decorative sample
-data. This applies to Phase-11 pages too (Exec/DDW/RDW command centers, Revenue Intelligence,
-Book of Business) — they are the most chart-dense screens in the set.
-
 **Quality gate:** after Step 0, and again after the first 2-3 pages are built, take a screenshot
 of the running app and compare side-by-side against the corresponding reference mockup before
 continuing to the next page. Note and fix any drift (density, color, type weight) immediately —
 don't defer visual QA to the end, since by then it compounds across all 32 pages.
+
+**Visualization fidelity rule (added after Phase 10 review — real gap found, not optional
+polish):** every page must render data using the visualization type the reference mockups use
+for that concept — line chart for trends over time, donut for category breakdown, bar for
+comparisons, scatter/projection for embeddings/similarity, network diagram for relationships,
+radar for multi-metric peer comparison, funnel for pipeline stages, map for regional data.
+Recharts is available — use it. Do not render a plain number/table where the mockup shows a
+chart; conversely, don't invent a chart for something the mockup itself renders as a table/list
+(households table, recommendations list). Every chart must be backed by real computed data with
+the underlying query/computation stated as evidence — charts are not exempt from this project's
+evidence bar.
 
 ## 2. Adapter Pattern (required architecture)
 
@@ -304,6 +296,51 @@ Memory/Prediction/Severity catalog sheets — check before assuming a gap exists
 
 Skip: automated test suites (explicitly deprioritized this round). Manual verification against
 running mock stack is sufficient for now.
+
+## 5B. Phase 11 expanded scope (added after Phase 10 review — do this before/during breadth pages)
+
+Review of the first 7 built pages against the reference mockups found gaps beyond visual
+polish. Before or during Phase 11, address all of the following:
+
+**1. Mockup-to-build page audit (do this first, produce a report before building more pages).**
+View every file in `docs/spec/mockups/` directly (don't rely on a prior text description of
+them) and enumerate every distinct page/screen shown across all of them, including which nav
+group/persona each belongs to. Cross-reference against `frontend/lib/navigation.ts` (or wherever
+the current nav list lives) and the actual built pages. Produce a table: mockup page → exists in
+nav (Y/N) → has real content built (Y/N) → notes. Known gaps to confirm and fill:
+- **What-If Scenario Simulator** — in nav (labeled "New") but not built. Must run on real
+  advisor data: take a real advisor's current feature snapshot, apply a user-adjustable
+  parameter (e.g. "increase meetings by 20%"), and show a real projected impact — either by
+  re-running the actual feature→prediction→opportunity chain with the adjusted input, or a
+  clearly-labeled deterministic projection formula using real current values as the baseline.
+  Do not fabricate projected numbers unrelated to the advisor's real data.
+- **Executive/DDW/RDW/MDW command-center pages** — these are leadership/rollup views (see the
+  "iPerform Insights" mockup showing persona "DDW" with Executive Overview, Advisor Performance,
+  AGP Program Dashboard, Peer Benchmarking at a division/region level) — aggregate real per-
+  advisor data up to the selected hierarchy scope, don't hardcode firm-wide numbers.
+- Any other mockup page not yet in the nav or not yet built — add to the audit report and build
+  during Phase 11.
+
+**2. Fix the top filter bar** (visible defect, not just style): remove the duplicate "Advisor" /
+"Advisor" dropdown pair, implement a real hierarchy breadcrumb (Firm > Division > Region >
+Market > Advisor, per spec Section 3's persona/hierarchy model) that actually scopes page data
+when changed, and add a properly-styled system-status indicator matching the mockups (not the
+current ambiguous "Ready" pill). Apply this fixed filter bar consistently across all pages.
+
+**3. Persona/role scoping — decision made, implement as scope-aware data, not access control.**
+The mockups show persona-specific dashboards (Advisor view vs. DDW/division-leadership view).
+Full role-based access control (login, permissions, page-gating per role) is more than this demo
+needs and risks becoming its own project. Instead: implement persona/hierarchy selection as a
+**data-scoping control** — the same underlying pages adapt what data they show based on the
+selected persona + hierarchy level (e.g. Executive Dashboard shows firm-wide rollups when
+scope=Firm, division rollups when scope=Division, one advisor's data when scope=Advisor), using
+the hierarchy breadcrumb from item 2 as the actual control. Do not build separate login/auth or
+page-visibility gating per role — that's out of scope. If this interpretation doesn't fit
+something specific found during the mockup audit, flag it rather than guessing further.
+
+**4. Continue applying the visualization fidelity rule (Section 1B)** to every Phase 11 page —
+these are the most chart-heavy pages in the mockup set (donuts, bar-by-channel, region maps,
+radar peer-benchmarks, funnels). Don't let breadth pages regress to numbers-and-tables.
 
 ## 6. Definition of Done per phase
 

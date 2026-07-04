@@ -435,3 +435,64 @@ Completed (frontend/wiring; closes out 2C). **Verified in a real headless-Chromi
 Known issues / deferred: unchanged — dormant runtime-family modules + `/ui-integrated` router
 removal is the Phase-11 sweep.
 Next: **await confirmation before starting Phase 11 breadth pages** (per instruction).
+
+## Session 4 — 2026-07-04 07:14 UTC — Phase 11 PART 1: Mockup-to-build audit (Section 5B item 1)
+
+Viewed every image in `docs/spec/mockups/` directly (8 distinct after md5 dedup — 2 pairs are
+byte-identical copies). Sources and what each shows:
+
+| File (md5 short) | What it is |
+|---|---|
+| `New iperform enterprise design-v2` (291c8986) | Wealth360 grid, **15 pages** numbered 1-15 |
+| `Hackathon UI Mock Up` (84e6a30e) | Single flagship "Advisor Revenue Intelligence & AI Coaching Copilot" dashboard (matches current app header). Filter bar = **Hierarchy Level / Advisor / Time Period + Refresh + Last refreshed** |
+| `…05_07_17 PM` (567e9265) | iPerform flagship dashboard w/ **AI Intelligence Pipeline (end-to-end)** band, System Trace, "● All Systems Operational" pill, filter = Advisor/Hierarchy/Time Period/Compare To/Filters |
+| `…05_07_42 PM` (1e1f6f49) | iPerform grid, **14 pages**; adds **radar** (peer benchmarking), **bar-by-channel**, **region map**, **funnel** (opportunity), **UMAP cluster scatter** |
+| `…05_07_57 PM` (436c3192, ×2) | **Definitive current iPerform** grid, 12 pages + full nav. Filter bar = **Persona / Hierarchy BREADCRUMB (West Division › Northeast Region › Boston Market › Alex Morgan) / Time Period / System Status**. Has **Scenario Simulator** page, **gauges** (Advisor Health Score 82, Goal Attainment 68%) |
+| `…05_08_51 PM` (4e6b98c4) | Dark-theme "iPerform Insights" exec variant: **Executive Dashboard** (firm rollup), **Client Intelligence 360**, Analytics & Reports, Playbooks. Footer confirms stack: Next.js 14 · TS · Tailwind · ShadCN · **Recharts · React Flow · Framer Motion** |
+| `…Jun 16 02_03_42 PM` (a564d056, ×2) | **DDW leadership persona** set, **12 pages**: Executive Overview (FIRM: 218 advisors/$18.7B AUM), Advisor Performance, **AGP Program Dashboard** (74 advisors), Opportunity Explorer, Recommendations Center, **Prediction Insights**, **Peer Benchmarking**, Data Ingestion, **Scenario Simulator**, Memory Timeline, **Admin & Data Quality** |
+| `…architecture` (47b1bf91) | Architecture diagram — authoritative **persona list** + **canonical page list** (Layer 1) |
+
+### Personas (from architecture Layer 1) — 4
+- **MDW** — Enterprise Leadership (firm-wide) · **DDW** — Division Leadership · **Advisor** —
+  Financial Advisor · **AGP** — Advisor Growth Program.
+The leadership mockups (DDW set) are the SAME functional pages scoped UP the hierarchy (Executive
+Overview = Dashboard@Firm; Advisor Performance = Advisor 360 seen by a leader; AGP Program
+Dashboard = AGP@Division). Confirms Section 5B item 3: persona = **data-scoping**, not separate pages.
+
+### GAP TABLE — distinct mockup page → in nav? → real content built? → notes
+
+Build status legend: REAL = wired to real pipeline API; PLACE = pending-rebuild placeholder;
+FAKE = component exists but hardcoded/`/ui-integrated`; — = not present.
+
+| # | Mockup page | Nav? | Built | Notes / required Phase-11 action |
+|---|---|---|---|---|
+| 1 | Dashboard / Exec Dashboard (Advisor + Firm/Div rollup) | Y `/dashboard` | **PLACE** | Flagship page. Build real w/ KPI row, AI insight+coaching cards, pipeline band, revenue trend line, product-mix donut, top opps/recs. **Scope-aware** (firm/div/region/advisor rollup) per Part 4. |
+| 2 | Revenue Analytics | Y `/revenue-analytics` | **PLACE** | Tabs Overview/Trend/Mix/Geographic/Product/Cohort. Charts: revenue trend LINE, product-mix DONUT, by-channel BAR, **by-region MAP**, benchmarking. |
+| 3 | Advisor 360 / Client 360 | Y `/advisor-360` | REAL | Done (has trend line + account donut). Add Client-Intelligence hierarchy tree if time. |
+| 4 | AGP Workspace / Goals & KPIs | Y `/agp` | **FAKE** | Hardcoded JSX (0 API). Rebuild on `app/agp/` — goals table, on/off-track DONUT, milestones, target-vs-actual BAR. |
+| 5 | AGP Program Dashboard (leadership) | via `/agp`@scope | — | DDW rollup: 74 advisors, leaderboard, distribution donut. Realize via AGP page + hierarchy scope. |
+| 6 | Predictions Center / Prediction Insights | Y `/predictions` | REAL | Done. Leadership variant (growth %, churn risk, prediction trend LINE) via scope. |
+| 7 | Opportunities & Recommendations | Y `/recommendations` | REAL | Done (has impact trend line). Mockups also show **Opportunity Explorer** (funnel) + separate Opportunities tab — add funnel + opportunity-by-category donut. |
+| 8 | Recommendation Impact / ROI | Y `/recommendation-roi` | **FAKE** | Hardcoded. Rebuild on real feedback/outcome/learning data (accepted/implemented/rejected, business impact, trend LINE) — reuse `/feedback-learning/impact-trend`. |
+| 9 | Scenario / What-If Simulator | Y `/what-if` | **FAKE** | Hits `/ui-integrated/what-if/run`. **PART 3** — build real on an advisor's real snapshot + sliders → projected impact. |
+| 10 | AI Assistant | Y `/ai-assistant` | REAL | Done. |
+| 11 | Knowledge Hub / Search | Y `/knowledge` | REAL | Done (2C-ii). |
+| 12 | Knowledge Graph Explorer | Y `/graph-explorer` | **PLACE** | **React Flow** network (advisor↔household↔account↔product↔opp↔rec) + node details. Real graph via GraphClient. |
+| 13 | Feature Store / Embeddings / Similarity | Y `/features-embeddings` | REAL | Done (has PCA scatter). Mockups split into Feature Store + Graph Embeddings + Similarity Search — current combined page covers them. |
+| 14 | Memory Timeline & Explainability | Y `/memory-explainability` | REAL | Done. Mockup shows a **timeline** treatment + Explainability "why this rec" flow — enhance if time. |
+| 15 | Agent Orchestration & Observability | Y `/agents` | **FAKE** | `observability.ts` hardcoded. Rebuild on real `/agentic-ai` roster + agent cards + traces. |
+| 16 | Data Ingestion & Sync | Y `/data-ingestion` | **PLACE** | Real upload already exists at hidden `/document-ingestion` + `/knowledge/upload`; wire nav page to it + sync/validation/history (Section 3B Data Health). |
+| 17 | Admin / Data Quality / System Status | Y `/admin` | **FAKE** | Hardcoded. Rebuild on `/adapters/status` + `/health` + data-quality counts. |
+| 18 | CRM Activities | **N** | — | Meetings/Calls/Notes/Opportunities tables + activity summary. New page on `app/crm/`. |
+| 19 | Coaching & Reviews / Advisor Coaching | **N** | — | AI coaching card history + Manager (DDW/MDW) reviews + action items. On coaching agent + `/insights-coaching`. |
+| 20 | Peer Benchmarking | **N** (partial in dashboard) | — | **Radar** + rank/percentile + peer-comparison BAR. On GQ-008 peer benchmark. Could be a Revenue-Analytics/dedicated page. |
+| 21 | Client Intelligence 360 (client profile) | **N** | — | Dark-variant page: client hierarchy tree, AUM summary line, holdings. Lower priority (Advisor 360 covers advisor side). |
+
+### Phase-11 build order derived from this table (Part 5)
+Priority = flagship/most-used first, chart-fidelity rule applied throughout:
+1. **Dashboard/Exec** (#1) — scope-aware, flagship. 2. **Revenue Analytics** (#2) — most chart types (map/bar/donut). 3. **AGP Workspace** (#4/#5). 4. **Knowledge Graph Explorer** (#12, React Flow). 5. **Recommendation Impact/ROI** (#8). 6. **Agent Orchestration/Observability** (#15). 7. **Admin/Data Quality** (#17). 8. **Data Ingestion** nav wire (#16). 9. **CRM Activities** (#18, new). 10. **Coaching & Reviews** (#19, new). 11. **Peer Benchmarking** (#20). 12. Opportunity funnel + Client 360 if budget remains.
+
+Preceded by: **PART 2** filter-bar fix (persona + hierarchy breadcrumb + system-status pill,
+applied to all pages), **PART 3** What-If Simulator, **PART 4** hierarchy scope-aware data plumbing.
+
+Blockers: none. React Flow not yet a dependency — will add for the graph explorer (part 5 item 4).
