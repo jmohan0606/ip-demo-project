@@ -781,3 +781,42 @@ the Revenue-Agent evidence inside a run reports $0 LTM even when advisor_id="A00
 orchestration/trace mechanism is fully real; only the revenue figures inside the agent's evidence
 are zeroed by the id mismatch. Same root cause as the earlier InsightDataCollector zero-features
 note. Needs the agentic service to honor the passed advisor_id / use the A001 id space.
+
+## Session 4 — SESSION-END SUMMARY (2026-07-04 ~21:42 UTC)
+
+Completed (all verified via `npm run build` green + Playwright runtime, 0 console errors, real data):
+- **PART 3 — What-If Scenario Simulator**: real projection of an advisor's live feature snapshot
+  under 4 levers via documented elasticities; %-change radar-bar + per-metric formulas.
+- **PART 4 — Hierarchy scope-aware plumbing**: `app/scope/rollup.py` + `/scope/summary` rollup
+  engine (Σ/mean per-advisor snapshots to any scope, drill-down children); flagship **Executive
+  Dashboard** built on it (scope-following KPIs, click-to-drill bar, status donut, top-advisor
+  table). advisor-360 + what-if + all Part-5 pages also scope-follow the breadcrumb.
+- **PART 5 — breadth (7 new/rebuilt priority pages + 5-page fake sweep)**:
+  - New/stub→real: Revenue Analytics (trend/donut/by-child bar), Knowledge Graph Explorer
+    (ReactFlow real subgraph incl. the AI prediction→opportunity→recommendation chain), Data
+    Ingestion (real manifest + live batch/checkpoint runs), Peer Benchmarking (percentile radar +
+    similarity peers), CRM Activities (pipeline funnel + leads/referrals/opps), Coaching & Reviews.
+  - **Fake pages rebuilt real** (all were mis-marked "built" in Part-1): AGP Workspace (AGP-004
+    track-status decomposition + cohort rollup), Recommendation ROI (the learning-loop centerpiece:
+    RL reward curve + learned weights + base×weight=priority re-rank table), Admin/Data Quality
+    (live adapter modes + graph load report), Agent Orchestration & Observability (live
+    /agentic-ai/run trace: route + 6 agent tasks + evidence).
+- New nav items added: Peer Benchmarking, CRM Activities, Coaching & Reviews (nav now 19 items).
+  Build: 22 routes, **zero 137 B stubs remaining** — every page has real, API-backed content.
+- New backend modules/routers: `app/scope`, `app/revenue`, `app/graph/neighborhood`, `app/peers`,
+  `app/coaching`, `app/whatif` + routers scope/revenue/graph-viz/peers/coaching/whatif. All
+  HTTP-200 verified (incl. a non-default advisor A012) with internally-consistent aggregates.
+
+Known issues / deferred (documented above, none blocking):
+- Pre-existing agentic-ai service uses `ADV0001` id space → Revenue-Agent evidence reports $0 for
+  A001-keyed advisors (id mismatch; orchestration trace itself is real). Flag for backend owner.
+- Several ingestion entities' sample CSVs lack columns their manifest lists (foundation data
+  mismatch) → honest "failed" runs on those; kpi/feature_snapshot/opportunity ingest cleanly.
+- Executive Dashboard lands at Advisor scope (global default persona=Advisor) so its rollup charts
+  only show after switching to a Firm/Division scope — correct-by-design but consider a rollup
+  default for the flagship landing.
+- Graph Explorer radial layout slightly crowded at the bottom cluster (functional; dagre later).
+
+Next: (1) Client Intelligence 360 (gap #21, last unbuilt mockup page, lower priority); (2) fix the
+agentic-ai ADV0001 id mismatch so agent evidence carries real revenue; (3) reconcile ingestion
+sample-CSV columns with manifest required_columns; (4) optional dashboard default-scope tweak.
