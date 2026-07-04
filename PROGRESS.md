@@ -551,3 +551,36 @@ of those, `/dashboard`, `/data-ingestion`, `/graph-explorer`, `/revenue-analytic
 
 Next: PART 4 (hierarchy scope-aware data plumbing across pages), then PART 5 (breadth pages per
 the Part-1 gap table priority order).
+
+## Session 4 (cont.) — PART 4: Hierarchy scope-aware data plumbing (Section 5B item 3) — DONE
+
+Delivered the scope-rollup engine that makes the hierarchy breadcrumb actually reshape page
+data, and proved it end-to-end by building the flagship Executive Dashboard on it (this also
+clears Part-5 gap-table priority #1).
+
+- **Backend rollup engine** `app/scope/rollup.py` (`ScopeRollupService`) + `GET /scope/summary
+  ?scope_type=&scope_id=` (`app/api/routers/scope.py`, wired in main.py). For any scope it
+  resolves advisor ids via the existing `resolve_scope_advisor_ids` primitive, then **sums/means
+  each advisor's real latest feature snapshot** (revenue_ltm, aum_total, nnm_3m×4, managed via
+  managed_revenue_ratio, goal via kpi_on_track_ratio×100, agp_risk_score banded per the same
+  AGP-004 TRACK_BANDS the AGP page uses). Returns totals + **one-level child breakdown** (Firm→
+  divisions→regions→markets→advisors, each with its own rollup, powering drill-down) + top
+  advisors + evidence (advisor ids resolved, computation formula). No hardcoded firm-wide numbers.
+- **Verified aggregation is internally consistent**: Firm F001 revenue 38,365,750 = exact Σ of
+  the 3 division revenues; firm advisor_count 60 = Σ child counts. HTTP-verified at Firm (60 adv,
+  3 divisions), Division D01 (24 adv, 2 regions), Advisor A001 (1 adv, no children).
+- **Flagship Executive Dashboard built** on it (`components/command-center/executive-dashboard.tsx`,
+  replaces the `/dashboard` 137 B PendingRebuild stub). Follows shell scope; 8 KPI stat cards,
+  **Revenue-by-child bar chart (click a bar → drills the shell scope into that child)**, advisor
+  status-mix donut (severity palette), top-advisors table (click a row → scope to that advisor),
+  evidence footer. `lib/api/scope.ts` client; new charts `scope-child-bars`, `scope-status-donut`.
+- Scope-awareness is now genuinely wired: changing the breadcrumb re-calls `/scope/summary` and
+  the whole dashboard re-rolls; drilling a bar/row updates the breadcrumb via `shell.setScope`.
+- tsc clean; `npm run build` green — `/dashboard` 5.68 kB (was stub). advisor-360 + what-if
+  already follow scope (Parts 2/3); remaining built pages get scope-wired opportunistically during
+  Part 5.
+
+Next: PART 5 breadth pages per Part-1 gap table priority — #2 Revenue Analytics (map/bar/donut),
+#3 AGP Workspace, #4 Knowledge Graph Explorer, #5 Recommendation ROI, then remaining stubs
+(data-ingestion nav wire, graph-explorer) and new pages (CRM Activities, Coaching & Reviews,
+Peer Benchmarking).
