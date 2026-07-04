@@ -867,3 +867,28 @@ now resolved.
 - **Verified (Playwright, 0 console errors)**: /client-360 → "Household 6 Profile" (Avery Diaz),
   Total AUM $297.5K, 2 accounts / 8 holdings, 15 transaction rows, AI rec $36.6K. Screenshot
   fix_client360.png. tsc clean; build green (/client-360 4.88 kB). Nav now 20 items.
+
+## Session 4 (cont.) — Ingestion CSV ↔ manifest required_columns reconciliation — DONE
+
+Root cause: `IngestionService.sample_data_dir` pointed at `tigergraph/sample_data/` — tiny 2-row
+STUB CSVs (e.g. advisor columns `advisor_id,name,mdw_id,...`) whose headers no longer matched the
+entity-registry `required_columns` (written for the foundation schema `advisor_name`,`total_aum`,
+`status`,…). So advisor/household/account/transaction runs failed header validation
+("Missing required column: advisor_name; …").
+
+Fix (repoint to the real data, the stronger reconciliation — not aligning to stubs):
+- Repointed `sample_data_dir` → `docs/tigergraph_foundation/data/sample/vertices` (the verified
+  60-advisor / 10k-transaction foundation dataset the graph store itself loads).
+- Reconciled every `required_columns` list in `entity_registry.py` to a verified subset of each
+  foundation CSV's actual header; fixed the `transaction` entity's file/vertex
+  (`phx_dm_transaction.csv` → `phx_dm_revenue_transaction.csv`,
+  `phx_dm_transaction` → `phx_dm_revenue_transaction`).
+- **Verified all 15 entities ingest cleanly** (0 "Missing required column"): advisor 60, household
+  360, account 720, transaction 10,080, crm_activity 300, agp_goal 24, kpi 5, prediction 120,
+  opportunity 120, recommendation 120, feedback 36, memory 136, document 8, feature_snapshot 212,
+  embedding 212. account/transaction correctly enter checkpoint/resume ("Batch completed; call
+  again to continue").
+- **Playwright-verified via the Data Ingestion page** (0 console errors): running `transaction`
+  now reads `phx_dm_revenue_transaction.csv` — TOTAL 10,080, FAILED 0, 20% progress, real
+  checkpoint id; manifest table shows the corrected CSV/vertex/PK for all 15 entities.
+  Screenshot fix_ingestion.png. The prior "ingestion sample-CSV mismatch" known-issue is resolved.

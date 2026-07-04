@@ -28,7 +28,10 @@ class IngestionService:
         self.validator = ValidationEngine()
         self.delta = DeltaDetector(self.checkpoints)
         self.upsert = TigerGraphUpsertClient()
-        self.sample_data_dir = Path("tigergraph/sample_data")
+        # Verified TigerGraph Foundation vertex CSVs (the real 60-advisor dataset
+        # the graph store loads) — replaces the old 2-row stub set whose columns
+        # no longer matched the entity manifest.
+        self.sample_data_dir = Path("docs/tigergraph_foundation/data/sample/vertices")
 
     def list_entities(self) -> list[dict]:
         return [config.model_dump() for config in list_entity_configs()]
