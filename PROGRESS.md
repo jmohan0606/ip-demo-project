@@ -615,3 +615,25 @@ Peer Benchmarking).
   clicked node's real attributes** + evidence. Follows shell scope (rollup → first advisor) with an
   advisor picker. Page wired (was PendingRebuild stub); deleted dead `graph-node-card.tsx`.
 - tsc clean; build green (/graph-explorer 51.7 kB, real ReactFlow).
+
+## Session 4 (cont.) — PART 5 breadth — Data Ingestion & Sync (gap #8, CLAUDE.md 3B) — DONE
+
+- **Replaced the FAKE `data-ingestion-workspace.tsx`** (hardcoded loads array + fabricated KPIs
+  "18"/"1.8K"/"Ready" — a FOUND-005 violation) with a real page on the existing `/ingestion` +
+  `/manifest` backend. KPIs (configured entities / graph vertices / edge files / required columns)
+  are computed from the real 15-entity `/ingestion/entities` manifest; entity table shows real
+  csv/vertex/pk/columns/edges/batch-size per entity; capabilities strip from real `/manifest`.
+- **Run Ingestion** button POSTs `/ingestion/run` and renders the **real returned batch_status**
+  (total/processed/created/updated/skipped/failed/last-row/progress/checkpoint id + message) —
+  honestly showing completed runs (kpi 195, feature_snapshot 168), checkpoint-resume (opportunity:
+  "Batch completed; call again to continue"), and validation failures verbatim. No faked "all
+  validated".
+- `lib/api/ingestion.ts` client added; page wired (was PendingRebuild stub). tsc clean; build
+  green (/data-ingestion 5.92 kB).
+
+Known issue (pre-existing, foundation data, not introduced here): several entities' sample CSVs
+(advisor, household, transaction) are missing columns their `required_columns` config lists, so
+their ingestion run returns status=failed with "Missing required column: …". The ingestion engine
+is behaving correctly; the sample CSV/manifest column sets are out of sync for those entities.
+Deferred — flag for the foundation-package owner; does not block the page (kpi/feature_snapshot/
+opportunity ingest cleanly and demonstrate the real batch/checkpoint flow).

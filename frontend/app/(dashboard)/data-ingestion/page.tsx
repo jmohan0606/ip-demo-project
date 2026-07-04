@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { DataIngestionWorkspace } from "@/components/ingestion/data-ingestion-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Data Ingestion & Sync" blueprint="DATA (Data Health)" />;
+  return <DataIngestionWorkspace />;
 }
