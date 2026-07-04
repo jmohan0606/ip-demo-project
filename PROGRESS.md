@@ -849,3 +849,21 @@ are unaffected (they resolve Firm → first advisor as before).
 
 Both: tsc clean, build green (22 routes). The agentic ADV0001 known-issue from the prior summary is
 now resolved.
+
+## Session 4 (cont.) — Client Intelligence 360 (gap #21, last unbuilt mockup page) — DONE
+
+- **Backend** `app/client360/service.py` + `GET /client/360/{household_id}` and
+  `/client/households/{advisor_id}` (router wired). Real household profile from the graph:
+  household attrs, serving advisor (advisor_serves_household), accounts (household_owns_account)
+  with product holdings (account_holds_product, managed flag), recent transactions
+  (transaction_for_household), AI recommendations (recommendation_for_household), and a summary
+  (account/holding counts, managed ratio, revenue LTM). Verified H0006: AFFLUENT, 2 accounts,
+  8 holdings, 24 txns, 1 accepted rec.
+- **Frontend** `components/client360/client360-workspace.tsx` + `lib/api/client360.ts`: household
+  picker (scoped to the current advisor's book), KPIs (AUM/accounts/managed ratio/revenue),
+  accounts-&-holdings cards with product chips (★ = managed), client-overview grid (segment/risk/
+  status/state/advisor), AI-recommendations panel, recent-transactions table, evidence footer.
+  Scope-following (advisor → their households). Added to nav (Advisor group, UserCircle icon).
+- **Verified (Playwright, 0 console errors)**: /client-360 → "Household 6 Profile" (Avery Diaz),
+  Total AUM $297.5K, 2 accounts / 8 holdings, 15 transaction rows, AI rec $36.6K. Screenshot
+  fix_client360.png. tsc clean; build green (/client-360 4.88 kB). Nav now 20 items.

@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BookOpenCheck, Bot, BrainCircuit, ChevronLeft, ChevronRight, Contact, Database, FileText, GitBranch, LayoutDashboard, LineChart, Network, Radar, ShieldCheck, SlidersHorizontal, Sparkles, Target, TrendingUp, UploadCloud, Users, Workflow } from "lucide-react";
+import { Activity, BookOpenCheck, Bot, BrainCircuit, ChevronLeft, ChevronRight, Contact, Database, FileText, GitBranch, LayoutDashboard, LineChart, Network, Radar, ShieldCheck, SlidersHorizontal, Sparkles, Target, TrendingUp, UploadCloud, UserCircle, Users, Workflow } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { navigationGroups, navigationItems } from "@/lib/navigation";
 import { useShellContext } from "@/components/layout/shell-context";
 
-const iconMap = { Activity, LayoutDashboard, LineChart, Users, Target, SlidersHorizontal, Sparkles, TrendingUp, Bot, BookOpenCheck, Network, GitBranch, BrainCircuit, Workflow, UploadCloud, ShieldCheck, Database, FileText, Radar, Contact };
+const iconMap = { Activity, LayoutDashboard, LineChart, Users, Target, SlidersHorizontal, Sparkles, TrendingUp, Bot, BookOpenCheck, Network, GitBranch, BrainCircuit, Workflow, UploadCloud, ShieldCheck, Database, FileText, Radar, Contact, UserCircle };
 
 export function SidebarNavigation({ collapsed, onToggle }: { collapsed?: boolean; onToggle?: () => void }) {
   const pathname = usePathname();

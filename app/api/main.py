@@ -37,6 +37,7 @@ from app.api.routers.revenue import router as revenue_router
 from app.api.routers.graph_viz import router as graph_viz_router
 from app.api.routers.peers import router as peers_router
 from app.api.routers.coaching import router as coaching_router
+from app.api.routers.client360 import router as client360_router
 from app.api.routers.tigergraph_foundation import router as tigergraph_foundation_router
 configure_logging(); settings=get_settings()
 app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching')
@@ -64,6 +65,7 @@ app.include_router(revenue_router)
 app.include_router(graph_viz_router)
 app.include_router(peers_router)
 app.include_router(coaching_router)
+app.include_router(client360_router)
 
 app.include_router(knowledge_router)
 

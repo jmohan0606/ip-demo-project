@@ -35,6 +35,14 @@ export const navigationItems: NavigationItem[] = [
     group: "Advisor"
   },
   {
+    id: "client-360",
+    label: "Client Intelligence 360",
+    description: "Household profile: accounts, product holdings, transactions and AI recommendations.",
+    href: "/client-360",
+    iconName: "UserCircle",
+    group: "Advisor"
+  },
+  {
     id: "coaching-reviews",
     label: "Coaching & Reviews",
     description: "Coaching sessions, action items and manager reviews per advisor.",
