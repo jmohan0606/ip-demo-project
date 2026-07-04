@@ -14,9 +14,6 @@ export async function fetchIntegratedDashboard(context: UiContextPayload) {
 export async function fetchIntegratedPageData(pageId: string, context: UiContextPayload) {
   return apiClient.post<any>(`/ui-integrated/page-data/${pageId}`, context);
 }
-export async function runWhatIfScenario(context: UiContextPayload, assumptions: Record<string, number>) {
-  return apiClient.post<any>("/ui-integrated/what-if/run", { ...context, ...assumptions });
-}
 export async function generateIntegratedRecommendations(context: UiContextPayload) {
   return apiClient.post<any>("/ui-integrated/recommendations/generate", context);
 }

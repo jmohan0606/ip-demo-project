@@ -515,3 +515,39 @@ Blockers: none. React Flow not yet a dependency — will add for the graph explo
   descendant). Full scope-consumption across pages is PART 4.
 - tsc clean; build green (21 routes). New components: hierarchy-breadcrumb, system-status-pill;
   filter bar rewritten. Screenshot: scratchpad/audit_screens/part2-filterbar.png.
+
+## Session 4 (cont.) — PART 3: What-If Scenario Simulator (Section 5B item 1) — DONE
+
+Route-count correction: the "21 routes" noted in Part 2 was inaccurate — the `page.tsx` set
+was byte-for-byte identical to the "18 routes" build (Part 2C-ii), so Part 2 added **no** new
+user-facing pages (it only touched the filter-bar/hierarchy/shell components). `npm run build`
+now authoritatively reports **19 route entries** (17 dashboard pages + `/` + `/_not-found`);
+of those, `/dashboard`, `/data-ingestion`, `/graph-explorer`, `/revenue-analytics` are still
+137 B stubs = Part 5 breadth targets.
+
+- **Real backend** (already scaffolded, now verified): `app/whatif/service.py` +
+  `app/api/routers/whatif.py` (`POST /whatif/simulate`), wired in `app/api/main.py`. Projects an
+  advisor's **real current feature snapshot** (`SnapshotStore.latest_for_entity`, fallback to
+  live `compute_advisor_snapshot`) forward under 4 levers (meeting +%, prospecting +%, AUM
+  growth +%, added goal reviews) over an adjustable horizon, using **documented, transparent
+  elasticities** (not a trained model, not fabricated numbers per CLAUDE.md 5B item 1). Returns
+  5 metrics (Total Revenue, Managed Revenue, NNM annualized, AUM, Goal Attainment) each with
+  current/projected/change/change_pct **and the computation formula as evidence**, plus baseline
+  features + elasticities + a disclosure note.
+- **Frontend rebuilt off the fake `/ui-integrated/what-if/run`** onto `/whatif/simulate`:
+  `whatif-simulator-client.tsx` now follows the shell scope (Advisor scope pins that advisor;
+  rollup scope → first advisor beneath it) with an advisor picker (`/advisor/list`, 60 real
+  advisors), real levers, and a Recharts horizontal **% -change-by-metric bar** (positive teal /
+  negative red — visualization-fidelity rule) + per-metric current/projected/Δ rows exposing the
+  `ƒ formula` and an evidence footer (snapshot id + baseline revenue/AUM).
+- **Deleted fabricated dead code**: `lib/api/whatif.ts` old hardcoded `simulateScenario`/
+  `explainScenario` (baselines were invented constants), unused `components/whatif/
+  impact-comparison.tsx`, `lib/types/whatif.ts`, and the orphaned `runWhatIfScenario` in
+  `lib/api/integrated-ui.ts`.
+- **Verified end-to-end over HTTP**: `/advisor/list` → 60 advisors w/ real names (A001 = Avery
+  Diaz); `/whatif/simulate` A001 (+20% meetings, +10% prospecting, +5% AUM, +2 reviews, 6mo) →
+  Revenue 387,293→405,726 (+4.76%), NNM 408,320→420,570 (+3.0%), AUM +2.62%, Goal 27.5→35.5 pts.
+  Envelope unwrapping correct. tsc clean; `npm run build` green (19 routes; `/what-if` 6.33 kB).
+
+Next: PART 4 (hierarchy scope-aware data plumbing across pages), then PART 5 (breadth pages per
+the Part-1 gap table priority order).

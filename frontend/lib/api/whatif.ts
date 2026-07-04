@@ -1,39 +1,44 @@
-import type { ScenarioAssumptions, ScenarioImpact } from "@/lib/types/whatif";
+import { apiClient } from "@/lib/api/client";
 
-export function simulateScenario(assumptions: ScenarioAssumptions): ScenarioImpact {
-  const baselineRevenue = 4800000;
-  const baselineNnm = 42500000;
-  const baselineAum = 812000000;
-  const baselineGoalAttainment = 83;
-
-  const revenueLift =
-    assumptions.meetingIncreasePct * 0.18 +
-    assumptions.prospectConversionIncreasePct * 0.24 +
-    assumptions.managedRevenueShiftPct * 0.31 +
-    assumptions.productMixShiftPct * 0.12;
-
-  const nnmLift = assumptions.nnmIncreasePct * 0.72 + assumptions.meetingIncreasePct * 0.08;
-  const aumLift = assumptions.aumIncreasePct * 0.82 + assumptions.nnmIncreasePct * 0.05;
-  const goalLift = assumptions.meetingIncreasePct * 0.12 + assumptions.prospectConversionIncreasePct * 0.18;
-
-  const projectedGoalAttainment = Math.min(100, baselineGoalAttainment + goalLift);
-
-  return {
-    baselineRevenue,
-    projectedRevenue: baselineRevenue * (1 + revenueLift / 100),
-    baselineNnm,
-    projectedNnm: baselineNnm * (1 + nnmLift / 100),
-    baselineAum,
-    projectedAum: baselineAum * (1 + aumLift / 100),
-    baselineGoalAttainment,
-    projectedGoalAttainment,
-    agpStatusBefore: "At Risk",
-    agpStatusAfter: projectedGoalAttainment >= 90 ? "On Track" : projectedGoalAttainment >= 80 ? "At Risk" : "Off Track"
-  };
+export interface WhatIfLevers {
+  meeting_increase_pct: number;
+  prospecting_increase_pct: number;
+  aum_growth_pct: number;
+  goal_reviews_added: number;
+  horizon_months: number;
 }
 
-export function explainScenario(assumptions: ScenarioAssumptions, impact: ScenarioImpact): string {
-  const revenueDelta = impact.projectedRevenue - impact.baselineRevenue;
-  const nnmDelta = impact.projectedNnm - impact.baselineNnm;
-  return `The scenario improves projected revenue by $${Math.round(revenueDelta).toLocaleString()} and projected NNM by $${Math.round(nnmDelta).toLocaleString()}. The largest drivers are managed revenue mix shift, prospect conversion improvement, and meeting cadence. AGP status moves from ${impact.agpStatusBefore} to ${impact.agpStatusAfter}.`;
+export interface WhatIfMetric {
+  metric: string;
+  unit: string;
+  current: number;
+  projected: number;
+  change: number;
+  change_pct: number | null;
+  formula: string;
+}
+
+export interface WhatIfResult {
+  advisor_id: string;
+  snapshot_id: string | null;
+  horizon_months: number;
+  levers: Record<string, number>;
+  baseline_features: Record<string, number>;
+  metrics: WhatIfMetric[];
+  elasticities: Record<string, number>;
+  note: string;
+}
+
+/** Projects an advisor's REAL current feature snapshot forward under the
+ * scenario levers via the backend /whatif/simulate endpoint. No fabricated
+ * baselines — every current value is the advisor's actual feature value and
+ * each projected metric carries its computation formula as evidence. */
+export async function simulateWhatIf(
+  advisorId: string,
+  levers: WhatIfLevers,
+): Promise<WhatIfResult> {
+  return apiClient.post<WhatIfResult>("/whatif/simulate", {
+    advisor_id: advisorId,
+    ...levers,
+  });
 }
