@@ -599,3 +599,19 @@ Peer Benchmarking).
   build green (/revenue-analytics 9.14 kB, was stub).
 - Note: backend dev server must be launched via the harness background runner (plain `&` gets
   reaped when the tool call returns); running on :8010 for verification.
+
+## Session 4 (cont.) — PART 5 breadth — Knowledge Graph Explorer (gap #4) — DONE
+
+- **Backend** `app/graph/neighborhood.py` + `GET /graph-viz/neighborhood?advisor_id=` (router
+  wired). Real one-hop subgraph around a focal advisor traversed from the foundation graph: market,
+  6 households (advisor_serves_household), CRM opportunities + leads, AGP enrollment + goal, and the
+  **AI pipeline artifacts prediction → opportunity → recommendation** (the demo's headline chain,
+  now visible as real graph nodes). 19 nodes / 18 edges for A001; every node carries its real
+  vertex attributes. Verified for A001 and A005.
+- **Frontend** rebuilt `graph-explorer-workspace.tsx` off the fake `/ui-integrated` `/graph/explore`
+  onto `/graph-viz/neighborhood`. ReactFlow canvas with a deterministic group-clustered radial
+  layout (focal advisor centered), token-based node colors by group (AI artifacts on violet
+  AI-accent), animated edges with verbs, group legend, and a **node-detail panel showing the
+  clicked node's real attributes** + evidence. Follows shell scope (rollup → first advisor) with an
+  advisor picker. Page wired (was PendingRebuild stub); deleted dead `graph-node-card.tsx`.
+- tsc clean; build green (/graph-explorer 51.7 kB, real ReactFlow).

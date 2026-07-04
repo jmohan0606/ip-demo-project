@@ -1,5 +1,5 @@
-import { PendingRebuild } from "@/components/pending/pending-rebuild";
+import { GraphExplorerWorkspace } from "@/components/graph-explorer/graph-explorer-workspace";
 
 export default function Page() {
-  return <PendingRebuild title="Knowledge Graph Explorer" blueprint="Graph Explorer" />;
+  return <GraphExplorerWorkspace />;
 }
