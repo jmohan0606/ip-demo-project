@@ -35,6 +35,14 @@ export const navigationItems: NavigationItem[] = [
     group: "Advisor"
   },
   {
+    id: "peer-benchmarking",
+    label: "Peer Benchmarking",
+    description: "Percentile radar vs the scope's peer group + nearest peers from the similarity model.",
+    href: "/peer-benchmarking",
+    iconName: "Radar",
+    group: "Advisor"
+  },
+  {
     id: "what-if-simulator",
     label: "What-If Simulator",
     description: "Scenario modeling for meetings, conversion, product mix, managed revenue, NNM and AUM.",

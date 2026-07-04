@@ -637,3 +637,20 @@ their ingestion run returns status=failed with "Missing required column: …". T
 is behaving correctly; the sample CSV/manifest column sets are out of sync for those entities.
 Deferred — flag for the foundation-package owner; does not block the page (kpi/feature_snapshot/
 opportunity ingest cleanly and demonstrate the real batch/checkpoint flow).
+
+## Session 4 (cont.) — PART 5 breadth — Peer Benchmarking (gap #20, new page) — DONE
+
+- **Backend** `app/peers/benchmarking.py` (`PeerBenchmarkingService`) + `GET /peers/benchmark`
+  (router wired). Benchmarks an advisor against the REAL peer group (advisors resolved under the
+  scope) via **percentile ranks** of their actual feature snapshots across 6 higher-is-better
+  dimensions (Revenue, AUM, Goal Attainment, Client Value, Product Mix, Lead Conversion) — a
+  scale-free radar. Nearest peers come from the real `EmbeddingSimilarityService` (deterministic
+  similarity v2.0) with scores + reason features. Verified A010=Reese Kim (peer group 60): goal 95th
+  pct, AUM 16.7th; nearest Avery Irwin 0.92.
+- **Frontend** new page `components/peers/peer-benchmarking-workspace.tsx` + `charts/peer-radar.tsx`
+  (Recharts RadarChart, advisor vs 50th-pct peer baseline — CLAUDE.md 5B radar requirement): KPIs
+  (peer group / metrics / top strength / biggest gap), radar, metric-detail table (raw values +
+  percentile badges), nearest-peers cards (click → scope to that advisor), evidence footer.
+  Scope-following advisor picker. Added to nav (Advisor group, new "Radar" lucide icon wired into
+  the sidebar iconMap) — first new nav route added this phase.
+- tsc clean; build green (/peer-benchmarking 8.89 kB). Nav now 17 items.
