@@ -707,3 +707,21 @@ Deferred / minor (not blocking, logged for polish):
   the Executive Dashboard nav entry to Firm scope, or a DDW persona default, for a stronger landing.
 - Graph Explorer radial layout is slightly crowded at the bottom cluster (minor node/edge-label
   overlap); pan/zoom/fitView work. Could switch to a tiered dagre layout later.
+
+## Session 4 (cont.) — PART 5 breadth — AGP Workspace REBUILT (gap #3, was FAKE) — DONE
+
+Spot-check found 3 "already built" pages were actually FAKE (hardcoded arrays, no API calls) —
+they slipped through the Part-1 "built" classification exactly like data-ingestion did:
+`agp-workspace` (hardcoded goals/actions), `recommendation-roi-workspace` (const rows), and
+`admin-health-workspace` (const checks). Rebuilding all three real. **This one: AGP Workspace
+(gap priority #3).**
+
+- Replaced fake `agp-workspace.tsx` with a real page on the existing `/agp` backend (track-status,
+  enrollment, cohort-summary, coaching — all already real). KPIs (risk score / milestone
+  attainment / days-to-milestone / program month); **AGP-004 track-status card decomposing the
+  risk score into its 3 weighted drivers (attainment_gap/time_pressure/crm_execution_risk) with
+  progress bars + the backend's plain-language explanation as evidence**; current-milestone +
+  enrollment card; scope-aware **cohort milestone rollup bar chart** (COMPLETED/AT_RISK/UPCOMING/
+  ON_TRACK counts from cohort-summary); coaching sessions list. Scope-following advisor picker.
+- `lib/api/agp.ts` + `charts/agp-cohort-bars.tsx`. tsc clean; build green (/agp 5.43 kB, was 1.55
+  kB fake).
