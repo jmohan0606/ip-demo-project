@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { FormattedAnswer } from "@/components/patterns/formatted-answer";
 import {
   askChat,
   runAgentic,
@@ -115,19 +116,25 @@ export function AiAssistantWorkspace() {
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 flex gap-2 rounded-xl border bg-white p-2 shadow-sm" style={{ borderColor: colors.surface.border }}>
-        <input
+      <div className="sticky bottom-0 flex items-end gap-2 rounded-xl border bg-white p-2 shadow-sm" style={{ borderColor: colors.surface.border }}>
+        <textarea
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={`Ask about advisor ${advisorId}…`}
-          className="flex-1 rounded-lg px-3 py-2 text-[13px] outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              void submit();
+            }
+          }}
+          rows={3}
+          placeholder={`Ask about advisor ${advisorId}…  (Enter to send · Shift+Enter for a new line)`}
+          className="min-h-[68px] flex-1 resize-y rounded-lg px-3 py-2 text-[13px] leading-5 outline-none"
           style={{ color: colors.text.primary }}
         />
         <button
           onClick={() => submit()}
           disabled={busy}
-          className="rounded-lg px-4 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
+          className="rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white disabled:opacity-50"
           style={{ backgroundColor: colors.primary }}
         >
           Send
@@ -170,7 +177,7 @@ function ReasoningSteps({ steps }: { steps: string[] }) {
 function ChatTurn({ data }: { data: ChatAnswer }) {
   return (
     <AiContentCard title="Assistant" footer={<ConfidenceBar value={data.confidence} />}>
-      <p className={type.body} style={{ color: colors.text.primary, whiteSpace: "pre-wrap" }}>{data.answer}</p>
+      <FormattedAnswer text={data.answer} />
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
         <div>
           <div className={type.label} style={{ color: colors.text.muted }}>Reasoning</div>
@@ -200,7 +207,7 @@ function AgenticTurn({ data }: { data: AgenticAnswer }) {
       title={`Agentic workflow · final agent: ${data.final_agent}`}
       footer={<ConfidenceBar value={data.confidence} />}
     >
-      <p className={type.body} style={{ color: colors.text.primary, whiteSpace: "pre-wrap" }}>{data.answer}</p>
+      <FormattedAnswer text={data.answer} />
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
         <div>
           <div className={type.label} style={{ color: colors.text.muted }}>Agent reasoning path</div>
@@ -211,12 +218,19 @@ function AgenticTurn({ data }: { data: AgenticAnswer }) {
             Evidence {data.evidence.length} · tasks {data.tasks.length} · recs {data.recommendations.length} ·
             opps {data.opportunities.length} · preds {data.predictions.length}
           </div>
-          <pre
-            className="mt-1 max-h-56 overflow-auto rounded-lg border p-2 font-mono text-[10px] leading-4"
-            style={{ borderColor: colors.surface.border, backgroundColor: colors.surface.canvas, color: colors.text.secondary }}
-          >
-            {JSON.stringify(data.evidence, null, 2)}
-          </pre>
+          <div className="mt-1 max-h-56 space-y-1 overflow-auto">
+            {data.evidence.slice(0, 12).map((ev, i) => {
+              const label = typeof ev === "object" && ev ? (ev as Record<string, unknown>).title ?? (ev as Record<string, unknown>).source ?? (ev as Record<string, unknown>).id : String(ev);
+              const detail = typeof ev === "object" && ev ? (ev as Record<string, unknown>).detail ?? (ev as Record<string, unknown>).type ?? "" : "";
+              return (
+                <div key={i} className="rounded-md border px-2 py-1" style={{ borderColor: colors.surface.border }}>
+                  <span className={`${type.data} font-semibold`} style={{ color: colors.text.primary }}>{String(label ?? "evidence")}</span>
+                  {detail ? <span className={`ml-1 ${type.data}`} style={{ color: colors.text.muted }}>· {String(detail)}</span> : null}
+                </div>
+              );
+            })}
+            {data.evidence.length === 0 && <span className={type.data} style={{ color: colors.text.muted }}>No structured evidence returned.</span>}
+          </div>
         </div>
       </div>
     </AiContentCard>

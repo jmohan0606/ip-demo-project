@@ -1314,14 +1314,30 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   tsc PASS; Playwright 0 console errors, page shows "Avery Diaz · Outcome & Learning Loop" with
   scoped values. Screenshot: roi-after.png.
 
-### RESUME AT: Phase 4 page 12/16 = **AI Assistant + Knowledge Hub** (9.5): fix advisor-scoping for
-AI Assistant (9.1 — should be done, verify); restructure chat/agentic responses to be readable
-(bulleted/sectioned, not one dense paragraph); make the chat input box larger + multi-line;
-Knowledge Hub answers get structured-card treatment (answer / cited chunks / similarity scores as
-distinct color-coded sections). Files: find AI Assistant + Knowledge components under
-frontend/components/ (likely ai-assistant*, knowledge*). Then: Feature Lab (visual lineage) →
-Explainability (real memory-timeline + deeper lineage), then Phase 5 (Revenue Trend Explorer =
-**Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
+**Page 12/16 — AI Assistant + Knowledge Hub (9.5) — DONE.**
+- New reusable `components/patterns/formatted-answer.tsx` — lightweight structural renderer (no
+  markdown dep): "Label:" → indigo section header, `-/•/*` → bullets, `1.` → numbered list, blank
+  line → paragraph, `**bold**` inline; strips the mock-LLM `[mock-llm <hash>]` / "Deterministic
+  draft based on:" noise so mock output reads cleanly (real Azure/Claude output has no such tag).
+- AI Assistant (scope-following via useScopedAdvisor, verified): answers now render via
+  FormattedAnswer (sectioned: Insight Summary / Top Recommendation / Top Opportunity / Next Action);
+  agentic evidence raw-JSON `<pre>` replaced with a clean labelled list; single-line `<input>`
+  replaced with a larger multi-line `<textarea>` (rows=3, resize-y, Enter=send / Shift+Enter=newline).
+- Knowledge Hub: answer rendered via FormattedAnswer under an "Answer" section label; "Cited Chunks
+  (N) · with similarity scores" header; each chunk keeps its color-coded similarity meter (0.639
+  teal → 0.339 amber) + category badge — distinct color-coded sections per the spec.
+- Verified: tsc PASS; Playwright drove a suggestion on each page, 0 console errors, structured
+  output rendered. Screenshots: assistant-after.png, knowledge-after.png.
+
+### RESUME AT: Phase 4 page 13/16 = **Feature Engineering Lab** (9.5): fix advisor-scoping (9.1 —
+should be done, verify); re-verify the similarity/feature computation is behaving (cross-check as
+used throughout the build); **make the lineage section VISUAL — a real diagram of source→feature
+flow, not a text list**. File: find the feature lab component under frontend/components/ (likely
+feature*/ or embeddings). Then: Explainability (real memory-timeline content + deeper client-legible
+lineage chain), then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus writers for
+PDF/DOCX/PPTX + .env.example completeness incl. TG_*/GRAPH_TIER_* vars), Phase 7 (closing verify:
+re-screenshot all, no-purple audit, scope-following spot-check, currency/casing/color-coding
+consistency, full boot check).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

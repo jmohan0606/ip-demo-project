@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { FormattedAnswer } from "@/components/patterns/formatted-answer";
 import { DocumentUpload } from "@/components/knowledge/document-upload";
 import {
   askKnowledge,
@@ -160,16 +161,16 @@ function AnswerBlock({ answer }: { answer: RagAnswer }) {
           </span>
         }
       >
-        <p className={type.body} style={{ color: colors.text.primary, whiteSpace: "pre-wrap" }}>
-          {answer.answer}
-        </p>
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: colors.positive }}>Answer</div>
+        <FormattedAnswer text={answer.answer} />
       </AiContentCard>
 
       <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
-        <div className="border-b px-4 py-2.5" style={{ borderColor: colors.surface.border }}>
+        <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: colors.surface.border }}>
           <h3 className={type.cardTitle} style={{ color: colors.text.primary }}>
-            Cited sources ({answer.sources.length})
+            Cited Chunks ({answer.sources.length})
           </h3>
+          <span className="text-[10px] uppercase tracking-[0.05em]" style={{ color: colors.aiAccent }}>with similarity scores</span>
         </div>
         <div className="divide-y" style={{ borderColor: colors.surface.border }}>
           {answer.sources.map((s, i) => (
