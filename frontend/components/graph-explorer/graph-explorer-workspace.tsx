@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { colors } from "@/styles/tokens";
 
-// group -> node fill, mapped to the design tokens (AI artifacts on the violet
+// group -> node fill, mapped to the design tokens (AI artifacts on the indigo-blue
 // AI-accent so the pipeline output stands out on the canvas).
 const GROUP_COLOR: Record<string, string> = {
   advisor: colors.primary,

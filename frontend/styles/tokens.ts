@@ -7,7 +7,7 @@
 export const colors = {
   primary: "#2563EB", // blue — actions, links, primary charts
   positive: "#14B8A6", // teal — favorable deltas
-  aiAccent: "#7C3AED", // violet — AI-generated content, agent traces
+  aiAccent: "#4F46E5", // indigo-blue — AI-generated content, agent traces (client 9.0: no purple)
   warning: "#F59E0B", // amber
   negative: "#DC2626", // red
   surface: {

@@ -1,5 +1,13 @@
 import type { ApiEnvelope } from "@/lib/types/api";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+
+// CLAUDE.md Phase 0: two distinct API bases so the empty-frontend bug cannot recur.
+// - On the SERVER (SSR, route handlers, Playwright/curl tooling) always use the internal
+//   loopback URL — 127.0.0.1:8000 is always correct from inside the container.
+// - In the BROWSER use the public forwarded Codespaces URL, which is what an external
+//   browser must reach. NEXT_PUBLIC_ vars are inlined into the client bundle at build/dev.
+const INTERNAL_BASE = process.env.API_BASE_URL_INTERNAL || "http://127.0.0.1:8000";
+const PUBLIC_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || INTERNAL_BASE;
+const API_BASE_URL = typeof window === "undefined" ? INTERNAL_BASE : PUBLIC_BASE;
 export class ApiClient {
   constructor(private readonly baseUrl = API_BASE_URL) {}
   async get<T>(path: string): Promise<T> {

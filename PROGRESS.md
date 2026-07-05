@@ -991,3 +991,30 @@ Session 6 result: consolidation fully closed (opportunity_service + native_langg
 full-system chat integration proven (mock + claude) with 2 gaps fixed (rec grounding, COMP-001
 request guardrail); 20/20 pages clean; backend/frontend green; zero dead imports. Ready for
 client-style testing.
+
+## Session 7 — 2026-07-05 — Section 9 Client Review Round 2 (Phases 0-7)
+
+Model routing: main thread on Opus 4.8; 4 high-stakes design items delegated to the
+`fable-architect` (Fable 5) subagent per 9.10/9.11 (9.3 data model, 9.4 MCP adapter, RL
+learning-state design in 9.5 Opportunities, 9.6 Revenue Trend Explorer).
+
+### PHASE 0 — shared foundation — DONE
+- **9.0 NO PURPLE:** replaced the violet `#7C3AED` AI-accent with indigo-blue `#4F46E5`
+  (client's "indigo-blue" example; clearly bluer than the old violet, distinct from severity
+  blue `#2563EB`). Updated the `aiAccent` token in `styles/tokens.ts` + `design-tokens.ts`
+  (renamed the `violet` palette key → `aiAccent`), and the few hardcoded spots
+  (`button.tsx` violet→indigo gradient, `product-mix-chart.tsx` fill, graph-explorer comment).
+  Source is purple-free (verified by grep; only remaining hit is a rule-referencing comment).
+- **Shared components:** expanded `lib/utils.ts` into the canonical format utility
+  (`formatCurrency` with compact/decimals, `formatPercent`, `formatSignedPercent`, `deltaMeta`,
+  `pctChange`) and built ONE reusable `components/patterns/delta-indicator.tsx` (icon + up/down
+  arrow + signed %/pt, green/red, `positiveIsGood` for lower-is-better metrics). Every Phase 4
+  page must use these, not hand-rolled formatting.
+- **API base URL (permanent fix):** `lib/api/client.ts` now uses TWO bases — `API_BASE_URL_INTERNAL`
+  (loopback) for server-side/SSR/tooling, `NEXT_PUBLIC_API_BASE_URL` (public forwarded URL) for the
+  browser, selected by `typeof window`. Documented both in `.env.local.example`; `.env.local`
+  (gitignored) carries the live forwarded URL. Port 8000 confirmed Public + CORS regex for
+  `*.app.github.dev` (committed last session, e75e809).
+- Title-casing: convention set to Title Case for headers; per-page casing handled during each
+  Phase 4 rebuild (guardrail: new pages use correct casing from the start).
+- tsc PASS.
