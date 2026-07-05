@@ -153,7 +153,14 @@ class FeedbackLearningService:
         events.sort(key=lambda e: (e["advisor_id"], e["recommendation_id"]))
 
         weights = {e["action_family"]: self.learning.weight(e["action_family"]) for e in events}
+        families = sorted(weights)
+        baseline_weights = dict(weights)  # replay starting point (neutral 1.0 unless live feedback moved it)
         family_event_counts: dict[str, int] = {}
+        # Per-family split of what drove each weight move (positive = accept/complete/modify
+        # deltas > 0; negative = reject/ignore deltas < 0) plus per-action counts.
+        family_signal_counts: dict[str, dict] = {
+            fam: {"positive": 0, "negative": 0, "by_action": {}} for fam in families
+        }
         accepted = implemented = rejected = modified = ignored = 0
         cumulative_reward = 0.0
         accepted_impact = 0.0
@@ -165,6 +172,9 @@ class FeedbackLearningService:
                 max(0.5, min(1.5, weights[event["action_family"]] + signal["delta"])), 4
             )
             family_event_counts[event["action_family"]] = family_event_counts.get(event["action_family"], 0) + 1
+            fam_counts = family_signal_counts[event["action_family"]]
+            fam_counts["positive" if signal["delta"] > 0 else "negative"] += 1
+            fam_counts["by_action"][event["action"]] = fam_counts["by_action"].get(event["action"], 0) + 1
             if event["action"] == "ACCEPT":
                 accepted += 1
                 accepted_impact += event["estimated_revenue_impact"]
@@ -187,12 +197,31 @@ class FeedbackLearningService:
                 "rejected": rejected,
                 "cumulative_reward": round(cumulative_reward, 3),
                 "captured_impact": round(accepted_impact, 2),
+                # Snapshot of EVERY family's weight after this round's update —
+                # lets the frontend chart per-family weight trajectories.
+                "weights": dict(weights),
             })
 
         return {
             "advisor_ids": advisor_ids,
             "event_count": len(events),
+            "families": families,
             "trend": trend,
+            # "Why it gets smarter" story: neutral baseline vs learned weight per
+            # family, with the feedback mix that drove the move. Pure replay output.
+            "baseline_vs_learned": [
+                {
+                    "family": fam,
+                    "baseline_weight": round(baseline_weights[fam], 4),
+                    "neutral_weight": 1.0,
+                    "learned_weight": weights[fam],
+                    "change": round(weights[fam] - baseline_weights[fam], 4),
+                    "positive_events": family_signal_counts[fam]["positive"],
+                    "negative_events": family_signal_counts[fam]["negative"],
+                    "by_action": family_signal_counts[fam]["by_action"],
+                }
+                for fam in families
+            ],
             "totals": {
                 "accepted": accepted, "implemented": implemented, "rejected": rejected,
                 "modified": modified, "ignored": ignored,

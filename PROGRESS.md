@@ -1281,19 +1281,33 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - Verified: tsc PASS; Playwright 0 console errors (Revenue Decline 16.7, AGP Off-Track 25.8, both
   with methodology panels). Screenshot: predictions-after.png.
 
-### RESUME AT: Phase 4 page 10/16 = **Opportunities & Recommendations** (9.5) — THE FLAGSHIP PAGE
-(one of the 2-3 most important in the product). Requirements: fix advisor-scoping (9.1, should be
-done); summary cards for accepted/completed/in-progress/rejected (counts, %, green/amber/red);
-revenue-impact-over-time graph; color-coded category tags + icons on each card; color-coded
-accept/reject buttons; and **the RL learning-state must become a real, explained showcase of the
-feedback loop** — not just current weights, but a simple simulation/explanation of how weights move
-with feedback over time so a client understands WHY the system gets smarter. **DELEGATE the RL
-learning-state explanation DESIGN to Fable** (per 9.10/9.11: general-purpose subagent with
-model:"fable" + the fable-architect guidance) — a before/after or trend viz of weight movement over
-recorded feedback rounds is probably the right level, not a technical RL lecture. Backend already
-has LearningWeightStore (per-family weights, feedback deltas) + feedback pipeline — build the
-explanation/simulation on top. Then: Rec ROI → AI Assistant+Knowledge → Feature Lab →
-Explainability, then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG + .env), Phase 7.
+**Page 10/16 — Opportunities & Recommendations (9.5) — DONE (flagship; RL showcase delegated to Fable).**
+- Scope-following already in place (useScopedAdvisor). Main-thread additions: outcome summary cards
+  (Accepted/Completed/In-Progress/Rejected with counts + % + green/amber/red, from impact_trend
+  totals); color-coded action-family category tags with icons (MANAGED_MIX/RETENTION/CRM_EXECUTION);
+  color-coded feedback buttons (ACCEPT/COMPLETE green, MODIFY amber, IGNORE gray, REJECT red);
+  KPI icons. Impact-over-time chart already existed (kept).
+- **RL learning-state showcase — DELEGATED TO FABLE-5** (general-purpose subagent, model:"fable",
+  per 9.10/9.11). Fable enhanced `impact_trend()` (per-round `weights` snapshot per family +
+  top-level `families` + `baseline_vs_learned` with positive/negative event counts, all pure
+  computation, existing keys preserved) and built a self-contained `LearningStateShowcase`
+  component (default export, zero props, fetches /feedback-learning/impact-trend). Three beats:
+  (1) the 5 real ACTION_SIGNALS as color-coded pills; (2) CENTERPIECE — Recharts weight-trajectory
+  line per family across the 16 replayed feedback rounds with a dashed neutral-1.00 reference line
+  + legend (CRM_EXECUTION 1.14→1.50, MANAGED_MIX 1.01→0.53 — client can SEE lines diverge);
+  (3) baseline→learned per family with arrows, signal counts, and a data-derived plain-language
+  takeaway ("Advisors kept completing CRM Execution actions, so the system ranks them ~32% higher";
+  "kept rejecting Managed Mix … ~48% lower"). No purple; skeleton/empty states; tsc clean.
+  Main thread integrated it (replaced the old flat weights grid).
+- Verified: tsc PASS; Playwright 0 console errors; whole page renders (summary cards, category tags,
+  colored buttons, RL showcase with weight-divergence chart + takeaways). Screenshot:
+  recommendations-after.png.
+
+### RESUME AT: Phase 4 page 11/16 = **Recommendation Impact / ROI** (9.5): fix static top-card
+values — must reflect the selected advisor/scope for real (uses the same real feedback-learning data
+already proven; a wiring gap, not a missing-data gap). File: frontend/components/roi/
+recommendation-roi-workspace.tsx. Then: AI Assistant+Knowledge → Feature Lab → Explainability, then
+Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG + .env), Phase 7 (closing verify).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { CheckCircle2, CircleCheck, PencilLine, MinusCircle, XCircle, TrendingUp, ShieldCheck, Layers, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
 import { ImpactTrendChart, type ImpactPoint } from "@/components/charts/impact-trend-chart";
+import LearningStateShowcase from "@/components/recommendations/learning-state-showcase";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
@@ -11,11 +15,28 @@ import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
+// Action-family category tags: color + icon (CLAUDE.md 9.5).
+const FAMILY_META: Record<string, { label: string; color: string; icon: LucideIcon }> = {
+  MANAGED_MIX: { label: "Managed Mix", color: colors.primary, icon: Layers },
+  RETENTION: { label: "Retention", color: colors.warning, icon: ShieldCheck },
+  CRM_EXECUTION: { label: "CRM Execution", color: colors.aiAccent, icon: Zap },
+};
+const familyMeta = (f: string) => FAMILY_META[f] ?? { label: f?.replace("_", " ") ?? "Action", color: colors.text.muted, icon: TrendingUp };
+
+// Color-coded feedback actions (green accept/complete, amber modify, red reject).
+const ACTION_META: Record<string, { color: string; bg: string; icon: LucideIcon }> = {
+  ACCEPT: { color: "#0F766E", bg: "#F0FDFA", icon: CheckCircle2 },
+  COMPLETE: { color: "#065F46", bg: "#ECFDF5", icon: CircleCheck },
+  MODIFY: { color: "#B45309", bg: "#FFFBEB", icon: PencilLine },
+  IGNORE: { color: "#475569", bg: "#F1F5F9", icon: MinusCircle },
+  REJECT: { color: "#B91C1C", bg: "#FEF2F2", icon: XCircle },
+};
+
 interface ImpactTrend {
   event_count: number;
   trend: ImpactPoint[];
   totals: {
-    accepted: number; implemented: number; rejected: number;
+    accepted: number; implemented: number; rejected: number; modified: number; ignored: number;
     cumulative_reward: number; captured_impact: number;
   };
   final_weights: Array<{ family: string; weight: number; events: number }>;
@@ -120,13 +141,39 @@ export function RecommendationsWorkspace() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiStatCard label="Open recommendations" value={String(recs.length)} />
-        <KpiStatCard label="Estimated impact" value={`$${Math.round(totalImpact).toLocaleString()}`} />
-        <KpiStatCard label="Feature snapshot" value={data?.feature_snapshot_id?.slice(0, 14) ?? "—"} />
-        <KpiStatCard
-          label="Learning families"
-          value={String(data?.learning_weights.length ?? 0)}
-        />
+        <KpiStatCard label="Open recommendations" value={String(recs.length)} icon={TrendingUp} iconColor={colors.primary} />
+        <KpiStatCard label="Estimated impact" value={`$${Math.round(totalImpact).toLocaleString()}`} icon={Zap} iconColor={colors.positive} />
+        <KpiStatCard label="Feature snapshot" value={data?.feature_snapshot_id?.slice(0, 14) ?? "—"} icon={Layers} iconColor={colors.aiAccent} />
+        <KpiStatCard label="Learning families" value={String(data?.learning_weights.length ?? 0)} icon={ShieldCheck} iconColor={colors.warning} />
+      </div>
+
+      {/* Feedback-outcome summary cards: accepted / completed / in-progress / rejected (9.5) */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {(() => {
+          const t = impact?.totals;
+          const total = t ? t.accepted + t.implemented + t.rejected + (t as { modified?: number }).modified! + (t as { ignored?: number }).ignored! : 0;
+          const pct = (n: number) => (total ? `${Math.round((n / total) * 100)}%` : "—");
+          const cards = [
+            { label: "Accepted", n: t?.accepted ?? 0, color: colors.positive, bg: "#F0FDFA", icon: CheckCircle2 },
+            { label: "Completed", n: t?.implemented ?? 0, color: "#059669", bg: "#ECFDF5", icon: CircleCheck },
+            { label: "In Progress", n: (t as { modified?: number } | undefined)?.modified ?? 0, color: colors.warning, bg: "#FFFBEB", icon: PencilLine },
+            { label: "Rejected", n: t?.rejected ?? 0, color: colors.negative, bg: "#FEF2F2", icon: XCircle },
+          ];
+          return cards.map((c) => (
+            <div key={c.label} className="flex items-center gap-3 rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: c.bg, color: c.color }}>
+                <c.icon style={{ width: 18, height: 18 }} />
+              </span>
+              <div>
+                <div className={type.label} style={{ color: colors.text.muted }}>{c.label}</div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[20px] font-black" style={{ color: colors.text.primary }}>{c.n}</span>
+                  <span className="text-[11px] font-semibold" style={{ color: c.color }}>{pct(c.n)}</span>
+                </div>
+              </div>
+            </div>
+          ));
+        })()}
       </div>
 
       <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
@@ -207,23 +254,34 @@ export function RecommendationsWorkspace() {
                   ]}
                 />
                 <div className="flex gap-1.5">
-                  {FEEDBACK_ACTIONS.map((action) => (
-                    <button
-                      key={action}
-                      onClick={() => void submitFeedback(rec, action)}
-                      disabled={busy}
-                      className="rounded-md border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide hover:bg-slate-50 disabled:opacity-50"
-                      style={{ borderColor: colors.surface.border, color: colors.text.secondary }}
-                    >
-                      {action}
-                    </button>
-                  ))}
+                  {FEEDBACK_ACTIONS.map((action) => {
+                    const m = ACTION_META[action];
+                    const Icon = m.icon;
+                    return (
+                      <button
+                        key={action}
+                        onClick={() => void submitFeedback(rec, action)}
+                        disabled={busy}
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wide disabled:opacity-50"
+                        style={{ color: m.color, backgroundColor: m.bg, border: `1px solid ${m.color}33` }}
+                      >
+                        <Icon style={{ width: 12, height: 12 }} /> {action}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             }
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
+                <div className="mb-1.5 flex items-center gap-1.5">
+                  {(() => { const m = familyMeta(rec.action_family); const Icon = m.icon; return (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]" style={{ color: m.color, backgroundColor: `${m.color}14` }}>
+                      <Icon style={{ width: 12, height: 12 }} /> {m.label}
+                    </span>
+                  ); })()}
+                </div>
                 <p className={type.body} style={{ color: colors.text.primary }}>{rec.action_text}</p>
                 <p className={`mt-1 ${type.data}`} style={{ color: colors.text.muted }}>
                   priority {rec.priority_score} = base {rec.base_priority_score} × learned weight {rec.learning_weight}
@@ -242,29 +300,8 @@ export function RecommendationsWorkspace() {
         ) : null}
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
-        <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Learning state</h2>
-        <p className={type.data} style={{ color: colors.text.muted }}>
-          Family weights move with every feedback action and re-rank the next generation run.
-        </p>
-        <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
-          {(data?.learning_weights ?? []).map((weight) => (
-            <div
-              key={weight.family}
-              className="flex items-center justify-between rounded-lg border px-3 py-2"
-              style={{ borderColor: colors.surface.border }}
-            >
-              <span className={type.data} style={{ color: colors.text.secondary }}>{weight.family}</span>
-              <span
-                className="font-mono text-[12px] font-bold"
-                style={{ color: weight.weight >= 1 ? colors.positive : colors.negative }}
-              >
-                {weight.weight.toFixed(2)} ({weight.feedback_count} fb)
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* RL feedback-loop showcase — how weights move with feedback over rounds (9.5, Fable-designed) */}
+      <LearningStateShowcase />
     </div>
   );
 }
