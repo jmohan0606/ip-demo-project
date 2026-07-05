@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { Brain, Clock } from "lucide-react";
+
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
@@ -12,6 +14,40 @@ interface Vertex {
   v_id: string;
   v_type: string;
   attributes: Record<string, unknown>;
+}
+
+interface MemoryItem {
+  memory_id: string;
+  memory_type: string;
+  title: string | null;
+  summary: string | null;
+  confidence: number | null;
+  source: string | null;
+  valid_from: string | null;
+  created_ts: string | null;
+}
+
+const MEMORY_TYPE_COLOR: Record<string, string> = {
+  "Conversation Memory": "#2563EB",
+  "Semantic Memory": "#14B8A6",
+  "Coaching Memory": "#4F46E5",
+  "Episodic Memory": "#F59E0B",
+};
+
+// A legible one-line summary per lineage stage (client-readable, not raw ids).
+function stageSummary(key: string, items: Vertex[]): string {
+  if (!items.length) return "—";
+  const a = items[0].attributes;
+  switch (key) {
+    case "features": return `${items[0].v_id} · versioned snapshot`;
+    case "predictions": return `${String(a.prediction_type ?? "prediction").replace(/_/g, " ")} · ${a.score ?? "?"}/100`;
+    case "opportunities": return `${String(a.category ?? a.opportunity_type ?? "opportunity")} · sev ${a.severity ?? "?"}`;
+    case "recommendation": return String(a.title ?? items[0].v_id);
+    case "feedback": return `${String(a.action ?? "feedback")}`;
+    case "outcomes": return `${String(a.outcome_type ?? "outcome")}${a.outcome_value ? ` · $${Number(a.outcome_value).toLocaleString()}` : ""}`;
+    case "learning": return `${String(a.signal_type ?? "signal")} · reward ${a.reward ?? "?"}`;
+    default: return items.map((v) => v.v_id).join(", ").slice(0, 34);
+  }
 }
 
 interface ChainResponse {
@@ -41,6 +77,7 @@ export function ExplainabilityWorkspace() {
   const [recIds, setRecIds] = useState<string[]>([]);
   const [selectedRec, setSelectedRec] = useState<string | null>(null);
   const [chain, setChain] = useState<ChainResponse | null>(null);
+  const [memories, setMemories] = useState<MemoryItem[]>([]);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -53,6 +90,11 @@ export function ExplainabilityWorkspace() {
         if (ids[0]) setSelectedRec(ids[0]);
       })
       .catch(() => setRecIds([]));
+    // Real memory-timeline content for this advisor (CLAUDE.md 9.5).
+    apiClient
+      .post<MemoryItem[] | { memories: MemoryItem[] }>("/memory/retrieve", { scope_type: "Advisor", scope_id: advisorId, limit: 12 })
+      .then((res) => setMemories(Array.isArray(res) ? res : res.memories ?? []))
+      .catch(() => setMemories([]));
   }, [advisorId, refreshNonce]);
 
   const loadChain = useCallback(async (recommendationId: string) => {
@@ -121,8 +163,8 @@ export function ExplainabilityWorkspace() {
                   <div className={type.label} style={{ color: items.length ? colors.aiAccent : colors.text.muted }}>
                     {stage.label}
                   </div>
-                  <div className={`mt-0.5 font-mono text-[10px]`} style={{ color: colors.text.secondary }}>
-                    {items.length ? items.map((v) => v.v_id).join(", ").slice(0, 34) : "—"}
+                  <div className="mt-0.5 max-w-[150px] text-[10px]" style={{ color: colors.text.secondary }}>
+                    {stageSummary(stage.key, items)}
                   </div>
                 </div>
               </div>
@@ -175,13 +217,58 @@ export function ExplainabilityWorkspace() {
               ]}
             />
           </div>
-          <pre
-            className="mt-3 max-h-72 overflow-auto rounded-lg border p-2 font-mono text-[10px] leading-4"
-            style={{ borderColor: colors.surface.border, backgroundColor: colors.surface.canvas, color: colors.text.secondary }}
-          >
-            {evidence ? JSON.stringify(evidence, null, 2) : "Select a recommendation."}
-          </pre>
+          <div className="mt-3 space-y-1">
+            {evidence && typeof evidence === "object" ? (
+              Object.entries(evidence).map(([k, v]) => (
+                <div key={k} className="flex items-baseline justify-between gap-3 rounded-md border px-2 py-1" style={{ borderColor: colors.surface.border }}>
+                  <span className={type.data} style={{ color: colors.text.secondary }}>{k.replace(/_/g, " ")}</span>
+                  <span className={`font-mono ${type.data} text-right`} style={{ color: colors.text.primary }}>
+                    {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className={type.data} style={{ color: colors.text.muted }}>Select a recommendation to see its evidence.</p>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* Memory Timeline — real temporal-memory content for this advisor (CLAUDE.md 9.5) */}
+      <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+        <div className="flex items-center gap-2">
+          <Brain className="h-4 w-4" style={{ color: colors.aiAccent }} />
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Memory Timeline</h2>
+          <span className="text-[11px]" style={{ color: colors.text.muted }}>· temporal context the system remembers about {advisorId}</span>
+        </div>
+        {memories.length === 0 ? (
+          <p className={`mt-2 ${type.data}`} style={{ color: colors.text.muted }}>
+            No memories recorded yet. Ask the AI Assistant about this advisor, or run a coaching insight, to write to memory.
+          </p>
+        ) : (
+          <ol className="relative mt-3 space-y-3 border-l pl-4" style={{ borderColor: colors.surface.border }}>
+            {memories.map((m) => {
+              const tint = MEMORY_TYPE_COLOR[m.memory_type ?? ""] ?? colors.text.muted;
+              return (
+                <li key={m.memory_id} className="relative">
+                  <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white" style={{ backgroundColor: tint }} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]" style={{ color: tint, backgroundColor: `${tint}14` }}>
+                      {m.memory_type}
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px]" style={{ color: colors.text.muted }}>
+                      <Clock className="h-3 w-3" /> {m.valid_from ?? m.created_ts ?? "—"}
+                    </span>
+                    {m.confidence != null && <span className="text-[10px]" style={{ color: colors.text.muted }}>conf {(m.confidence * 100).toFixed(0)}%</span>}
+                    {m.source && <span className="text-[10px]" style={{ color: colors.text.muted }}>· {m.source}</span>}
+                  </div>
+                  {m.title && <div className={`mt-0.5 ${type.data} font-semibold`} style={{ color: colors.text.primary }}>{m.title}</div>}
+                  {m.summary && <p className={`mt-0.5 ${type.data} whitespace-pre-wrap`} style={{ color: colors.text.secondary }}>{m.summary.length > 260 ? `${m.summary.slice(0, 260)}…` : m.summary}</p>}
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </div>
     </div>
   );

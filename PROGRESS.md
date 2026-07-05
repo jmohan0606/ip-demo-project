@@ -1344,16 +1344,37 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - Verified: tsc PASS; Playwright clicked a feature, 0 console errors, diagram rendered.
   Screenshot: featurelab-after.png.
 
-### RESUME AT: Phase 4 page 14/16 = **Explainability Explorer** (9.5): fix advisor-scoping (9.1 —
-should be done, verify); this page needs real **memory-timeline content** (currently effectively
-absent) and a **more detailed, client-legible lineage chain** — enough that a client could follow
-"why did the system say this" end to end (feature→prediction→opportunity→recommendation→
-feedback→memory). Files: find under frontend/components/ (memory-explainability route,
-memory/explainability component). Backend: app/api/routers/explainability.py + memory service
-(phx_dm_memory* vertices exist). Then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG
-corpus writers for PDF/DOCX/PPTX + .env.example completeness incl. TG_*/GRAPH_TIER_* vars), Phase 7
-(closing verify: re-screenshot all, no-purple audit, scope-following spot-check, currency/casing/
-color-coding consistency, full boot check).
+**Page 14/16 — Explainability Explorer (9.5) — DONE. ← LAST PHASE-4 PAGE REBUILD; PHASE 4 COMPLETE.**
+- Scope-following (useScopedAdvisor) verified. Lineage chain made client-legible: each stage
+  (Feature Snapshot → Prediction → Opportunity → Recommendation → Feedback → Outcome → Learning)
+  now shows a human-readable one-line summary derived from the real vertex attributes (e.g.
+  Opportunity "PIPELINE_ACCELERATION · sev ATTENTION", Recommendation title) instead of raw ids.
+  Evidence panel: raw-JSON `<pre>` replaced with a clean key/value list (opportunity/prediction/
+  playbook ids, base/adjusted priority, learning weight).
+- **Real Memory Timeline** (was absent): fetches /memory/retrieve (scope_type "Advisor") and renders
+  a vertical temporal timeline of the advisor's memories — type badge (Conversation/Semantic/
+  Coaching, color-coded), timestamp, confidence, source, and Q/A summary. Live content present
+  (conversation memories written by the AI Assistant, incl. compliance-block memories).
+- Verified: tsc PASS; Playwright 0 console errors; chain + evidence + memory timeline all render.
+  Screenshot: explainability-after.png.
+
+============================================================================================
+## PHASE 4 COMPLETE (all 14 page rebuilds done, pages 1-14). Every page: real backend logic,
+## tsc clean, Playwright 0 console errors, screenshot in docs/qa_screenshots/, committed + pushed.
+============================================================================================
+
+### RESUME AT: **Phase 5 — Revenue Trend Explorer (9.6)** — NEW capability, **DELEGATE DESIGN TO
+FABLE** (9.10/9.11: general-purpose subagent, model:"fable"). Bar chart of revenue over a
+user-selected date range + granularity (monthly/quarterly), sliced by a user-selectable dimension
+(advisor/region/market/division/branch); alongside each period an AI-generated driver summary
+(reuse get_llm_client, grounded in real data, same evidence bar) + explicit up/down vs prior
+comparable period. Must be presentation/screenshot quality. Data exists: 36 monthly periods
+(2023-08→2026-07) from Phase 2; extend RevenueAnalyticsService or add app/revenue/trend_explorer.
+Can live in Revenue Analytics or its own page (prefer extending Revenue Analytics if clean). Then
+Phase 6 (RAG corpus writers for PDF/DOCX/PPTX via reportlab/fpdf2 + .env.example completeness incl.
+TG_*/GRAPH_TIER_* vars from Phase 3), Phase 7 (closing verify: re-screenshot all pages, no-purple
+audit, scope-following spot-check, currency/casing/color-coding consistency, full boot check —
+backend import + route count + frontend build).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),
