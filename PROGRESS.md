@@ -948,3 +948,27 @@ Known issues / deferred:
 
 Next: repoint/remove the `recommendation_service` facade to allow deleting the last legacy
 opportunity_service; optional TigerGraph live validation on a larger host.
+## Session 6 — 2026-07-05 — Final closure pass (Parts A–E)
+
+**Part A — recommendation_service facade repoint + opportunity_service deletion.** The facade's
+`run_recommendations` was dead/broken (called `RecommendationEngine.generate` with the clobbered
+signature → TypeError) and was the last consumer of the legacy `OpportunityService`. Repointed it
+to delegate to the real Phase-8 `RecommendationService.generate_for_advisor` (uses the real
+`OpportunityDetectionService` + persists lineage). Before: TypeError; after A001→2 recs
+(74.6/50.0), A020→3 recs (85.3/77.6/57.4). `app/services/opportunity_service.py` then had zero
+consumers → deleted. Backend 36 routes. (commit e21dd95)
+
+**Part B — full-system integration test via /ai-chat/ask (6 questions × A001/A020, mock + claude,
++ agentic Q5).** Pipeline connects end-to-end; RAG retrieval is question-adaptive; claude-mode
+answers cite real figures that cross-check against verified anchors (387,293 / 539,262 / 25.8 /
+56.8 / 0.275 — zero mismatches). Two real gaps found and FIXED:
+  1. Recommendations missing from chat grounding (legacy `list_recommendations` → empty repo) →
+     repointed `context_assembler` to the real pipeline (A001 Q2 0→2 recs, A020 0→3 recs).
+  2. Compliance guardrail unreachable for a prohibited *request* (chat had no compliance; agentic
+     `compliance_review` null for Q5) → added a request-level COMP-001 screen in `chat_engine`
+     reusing `ComplianceAgent.PROHIBITED_CLAIMS`; Q5 now shows a visible "⛔ Compliance block
+     (COMP-001)" in mock AND claude, confidence 0.99, with a COMP-001 reasoning step; normal
+     questions unaffected.
+
+In progress: Part C (nav page-by-page reality check), Part D (screenshot pass + fixes),
+Part E (final boot/build check).

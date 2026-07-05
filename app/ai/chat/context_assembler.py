@@ -5,13 +5,12 @@ from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.models.knowledge import KnowledgeSearchRequest
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
 from app.models.predictions import PredictionSearchRequest
-from app.models.recommendations import RecommendationSearchRequest
 from app.opportunities.service import OpportunityDetectionService
+from app.recommendations.service import RecommendationService as RecommendationPipelineService
 from app.services.context_service import ContextService
 from app.services.insights_coaching_service import InsightsCoachingService
 from app.services.knowledge_management_service import KnowledgeManagementService
 from app.services.prediction_service import PredictionService
-from app.services.recommendation_service import RecommendationService
 
 
 class ChatContextAssembler:
@@ -21,7 +20,7 @@ class ChatContextAssembler:
         self.insight_service = InsightsCoachingService()
         self.prediction_service = PredictionService()
         self.opportunity_service = OpportunityDetectionService()
-        self.recommendation_service = RecommendationService()
+        self.recommendation_service = RecommendationPipelineService()
 
     def assemble(self, request: ChatRequest) -> list[ChatContextItem]:
         items: list[ChatContextItem] = []
@@ -135,19 +134,21 @@ class ChatContextAssembler:
             except Exception:
                 pass
 
-        try:
-            recommendations = self.recommendation_service.list_recommendations(
-                RecommendationSearchRequest(entity_id=entity_id, limit=5)
-            )
-            for r in recommendations[:5]:
-                items.append(ChatContextItem(
-                    source=ChatContextSource.RECOMMENDATIONS,
-                    title=r.get("title", "Recommendation"),
-                    content=r.get("action_text", ""),
-                    score=r.get("score"),
-                    metadata=r,
-                ))
-        except Exception:
-            pass
+        if entity_id:
+            try:
+                # Real Phase-8/9 learning-weighted next-best-actions (same pipeline the
+                # /recommendations router uses). Replaces the legacy repo-backed
+                # list_recommendations, which read an unpopulated store and returned zero recs.
+                recommendations = self.recommendation_service.generate_for_advisor(entity_id)["recommendations"]
+                for r in recommendations[:5]:
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.RECOMMENDATIONS,
+                        title=r.get("title", "Recommendation"),
+                        content=r.get("action_text", ""),
+                        score=r.get("priority_score", r.get("score")),
+                        metadata=r,
+                    ))
+            except Exception:
+                pass
 
         return items
