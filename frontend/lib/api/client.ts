@@ -18,6 +18,10 @@ export class ApiClient {
     const response = await fetch(`${this.baseUrl}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" });
     return this.unwrap<T>(response);
   }
+  async patch<T>(path: string, body?: unknown): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${path}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" });
+    return this.unwrap<T>(response);
+  }
   private async unwrap<T>(response: Response): Promise<T> {
     if (!response.ok) throw new Error(`API error ${response.status}: ${await response.text()}`);
     const payload = (await response.json()) as ApiEnvelope<T> | T;

@@ -1,13 +1,17 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { GraduationCap, Star, CheckSquare, ClipboardCheck } from "lucide-react";
+import { GraduationCap, Star, CheckSquare, ClipboardCheck, ClipboardList, Plus, UserCog } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
-import { fetchCoaching, type CoachingReviewData } from "@/lib/api/coaching";
+import {
+  fetchCoaching, fetchCoachingTasks, fetchTaskCatalog, createCoachingTask, updateCoachingTaskStatus,
+  type CoachingReviewData, type CoachingTask, type TaskTemplate, type UserRef,
+} from "@/lib/api/coaching";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { colors } from "@/styles/tokens";
 
 const STATUS_VARIANT: Record<string, "success" | "warning" | "glass"> = {
   COMPLETED: "success",
@@ -15,17 +19,30 @@ const STATUS_VARIANT: Record<string, "success" | "warning" | "glass"> = {
   PENDING: "warning",
 };
 
+const PRIORITY_COLOR: Record<string, string> = { HIGH: colors.negative, MEDIUM: colors.warning, LOW: colors.positive };
+const TASK_STATUS_COLOR: Record<string, string> = { OPEN: colors.primary, IN_PROGRESS: colors.warning, COMPLETED: colors.positive };
+
+function userLabel(u?: UserRef | null): string {
+  if (!u || !u.display_name) return "—";
+  return u.role_code ? `${u.display_name} (${u.role_code})` : u.display_name;
+}
+
 export function CoachingReviewsWorkspace() {
   const shell = useShellContext();
   const [advisorId, setAdvisorId] = useState("A001");
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
   const [data, setData] = useState<CoachingReviewData | null>(null);
+  const [tasks, setTasks] = useState<CoachingTask[]>([]);
+  const [catalog, setCatalog] = useState<TaskTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<number>(0);
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     apiClient
       .get<{ advisors: Array<{ advisor_id: string; advisor_name: string | null }> }>("/advisor/list")
       .then((r) => setAdvisors(r.advisors))
       .catch(() => setAdvisors([]));
+    fetchTaskCatalog().then(setCatalog).catch(() => setCatalog([]));
   }, []);
 
   useEffect(() => {
@@ -33,16 +50,42 @@ export function CoachingReviewsWorkspace() {
     else resolveScope(shell.scopeType, shell.scopeId).then((r) => setAdvisorId(r.advisor_ids[0] ?? "A001")).catch(() => undefined);
   }, [shell.scopeType, shell.scopeId]);
 
+  const loadTasks = useCallback(async () => {
+    fetchCoachingTasks(advisorId).then((t) => setTasks(t.tasks)).catch(() => setTasks([]));
+  }, [advisorId]);
+
   const load = useCallback(async () => {
     setData(await fetchCoaching(advisorId));
-  }, [advisorId]);
+    await loadTasks();
+  }, [advisorId, loadTasks]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  const assignTask = async () => {
+    const tpl = catalog[selectedTemplate];
+    if (!tpl) return;
+    setAssigning(true);
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await createCoachingTask({ advisor_id: advisorId, title: tpl.title, category: tpl.category, instruction: tpl.instruction, priority: tpl.priority, created_date: today });
+      await loadTasks();
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  const cycleStatus = async (task: CoachingTask) => {
+    const next = task.status === "OPEN" ? "IN_PROGRESS" : task.status === "IN_PROGRESS" ? "COMPLETED" : "OPEN";
+    const today = new Date().toISOString().slice(0, 10);
+    await updateCoachingTaskStatus(task.task_id, next, next === "COMPLETED" ? today : null);
+    await loadTasks();
+  };
+
   const s = data?.summary;
   const advisorName = data?.advisor_name ?? advisorId;
+  const openTasks = tasks.filter((t) => t.status !== "COMPLETED").length;
 
   return (
     <div className="space-y-3">
@@ -68,16 +111,54 @@ export function CoachingReviewsWorkspace() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiStatCard label="Coaching Sessions" value={String(s?.session_count ?? "—")} />
-        <KpiStatCard label="Manager Reviews" value={String(s?.review_count ?? "—")} />
-        <KpiStatCard label="Avg Review Rating" value={s?.avg_rating != null ? `${s.avg_rating.toFixed(1)}/5` : "—"} />
-        <KpiStatCard
-          label="Open Action Items"
-          value={String(s?.open_action_items ?? "—")}
-          delta={s ? `${s.total_action_items} total` : undefined}
-          deltaPositive={s?.open_action_items === 0}
-        />
+        <KpiStatCard label="Coaching Sessions" value={String(s?.session_count ?? "—")} icon={GraduationCap} iconColor={colors.primary} />
+        <KpiStatCard label="Manager Reviews" value={String(s?.review_count ?? "—")} icon={ClipboardCheck} iconColor={colors.aiAccent} />
+        <KpiStatCard label="Avg Review Rating" value={s?.avg_rating != null ? `${s.avg_rating.toFixed(1)}/5` : "—"} icon={Star} iconColor={colors.warning} />
+        <KpiStatCard label="Open Coaching Tasks" value={String(openTasks)} icon={ClipboardList} iconColor={colors.positive} />
       </div>
+
+      {/* Manager-assigns-task feature (CLAUDE.md 9.5): assign from catalog, persist, track, feed AI */}
+      <Card>
+        <CardHeader className="p-3">
+          <CardTitle className="flex items-center gap-2 text-[13px]"><UserCog className="h-4 w-4 text-primary" /> Manager · Assign Coaching Task</CardTitle>
+        </CardHeader>
+        <CardContent className="p-3">
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="min-w-[260px] flex-1">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.05em]" style={{ color: colors.text.muted }}>Task template</label>
+              <select className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-[12px]" value={selectedTemplate} onChange={(e) => setSelectedTemplate(Number(e.target.value))}>
+                {catalog.map((t, i) => <option key={i} value={i}>{t.title} · {t.category} · {t.priority}</option>)}
+              </select>
+              {catalog[selectedTemplate] && <p className="mt-1 text-[11px] text-muted-foreground">{catalog[selectedTemplate].instruction}</p>}
+            </div>
+            <button onClick={assignTask} disabled={assigning || catalog.length === 0} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[12px] font-semibold text-white disabled:opacity-50" style={{ backgroundColor: colors.primary }}>
+              <Plus className="h-4 w-4" /> {assigning ? "Assigning…" : `Assign to ${advisorName}`}
+            </button>
+          </div>
+
+          <div className="mt-3 space-y-1.5">
+            {tasks.length === 0 && <div className="p-3 text-center text-[12px] text-muted-foreground">No coaching tasks assigned yet.</div>}
+            {tasks.map((t) => (
+              <div key={t.task_id} className="flex flex-wrap items-center gap-2 rounded-lg border p-2.5" style={{ borderColor: colors.surface.border }}>
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: TASK_STATUS_COLOR[t.status] ?? colors.text.muted }} />
+                <div className="min-w-[200px] flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] font-semibold" style={{ color: colors.text.primary }}>{t.title}</span>
+                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase" style={{ color: PRIORITY_COLOR[t.priority ?? ""] ?? colors.text.muted, backgroundColor: `${PRIORITY_COLOR[t.priority ?? ""] ?? colors.text.muted}14` }}>{t.priority}</span>
+                    <span className="text-[10px]" style={{ color: colors.text.muted }}>{t.category}</span>
+                  </div>
+                  <p className="text-[11px]" style={{ color: colors.text.secondary }}>{t.instruction}</p>
+                  <p className="text-[10px]" style={{ color: colors.text.muted }}>Assigned by {userLabel(t.assigned_by)}{t.due_date ? ` · due ${t.due_date}` : ""}</p>
+                </div>
+                <button onClick={() => cycleStatus(t)} className="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.04em]" style={{ borderColor: colors.surface.border, color: TASK_STATUS_COLOR[t.status] ?? colors.text.muted }}>
+                  {t.status.replace("_", " ")}
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">Assigned tasks persist to the graph and are fed to the AI Assistant as coaching context for this advisor.</p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-3 xl:grid-cols-[1.3fr_.7fr]">
         <Card>
@@ -110,11 +191,10 @@ export function CoachingReviewsWorkspace() {
                     ))}
                   </ul>
                 )}
-                {session.next_session_date && (
-                  <div className="mt-2 text-[11px] text-muted-foreground">
-                    Next session · <span className="font-mono">{session.next_session_date}</span> · coach {session.coach_user_id}
-                  </div>
-                )}
+                <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <UserCog className="h-3 w-3" /> Coach {userLabel(session.coach)}
+                  {session.next_session_date && <span>· next <span className="font-mono">{session.next_session_date}</span></span>}
+                </div>
               </div>
             ))}
           </CardContent>
@@ -147,8 +227,9 @@ export function CoachingReviewsWorkspace() {
                   </span>
                 </div>
                 <p className="mt-1 text-muted-foreground">{review.summary}</p>
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  <span className="font-mono">{review.review_date}</span> · {review.reviewer_user_id} ·{" "}
+                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <UserCog className="h-3 w-3" /> <span className="font-semibold" style={{ color: colors.text.secondary }}>{userLabel(review.reviewer)}</span>
+                  · <span className="font-mono">{review.review_date}</span> ·{" "}
                   <Badge variant={STATUS_VARIANT[review.status ?? ""] ?? "glass"}>{review.status}</Badge>
                 </div>
               </div>

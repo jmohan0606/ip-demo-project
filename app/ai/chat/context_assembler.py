@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.coaching.service import CoachingReviewService
 from app.models.ai_chat import ChatContextItem, ChatContextSource, ChatRequest
 from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.models.knowledge import KnowledgeSearchRequest
@@ -21,6 +22,7 @@ class ChatContextAssembler:
         self.prediction_service = PredictionService()
         self.opportunity_service = OpportunityDetectionService()
         self.recommendation_service = RecommendationPipelineService()
+        self.coaching_service = CoachingReviewService()
 
     def assemble(self, request: ChatRequest) -> list[ChatContextItem]:
         items: list[ChatContextItem] = []
@@ -73,6 +75,23 @@ class ChatContextAssembler:
                 ))
 
         entity_id = request.scope_id if request.scope_type.value == "Advisor" else None
+
+        # Manager-assigned coaching tasks feed the AI as real context (CLAUDE.md 9.5):
+        # instructions a manager assigns actually steer the assistant's answers.
+        if entity_id:
+            try:
+                open_tasks = self.coaching_service.open_tasks_for_context(entity_id)
+                if open_tasks:
+                    lines = [f"- [{t['category']} · {t['priority']}] {t['title']}: {t['instruction']} (assigned by {t['assigned_by']})" for t in open_tasks]
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.COACHING_TASKS,
+                        title="Manager Coaching Tasks",
+                        content="Open coaching tasks assigned to this advisor:\n" + "\n".join(lines),
+                        score=float(len(open_tasks)),
+                        metadata={"open_task_count": len(open_tasks)},
+                    ))
+            except Exception:
+                pass
 
         if request.include_insights:
             try:

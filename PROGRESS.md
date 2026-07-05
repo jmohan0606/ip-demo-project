@@ -1207,13 +1207,35 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   NOTE: uvicorn --reload mid-restart can transiently blank the page (no per-page retry-on-error,
   a pre-existing app pattern); recovers on reload/Refresh. Screenshot: client360-after.png.
 
-### RESUME AT: Phase 4 page 6/16 = **Coaching & Reviews** (9.5/9.12): fix static/duplicate coaching
-data across advisors (real variation — the coaching_session data already varies per Phase 2, verify
-+ surface it); **build the real manager-assigns-task feature** — manager picks a coaching
-instruction/task from a selectable list, persisted to DB (phx_dm_coaching_task exists from Phase 2),
-retrievable later with status, AND available as context to AI Assistant/recommendations (real read
-path, not just storage); Manager Reviews section shows the reviewing manager identity (photo/name)
-respecting viewer persona/hierarchy. Then: CRM Activities →
+**Page 6/16 — Coaching & Reviews (9.5/9.12) — DONE (includes a genuine new feature).**
+- Coaching sessions already vary per advisor (Phase-2 data, 8 distinct summaries) — verified; now
+  resolve coach_user_id/reviewer_user_id → real manager identity (display_name + role_code via
+  phx_dm_persona_user) on every session and review.
+- **NEW manager-assigns-task feature** (real CRUD, not a display fix): extended
+  `app/coaching/service.py` with a selectable TASK_CATALOG (6 templates) + `tasks()` /
+  `create_task()` / `update_task_status()` persisted through the GraphClient adapter (upsert_vertex
+  + upsert_edge into phx_dm_coaching_task + _for_advisor/_assigned_by edges; the mock upsert writes
+  the same indexes the read path traverses, so tasks are immediately retrievable). Router:
+  GET /coaching/task-catalog, GET /coaching/tasks/{id}, POST /coaching/tasks,
+  PATCH /coaching/tasks/{id}/status. **Real AI read path**: `open_tasks_for_context()` wired into
+  `app/ai/chat/context_assembler.py` (new ChatContextSource.COACHING_TASKS) so a manager's assigned
+  task actually steers the AI Assistant — VERIFIED: assigned "Focus on ESG portfolio migration" →
+  it appears in /ai-chat/ask context items for A001. CRUD roundtrip verified (create→retrieve→
+  complete, all persisted; note: mock upserts are in-memory, reset on backend restart).
+- Frontend: apiClient gained `patch()`. Workspace adds a "Manager · Assign Coaching Task" card
+  (template dropdown + instruction preview + Assign button) and a live task list with color-coded
+  priority + click-to-cycle status (OPEN→IN_PROGRESS→COMPLETED). Sessions/reviews now show manager
+  identity (name + role). KPI "Open Coaching Tasks".
+- Verified: tsc PASS; Playwright 0 console errors; task assignment + status cycling functional.
+  Screenshot: coaching-after.png.
+
+### RESUME AT: Phase 4 page 7/16 = **CRM Activities** (9.5/9.12): build realistic varied
+leads/referrals/opportunities (Phase-2 data exists); fix the pipeline funnel viz (diagnose what's
+wrong — should be a funnel/stage chart); add upcoming activities/meetings/notes/tasks with
+type/subject/who/when/status columns, a calendar view, activities grouped by type with icons, recent
+notes that vary per advisor. "Recent Meetings" table columns exactly: Date, Subject, With, Type,
+Outcome, Next Step; "Activities This Week" = row of icon-labeled counts by type (Meetings/Calls/
+Emails/Tasks). Then: What-If[save-as-rec] →
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),
