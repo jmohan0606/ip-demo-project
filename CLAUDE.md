@@ -778,3 +778,397 @@ Hackathon flagship mockup — refines, does not replace, the 9.5 bullets above)
   scope-following fix in Phase 1, not just the advisor's own data.
 - KPI cards throughout use a colored icon in a soft-colored circle to their left (not just a
   bare number) — confirmed directly in both mockups; apply via the Phase 0 shared component.
+
+## 10. Industry-standard enhancements (expert additions, NOT part of tonight's Section 9 run —
+future session candidates, reviewed and prioritized when the person is next available)
+
+Section 9 was built almost entirely from the client's own literal feedback. This section adds
+what real wealth-management and advisor-development platforms include that wasn't otherwise
+requested — the goal is "award-caliber," not just "complete." Do NOT fold these into an
+unattended overnight run without explicit confirmation — they're listed here so they're not
+lost, and so the next planning conversation starts from a fuller picture, not to expand tonight's
+already-bounded scope.
+
+**Household-level intelligence (currently everything stops at advisor-level; real platforms go
+one layer deeper into the actual client relationship. **Revised after Section 11 was planned:
+these are now simple extensions of Section 11.1's model tier, not separate builds — implement
+after 11, reusing its trained models rather than building parallel ones.**):**
+- Household churn/attrition risk — extend the existing prediction pipeline (same pattern as
+  advisor-level REVENUE_DECLINE_RISK) down to individual households.
+- Next-best-product propensity per household, distinct from advisor-level opportunities.
+- Book-of-business concentration risk: top-10-households as % of an advisor's total AUM.
+- Review-cadence compliance: which households are overdue for their annual review.
+
+**AGP-specific depth (the platform's namesake deserves the most industry texture):**
+- Tiered cohort structure with visible progression (e.g. Associate → Certified → Senior), not
+  just a flat score.
+- Mentor/mentee pairing — a real structural element of advisor development programs. **Upgrade
+  opportunity once Section 11's GNN embeddings exist:** pair mentors/mentees by embedding
+  similarity plus capacity constraints, rather than arbitrary assignment. This specific matching
+  algorithm design (a real constrained-matching problem) is Fable-appropriate; the pairing
+  display itself is not.
+- AGP program ROI: has an enrolled advisor's production grown faster since joining than a peer
+  baseline? Likely the single most convincing evidence for a platform built around this program.
+  **The peer-baseline methodology itself (what makes a fair comparison) is genuine statistical
+  design work — Fable-appropriate, not a mechanical query.**
+
+**Vulnerable-client / anomaly detection — MOVED to Section 11.1.** This is architecture-
+specified (the Prediction & Recommendation Engine poster's own Model Strategy table names
+"Isolation Forest / Autoencoders"), not a vague future idea — build it there, not here.
+
+**Give the two already-flagged-as-broken header icons real purpose instead of just repairing
+them:** the search icon becomes a real global search across advisors/households/documents; the
+notification bell becomes a real feed (overdue reviews, AGP milestones hit, compliance flags).
+Same implementation effort as a cosmetic fix, meaningfully more value.
+
+**Executive-level polish real BI platforms have by default:**
+- AUM net-flows waterfall (new AUM + organic growth − departures − fees) on the Executive
+  Dashboard — the classic executive wealth-management chart, currently absent.
+- Export any dashboard view to PDF/PPT — generalize the presentation-export capability already
+  requested specifically for the Revenue Trend Explorer (9.6) to the whole platform.
+
+**Lower priority / mention for completeness, not urgent:** Centers-of-Influence/referral-source
+tracking as a CRM Activities extension; advisor succession-readiness tracking; fee/revenue-mix
+transparency (fee-based vs. commission) per advisor. **AI model governance/audit-log page —
+mostly subsumed by Section 11.11's Model Strategy table and AI Protections checklist once built;
+only check for genuine remaining gaps here, don't rebuild what 11 already covers.**
+
+When this section is prioritized in a future session (after Section 9 AND Section 11 are both
+complete, per that ordering), run the same discipline as Section 9: real backend logic behind
+every card, real evidence for every "done" claim, bounded scope per item before starting.
+**Model routing for what remains here: `fable-architect` for the AGP ROI methodology and the
+GNN-similarity mentor/mentee pairing algorithm specifically; everything else in this section is
+Opus-appropriate.**
+
+## 11. Production Architecture Alignment — real ML/DL/GNN/RL/FL ("make the dots connect")
+
+**Sequencing: strictly AFTER Section 9's phases complete. Do not interleave with the Section 9
+run.** Source of truth: the 12 architecture posters in `docs/spec/architecture/` (view them
+directly before starting — High Level, Prediction & Recommendation Engine, Temporal Knowledge
+Graph, PACE AI, Agent Orchestration, Context Engineering, Coach Q&A, Data & Knowledge Ingestion,
+Evaluation & Trust, MCP Layer, Observability, Security & Governance).
+
+**Why this section exists:** the client's core interest is seeing the production architecture's
+intelligence layer — feature engineering → real predictions (ML/DL/GNN) → recommendations → RL
+feedback, plus FL — actually working locally, dots connected. **Correction, now verified precisely
+via a real traced call-graph check (not memory) as of the end of Section 9:** the LIVE
+`/predictions` path is an additive weighted scorecard (`app/prediction/service.py`), NOT the
+sklearn RandomForest. A real, working RandomForest DOES exist (`app/prediction/prediction_engine.py`
+`LocalPredictionEngine`), but its only caller (`app/services/prediction_service.py`'s
+`run_predictions()` — note the different, easily-confused module path,
+`app.services.prediction_service` vs. the live `app.prediction.service`) is itself never invoked
+by any router, agent tool, or context path. **Frame 11.1's prediction work correctly: this is
+promoting a real, already-written, currently-dormant model to the live path for the first time —
+not retraining a model that's currently serving.** Concrete tasks: decide scorecard-vs-model
+precedence (the scorecard's own methodology text already advertises the RF as the "trained
+alternative... when per-cohort training data is sufficient" — make that real, not just a string);
+wire the model into the live endpoint/agent-tool path; ensure its output carries the same
+contributions/evidence/reasoning-trace shape the scorecard already persists; train it on real
+labels from Section 9's now-accumulated feedback history rather than a synthetic rank heuristic;
+confirm training data volume is adequate on the real (now-expanded) dataset. Separately, there is
+no GNN anywhere in the build — that gap is real and unchanged — and no household-level model, no
+sequence/forecast model exist yet either.
+
+**Feasibility already assessed — this is achievable on the 2-core box, unlike the TigerGraph
+query-install wall:** PyTorch is already installed (sentence-transformers dependency). XGBoost
+on the 100K+ row transaction/household data is trivial on CPU. A 2-layer GraphSAGE on a ~10K-
+vertex graph via torch-geometric trains in minutes on CPU. A small GRU on 60 monthly revenue
+sequences is trivial. **Honest small-data rule:** 60 advisors is too few samples for advisor-
+level supervised training — train at household/transaction level (hundreds to thousands of
+samples) and aggregate up; state small-data caveats plainly in model cards; never claim
+production-grade accuracy from demo-scale data.
+
+### 11.1 Real model tier — `ModelClient` adapter (same pattern as Graph/LLM/Embedding clients)
+
+`MODEL_CLIENT_MODE=real|deterministic`, deterministic = the current verified scorers (kept as
+fallback, never deleted). Real tier, corrected after direct research into TigerGraph's own
+capabilities (do not hand-roll what TigerGraph already provides natively):
+
+- **Classical graph algorithms — use TigerGraph's in-database GDS library, not a custom
+  implementation, and each with a concrete, named purpose (no algorithm without a screen it
+  serves):**
+  - **Centrality (PageRank)** → a "Referral Network Position" indicator on CRM Activities and
+    Advisor 360: identifies which advisors are key connectors in the referral network (highly
+    connected, central to how referrals actually flow), shown plainly ("this advisor is a
+    strong referral hub — connected to N other advisors' referral chains"). Feeds Section 10's
+    AGP mentor selection: high-centrality advisors are natural mentor candidates, not an
+    arbitrary pick.
+  - **Community detection (Louvain)** → powers Section 10's AGP cohort structure directly: instead
+    of arbitrary tiers, detected communities of advisors with genuinely similar patterns (book
+    composition, growth trajectory) become the suggested cohorts, shown on the AGP Program
+    Dashboard as "Peer Communities" with real membership — the tiering is discovered, not
+    assigned by fiat.
+  - **Similarity** (existing, being upgraded to GNN-based) → Similar Advisors/Households/
+    Accounts panels, peer benchmarking.
+  Install and run these exactly like the existing GQ-### queries (`INSTALL QUERY`/`RUN QUERY`,
+  or via `pyTigerGraph`'s `Featurizer.installAlgorithm()`/`runAlgorithm()`). If a purpose can't
+  be stated this concretely for something else on the poster's algorithm list, don't build it
+  just because it's available — that's exactly the "Learning State" mistake from earlier in this
+  build, repeated at the algorithm level instead of the UI level.
+- **GNN — three tiers, in order of preference, not one hand-rolled implementation:**
+  1. **`pyTigerGraph[gds]`** (the GDS extra: `pip install pyTigerGraph[gds]`) — this ships a
+     built-in `GraphSAGEForVertexClassification` model class with `.fit()`/`.predict()`, plus a
+     `neighborLoader()` that pulls features directly from live TigerGraph vertices into PyTorch
+     Geometric format, with train/valid/test split utilities included. This is the correct,
+     platform-native way to train a real GNN here — prefer it over a custom implementation.
+     **Real dependency risk, stated plainly:** `neighborLoader` needs actual edge data loaded in
+     the live local TigerGraph instance to sample neighborhoods, and Phase 2's finding was that
+     full edge load stalls on this 2-core box. Before starting this tier, attempt a bounded,
+     narrower edge load — only the specific edge types GraphSAGE actually needs (advisor↔
+     household, household↔account, advisor↔opportunity, etc.), not all 126 types — time-boxed,
+     same hardware-guardrail discipline as Phase 3's MCP adapter.
+  2. **Local PyTorch Geometric GraphSAGE as fallback** — if tier 1's live edge load doesn't come
+     up cleanly, build the same GraphSAGE architecture trained against an in-memory graph
+     constructed from `MockGraphClient`'s full edge data (the mock store already has all 126
+     edge types / 109K+ rows in Python memory, even when the live engine doesn't). This is not
+     an inferior fallback — same model, same real training, just not using TigerGraph's native
+     loader. State clearly in the model card which path was actually used.
+  3. Deterministic feature-projection (current) — final fallback only if both above fail.
+- **Vector storage — clean split by data domain, no overlap, no "which one wins" ambiguity
+  (confirmed final):**
+  - **Chroma stays exactly as-is, untouched, for document/RAG vectors only** — playbooks,
+    policies, knowledge base chunks. This is already built and extensively verified across
+    multiple checkpoints; no migration, no side-by-side trial, nothing to prove here. Out of
+    scope for this section entirely.
+  - **TigerGraph-native vector storage handles every ML/feature-engineering/GNN vector.**
+    Confirmed real via TigerGraph's own published research (TigerVector, SIGMOD 2025) and live
+    GraphStudio 4.1+ docs: a genuine `EMBEDDING` vertex attribute type with HNSW indexing, GSQL
+    extended with native vector search including hybrid graph+vector queries in one query (e.g.
+    "similar to X AND connected to Y" natively). Use this for advisor/household/portfolio
+    embeddings, GNN output, and any learned representation of a graph entity — build a
+    `TigerGraphVectorClient` (same Section-2 adapter pattern) as the one real implementation for
+    this domain; a deterministic fallback (current feature-projection similarity) covers the
+    case where the local install doesn't support it, same pattern as every other adapter here.
+  - **Verify empirically before building on it, don't assume version support:** confirm the
+    local TigerGraph Community Edition 4.2.3 container actually supports `EMBEDDING` attributes
+    — same "attempt it, document honestly what actually works on this hardware/version"
+    discipline already used for the MCP tier and the edge-loading limitation.
+
+- **Retrain the existing RandomForest (or upgrade to XGBoost/LightGBM) on real feedback-loop
+  labels** for the two existing risk predictions (REVENUE_DECLINE_RISK, AGP_OFF_TRACK_RISK) —
+  replacing the original synthetic rank-heuristic training target with real recorded outcomes,
+  now that enough exist. Add a new household-level churn propensity model (genuinely new). Real
+  SHAP feature contributions replace the current hand-computed contribution bars on the
+  Predictions page (real SHAP values, same UI pattern) — verify before/after: same advisor,
+  contribution values before (synthetic-label model) vs. after (real-label model).
+- **Small sequence model (GRU/LSTM)** on monthly revenue series → a real forecast line (with
+  uncertainty band) on Predictions/Revenue pages.
+- **Anomaly detection (Isolation Forest, or an autoencoder) — promoted here from Section 10,
+  not left as a vague future idea.** The Prediction & Recommendation Engine poster explicitly
+  names "Anomaly Detection: Isolation Forest / Autoencoders" as a model type — this is
+  architecture-specified, not invented. Use it for the vulnerable-client detection concept from
+  Section 10 (unusual withdrawal patterns, activity inconsistent with a household's own history)
+  — the model fitting itself is mechanical (Opus-appropriate), but delegate the feature
+  selection and the responsible, non-alarmist presentation design to `fable-architect`, same
+  reasoning as the RL-explanation delegation.
+- **Model registry + model cards page, and Model Strategy/AI Protections/Evaluation sections —
+  build these as new tabs/sections WITHIN the Admin page Section 9 already rebuilds, not as
+  separate new pages.** Real reuse, not just tidiness: avoids 2-3 redundant page shells.
+  Registry: every model's name, version, algorithm (including which GNN tier actually ran),
+  training date, training-data description, metrics, feature list, small-data caveats. Training
+  runs persist artifacts to disk (`models/artifacts/`, gitignored) with a committed metrics/
+  registry JSON.
+- Training must be re-runnable via one script per model; time-box GNN training epochs sensibly
+  for the 2-core box; cache artifacts, don't retrain on every boot.
+- **Reuse points from Section 9 — check these before building anything new, don't duplicate:**
+  the Phase 0 shared formatting components; 9.3's expanded sample data as the training data
+  (check its outcome-variety is sufficient before generating more); 9.4's live pyTigerGraph
+  connection tier (extend for the `[gds]` extra rather than reconnecting separately); the
+  Opportunities & Recommendations page for the RL/feedback visualization (11.2/11.3); the
+  Explainability Explorer for the context-pipeline trace (11.6); the AI Assistant/Knowledge Hub's
+  restructured citation cards for reranking scores (11.6) — extend each, do not rebuild.
+- **Precision on features vs. embeddings, since this determines how the pipeline connects:** the
+
+  33 named, interpretable Feature_Catalog features (Phase 5, already built) are the INPUT — both
+  as columns for the XGBoost tabular models and as node-feature vectors for the GNN. The GNN's
+  OUTPUT — its learned embeddings — is the actual dense vector, stored per the Chroma decision
+  above. Features and embeddings are not the same thing; don't conflate them in the UI or docs.
+
+### 11.2 RL formalization (extends the already-verified feedback loop — do not rebuild it)
+
+Formalize the existing weight-update mechanism as a documented contextual bandit: state
+(advisor feature snapshot), action (recommendation family), reward (accept/complete positive,
+reject negative — document the exact values already in use), update rule. Feed this into the
+Section 9.5 learning-state explanation rather than duplicating it. Add a replay visualization:
+weight trajectory over the real recorded feedback history.
+
+### 11.3 FL = Feedback Loop (corrected — this is NOT Federated Learning; do not build FedAvg)
+
+**Correction from an earlier draft of this section, which misread "FL" as Federated Learning.**
+The client's actual meaning, confirmed directly: recommendations get simulated through to a
+recorded outcome (successful or unsuccessful), and that outcome should feed back into the GNN's
+learned knowledge — not just the existing bandit-weight multiplier — so the system doesn't keep
+surfacing the same kind of unsuccessful recommendation. This is a real, well-established pattern
+(reinforcement learning for recommender systems using human accept/reject signal as reward,
+conceptually adjacent to RLHF but applied to a recommendation policy rather than an LLM) — build
+this, not a federated-learning simulation.
+
+**Design, additive to the already-verified bandit system, not a replacement for it:**
+- Keep the existing weight-multiplier mechanism exactly as-is — it's real, verified, and is the
+  simple, visible layer most users will actually watch move.
+- Add a deeper layer on top: recorded outcomes (accept+completed+positive business impact = a
+  positive label; reject or completed-with-negative-impact = a negative label) become training
+  signal for periodic GNN embedding fine-tuning — e.g. a contrastive-style objective that pulls
+  together the embeddings of entities (advisor/household/opportunity-type combinations) that
+  co-occurred in successful outcomes, and pushes apart those from unsuccessful ones. Framed
+  simply: the graph's "sense of what similar situations look like" should shift based on what
+  has actually worked, not stay static after initial training.
+- Build a live "Run Feedback-Driven Retraining" control: show a recommendation/similarity result
+  BEFORE incorporating a batch of recorded outcomes, run the update, show it AFTER — a visible,
+  honest demonstration of the loop, using real recorded feedback history, not staged data.
+- **Data requirement, ties to 9.3/11.1's data expansion:** this needs real OUTCOME VARIETY —
+  a meaningful number of both successful and unsuccessful recorded outcomes across different
+  recommendation families, not uniformly-positive sample data. Extend the sample-data generator
+  to produce a realistic mix of both, with enough volume that the retraining step has genuine
+  signal to learn from.
+- Terminology note for any client-facing copy: describe this as "outcome-driven learning" or
+  "the feedback loop," matching the poster's own "Outcomes Driving Learning" framing — avoid
+  calling it Federated Learning or RLHF in exact technical terms, since neither is precisely
+  what's being built; both are reasonable conceptual analogies, not literal descriptions.
+
+### 11.4 Temporal knowledge graph showcase (capability exists in fragments — surface it)
+
+Point-in-time queries ("as-of" date selector) on the Feature Engineering Lab (compare feature
+snapshots across dates — versioned snapshots already exist), and a temporal traversal demo in
+Graph Explorer (entity state/relationships as of a chosen date). Connect the existing Memory
+Timeline to this story explicitly.
+
+
+### 11.5 Evaluation & Trust layer (currently absent entirely; the poster most likely to impress
+an AI-governance-minded client)
+
+- Golden dataset: 20-30 curated Q&A pairs with expected grounded answers/citations, committed
+  as a versioned file.
+- Eval harness: one command runs the golden set through the real Coach Q&A path and scores
+  groundedness (does the answer cite retrieved chunks/graph facts that actually support it),
+  citation coverage, and refusal-correctness (the no-match honesty case already verified once).
+- Results page: latest eval run's scores, per-question pass/fail, trend across runs. Wire the
+  hallucination-guard principle visibly: answers must trace to retrieved evidence.
+
+### 11.6 Context engineering pipeline — memory coverage audit + real ranking (not just visibility)
+
+**Standing rule for this entire section, stated once, applies everywhere below:** any
+verification of AI-*generated behavior* — grounding quality, continuity, structured-response
+formatting, reranking effectiveness, RAG answer quality, scope-level reasoning — MUST use
+`LLM_CLIENT_MODE=claude` (real API calls), never mock. Mock output is deterministic/templated by
+design and cannot demonstrate genuine reasoning; it's fine for pipeline-wiring/data-correctness
+checks where the LLM's actual prose isn't what's being tested, but not for anything claiming to
+prove the system is actually intelligent.
+
+**Persona/hierarchy-scope-aware AI reasoning — real gap, not yet built or tested.** The Section 9
+scope-following fix uses a hook literally named `useScopedAdvisor`, which by design resolves any
+hierarchy scope down to one representative advisor. That's proven correct for advisor-level
+questions. It has never been tested — and is very likely NOT yet capable — of handling a genuine
+rollup-level question: an MDW asking about their advisors broadly, a DDW asking "why is my
+division's revenue down" or "which of my advisors need attention," where a correct answer
+requires reasoning across ALL entities in that scope, not resolving to a single one. The
+underlying capability already exists (`ScopeRollupService`, built for the Executive Dashboard,
+does real aggregate reasoning across many advisors) — extend the AI Assistant/agentic context
+assembler to consult it (or an equivalent rollup query) whenever the active persona/scope is not
+Advisor, instead of defaulting to one resolved advisor. Build this before claiming the AI
+Assistant is scope-complete.
+
+**Multi-turn continuity + scope-level reasoning test — combined, using real Claude, before
+building anything further:**
+1. Advisor-level: ask a real question for one advisor, confirm the turn is written to memory,
+   ask a natural follow-up that only makes sense given turn 1 without restating it, show the
+   actual assembled context for turn 2, confirm the real answer correctly builds on turn 1.
+2. Division/rollup-level: switch scope to a Division (DDW persona), ask "why is my division's
+   revenue down this quarter" or equivalent. Show the actual assembled context — does it contain
+   aggregated/multi-advisor data, or does it silently fall back to one advisor? Confirm the real
+   answer names actual contributing advisors/figures across the division, not one advisor's
+   story presented as if it were the whole division's.
+3. Both tests: real command output, the real answers, the real context payloads — not a status
+   claim. If either doesn't work today, fix it as part of this section.
+
+The Temporal Knowledge Graph poster specifies 6 memory types per persona: Conversation,
+Reasoning, Semantic, Episodic, Procedural, Preference. **Audit first, don't assume:** which of
+these 6 are actually written to and read from today, versus schema-present but never populated?
+Based on what's verified so far, Conversation and Reasoning memory are real and active; Semantic/
+Episodic/Procedural/Preference are very likely schema-only. Close real gaps found — populate and
+exercise every memory type the poster specifies, not just the two already proven.
+
+**Retrieval must be genuinely relevance-ranked, not a naive fetch-everything-of-type-X.** The
+poster's pipeline explicitly includes a "Context Ranking (Cohere Rerank)" step that does not
+exist in this build today — context assembly currently concatenates by source type, not by
+relevance. Add a `RerankClient` adapter (same Section-2 pattern): a local default (e.g. a
+cross-encoder or the existing embedding cosine-similarity as a rerank proxy — free, no new
+vendor) and a real Cohere Rerank option matching the poster's named tool, selected via
+`RERANK_CLIENT_MODE=local|cohere`. Apply it to context assembly across chat, agentic, and RAG —
+this is what "the agent should be intelligent enough" to do: retrieve broadly, then rank and keep
+only what's actually relevant to the current question/persona/scope, not everything available.
+**This directly serves the continuity test above too**: as an advisor's conversation history
+grows, ranking is what keeps a relevant recent exchange from getting diluted by old, unrelated
+ones — without it, "remembers everything" can mean "remembers nothing usefully."
+
+Once memory coverage and real ranking are in place, make the pipeline VISIBLE per the poster:
+for any AI answer, an expandable trace showing resolved persona → hierarchy scope → time window
+→ retrieved context items (with sources and rank scores) → pruning/compression decisions → final
+prompt assembly. Extend the Explainability Explorer rather than building a new page.
+
+### 11.7 Observability depth
+
+Per-request stage-latency trace (the Hackathon mockup's bottom "SYSTEM TRACE" bar is the target
+visual), token/cost tracking per LLM call (real counts from the Claude adapter; estimated for
+mock), agent-step timeline on the Agent Orchestration page. Extend the Admin/observability
+surface.
+
+### 11.8 MCP layer completion
+
+Section 9.4's 4-tier GraphClient covers graph access. Per the MCP poster, additionally expose
+feature-store lookups and model-serving (predict for advisor X) as MCP tools where feasible, so
+the agent layer's tool registry matches the poster's shape. Bounded: registry + the two tool
+families, not an exhaustive tool catalog.
+
+### 11.9 Model routing and guardrails for this section
+
+- `fable-architect` subagent (by name, via Task tool): 11.1 model design/training approach,
+  11.3 FL simulation design, 11.5 eval harness design. Main thread (Opus): all wiring, pages,
+  registry plumbing, 11.4, 11.6, 11.7, 11.8.
+- Same data guardrail as 9.3: training on expanded data must not mutate the anchored, verified
+  advisor figures. Same evidence bar as the whole build: every model's "trained" claim comes
+  with real metrics output; every page change with real screenshots.
+- Hardware guardrail: if any training step exceeds a sensible time-box on the 2-core machine,
+  reduce scale (fewer epochs, smaller hidden dims, sampled subgraph) and document the reduction
+  honestly — never fake a metric to look better, and never let one stuck training run consume
+  the session (same rule as the Phase 3 MCP time-box).
+
+### 11.10 Poster placement
+
+The 12 architecture posters must be committed to `docs/spec/architecture/` before this section
+starts, so they can be viewed directly during implementation — do not work from a text summary
+of them.
+
+### 11.11 Make the architecture's own story visible in the product (new insight from reviewing
+all 12 posters together, not covered elsewhere)
+
+The architecture frames this as **"Two AI Systems, One Enterprise Platform"** — the proactive
+system (insights, predictions, recommendations, delivered automatically; the architecture
+posters' internal name for this is "PACE AI" — in the actual product, label it **"iPerform
+Insights and Coaching"**) and the reactive system (Q&A and coaching, user-initiated; the
+posters' internal name is "iPerform Coach" — in the product, label it **"iPerform Coach Q&A
+Assistant,"** including on the AI Assistant page itself, not just as a small badge).
+anywhere — everything reads as one undifferentiated "AI Assistant." Making this explicit is a
+low-effort, high-payoff change for a client evaluating whether the demo matches their own
+architecture vision:
+
+- Label proactive surfaces (Insight Summary, Coaching Card, Predictions, Recommendations) with
+  **"iPerform Insights and Coaching"** in their card headers/badges; label the Q&A/chat surface,
+  including the AI Assistant page itself, as **"iPerform Coach Q&A Assistant."**
+  Small UI change, large "this matches exactly what we designed" recognition effect.
+- Every poster has a **"Model Strategy (Per Function)"** table naming which model handles which
+  job. Add a real equivalent to the Admin/Observability page: for the current session, which
+  actual model/adapter served each function (Insight Agent → Claude/mock, Prediction Agent →
+  XGBoost/deterministic, etc.) — ties the demo's real behavior directly back to the client's own
+  documented design, reinforcing "this is your architecture, actually running."
+- Every poster lists **"Top 10 AI Protections."** A simple, honest status checklist (implemented
+  / partial / not yet) on the Admin page turns the client's own governance framework into a
+  visible trust artifact inside the demo, rather than something that only exists on a poster.
+- Every poster lists **Business Outcomes** (Increase Revenue, Increase NCF, Increase AUM,
+  Improve Goal Attainment, Increase Advisor Productivity). Annotate the Executive Dashboard's
+  KPIs with which business outcome each one maps to — connects the technical build back to the
+  client's own stated business case in their own language.
+
+Bounded, mechanical, high-recognition-value — good candidate for early in Section 11 or even
+folded into Section 9's remaining page work if time allows, since none of it depends on the new
+ML/GNN work landing first.
