@@ -4,13 +4,12 @@ from app.models.ai_chat import ChatContextItem, ChatContextSource, ChatRequest
 from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.models.knowledge import KnowledgeSearchRequest
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
-from app.models.opportunities import OpportunitySearchRequest
 from app.models.predictions import PredictionSearchRequest
 from app.models.recommendations import RecommendationSearchRequest
+from app.opportunities.service import OpportunityDetectionService
 from app.services.context_service import ContextService
 from app.services.insights_coaching_service import InsightsCoachingService
 from app.services.knowledge_management_service import KnowledgeManagementService
-from app.services.opportunity_service import OpportunityService
 from app.services.prediction_service import PredictionService
 from app.services.recommendation_service import RecommendationService
 
@@ -21,7 +20,7 @@ class ChatContextAssembler:
         self.knowledge_service = KnowledgeManagementService()
         self.insight_service = InsightsCoachingService()
         self.prediction_service = PredictionService()
-        self.opportunity_service = OpportunityService()
+        self.opportunity_service = OpportunityDetectionService()
         self.recommendation_service = RecommendationService()
 
     def assemble(self, request: ChatRequest) -> list[ChatContextItem]:
@@ -118,20 +117,23 @@ class ChatContextAssembler:
         except Exception:
             pass
 
-        try:
-            opportunities = self.opportunity_service.list_opportunities(
-                OpportunitySearchRequest(entity_id=entity_id, limit=5)
-            )
-            for o in opportunities[:5]:
-                items.append(ChatContextItem(
-                    source=ChatContextSource.OPPORTUNITIES,
-                    title=o.get("title", "Opportunity"),
-                    content=o.get("description", ""),
-                    score=o.get("score"),
-                    metadata=o,
-                ))
-        except Exception:
-            pass
+        if entity_id:
+            try:
+                # Real Phase-8 detection (severity-composed opportunities with lineage) — the
+                # same OpportunityDetectionService the /opportunities router and agent toolbox
+                # use. Replaces the legacy repo-backed OpportunityService, which read an
+                # unpopulated store and returned zero opportunities for chat grounding.
+                opportunities = self.opportunity_service.detect_for_advisor(entity_id)["opportunities"]
+                for o in opportunities[:5]:
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.OPPORTUNITIES,
+                        title=o.get("opportunity_type") or "Opportunity",
+                        content=o.get("impact_summary", ""),
+                        score=o.get("score"),
+                        metadata=o,
+                    ))
+            except Exception:
+                pass
 
         try:
             recommendations = self.recommendation_service.list_recommendations(

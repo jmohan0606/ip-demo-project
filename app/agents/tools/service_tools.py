@@ -5,7 +5,6 @@ from app.models.features import FeatureMaterializationRequest
 from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.models.knowledge import KnowledgeSearchRequest
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
-from app.models.opportunities import OpportunityRunRequest, OpportunitySearchRequest
 from app.models.predictions import PredictionRunRequest, PredictionSearchRequest
 from app.models.recommendations import RecommendationRunRequest, RecommendationSearchRequest
 from app.services.context_service import ContextService
@@ -14,7 +13,6 @@ from app.services.feature_store_service import FeatureStoreService
 from app.services.graph_access_service import GraphAccessService
 from app.services.insights_coaching_service import InsightsCoachingService
 from app.services.knowledge_management_service import KnowledgeManagementService
-from app.services.opportunity_service import OpportunityService
 from app.services.prediction_service import PredictionService
 from app.services.recommendation_service import RecommendationService
 

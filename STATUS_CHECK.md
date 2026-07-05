@@ -1,52 +1,61 @@
-# Status Check — 2026-07-05 — Consolidation sweep: two missed items + follow-ups
+# Status Check — 2026-07-05 — OpportunityService zero/empty bug: does it degrade live output?
 
-The previous pass answered the wrong "4 items" (the old deferred list). This pass completes the
-two genuinely-missed sweep items plus the two follow-ups requested.
+Verified before deferring the repoint, against the same evidence bar as the rest of the build
+(real HTTP calls, real advisor figures, before/after). **Verdict: the bug reaches user-visible
+output on the CHAT page — so it was NOT deferred; the repoint was done now. The AGENTIC page was
+never affected.**
 
-## Results
+## Method
 
-1. **Gitignore the runtime SQLite DBs — DONE.**
-   - Added `data/feature_store/*.db` and `data/sqlite/*.db` to `.gitignore`.
-   - Both were tracked; `git rm --cached` removed them from the index (staged as `D`).
-   - Verified: after a fresh write to both DBs (5.7 MB / 4.3 MB), `git status` shows **only the
-     staged removal** — no `M` (modified) or `??` (untracked) entries — i.e. the live file
-     content is now ignored. `git ls-files` for those globs returns empty (no longer tracked).
+Traced how the legacy `app/services/opportunity_service.py` output flows to each page, then ran
+real endpoints for A001 and A020 (`GRAPH_CLIENT_MODE=mock`, `LLM_CLIENT_MODE=mock`, 109,328 rows).
 
-2. **`docs/tigergraph_foundation/UPSTREAM_FIXES.md` — DONE.**
-   Documents all four real-engine (TigerGraph Community 4.2.3) GSQL/loader defects with symptom,
-   root cause, fix applied, and a suggested validator check for each:
-   - Finding 1 — trailing `;` after `WITH …` DDL clauses rejected by `gsql -f`.
-   - Finding 2 — 182 loading jobs use `$"col"` + `HEADER="true"` without an initialized
-     `DEFINE FILENAME`.
-   - Finding 3 — missing `QUOTE="double"` on jobs whose CSVs carry quoted JSON columns.
-   - Finding 4 — `QUOTE="double"` tokenizer mis-splits fields containing BOTH a `""` escape AND
-     an internal comma (5 vertex types); correct path is RESTPP JSON upsert.
+## Findings per page
 
-3. **Delete `app/services/opportunity_service.py` — NOT deleted; safety check FAILED (reported).**
-   The same zero-live-caller gate used for the rest of the sweep does **not** pass here. It has
-   **three live consumers**:
-   - `app/agents/tools/service_tools.py` (AgentToolbox) → imported by live agent nodes
-     (`prediction_agent`, `tigergraph_graph_agent`, `rag_knowledge_agent`) → `/agentic-ai`.
-   - `app/ai/chat/context_assembler.py` → `chat_engine.py` → `/ai-chat`.
-   - `app/services/recommendation_service.py` (facade).
+### Agentic page (`/agentic-ai/run`) — NOT affected
+- `app/agents/tools/service_tools.py` **imported** the legacy `OpportunityService` (line 17) but
+  **never called it** — a dead import. The toolbox's `run_opportunities` uses the real Phase-8
+  `OpportunityDetectionService.detect_for_advisor` (returns A001 65.4/49.5, A020 74.8/68.1/56.8).
+- So the zero/empty legacy bug **cannot** reach agentic output. Confirmed by inspection + a live
+  run (A020: confidence 0.85, 5 tasks, real answer, 0 errors).
+- Action taken: removed the dead legacy import (+ two unused request-model imports) for hygiene —
+  **no behavior change**.
 
-   My earlier note called it "unwired" — that was accurate only in the narrow sense of *not
-   registered directly in a router*; it is in fact reachable from the live agentic + chat
-   pipelines. Deleting it as-is would break the backend import chain. Per the sweep's rule
-   (delete only with zero live callers), it is **left in place**. Repointing those three
-   consumers from the legacy `OpportunityService` (which reads the old `FeatureStoreService` and
-   returns zeroed features) to the live `OpportunityDetectionService` is a separate,
-   behavior-changing refactor — flagged for a scoped follow-up, not done blindly here.
+### Chat page (`/ai-chat/ask`) — WAS degraded (bug reaches visible output)
+- `app/ai/chat/context_assembler.py` **did call** the legacy
+  `OpportunityService.list_opportunities(entity_id)`, which reads an **unpopulated** SQLite repo
+  and returned **0 rows** for every advisor. (Note: the operative mechanism here is the empty
+  repo-backed read, not literally `FeatureStoreService` zeroing — chat only reads, never writes.)
+- **BEFORE (real HTTP):** for a question literally asking *"What are my top opportunities and
+  their revenue impact?"*, the assembled chat context contained **0 opportunity items** for both
+  A001 and A020 (context sources were only Context-Memory / Knowledge-RAG / Insights). The real
+  pipeline meanwhile has 2 (A001) / 3 (A020) real opportunities. The chat answer to an
+  opportunity question was grounded in everything *except* the real opportunities — a demonstrable
+  visible degradation, not merely an internal tool result.
 
-4. **Final build + boot check — PASS.**
-   - Backend: `import app.api.main` OK — **36 routes** (unchanged from the prior sweep commit;
-     no routers touched this pass).
-   - Frontend: `tsc --noEmit` PASS; `npm run build` compiled successfully, 25/25 static pages.
+## Fix (chat repoint — done now, ADV0001-standard before/after)
 
-## Net file changes this pass
+Repointed `context_assembler` off the legacy `OpportunityService` onto the real
+`OpportunityDetectionService.detect_for_advisor(entity_id)` (guarded to Advisor scope), mapping
+`opportunity_type→title`, `impact_summary→content`, `score→score`.
 
-- `.gitignore` — added the two DB globs.
-- `data/feature_store/iperform_features.db`, `data/sqlite/iperform.db` — untracked
-  (`git rm --cached`).
-- `docs/tigergraph_foundation/UPSTREAM_FIXES.md` — new.
-- `app/services/opportunity_service.py` — unchanged (retained; see item 3).
+| Advisor | BEFORE opp-context items | AFTER opp-context items (real Phase-8) |
+|---|---|---|
+| A001 | 0 | 2 — CRM_EXECUTION **65.4** ($405k pipeline / $324k weighted, 3 overdue), ADVISOR_GROWTH **49.5** (managed 11.2% vs 35%) |
+| A020 | 0 | 3 — AGP_MILESTONE **74.8** (off-track 56.8/100), CRM_EXECUTION **68.1** ($1.05M pipeline / $642.5k weighted), ADVISOR_GROWTH **56.8** (managed 15.1% vs 35%) |
+
+AFTER figures match `OpportunityDetectionService` exactly. The visible A020 answer now surfaces
+the real opportunity ("AGP off-track risk scored 56.8/100 … recover attainment").
+
+## Verification
+
+- Backend imports OK; live server came up; **36 app routes** (unchanged — no routers touched).
+- Chat before/after captured over real HTTP (0 → 2 for A001, 0 → 3 for A020, real figures).
+- Agentic live run post-change: 0.85 confidence, 5 tasks, real answer, 0 errors (no regression).
+- Frontend `tsc --noEmit`: PASS (change is backend-only; no frontend files touched).
+
+## Remaining state
+
+- Legacy `app/services/opportunity_service.py` now has **one** consumer left: the
+  `app/services/recommendation_service.py` facade. Full deletion is still gated on that facade
+  (itself legacy) being repointed/removed — a separate, scoped follow-up, not this fix.
