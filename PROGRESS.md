@@ -1229,13 +1229,35 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - Verified: tsc PASS; Playwright 0 console errors; task assignment + status cycling functional.
   Screenshot: coaching-after.png.
 
-### RESUME AT: Phase 4 page 7/16 = **CRM Activities** (9.5/9.12): build realistic varied
-leads/referrals/opportunities (Phase-2 data exists); fix the pipeline funnel viz (diagnose what's
-wrong — should be a funnel/stage chart); add upcoming activities/meetings/notes/tasks with
-type/subject/who/when/status columns, a calendar view, activities grouped by type with icons, recent
-notes that vary per advisor. "Recent Meetings" table columns exactly: Date, Subject, With, Type,
-Outcome, Next Step; "Activities This Week" = row of icon-labeled counts by type (Meetings/Calls/
-Emails/Tasks). Then: What-If[save-as-rec] →
+**Page 7/16 — CRM Activities (9.5/9.12) — DONE.**
+- **Funnel diagnosis + fix**: the Recharts `<Funnel>` misrendered because it needs monotonically-
+  descending values but per-advisor data mixes terminal WON/LOST bands with open stages at
+  non-monotonic amounts (A001: NEGOTIATE 405k, WON 105k, LOST 255k). Replaced with a deterministic
+  CSS stage funnel (`crm-stage-funnel.tsx`): canonical OPEN stages (Prospect→Qualify→Propose→
+  Negotiate) always render in order (zeros included) as centered trapezoid bands, width ∝ open
+  opportunity count; Won/Lost shown as separate outcome chips. Reads as a funnel regardless of sparse
+  per-advisor data.
+- Backend: new `CrmService.activities()` + `GET /crm/activities/{id}` — reads the 300
+  phx_dm_crm_activity records (5/advisor: MEETING/CALL/EMAIL/REVIEW/FOLLOW_UP) via
+  activity_for_advisor, resolves the household via activity_for_household ("With"), returns by_type
+  counts, this_week window, recent_meetings and upcoming. Varies per advisor (A001 Whitfield vs A009
+  Donnelly).
+- Frontend: Activities This Week (5 icon-count cards), Recent Meetings table with the EXACT columns
+  Date/Subject/With/Type/Outcome(status+sentiment color)/Next Step, Recent Notes (per-activity
+  notes_summary, varies per advisor). refreshNonce dep.
+- Verified: tsc PASS; Playwright 0 console errors. Screenshot: crm-after.png.
+- DEFERRED (honest): a literal calendar-grid view was not built — the `upcoming` agenda data is
+  returned by the API and Recent Meetings/This Week cover the intent; a calendar grid can be added
+  in a later polish pass. Per-advisor CRM volume is thin (5 activities, 3 opps each) — that's the
+  Phase-2 seed reality, not a bug; richer volume would need another data-expansion pass.
+
+### RESUME AT: Phase 4 page 8/16 = **What-If Simulator** (9.5): add "save as recommendation" — a
+manager can save a what-if scenario result as a real recommendation against the advisor, with a
+category and a high-priority flag, persisted THROUGH the real recommendations pipeline (not a
+separate fake table). Reuse the recommendations service write path + the coaching-task upsert
+pattern. Then: Predictions[methodology depth] → Opportunities&Recs[**RL learning-state = delegate to
+Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue
+Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

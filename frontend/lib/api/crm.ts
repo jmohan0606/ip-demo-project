@@ -40,7 +40,32 @@ export interface CrmWorkSummaryRow {
   estimated_value: number;
 }
 
+export interface CrmActivity {
+  activity_id: string;
+  activity_type: string | null;
+  activity_date: string | null;
+  status: string | null;
+  subject: string | null;
+  with: string | null;
+  notes_summary: string | null;
+  next_action: string | null;
+  next_action_date: string | null;
+  sentiment: string | null;
+}
+
+export interface CrmActivitiesData {
+  activities: CrmActivity[];
+  by_type: Record<string, number>;
+  this_week: Record<string, number>;
+  recent_meetings: CrmActivity[];
+  upcoming: CrmActivity[];
+}
+
 const unwrap = <T,>(key: string, obj: Record<string, unknown>): T => (obj?.[key] ?? []) as T;
+
+export async function fetchCrmActivities(advisorId: string): Promise<CrmActivitiesData> {
+  return apiClient.get<CrmActivitiesData>(`/crm/activities/${advisorId}`);
+}
 
 export async function fetchCrmPipeline(advisorId: string): Promise<CrmPipelineStage[]> {
   const d = await apiClient.get<Record<string, unknown>>(`/crm/pipeline/${advisorId}`);

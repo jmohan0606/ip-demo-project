@@ -26,6 +26,11 @@ def pipeline(advisor_id: str):
     return ok(data=CrmService().pipeline_by_stage(advisor_id))
 
 
+@router.get("/activities/{advisor_id}")
+def activities(advisor_id: str, limit: int = 60):
+    return ok(data=CrmService().activities(advisor_id, limit))
+
+
 @router.get("/work-summary/{advisor_id}")
 def work_summary(advisor_id: str):
     return ok(data=CrmService().work_summary(advisor_id))

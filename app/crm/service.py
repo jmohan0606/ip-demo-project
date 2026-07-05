@@ -145,3 +145,58 @@ class CrmService:
             "pipeline_stages": [p.get("stage") for p in pipeline],
         }
         return {"advisor_id": advisor_id, "features": features, "lineage": lineage}
+
+    # -- CRM activities: meetings/calls/emails/reviews/follow-ups (real records) --
+
+    def activities(self, advisor_id: str, limit: int = 60) -> dict:
+        """CRM activities for an advisor with the household they were with, a weekly
+        breakdown by type, recent meetings and per-activity notes — read straight
+        from phx_dm_crm_activity via activity_for_advisor / activity_for_household."""
+        store = self.graph.store
+        rows: list[dict] = []
+        for aid in store.in_ids("phx_dm_activity_for_advisor", advisor_id):
+            a = store.vertex("phx_dm_crm_activity", aid) or {}
+            hh_ids = store.out_ids("phx_dm_activity_for_household", aid)
+            with_name = None
+            if hh_ids:
+                with_name = (store.vertex("phx_dm_household", hh_ids[0]) or {}).get("household_name")
+            rows.append({
+                "activity_id": a.get("activity_id", aid),
+                "activity_type": a.get("activity_type"),
+                "activity_date": a.get("activity_date"),
+                "status": a.get("status"),
+                "subject": a.get("subject"),
+                "with": with_name or "—",
+                "notes_summary": a.get("notes_summary"),
+                "next_action": a.get("next_action"),
+                "next_action_date": a.get("next_action_date"),
+                "sentiment": a.get("sentiment"),
+            })
+        rows.sort(key=lambda r: str(r.get("activity_date") or ""), reverse=True)
+        rows = rows[:limit]
+
+        # counts by type (icon-labelled row) + "this week" window (activity or next
+        # action within ±7 days of today)
+        by_type: dict[str, int] = {}
+        this_week: dict[str, int] = {}
+        for r in rows:
+            t = str(r.get("activity_type") or "OTHER")
+            by_type[t] = by_type.get(t, 0) + 1
+            for d in (_parse_date(r.get("activity_date")), _parse_date(r.get("next_action_date"))):
+                if d and abs((d - self.today).days) <= 7:
+                    this_week[t] = this_week.get(t, 0) + 1
+                    break
+
+        meetings = [r for r in rows if str(r.get("activity_type")).upper() in {"MEETING", "REVIEW"}][:10]
+        upcoming = sorted(
+            (r for r in rows if _parse_date(r.get("next_action_date")) and _parse_date(r["next_action_date"]) >= self.today),
+            key=lambda r: str(r.get("next_action_date")),
+        )[:8]
+        return {
+            "advisor_id": advisor_id,
+            "activities": rows,
+            "by_type": by_type,
+            "this_week": this_week,
+            "recent_meetings": meetings,
+            "upcoming": upcoming,
+        }
