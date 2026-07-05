@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from app.feature_store.sqlite_manager import SQLiteManager
-from app.models.insights_coaching import CoachingPlan, InsightCard, InsightDashboardPayload
+from app.models.insights_coaching import InsightDashboardPayload
 
 
 class InsightRepository:

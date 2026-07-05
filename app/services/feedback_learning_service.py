@@ -10,7 +10,6 @@ from app.models.feedback_learning import (
     FeedbackSubmitRequest,
     FeedbackSubmitResult,
     OutcomeEventRecord,
-    OutcomeType,
 )
 from app.models.memory import ContextMemoryCreateRequest, MemoryScopeType, MemoryType
 from app.models.recommendations import RecommendationActionRequest, RecommendationStatus

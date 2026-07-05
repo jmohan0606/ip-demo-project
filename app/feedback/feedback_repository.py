@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from app.feature_store.sqlite_manager import SQLiteManager
 from app.models.feedback_learning import FeedbackEventRecord, LearningSignalRecord, OutcomeEventRecord
 

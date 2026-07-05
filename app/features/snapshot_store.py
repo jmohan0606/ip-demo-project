@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 
 from app.config.settings import get_settings
-from app.features.engineering import FeatureSnapshot, FeatureValue
+from app.features.engineering import FeatureSnapshot
 
 
 class SnapshotStore:

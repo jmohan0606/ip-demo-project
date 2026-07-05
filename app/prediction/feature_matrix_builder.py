@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import pandas as pd
 from app.feature_store.feature_store_repository import FeatureStoreRepository
 from app.models.features import FeatureMaterializationRequest

@@ -1,5 +1,4 @@
 from app.agents.registry.agent_registry import AgentRegistry
-from app.agents.workflows.native_langgraph_collaboration import NativeLangGraphCollaborationWorkflow
 from app.agents.state.agent_state import AgentWorkflowState
 class AdvisorCoachingAgentGraph:
     def __init__(self): self.registry=AgentRegistry()

@@ -972,3 +972,22 @@ answers cite real figures that cross-check against verified anchors (387,293 / 5
 
 In progress: Part C (nav page-by-page reality check), Part D (screenshot pass + fixes),
 Part E (final boot/build check).
+
+**Parts C, D, E (completed).**
+- Part C: Playwright-loaded all 20 nav routes — all HTTP 200, zero console errors, zero
+  placeholder/debug text, all real content. Zero stubs remain. Report in
+  docs/qa_screenshots/_qa_report.json (gitignored).
+- Part D: screenshotted all 20 pages (docs/qa_screenshots/, gitignored, persistent). In-depth
+  visual review of flagship pages vs mockups — high fidelity. Fixed one honesty issue: the
+  dashboard Top-Advisors table rendered fabricated "0% / 0 / on-track" for advisors with no AGP
+  enrollment (None coerced to 0); ScopeRollupService now emits None → frontend renders "—"/"n/a".
+- Part E: backend imports clean (80 real API paths via openapi; zero ui-integrated/remediation/
+  runtime/activation routes). Frontend tsc PASS, build green (25/25). Dead-import sweep: cleaned all
+  genuinely-dead imports across 12 files, deleted the now-orphaned native_langgraph_collaboration.py
+  (agentic pipeline regression-verified 0.85/6-tasks after), kept intentional noqa registration
+  imports. Final pyflakes: zero real dead imports.
+
+Session 6 result: consolidation fully closed (opportunity_service + native_langgraph deleted);
+full-system chat integration proven (mock + claude) with 2 gaps fixed (rec grounding, COMP-001
+request guardrail); 20/20 pages clean; backend/frontend green; zero dead imports. Ready for
+client-style testing.

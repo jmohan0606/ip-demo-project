@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Protocol
+from typing import Protocol
 
 from app.config.settings import get_settings
 

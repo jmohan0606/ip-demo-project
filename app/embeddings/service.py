@@ -8,7 +8,7 @@ import struct
 from pathlib import Path
 
 from app.config.settings import get_settings
-from app.features.engineering import FeatureEngineeringService, FeatureSnapshot
+from app.features.engineering import FeatureEngineeringService
 from app.features.snapshot_store import SnapshotStore
 from app.graph.client import GraphClient, get_graph_client
 

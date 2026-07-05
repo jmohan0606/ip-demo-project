@@ -173,3 +173,34 @@ Verified over HTTP (`goal_attainment: null`, `status: "n/a"`) and re-screenshott
 shows "—"/"n/a" for non-AGP advisors. Backend restarted, frontend rebuilt (tsc PASS, build green).
 The remaining 16 pages passed the automated Part-C checks and reuse the same Section-1B design
 primitives; no drift or debug artifacts observed.
+
+## PART E — Final boot check + dead-import sweep — DONE
+
+- **Backend imports clean:** `import app.api.main` OK. Live server exposes **80 real API paths**
+  (verified via `/openapi.json`) — every one a real domain endpoint; **zero** `/ui-integrated`,
+  `/ui-remediation`, `*-runtime`, or `*-activation` routes survive (consolidation fully clean).
+- **Frontend:** `tsc --noEmit` PASS; `npm run build` compiled successfully, 25/25 static pages.
+- **Dead-import sweep (pyflakes across `app/`):** found 33 raw findings; 10 are intentional
+  `# noqa: F401` registration side-effect imports (`app/graph/queries/__init__` +
+  `app/graph/client.py` — importing them registers the GQ implementations, must stay). Cleaned
+  **all remaining genuinely-dead imports**:
+  - `app/agents/tools/service_tools.py` — removed 4 dead consolidation-era imports
+    (PredictionService/RecommendationService facades + unused request models; the toolbox uses
+    local pipeline imports).
+  - Trivial unused imports removed across 11 files (`json`, `typing.Any`, `pathlib.Path`,
+    `collections.defaultdict`, unused model/`FeatureValue`/`FeatureSnapshot`/`CoachingPlan`/
+    `InsightCard`/`OutcomeType` imports).
+  - `app/agents/workflows/advisor_coaching_graph.py` — removed a dead import of
+    `NativeLangGraphCollaborationWorkflow` (referenced nowhere; the agentic pipeline never used
+    it). That left `native_langgraph_collaboration.py` with **zero importers** → deleted the
+    orphaned module. Agentic pipeline regression-tested after each step (A001 & A020: confidence
+    0.85, 6 tasks, real answer — no change).
+  - Marked the legitimate `langgraph.graph.StateGraph` availability-probe import `# noqa: F401`.
+  - **Final pyflakes: zero real dead imports** (only the intended registration side-effects remain).
+
+## Closure pass — overall result
+All five parts done, each committed, PROGRESS.md kept in sync. Two deferred/hidden functional
+gaps were found and fixed under the same evidence bar as the rest of the build (chat recommendation
+grounding; request-level compliance guardrail), plus one dashboard honesty fix (absent AGP data →
+"—"). Backend 80 real routes, frontend build green, zero dead imports, all 20 nav pages render real
+data with no console errors or placeholders. System is ready for client-style testing.
