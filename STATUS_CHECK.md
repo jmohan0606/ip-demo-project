@@ -1,105 +1,159 @@
-# STATUS_CHECK — Section 9 run, resumed after overnight codespace stop
+# STATUS_CHECK — Section 11 kickoff (fresh-session state confirmation)
 
-_Generated 2026-07-05. Based on `git log`, `git status`, and `PROGRESS.md` — not memory.
-No new build work has been started; this is a read-only status report as requested._
+_Date 2026-07-05. Traced from PROGRESS.md, `git log`, and the filesystem — not memory._
 
-## TL;DR
+## Real state verified
 
-- **Working tree: CLEAN.** Nothing uncommitted, nothing staged, no untracked files. Every
-  completed unit of work is committed. Local `main` is **70 commits ahead of `origin/main`**
-  (not pushed — expected, push only on request).
-- **Phases 0–3: fully done and committed.** Phase 4: **1 of 16 pages done** (Executive
-  Dashboard) plus the deferred 9.2 Period-wiring item. **Phases 5–7: not started.**
-- **Why it stopped: the codespace was stopped externally (overnight), not a usage limit or a
-  code blocker.** The last commit is a clean, self-contained checkpoint at 11:18 UTC. There is
-  no partial/in-progress edit sitting uncommitted.
-- **Safe to resume** at the exact point PROGRESS.md names: **Phase 4, page 2/16 = Revenue
-  Analytics full rebuild.**
+- **Architecture posters:** all **12** present in `docs/spec/architecture/` (High Level, PACE AI,
+  Prediction & Recommendation Engine, Temporal Knowledge Graph, Agent Orchestration, Context
+  Engineering, Coach Q&A, Data & Knowledge Ingestion, Evaluation & Trust, MCP Layer, Observability,
+  Security & Governance). ✅ — safe to proceed with Section 11.
+- **Section 9: COMPLETE** (Phases 0–7, Sessions 7–8). All 14 Phase-4 page rebuilds, Revenue Trend
+  Explorer, RAG multi-format corpus, `.env.example`, closing verification. `git log` matches
+  PROGRESS.md — tip `5d32cb4`, 72 commits on origin. 90 documented API paths, tsc clean, no purple.
+- **Standing caveats** (unchanged, hardware-bound): mock graph upserts are in-memory (reset on
+  `--reload`); live TigerGraph query INSTALL unverified on this 2-core box (C++ compile limit);
+  mock-LLM output carries a deterministic tag that `FormattedAnswer` strips.
 
----
+## Section 11 scope (understanding) — real ML/DL/GNN/RL/FL, "make the dots connect"
 
-## 1. Phase-by-phase status (Phases 0–7)
+Strictly **after** Section 9 (done). **Section 10 stays deferred.** Order per 11.1→11.11:
 
-| Phase | Scope | Status | Evidence |
-|-------|-------|--------|----------|
-| **Phase 0** | Shared foundation: no-purple, delta-indicator component, currency/format utils, dual API base URL, title-casing convention | ✅ **DONE** | commit `9515cbe` |
-| **Phase 1** | 9.1 scope-following (5 pages), 9.2 filter bar, Run Workflow diagnosis | ✅ **DONE** | commits `cf4e136`, `84973f0`, `e0abe19` |
-| **Phase 2 (9.3)** | Data model + bounded sample-data expansion (real names, 36 months, coaching_task vertex) — Fable-5 delegated | ✅ **DONE** | commit `3db087f`; validate_package.py PASS (57 vtx / 128 edge / 185 files / 154,946 rows) |
-| **Phase 3 (9.4)** | TigerGraph 4-tier MCP adapter (MCP→pyTG→RESTPP→Mock) with tier logging — Fable-5 delegated | ✅ **DONE** | commit `3f9699f`; all 4 tiers live-verified once against Docker TG |
-| **Phase 4** | Page-by-page rebuilds (16 pages) | 🟡 **PARTIAL — 1/16** | see §2 |
-| **Phase 5 (9.6)** | Revenue Trend Explorer (Fable) | ⬜ **NOT STARTED** | — |
-| **Phase 6** | RAG corpus expansion (9.8) + `.env.example` completeness (9.9) | ⬜ **NOT STARTED** | — |
-| **Phase 7** | Closing verification (re-screenshot all pages, no-purple/scope/format audits, full boot check) | ⬜ **NOT STARTED** | — |
+1. **11.1 — `ModelClient` adapter** (`MODEL_CLIENT_MODE=real|deterministic`, deterministic scorers
+   kept as fallback). Promote the **already-written-but-dormant** sklearn RandomForest
+   (`prediction_engine.py`) to the live path for the first time — *not* retraining a serving model
+   (the live `/predictions` path is today the additive weighted scorecard; RF exists but no
+   endpoint/agent/context path invokes it). Plus: TigerGraph GDS classical algos each with a named
+   UI purpose (PageRank→referral hub, Louvain→AGP cohorts, similarity→GNN upgrade); GNN in 3
+   preference tiers (`pyTigerGraph[gds]` → local PyG GraphSAGE → deterministic projection); vector
+   storage split (**Chroma untouched for RAG docs**, TigerGraph-native/`TigerGraphVectorClient` for
+   ML/GNN vectors, verified empirically on CE 4.2.3); XGBoost/SHAP retrain on real feedback labels;
+   GRU/LSTM revenue forecast; Isolation Forest anomaly detection; model registry + model cards
+   **as tabs within the existing Admin page**.
+2. **11.2 — RL formalization** — document existing weight loop as a contextual bandit +
+   weight-trajectory replay viz (extends, doesn't rebuild).
+3. **11.3 — "FL" = Feedback Loop, NOT Federated Learning** — outcome-driven GNN embedding
+   fine-tuning layered on top of (not replacing) the verified bandit; live "Run Feedback-Driven
+   Retraining" before/after control; needs real outcome *variety* in data.
+4. **11.4** temporal KG showcase (as-of selector) · **11.5** Evaluation & Trust layer (golden set +
+   eval harness + results page) · **11.6** context engineering (6-memory-type audit, `RerankClient`
+   adapter, scope-rollup-aware AI reasoning, visible pipeline trace) · **11.7** observability depth ·
+   **11.8** MCP layer completion · **11.11** "Two AI Systems" labeling (**iPerform Insights and
+   Coaching** proactive vs **iPerform Coach Q&A Assistant** reactive), Model Strategy table, Top-10
+   AI Protections checklist, Business Outcomes annotations.
 
----
+**Honest small-data rule:** train at household/transaction level (hundreds–thousands of samples),
+aggregate up; state small-data caveats in every model card; never claim production accuracy from
+demo data; never fake a metric. Same hardware time-box discipline as Phases 2/3.
 
-## 2. Phase 4 detail — where exactly it was cut off
+## Two operating rules
 
-Phase 4 is a 16-page sequence. Completed and committed:
+- **fable-architect delegation workaround:** the named `fable-architect` agent type is **not
+  registered** in the running registry. Per the proven Section-9 approach (Phases 2, 3, RL showcase,
+  Revenue Trend), delegate the Fable-designated items — **11.1 model design/training approach, 11.3
+  FL design, 11.5 eval-harness design** — via a **`general-purpose` subagent with `model: "fable"`
+  override** and the architect guidance embedded. Main thread stays Opus 4.8 for all wiring, pages,
+  registry plumbing, 11.4/11.6/11.7/11.8.
+- **Real-Claude verification standing rule (11.6):** any verification of AI *behavior* — grounding,
+  continuity, structured formatting, reranking effectiveness, RAG quality, scope-level reasoning —
+  **must use `LLM_CLIENT_MODE=claude` (real API calls), never mock.** Mock is fine only for
+  pipeline-wiring / data-correctness checks where the LLM's actual prose isn't what's being tested.
 
-- **Page 1/16 — Executive Dashboard (9.5)** — ✅ DONE (commit `a27b857`). Icon-in-soft-circle
-  KPI cards, prior-year deltas via a new backend `comparison` block, AGP Program Status card,
-  Top Advisors + "Needs Attention" tables with stated reasons. Fixed a real bug: gap-free
-  `TRACK_BANDS` thresholds in `rollup.py` and `agp/service.py`. Playwright-verified, tsc PASS.
-- **9.2 Period wiring** — ✅ DONE (commit `81c7168`, the latest commit). This item was
-  explicitly deferred out of Phase 1 and completed here: Time Period dropdown now really
-  filters revenue data (Firm ALL 15,116 tx/$109M → YTD 2,940/$22.2M → MTD 420/$3.4M).
+## Execution rules acknowledged
 
-**In progress at stop time: NONE.** The last commit (`81c7168`, 11:18 UTC) is a clean
-checkpoint — PROGRESS.md's "SESSION 7 CHECKPOINT" block was written as a deliberate resume
-marker, and `git status` confirms zero uncommitted changes. The session did **not** stop
-mid-edit.
+Commit per item, update PROGRESS.md continuously, push at natural pauses, don't stop for routine
+check-ins, only pause for a genuine blocker or approaching usage limit.
 
-**Next unit of work (per PROGRESS.md, verbatim resume point):**
-> Phase 4 page 2/16 = **Revenue Analytics FULL rebuild** (9.5/9.12): geographic map (revenue by
-> region/market), Revenue by Business Line (donut) + by Channel (bar) + by Region (map) as three
-> distinct charts, cohort/product breakdowns, and diagnose the broken "Revenue by scope".
+## First check when starting 11.1
 
-Remaining Phase 4 pages after that (in order): Advisor 360 → AGP Goals & Coaching → Client
-Intelligence 360 → Coaching & Reviews (manager-task CRUD) → CRM Activities → What-If
-(save-as-rec) → Predictions (methodology depth) → Opportunities & Recs (**RL learning-state =
-delegate to Fable**) → Recommendation ROI → AI Assistant + Knowledge Hub → Feature Engineering
-Lab → Explainability Explorer.
-
----
-
-## 3. Why the session stopped
-
-**Cause: external codespace stop (overnight idle/shutdown), not a limit or a blocker.**
-
-- No usage-limit note anywhere in PROGRESS.md. No blocker note. The final PROGRESS.md block is a
-  normal end-of-run checkpoint ("stopped here after a long run; RESUME AT: …"), which reads as a
-  planned pause, and the codespace then stopped before the next session began.
-- Commit cadence was steady and healthy right up to the end: `9515cbe` 09:49 → `cf4e136` 09:57 →
-  `84973f0` 10:03 → `e0abe19` 10:05 → `3db087f` 10:34 → `3f9699f` 11:00 → `a27b857` 11:13 →
-  `81c7168` 11:18. No error-shaped gap or truncation.
-- Working tree clean confirms no work was lost to the stop — the standing rule "commit after
-  every phase AND after every page" held, so the overnight stop cost nothing.
-
-**One environment note for resume:** PROGRESS.md records that at stop time the backend (:8000,
-mock mode) and frontend dev server (:3000) were running, with ports 8000/3000 set Public. After
-a codespace restart these servers are **down** and will need restarting before any Playwright/
-browser verification. The Docker TigerGraph container was intentionally returned to `exited`
-state at the end of Phase 3.
+Inspect current feedback/outcome volume and variety in the data — 11.1's real-label training and
+11.3's fine-tuning both depend on it. If it's too thin or uniformly-positive, expanding outcome
+variety (per the 11.3 data requirement) becomes the real first step rather than jumping straight
+to training.
 
 ---
 
-## 4. `/status` (session / usage state)
+## Git sync verification (2026-07-05, real command output)
 
-I can't capture this one directly: **`/status` is an interactive Claude Code CLI command, not a
-tool I can invoke from here**, so I have no programmatic way to read the live session/usage
-counters. To get it, please type `/status` in the prompt yourself — it will render the current
-session, model, and usage/limit state inline.
+**Before push — 1 local commit was NOT on origin:**
 
-What I *can* confirm from the environment:
-- Model: Opus 4.8 (1M context) — `claude-opus-4-8[1m]` (the session's main thread, per the 9.11
-  routing plan; Fable-5 items were delegated to subagents).
-- Branch `main`, clean, 70 commits ahead of `origin/main` (unpushed).
-- Date 2026-07-05.
+```
+$ git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+	modified:   STATUS_CHECK.md
+
+$ git log origin/main..HEAD --oneline
+5d32cb4 Add Sections 10-11 + architecture posters, ready for fresh-session kickoff
+
+$ git rev-list --count origin/main
+89
+$ git rev-list --count HEAD
+90
+```
+
+**Push:**
+
+```
+$ git push origin main
+To https://github.com/jmohan0606/ip-demo-project
+   049d950..5d32cb4  main -> main
+=== EXIT 0 ===
+```
+
+**After push — in sync, counts match:**
+
+```
+$ git log origin/main..HEAD --oneline
+(empty — nothing unpushed)
+
+$ git rev-list --count origin/main
+90
+$ git rev-list --count HEAD
+90
+
+$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+	modified:   STATUS_CHECK.md
+```
+
+**Result:** origin/main and HEAD both at **90 commits**, tip `5d32cb4`. All committed work is on
+origin. The only uncommitted change is this `STATUS_CHECK.md` working-tree edit (not yet committed).
 
 ---
 
-## Recommended resume action (for your approval — not started)
+## 11.1 FIRST CHECK — feedback/outcome data variety (real command output) — DONE
 
-Restart backend (:8000, mock) + frontend (:3000), re-confirm ports Public, then begin **Phase 4
-page 2/16 — Revenue Analytics full rebuild**. Awaiting your go-ahead before doing any of this.
+Inspected `docs/tigergraph_foundation/data/sample/vertices/` (the on-disk labeled data a fresh-boot
+training run would consume). Real distributions:
+
+```
+feedback ACTION:   ACCEPT 8 · COMPLETE 7 · DEFER 7 · NOT_RELEVANT 7 · REJECT 7   (36 total, good variety)
+feedback reason:   RELEVANT 8 · ACTION_COMPLETED 7 · ALREADY_DISCUSSED 7 · CLIENT_NOT_ELIGIBLE 7 · TIMING 7
+learning reward:   +1.0 ×24 · -0.5 ×12                                           (36 total)
+learning FAMILY:   CRM_EXECUTION ×36   ← SINGLE FAMILY (the real gap)
+learning action:   ACCEPT ×24 · REJECT ×12   (collapsed; 5 feedback actions → 2 in signal_json)
+outcome TYPE:      REVENUE_IMPACT ×36
+outcome VALUE:     zero ×24 · positive ×12   ← NO NEGATIVE-IMPACT OUTCOMES
+recommendations:   NEXT_BEST_ACTION ×120; action_text 3 latent families (CRM×60 / concentration×30 / growth×30)
+RandomForest:      app/prediction/prediction_engine.py trains on SYNTHETIC rank-heuristic target, not real labels
+```
+
+**Verdict:** ACTION variety is fine; **FAMILY and OUTCOME variety are inadequate** for cross-family
+learning and for 11.3's success/failure fine-tuning (all one family; no negative outcomes).
+
+**Routing (respects 11.x order):**
+1. RandomForest risk labels (revenue-decline, AGP-off-track, household churn) derive from data that
+   **already exists** — 36-month revenue series + 960 AGP KPI measurements — so **11.1 training is not
+   blocked**. Train at household/transaction level per the honest small-data rule.
+2. The family-varied / negative-impact outcome expansion is a **11.3 (FL) prerequisite**, done under
+   11.3, guardrail: never mutate anchored advisor figures.
+
+---
+_Status: 11.1 first check DONE. Proceeding: delegate 11.1 model/training-approach design to Fable._

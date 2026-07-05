@@ -1432,3 +1432,41 @@ REUSABLE now: `AiInsightSummary`/`AiCoachingCard` components + `structured_insig
 DELEGATION NOTE: the named `fable-architect` agent type is NOT registered; delegate the 2 remaining
 Fable items via a general-purpose subagent with `model: "fable"` (as done for Phases 2 & 3).
 Servers running: backend :8000 (mock, --reload), dev frontend :3000. Ports 8000/3000 Public.
+
+## Session 9 — 2026-07-05 — SECTION 11 START (real ML/DL/GNN/RL/FL)
+Git sync verified before starting: origin/main == HEAD == 90 commits, tip 5d32cb4 (1 unpushed
+commit `5d32cb4` was found and pushed). 12 architecture posters confirmed in docs/spec/architecture/.
+Section 10 stays DEFERRED. Model routing: main thread Opus; Fable-designated items (11.1 model/
+training approach, 11.3 FL design, 11.5 eval-harness design) delegated via general-purpose subagent
+with model:"fable" (named fable-architect type still not registered — same proven workaround).
+
+### 11.1 FIRST CHECK — feedback/outcome data variety (gates real-label training) — DONE
+Inspected the on-disk labeled data that fresh-boot training would use
+(docs/tigergraph_foundation/data/sample/vertices/):
+- **Volume:** 36 feedback events, 36 outcome events, 36 learning signals (thin — anticipated by the
+  honest small-data rule; fix = train at household/transaction level, hundreds–thousands of samples).
+- **Feedback ACTION variety GOOD:** ACCEPT 8 / COMPLETE 7 / DEFER 7 / NOT_RELEVANT 7 / REJECT 7;
+  reason_code 5 distinct values.
+- **Learning-signal FAMILY variety INADEQUATE (the real gap):** all 36 signals are a SINGLE family
+  `CRM_EXECUTION` (signal_json), reward 24×(+1.0)/12×(−0.5), action collapsed to ACCEPT/REJECT only.
+  Cannot learn cross-family success/failure distinctions from one family.
+- **Outcome variety INADEQUATE:** outcome_type = REVENUE_IMPACT for all 36; outcome_value = 24 zero /
+  12 positive — **no negative-impact outcomes**. 11.3's fine-tuning explicitly requires a mix of
+  successful AND unsuccessful (completed-with-negative-impact = negative label).
+- **Recommendations:** recommendation_type = NEXT_BEST_ACTION for all 120; action_text has 3 latent
+  families (CRM follow-up ×60, concentration/product-fit ×30, relationship-growth ×30) — so family
+  structure EXISTS in the recs, but the learning signals only ever labeled CRM_EXECUTION.
+- **Dormant RandomForest confirmed:** app/prediction/prediction_engine.py trains on a SYNTHETIC
+  rank-heuristic target (`_synthetic_target`, rev/nnm/managed/crm .rank(pct=True) blends), NOT real
+  labels — confirms 11.1's "promote dormant model + replace synthetic target with real labels" premise.
+
+**Decision (routing the gap correctly, respecting 11.x order):**
+1. The advisor/household RISK labels the RandomForest needs (REVENUE_DECLINE_RISK, AGP_OFF_TRACK_RISK,
+   household churn) can be derived from data that ALREADY exists — 36-month revenue series + 960 AGP
+   KPI measurements — WITHOUT the feedback expansion. So 11.1 model training is NOT blocked.
+2. The family-varied / negative-impact OUTCOME expansion is a **11.3 (FL) prerequisite**, not an 11.1
+   blocker — will be done as designed under 11.3 (extend the sample-data generator, guardrail: never
+   mutate anchored advisor figures A001/A020/etc.).
+Next: delegate 11.1 model/training-approach design to Fable (ModelClient adapter, which models, real-
+label derivation at household/txn level, SHAP, GRU forecast, Isolation Forest, GDS algos, TigerGraph-
+native vs deterministic vector storage, model registry), then implement on main thread with real metrics.
