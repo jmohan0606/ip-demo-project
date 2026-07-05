@@ -1,6 +1,4 @@
 from __future__ import annotations
-from app.api.routers.ui_integrated_expanded import router as ui_integrated_expanded_router
-from app.api.routers.ui_integrated import router as ui_integrated_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.middleware.error_handlers import register_exception_handlers
@@ -95,8 +93,6 @@ app.include_router(agentic_ai_router)
 
 
 app.include_router(config_status_router)
-app.include_router(ui_integrated_router)
-app.include_router(ui_integrated_expanded_router)
 
 app.add_middleware(
     CORSMiddleware,
