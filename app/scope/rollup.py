@@ -116,14 +116,18 @@ class ScopeRollupService:
             f = self._features(advisor_id)
             if not f:
                 continue
+            # AGP goal/risk are None for advisors not enrolled in the growth program — render
+            # those as absent ("—" client-side), never as a fabricated 0% / 0 / on-track.
+            kpi = f.get("kpi_on_track_ratio")
+            risk = f.get("agp_risk_score")
             rows.append({
                 "advisor_id": advisor_id,
                 "advisor_name": self._name("phx_dm_advisor", advisor_id, "advisor_name"),
                 "revenue_ltm": round(self._num(f, "revenue_ltm"), 2),
                 "aum_total": round(self._num(f, "aum_total"), 2),
-                "goal_attainment": round(self._num(f, "kpi_on_track_ratio") * 100.0, 1),
-                "agp_risk_score": round(self._num(f, "agp_risk_score"), 1),
-                "status": _band(self._num(f, "agp_risk_score")),
+                "goal_attainment": round(float(kpi) * 100.0, 1) if kpi is not None else None,
+                "agp_risk_score": round(float(risk), 1) if risk is not None else None,
+                "status": _band(float(risk)) if risk is not None else "n/a",
             })
         rows.sort(key=lambda r: r["revenue_ltm"], reverse=True)
         return rows[:limit]

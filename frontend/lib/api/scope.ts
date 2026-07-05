@@ -34,8 +34,8 @@ export interface ScopeTopAdvisor {
   advisor_name: string;
   revenue_ltm: number;
   aum_total: number;
-  goal_attainment: number;
-  agp_risk_score: number;
+  goal_attainment: number | null;
+  agp_risk_score: number | null;
   status: string;
 }
 

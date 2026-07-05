@@ -147,8 +147,8 @@ export function ExecutiveDashboard() {
                     <td className="px-3 py-2 font-medium">{a.advisor_name}</td>
                     <td className="px-3 py-2 text-right font-mono">{compactUsd(a.revenue_ltm)}</td>
                     <td className="px-3 py-2 text-right font-mono">{compactUsd(a.aum_total)}</td>
-                    <td className="px-3 py-2 text-right font-mono">{a.goal_attainment}%</td>
-                    <td className="px-3 py-2 text-right font-mono">{a.agp_risk_score}</td>
+                    <td className="px-3 py-2 text-right font-mono">{a.goal_attainment == null ? "—" : `${a.goal_attainment}%`}</td>
+                    <td className="px-3 py-2 text-right font-mono">{a.agp_risk_score == null ? "—" : a.agp_risk_score}</td>
                     <td className="px-3 py-2">
                       <Badge variant={STATUS_STYLE[a.status] ?? "glass"}>{a.status.replace("_", " ")}</Badge>
                     </td>

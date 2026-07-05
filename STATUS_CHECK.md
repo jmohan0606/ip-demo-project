@@ -137,3 +137,39 @@ BLOCK. Regression-checked: a normal question (Q1) is NOT blocked (no block text,
 The system connects end-to-end: real graph-derived features → predictions → opportunities →
 recommendations → RAG knowledge → grounded, figure-citing answer, with a now-reachable compliance
 guardrail. Both fixes verified over real HTTP in mock and claude modes.
+
+## PART C — Nav page-by-page reality check (Playwright, all 20 nav routes) — DONE
+
+Loaded every nav route in headless Chromium (1440px), capturing HTTP status, console/page
+errors, placeholder/debug text, and content length. **Result: all 20 pages HTTP 200, zero
+console errors, zero page errors, zero placeholder/lorem/"Graph: MOCK"/pending-rebuild/undefined
+text, all with substantial real content** (text length 1174–20635 chars). No page failed. This
+matches the Part-1 gap table — every listed page is built and API-backed; zero stubs remain.
+
+Routes verified: dashboard, revenue-analytics, advisor-360, agp, client-360, coaching-reviews,
+crm-activities, peer-benchmarking, what-if, predictions, recommendations, recommendation-roi,
+ai-assistant, knowledge, graph-explorer, features-embeddings, memory-explainability, agents,
+data-ingestion, admin. Report: `docs/qa_screenshots/_qa_report.json`.
+
+## PART D — Screenshot pass + fix (desktop 1440px) — DONE
+
+Screenshotted all 20 pages to `docs/qa_screenshots/` (gitignored, persistent on disk). Did an
+in-depth visual review of the flagship/chart-heavy pages against the reference mockups:
+- **Dashboard** — sidebar/KPI row/revenue-by-division bar/status donut (severity palette)/top-
+  advisor table/evidence footer/system-status pill/hierarchy breadcrumb all match. High fidelity.
+- **Advisor 360** — KPIs (LTM $387,293, AUM $10,018,200, NNM $102,080 — verified anchors),
+  24-mo revenue trend line, account-type donut, AGP status w/ explanation, CRM execution,
+  AI-artifact counts, households table. Match.
+- **Revenue Analytics** — 24-mo trend area + channel donut + division bar + evidence. Match.
+- **Agent Orchestration** — live reasoning route, per-agent task table w/ durations, adapter
+  modes, evidence cards (surfaces the COMP-001 block from Part B, Revenue Agent cites $387,293.22).
+
+**Fix applied (honesty/evidence-bar):** the dashboard Top-Advisors table showed **GOAL 0% and
+RISK 0** for advisors with **no AGP enrollment** (their `kpi_on_track_ratio`/`agp_risk_score`
+snapshot features are `None`, and `ScopeRollupService._top_advisors` coerced `None→0.0`,
+rendering a fabricated "0% / 0 / on-track"). Changed the rollup to emit `None` for absent AGP
+data and the frontend to render it as **"—" / "n/a"** — never a number the data can't back.
+Verified over HTTP (`goal_attainment: null`, `status: "n/a"`) and re-screenshotted: the table now
+shows "—"/"n/a" for non-AGP advisors. Backend restarted, frontend rebuilt (tsc PASS, build green).
+The remaining 16 pages passed the automated Part-C checks and reuse the same Section-1B design
+primitives; no drift or debug artifacts observed.

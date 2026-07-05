@@ -55,3 +55,6 @@ data/chroma/*/
 # verification runs mutate them, so they must not be tracked (git-hygiene flag from Session 2)
 data/feature_store/*.db
 data/sqlite/*.db
+
+# QA screenshots (regenerated each run; not tracked)
+docs/qa_screenshots/
