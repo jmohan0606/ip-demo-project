@@ -1303,11 +1303,25 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   colored buttons, RL showcase with weight-divergence chart + takeaways). Screenshot:
   recommendations-after.png.
 
-### RESUME AT: Phase 4 page 11/16 = **Recommendation Impact / ROI** (9.5): fix static top-card
-values — must reflect the selected advisor/scope for real (uses the same real feedback-learning data
-already proven; a wiring gap, not a missing-data gap). File: frontend/components/roi/
-recommendation-roi-workspace.tsx. Then: AI Assistant+Knowledge → Feature Lab → Explainability, then
-Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG + .env), Phase 7 (closing verify).
+**Page 11/16 — Recommendation Impact / ROI (9.5) — DONE.**
+- Root cause of the static top cards: `fetchImpactTrend()` never passed an advisor, so it always got
+  the endpoint's default firm-wide cohort (`?advisor_ids=A001,A002,...`) regardless of selection.
+  Fix: `fetchImpactTrend(advisorIds?)` now passes `?advisor_ids=`, and the workspace calls it with
+  the selected `advisorId` (+ refreshNonce dep). Captured Impact / Accept Rate / Feedback Events /
+  Cumulative Reward / reward curve / weights / re-ranked table all now scope to the advisor. Header
+  + subtitle name the advisor; KPI icons added.
+- Verified: per-advisor API differs (A001 2 events/$129,600/reward 0.1 vs A020 3/$321,712/1.1);
+  tsc PASS; Playwright 0 console errors, page shows "Avery Diaz · Outcome & Learning Loop" with
+  scoped values. Screenshot: roi-after.png.
+
+### RESUME AT: Phase 4 page 12/16 = **AI Assistant + Knowledge Hub** (9.5): fix advisor-scoping for
+AI Assistant (9.1 — should be done, verify); restructure chat/agentic responses to be readable
+(bulleted/sectioned, not one dense paragraph); make the chat input box larger + multi-line;
+Knowledge Hub answers get structured-card treatment (answer / cited chunks / similarity scores as
+distinct color-coded sections). Files: find AI Assistant + Knowledge components under
+frontend/components/ (likely ai-assistant*, knowledge*). Then: Feature Lab (visual lineage) →
+Explainability (real memory-timeline + deeper lineage), then Phase 5 (Revenue Trend Explorer =
+**Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

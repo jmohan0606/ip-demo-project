@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { TrendingUp, Brain, Trophy } from "lucide-react";
+import { TrendingUp, Brain, Trophy, DollarSign, ThumbsUp, Activity } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
@@ -50,10 +50,12 @@ export function RecommendationROIWorkspace() {
   }, [shell.scopeType, shell.scopeId]);
 
   const load = useCallback(async () => {
-    const [t, r] = await Promise.all([fetchImpactTrend(), generateRecommendations(advisorId)]);
+    // Scope the feedback-learning replay to the SELECTED advisor so the top cards,
+    // reward curve and weights reflect that advisor (was a firm-wide static cohort).
+    const [t, r] = await Promise.all([fetchImpactTrend(advisorId), generateRecommendations(advisorId)]);
     setTrend(t);
     setRecs(r);
-  }, [advisorId]);
+  }, [advisorId, shell.refreshNonce]);
 
   useEffect(() => {
     void load();
@@ -71,10 +73,10 @@ export function RecommendationROIWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Recommendation Impact / ROI</Badge>
-          <h2 className="mt-2 text-[22px] font-black">Outcome &amp; Learning Loop</h2>
+          <h2 className="mt-2 text-[22px] font-black">{advisorName} · Outcome &amp; Learning Loop</h2>
           <p className="text-[12px] text-muted-foreground">
-            Real feedback-learning signals: accept/reject/complete events move per-family learning
-            weights, which re-rank future recommendations — the loop is visibly wired, not decorative.
+            Real feedback-learning signals for <strong>{advisorName}</strong>: accept/reject/complete events move
+            per-family learning weights, which re-rank future recommendations — scoped to the selected advisor.
           </p>
         </div>
         <select
@@ -90,10 +92,10 @@ export function RecommendationROIWorkspace() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiStatCard label="Captured Impact" value={totals ? compactUsd(totals.captured_impact) : "—"} />
-        <KpiStatCard label="Accept Rate" value={`${acceptRate}%`} delta={totals ? `${totals.accepted}/${totals.accepted + totals.rejected}` : undefined} deltaPositive />
-        <KpiStatCard label="Feedback Events" value={String(trend?.event_count ?? "—")} />
-        <KpiStatCard label="Cumulative Reward" value={totals ? totals.cumulative_reward.toFixed(1) : "—"} />
+        <KpiStatCard label="Captured Impact" value={totals ? compactUsd(totals.captured_impact) : "—"} icon={DollarSign} iconColor={colors.positive} />
+        <KpiStatCard label="Accept Rate" value={`${acceptRate}%`} delta={totals ? `${totals.accepted}/${totals.accepted + totals.rejected}` : undefined} deltaPositive icon={ThumbsUp} iconColor={colors.primary} />
+        <KpiStatCard label="Feedback Events" value={String(trend?.event_count ?? "—")} icon={Activity} iconColor={colors.aiAccent} />
+        <KpiStatCard label="Cumulative Reward" value={totals ? totals.cumulative_reward.toFixed(1) : "—"} icon={Brain} iconColor={colors.warning} />
       </div>
 
       <div className="grid gap-3 xl:grid-cols-[1.4fr_1fr]">

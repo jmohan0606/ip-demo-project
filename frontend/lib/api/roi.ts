@@ -42,8 +42,9 @@ export interface Recommendation {
   status: string;
 }
 
-export async function fetchImpactTrend(): Promise<ImpactTrend> {
-  return apiClient.get<ImpactTrend>("/feedback-learning/impact-trend");
+export async function fetchImpactTrend(advisorIds?: string): Promise<ImpactTrend> {
+  const q = advisorIds ? `?advisor_ids=${encodeURIComponent(advisorIds)}` : "";
+  return apiClient.get<ImpactTrend>(`/feedback-learning/impact-trend${q}`);
 }
 
 export async function generateRecommendations(advisorId: string): Promise<Recommendation[]> {
