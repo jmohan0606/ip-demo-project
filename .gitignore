@@ -50,3 +50,8 @@ docs/ui_runtime/screenshots/*
 # fallback sqlite here previously corrupted the real chromadb client)
 data/chroma/chroma.sqlite3
 data/chroma/*/
+
+# Runtime SQLite DBs (feature store + pipeline artifacts) — regenerated at runtime;
+# verification runs mutate them, so they must not be tracked (git-hygiene flag from Session 2)
+data/feature_store/*.db
+data/sqlite/*.db

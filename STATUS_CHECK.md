@@ -1,45 +1,52 @@
-# Status Check — 2026-07-05 — 4-item Consolidation Sweep
+# Status Check — 2026-07-05 — Consolidation sweep: two missed items + follow-ups
 
-## Status (one line each)
+The previous pass answered the wrong "4 items" (the old deferred list). This pass completes the
+two genuinely-missed sweep items plus the two follow-ups requested.
 
-1. **Runtime-family backend modules deletion** — WAS not started; **now DONE** (deleted this session).
-2. **`/ui-integrated` router + services removal** — WAS not started; **now DONE** (deleted this session).
-3. **`/orchestration` router dedup-vs-`/agentic-ai`** — already DONE (module has no `.py` files, not registered in `main.py`).
-4. **`InsightDataCollector` repoint off old `FeatureStoreService`** — already DONE (now imports the Phase-5 `app.features.engineering.FeatureEngineeringService`).
+## Results
 
-## What was completed this session (items 1 & 2)
+1. **Gitignore the runtime SQLite DBs — DONE.**
+   - Added `data/feature_store/*.db` and `data/sqlite/*.db` to `.gitignore`.
+   - Both were tracked; `git rm --cached` removed them from the index (staged as `D`).
+   - Verified: after a fresh write to both DBs (5.7 MB / 4.3 MB), `git status` shows **only the
+     staged removal** — no `M` (modified) or `??` (untracked) entries — i.e. the live file
+     content is now ignored. `git ls-files` for those globs returns empty (no longer tracked).
 
-**Item 2 — `/ui-integrated` removed (all consumers were dead code).** Deleted backend routers
-`ui_integrated.py` / `ui_integrated_expanded.py`, services `ui_integrated_service.py` /
-`ui_integrated_expanded_service.py`, unregistered both from `main.py`; deleted frontend clients
-`integrated-ui.ts` / `integrated-expanded.ts` and the orphaned `integrated-dashboard/` component
-(no route, no nav entry).
+2. **`docs/tigergraph_foundation/UPSTREAM_FIXES.md` — DONE.**
+   Documents all four real-engine (TigerGraph Community 4.2.3) GSQL/loader defects with symptom,
+   root cause, fix applied, and a suggested validator check for each:
+   - Finding 1 — trailing `;` after `WITH …` DDL clauses rejected by `gsql -f`.
+   - Finding 2 — 182 loading jobs use `$"col"` + `HEADER="true"` without an initialized
+     `DEFINE FILENAME`.
+   - Finding 3 — missing `QUOTE="double"` on jobs whose CSVs carry quoted JSON columns.
+   - Finding 4 — `QUOTE="double"` tokenizer mis-splits fields containing BOTH a `""` escape AND
+     an internal comma (5 vertex types); correct path is RESTPP JSON upsert.
 
-**Item 1 — dormant runtime-family cluster deleted.** Emptied the four package `__init__.py`
-re-exports that were the only live tethers (`app/features`, `app/graph`, `app/knowledge`,
-`app/recommendations`), then deleted:
-- `app/features/`: `similarity.py`, `prediction_runtime.py`, `feature_runtime.py`
-- `app/graph/`: `graph_runtime.py`, `tigergraph_production_runtime.py`
-- `app/knowledge/`: `knowledge_runtime.py`, `chroma_adapter.py`, `mock_vector_store.py`
-- `app/recommendations/`: `recommendation_runtime.py`, `opportunity_engine.py`,
-  `learning_engine.py`, `learning_store.py`, `compliance.py` (kept the live Phase-8
-  `recommendation_engine.py`, `compliance_validator.py`, `playbook_selector.py`,
-  `service.py`, repository/linker)
-- `app/memory/` (entire dormant dir)
+3. **Delete `app/services/opportunity_service.py` — NOT deleted; safety check FAILED (reported).**
+   The same zero-live-caller gate used for the rest of the sweep does **not** pass here. It has
+   **three live consumers**:
+   - `app/agents/tools/service_tools.py` (AgentToolbox) → imported by live agent nodes
+     (`prediction_agent`, `tigergraph_graph_agent`, `rag_knowledge_agent`) → `/agentic-ai`.
+   - `app/ai/chat/context_assembler.py` → `chat_engine.py` → `/ai-chat`.
+   - `app/services/recommendation_service.py` (facade).
 
-Safety confirmed before deletion: no live code imported any of these (the `opportunity_engine`
-importer was the *real* `app/opportunities/` package, and `native_langgraph_collaboration`'s
-`graph_runtime` hit was a substring of the string `"langgraph_runtime"`, not an import).
+   My earlier note called it "unwired" — that was accurate only in the narrow sense of *not
+   registered directly in a router*; it is in fact reachable from the live agentic + chat
+   pipelines. Deleting it as-is would break the backend import chain. Per the sweep's rule
+   (delete only with zero live callers), it is **left in place**. Repointing those three
+   consumers from the legacy `OpportunityService` (which reads the old `FeatureStoreService` and
+   returns zeroed features) to the live `OpportunityDetectionService` is a separate,
+   behavior-changing refactor — flagged for a scoped follow-up, not done blindly here.
 
-## Verification
+4. **Final build + boot check — PASS.**
+   - Backend: `import app.api.main` OK — **36 routes** (unchanged from the prior sweep commit;
+     no routers touched this pass).
+   - Frontend: `tsc --noEmit` PASS; `npm run build` compiled successfully, 25/25 static pages.
 
-- Backend boots clean: `import app.api.main` OK — **36 routes** (was 38; the two `/ui-integrated`
-  routers removed).
-- Zero residual references to any deleted module (only remaining hit is the `"langgraph_runtime"`
-  context string, not an import).
-- Frontend `tsc --noEmit` exit 0; `npm run build` compiled successfully, 25/25 static pages.
+## Net file changes this pass
 
-## Note (out of the 4-item scope, flagged for later)
-
-`app/services/opportunity_service.py` is dormant legacy (imports the old `FeatureStoreService`,
-not wired to any router) — separate from this sweep's named items; left in place.
+- `.gitignore` — added the two DB globs.
+- `data/feature_store/iperform_features.db`, `data/sqlite/iperform.db` — untracked
+  (`git rm --cached`).
+- `docs/tigergraph_foundation/UPSTREAM_FIXES.md` — new.
+- `app/services/opportunity_service.py` — unchanged (retained; see item 3).
