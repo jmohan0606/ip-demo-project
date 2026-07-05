@@ -43,7 +43,7 @@
     },
     {
       "check": "COUNT_phx_dm_time_period.csv",
-      "detail": "expected=24, actual=24"
+      "detail": "expected=36, actual=36"
     },
     {
       "check": "DIVISION_TO_FIRM",
@@ -187,7 +187,7 @@
     },
     {
       "check": "TIME_PERIOD_CONTINUITY",
-      "detail": "24 unique monthly periods"
+      "detail": "36 unique monthly periods"
     },
     {
       "check": "TRANSACTION_ADVISOR_COVERAGE",

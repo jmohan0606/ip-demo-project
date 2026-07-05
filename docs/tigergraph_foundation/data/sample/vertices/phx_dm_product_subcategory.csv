@@ -1,17 +1,17 @@
 subcategory_id,subcategory_name,status
-SUB0101,Managed Accounts Subcategory 1,ACTIVE
-SUB0102,Managed Accounts Subcategory 2,ACTIVE
-SUB0201,Brokerage Subcategory 1,ACTIVE
-SUB0202,Brokerage Subcategory 2,ACTIVE
-SUB0301,Fixed Income Subcategory 1,ACTIVE
-SUB0302,Fixed Income Subcategory 2,ACTIVE
-SUB0401,Equities Subcategory 1,ACTIVE
-SUB0402,Equities Subcategory 2,ACTIVE
-SUB0501,Mutual Funds Subcategory 1,ACTIVE
-SUB0502,Mutual Funds Subcategory 2,ACTIVE
-SUB0601,Alternatives Subcategory 1,ACTIVE
-SUB0602,Alternatives Subcategory 2,ACTIVE
-SUB0701,Cash & Lending Subcategory 1,ACTIVE
-SUB0702,Cash & Lending Subcategory 2,ACTIVE
-SUB0801,Insurance Subcategory 1,ACTIVE
-SUB0802,Insurance Subcategory 2,ACTIVE
+SUB0101,Separately Managed Accounts,ACTIVE
+SUB0102,Unified Managed Accounts,ACTIVE
+SUB0201,Full-Service Brokerage,ACTIVE
+SUB0202,Directed Brokerage,ACTIVE
+SUB0301,Municipal Bonds,ACTIVE
+SUB0302,Corporate & Treasury Bonds,ACTIVE
+SUB0401,US Equities,ACTIVE
+SUB0402,International Equities,ACTIVE
+SUB0501,Equity Funds,ACTIVE
+SUB0502,Balanced & Income Funds,ACTIVE
+SUB0601,Private Markets,ACTIVE
+SUB0602,Hedge Strategies,ACTIVE
+SUB0701,Cash Management,ACTIVE
+SUB0702,Securities-Based Lending,ACTIVE
+SUB0801,Annuities,ACTIVE
+SUB0802,Life Insurance,ACTIVE

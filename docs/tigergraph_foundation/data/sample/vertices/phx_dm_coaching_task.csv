@@ -1,0 +1,91 @@
+task_id,title,category,instruction,status,priority,created_date,due_date,completed_date,created_by_user_id
+CTASK0001,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,OPEN,MEDIUM,2026-06-22,2026-07-16,,U_MDW01
+CTASK0002,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,IN_PROGRESS,LOW,2026-06-18,2026-07-19,,U_MDW01
+CTASK0003,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,IN_PROGRESS,MEDIUM,2026-06-13,2026-07-23,,U_MDW01
+CTASK0004,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,COMPLETED,LOW,2026-06-17,2026-07-15,2026-06-25,U_MDW01
+CTASK0005,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,COMPLETED,HIGH,2026-06-24,2026-07-12,2026-06-29,U_MDW02
+CTASK0006,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,OPEN,HIGH,2026-05-13,2026-07-20,,U_MDW02
+CTASK0007,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,OPEN,LOW,2026-06-01,2026-07-27,,U_MDW02
+CTASK0008,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,IN_PROGRESS,HIGH,2026-06-20,2026-07-18,,U_MDW02
+CTASK0009,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,IN_PROGRESS,HIGH,2026-05-05,2026-07-19,,U_MDW03
+CTASK0010,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,COMPLETED,HIGH,2026-06-11,2026-07-26,2026-06-25,U_MDW03
+CTASK0011,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,COMPLETED,MEDIUM,2026-06-09,2026-07-10,2026-06-16,U_MDW03
+CTASK0012,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,OPEN,HIGH,2026-06-15,2026-07-19,,U_MDW03
+CTASK0013,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,OPEN,LOW,2026-05-18,2026-07-16,,U_MDW04
+CTASK0014,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,IN_PROGRESS,LOW,2026-05-01,2026-07-18,,U_MDW04
+CTASK0015,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,IN_PROGRESS,HIGH,2026-06-22,2026-07-10,,U_MDW04
+CTASK0016,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,COMPLETED,HIGH,2026-06-11,2026-07-19,2026-06-19,U_MDW04
+CTASK0017,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,COMPLETED,MEDIUM,2026-05-21,2026-07-11,2026-06-28,U_MDW05
+CTASK0018,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,OPEN,MEDIUM,2026-06-27,2026-07-18,,U_MDW05
+CTASK0019,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,OPEN,LOW,2026-05-19,2026-07-20,,U_MDW05
+CTASK0020,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,IN_PROGRESS,LOW,2026-06-17,2026-07-10,,U_MDW05
+CTASK0021,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,IN_PROGRESS,MEDIUM,2026-05-15,2026-07-24,,U_MDW06
+CTASK0022,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,COMPLETED,MEDIUM,2026-06-02,2026-07-19,2026-06-29,U_MDW06
+CTASK0023,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,COMPLETED,LOW,2026-05-28,2026-07-27,2026-06-29,U_MDW06
+CTASK0024,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,OPEN,HIGH,2026-06-26,2026-07-25,,U_MDW06
+CTASK0025,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,OPEN,LOW,2026-06-13,2026-07-21,,U_MDW07
+CTASK0026,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,IN_PROGRESS,LOW,2026-06-09,2026-07-15,,U_MDW07
+CTASK0027,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,IN_PROGRESS,HIGH,2026-06-03,2026-07-25,,U_MDW07
+CTASK0028,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,COMPLETED,MEDIUM,2026-06-09,2026-07-18,2026-06-17,U_MDW07
+CTASK0029,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,COMPLETED,HIGH,2026-06-02,2026-07-13,2026-06-27,U_MDW08
+CTASK0030,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,OPEN,MEDIUM,2026-05-12,2026-07-22,,U_MDW08
+CTASK0031,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,OPEN,MEDIUM,2026-06-04,2026-07-21,,U_MDW08
+CTASK0032,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,IN_PROGRESS,HIGH,2026-06-07,2026-07-12,,U_MDW08
+CTASK0033,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,IN_PROGRESS,LOW,2026-06-17,2026-07-13,,U_MDW09
+CTASK0034,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,COMPLETED,MEDIUM,2026-06-06,2026-07-15,2026-06-18,U_MDW09
+CTASK0035,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,COMPLETED,LOW,2026-06-02,2026-07-23,2026-06-29,U_MDW09
+CTASK0036,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,OPEN,MEDIUM,2026-05-21,2026-07-10,,U_MDW09
+CTASK0037,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,OPEN,LOW,2026-05-25,2026-07-15,,U_MDW10
+CTASK0038,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,IN_PROGRESS,LOW,2026-06-22,2026-07-24,,U_MDW10
+CTASK0039,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,IN_PROGRESS,HIGH,2026-05-12,2026-07-17,,U_MDW10
+CTASK0040,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,COMPLETED,MEDIUM,2026-06-09,2026-07-15,2026-06-16,U_MDW10
+CTASK0041,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,COMPLETED,MEDIUM,2026-06-05,2026-07-12,2026-06-29,U_MDW11
+CTASK0042,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,OPEN,MEDIUM,2026-05-01,2026-07-16,,U_MDW11
+CTASK0043,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,OPEN,LOW,2026-05-24,2026-07-28,,U_MDW11
+CTASK0044,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,IN_PROGRESS,HIGH,2026-05-03,2026-07-10,,U_MDW11
+CTASK0045,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,IN_PROGRESS,MEDIUM,2026-06-02,2026-07-16,,U_MDW12
+CTASK0046,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,COMPLETED,HIGH,2026-05-16,2026-07-16,2026-06-21,U_MDW12
+CTASK0047,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,COMPLETED,MEDIUM,2026-06-18,2026-07-21,2026-06-16,U_MDW12
+CTASK0048,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,OPEN,HIGH,2026-05-03,2026-07-10,,U_MDW12
+CTASK0049,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,OPEN,HIGH,2026-06-23,2026-07-28,,U_MDW01
+CTASK0050,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,IN_PROGRESS,MEDIUM,2026-05-28,2026-07-17,,U_MDW01
+CTASK0051,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,IN_PROGRESS,MEDIUM,2026-05-11,2026-07-17,,U_MDW01
+CTASK0052,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,COMPLETED,HIGH,2026-05-02,2026-07-20,2026-06-18,U_MDW01
+CTASK0053,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,COMPLETED,LOW,2026-06-03,2026-07-13,2026-06-30,U_MDW02
+CTASK0054,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,OPEN,HIGH,2026-06-07,2026-07-23,,U_MDW02
+CTASK0055,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,OPEN,LOW,2026-05-08,2026-07-15,,U_MDW02
+CTASK0056,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,IN_PROGRESS,HIGH,2026-06-20,2026-07-18,,U_MDW02
+CTASK0057,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,IN_PROGRESS,MEDIUM,2026-06-17,2026-07-27,,U_MDW03
+CTASK0058,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,COMPLETED,MEDIUM,2026-06-06,2026-07-25,2026-06-30,U_MDW03
+CTASK0059,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,COMPLETED,HIGH,2026-05-16,2026-07-12,2026-06-18,U_MDW03
+CTASK0060,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,OPEN,HIGH,2026-06-08,2026-07-13,,U_MDW03
+CTASK0061,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,OPEN,MEDIUM,2026-06-28,2026-07-17,,U_MDW04
+CTASK0062,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,IN_PROGRESS,HIGH,2026-05-19,2026-07-27,,U_MDW04
+CTASK0063,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,COMPLETED,MEDIUM,2026-06-06,2026-07-25,2026-06-21,U_MDW05
+CTASK0064,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,OPEN,LOW,2026-05-26,2026-07-21,,U_MDW05
+CTASK0065,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,IN_PROGRESS,MEDIUM,2026-05-27,2026-07-15,,U_MDW06
+CTASK0066,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,COMPLETED,MEDIUM,2026-05-09,2026-07-21,2026-06-17,U_MDW06
+CTASK0067,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,OPEN,MEDIUM,2026-06-06,2026-07-22,,U_MDW07
+CTASK0068,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,IN_PROGRESS,MEDIUM,2026-06-15,2026-07-26,,U_MDW07
+CTASK0069,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,COMPLETED,LOW,2026-05-09,2026-07-20,2026-06-25,U_MDW08
+CTASK0070,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,OPEN,HIGH,2026-05-18,2026-07-18,,U_MDW08
+CTASK0071,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,IN_PROGRESS,MEDIUM,2026-05-14,2026-07-13,,U_MDW09
+CTASK0072,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,COMPLETED,HIGH,2026-05-16,2026-07-11,2026-06-17,U_MDW09
+CTASK0073,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,OPEN,LOW,2026-05-08,2026-07-18,,U_MDW10
+CTASK0074,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,IN_PROGRESS,MEDIUM,2026-05-26,2026-07-14,,U_MDW10
+CTASK0075,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,COMPLETED,MEDIUM,2026-05-10,2026-07-10,2026-06-27,U_MDW11
+CTASK0076,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,OPEN,HIGH,2026-05-18,2026-07-18,,U_MDW11
+CTASK0077,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,IN_PROGRESS,HIGH,2026-05-18,2026-07-26,,U_MDW12
+CTASK0078,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,COMPLETED,MEDIUM,2026-05-25,2026-07-21,2026-06-26,U_MDW12
+CTASK0079,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,OPEN,MEDIUM,2026-05-09,2026-07-18,,U_MDW01
+CTASK0080,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,IN_PROGRESS,LOW,2026-06-28,2026-07-28,,U_MDW01
+CTASK0081,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,COMPLETED,LOW,2026-05-21,2026-07-11,2026-06-26,U_MDW02
+CTASK0082,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,OPEN,MEDIUM,2026-06-24,2026-07-25,,U_MDW02
+CTASK0083,Present managed-account upgrade to top clients,MANAGED_MIX,Prepare and deliver managed-account proposals for the three largest brokerage-heavy households.,IN_PROGRESS,HIGH,2026-05-22,2026-07-21,,U_MDW03
+CTASK0084,Ask two clients for referrals,CRM_EXECUTION,Identify two highly satisfied clients from recent reviews and make a direct referral ask.,COMPLETED,HIGH,2026-06-14,2026-07-14,2026-06-17,U_MDW03
+CTASK0085,Build NNM pacing plan,AGP_MILESTONE,Draft a month-by-month net-new-money plan to close the pacing gap to the next milestone.,OPEN,HIGH,2026-06-25,2026-07-13,,U_MDW04
+CTASK0086,Re-engage stalled referrals,PIPELINE,Contact every referral with no touch in 30+ days and set a concrete next step for each.,IN_PROGRESS,MEDIUM,2026-05-03,2026-07-20,,U_MDW04
+CTASK0087,Complete overdue lead follow-ups,CRM_EXECUTION,Work the overdue lead queue to zero this week and log next actions in CRM.,COMPLETED,MEDIUM,2026-05-28,2026-07-23,2026-06-27,U_MDW05
+CTASK0088,Advance top pipeline opportunity,PIPELINE,Move the largest open opportunity to the next stage; document the client's decision criteria.,OPEN,HIGH,2026-05-15,2026-07-22,,U_MDW05
+CTASK0089,Book annual reviews for at-risk households,CLIENT_ENGAGEMENT,Schedule annual reviews with the five households showing the longest gap since last activity.,IN_PROGRESS,MEDIUM,2026-05-25,2026-07-20,,U_MDW06
+CTASK0090,Close the AGP milestone execution gap,AGP_MILESTONE,Focus on the KPIs behind the current milestone; bring attainment above target before the due date.,COMPLETED,HIGH,2026-06-13,2026-07-15,2026-06-23,U_MDW06

@@ -23,7 +23,7 @@ roles=set(r['role_code'] for r in users)
 required_roles={'EXEC','DDW','RDW','MDW','ADVISOR','AGP_ADVISOR','ADMIN','COMPLIANCE','AI_OPS'}
 check('PERSONA_ROLES',required_roles<=roles,f'roles={sorted(roles)}')
 
-for fn,expected in [('phx_dm_firm.csv',1),('phx_dm_division.csv',3),('phx_dm_region.csv',6),('phx_dm_market.csv',12),('phx_dm_branch.csv',24),('phx_dm_advisor.csv',60),('phx_dm_household.csv',360),('phx_dm_account.csv',720),('phx_dm_product.csv',64),('phx_dm_time_period.csv',24)]:
+for fn,expected in [('phx_dm_firm.csv',1),('phx_dm_division.csv',3),('phx_dm_region.csv',6),('phx_dm_market.csv',12),('phx_dm_branch.csv',24),('phx_dm_advisor.csv',60),('phx_dm_household.csv',360),('phx_dm_account.csv',720),('phx_dm_product.csv',64),('phx_dm_time_period.csv',36)]:
     actual=len(rows(V/fn)); check('COUNT_'+fn,actual==expected,f'expected={expected}, actual={actual}')
 
 # Organization and management hierarchy completeness.
@@ -90,7 +90,7 @@ check('RECOMMENDATION_REASONING_LINEAGE',set(r['to_id'] for r in rows(E/'phx_dm_
 
 # Time-series and transaction coverage.
 periods=rows(V/'phx_dm_time_period.csv')
-check('TIME_PERIOD_CONTINUITY',len(periods)==24 and len({r['period_id'] for r in periods})==24,'24 unique monthly periods')
+check('TIME_PERIOD_CONTINUITY',len(periods)==36 and len({r['period_id'] for r in periods})==36,'36 unique monthly periods')
 tx_by_advisor=edge_targets('phx_dm_transaction_for_advisor.csv')
 # Edge target is advisor because transaction->advisor.
 check('TRANSACTION_ADVISOR_COVERAGE',len(tx_by_advisor)==60 and min(tx_by_advisor.values())>0,'all advisors have transactions')

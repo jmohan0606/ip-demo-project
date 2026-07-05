@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "job_count": 182,
+  "job_count": 185,
   "errors": [],
   "jobs": [
     {
@@ -1455,6 +1455,30 @@
       "order": 182,
       "job": "load_phx_dm_execution_generated_reasoning",
       "target": "phx_dm_execution_generated_reasoning",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 183,
+      "job": "load_phx_dm_coaching_task",
+      "target": "phx_dm_coaching_task",
+      "kind": "vertex",
+      "columns": 10,
+      "status": "PASS"
+    },
+    {
+      "order": 184,
+      "job": "load_phx_dm_coaching_task_for_advisor",
+      "target": "phx_dm_coaching_task_for_advisor",
+      "kind": "edge",
+      "columns": 2,
+      "status": "PASS"
+    },
+    {
+      "order": 185,
+      "job": "load_phx_dm_coaching_task_assigned_by",
+      "target": "phx_dm_coaching_task_assigned_by",
       "kind": "edge",
       "columns": 2,
       "status": "PASS"

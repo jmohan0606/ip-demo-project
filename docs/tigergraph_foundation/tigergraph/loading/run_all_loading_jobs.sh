@@ -185,3 +185,6 @@ $GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_execut
 $GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_execution_has_evaluation USING input_file="'"$DATA_ROOT"'/edges/phx_dm_execution_has_evaluation.csv";' 
 $GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_execution_has_guardrail_event USING input_file="'"$DATA_ROOT"'/edges/phx_dm_execution_has_guardrail_event.csv";' 
 $GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_execution_generated_reasoning USING input_file="'"$DATA_ROOT"'/edges/phx_dm_execution_generated_reasoning.csv";' 
+$GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_coaching_task USING input_file="'"$DATA_ROOT"'/vertices/phx_dm_coaching_task.csv";' 
+$GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_coaching_task_for_advisor USING input_file="'"$DATA_ROOT"'/edges/phx_dm_coaching_task_for_advisor.csv";' 
+$GSQL_CMD -g iperform_insights_coaching_demo 'RUN LOADING JOB load_phx_dm_coaching_task_assigned_by USING input_file="'"$DATA_ROOT"'/edges/phx_dm_coaching_task_assigned_by.csv";' 

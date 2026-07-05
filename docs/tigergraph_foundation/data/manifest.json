@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "graph_name": "iperform_insights_coaching_demo",
   "batch_size": 500,
   "files": [
@@ -271,7 +271,7 @@
         "period_id"
       ],
       "dependencies": [],
-      "expected_rows": 24
+      "expected_rows": 36
     },
     {
       "order": 15,
@@ -292,7 +292,7 @@
         "transaction_id"
       ],
       "dependencies": [],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 16,
@@ -309,7 +309,7 @@
         "aum_id"
       ],
       "dependencies": [],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 17,
@@ -326,7 +326,7 @@
         "ncf_id"
       ],
       "dependencies": [],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 18,
@@ -343,7 +343,7 @@
         "nnm_id"
       ],
       "dependencies": [],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 19,
@@ -360,7 +360,7 @@
         "product_revenue_id"
       ],
       "dependencies": [],
-      "expected_rows": 4320
+      "expected_rows": 6480
     },
     {
       "order": 20,
@@ -1684,7 +1684,7 @@
         "vertices/phx_dm_revenue_transaction.csv",
         "vertices/phx_dm_advisor.csv"
       ],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 79,
@@ -1707,7 +1707,7 @@
         "vertices/phx_dm_revenue_transaction.csv",
         "vertices/phx_dm_household.csv"
       ],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 80,
@@ -1730,7 +1730,7 @@
         "vertices/phx_dm_revenue_transaction.csv",
         "vertices/phx_dm_account.csv"
       ],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 81,
@@ -1753,7 +1753,7 @@
         "vertices/phx_dm_revenue_transaction.csv",
         "vertices/phx_dm_product.csv"
       ],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 82,
@@ -1776,7 +1776,7 @@
         "vertices/phx_dm_revenue_transaction.csv",
         "vertices/phx_dm_time_period.csv"
       ],
-      "expected_rows": 10080
+      "expected_rows": 15116
     },
     {
       "order": 83,
@@ -1799,7 +1799,7 @@
         "vertices/phx_dm_monthly_aum.csv",
         "vertices/phx_dm_advisor.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 84,
@@ -1822,7 +1822,7 @@
         "vertices/phx_dm_monthly_aum.csv",
         "vertices/phx_dm_time_period.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 85,
@@ -1845,7 +1845,7 @@
         "vertices/phx_dm_monthly_ncf.csv",
         "vertices/phx_dm_advisor.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 86,
@@ -1868,7 +1868,7 @@
         "vertices/phx_dm_monthly_ncf.csv",
         "vertices/phx_dm_time_period.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 87,
@@ -1891,7 +1891,7 @@
         "vertices/phx_dm_monthly_nnm.csv",
         "vertices/phx_dm_advisor.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 88,
@@ -1914,7 +1914,7 @@
         "vertices/phx_dm_monthly_nnm.csv",
         "vertices/phx_dm_time_period.csv"
       ],
-      "expected_rows": 1440
+      "expected_rows": 2160
     },
     {
       "order": 89,
@@ -1937,7 +1937,7 @@
         "vertices/phx_dm_monthly_product_revenue.csv",
         "vertices/phx_dm_advisor.csv"
       ],
-      "expected_rows": 4320
+      "expected_rows": 6480
     },
     {
       "order": 90,
@@ -1960,7 +1960,7 @@
         "vertices/phx_dm_monthly_product_revenue.csv",
         "vertices/phx_dm_product.csv"
       ],
-      "expected_rows": 4320
+      "expected_rows": 6480
     },
     {
       "order": 91,
@@ -1983,7 +1983,7 @@
         "vertices/phx_dm_monthly_product_revenue.csv",
         "vertices/phx_dm_time_period.csv"
       ],
-      "expected_rows": 4320
+      "expected_rows": 6480
     },
     {
       "order": 92,
@@ -4077,6 +4077,76 @@
         "vertices/phx_dm_reasoning_trace.csv"
       ],
       "expected_rows": 10
+    },
+    {
+      "order": 183,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_coaching_task.csv",
+      "target": "phx_dm_coaching_task",
+      "id_column": "task_id",
+      "columns": {
+        "task_id": "task_id",
+        "title": "title",
+        "category": "category",
+        "instruction": "instruction",
+        "status": "status",
+        "priority": "priority",
+        "created_date": "created_date",
+        "due_date": "due_date",
+        "completed_date": "completed_date",
+        "created_by_user_id": "created_by_user_id"
+      },
+      "required_columns": [
+        "task_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 90
+    },
+    {
+      "order": 184,
+      "kind": "edge",
+      "file": "edges/phx_dm_coaching_task_for_advisor.csv",
+      "target": "phx_dm_coaching_task_for_advisor",
+      "from_type": "phx_dm_coaching_task",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_coaching_task.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 90
+    },
+    {
+      "order": 185,
+      "kind": "edge",
+      "file": "edges/phx_dm_coaching_task_assigned_by.csv",
+      "target": "phx_dm_coaching_task_assigned_by",
+      "from_type": "phx_dm_coaching_task",
+      "to_type": "phx_dm_persona_user",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_coaching_task.csv",
+        "vertices/phx_dm_persona_user.csv"
+      ],
+      "expected_rows": 90
     }
   ]
 }

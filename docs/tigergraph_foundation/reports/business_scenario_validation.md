@@ -15,7 +15,7 @@
 - COUNT_phx_dm_household.csv: expected=360, actual=360
 - COUNT_phx_dm_account.csv: expected=720, actual=720
 - COUNT_phx_dm_product.csv: expected=64, actual=64
-- COUNT_phx_dm_time_period.csv: expected=24, actual=24
+- COUNT_phx_dm_time_period.csv: expected=36, actual=36
 - DIVISION_TO_FIRM: every division has one firm
 - REGION_TO_DIVISION: every region has one division
 - MARKET_TO_REGION: every market has one region
@@ -51,7 +51,7 @@
 - RECOMMENDATION_OPPORTUNITY_LINEAGE: every recommendation links to an opportunity
 - RECOMMENDATION_PREDICTION_LINEAGE: every recommendation links to a prediction
 - RECOMMENDATION_REASONING_LINEAGE: every recommendation links to reasoning
-- TIME_PERIOD_CONTINUITY: 24 unique monthly periods
+- TIME_PERIOD_CONTINUITY: 36 unique monthly periods
 - TRANSACTION_ADVISOR_COVERAGE: all advisors have transactions
 
 ## Errors

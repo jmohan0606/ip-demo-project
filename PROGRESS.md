@@ -1034,3 +1034,32 @@ learning-state design in 9.5 Opportunities, 9.6 Revenue Trend Explorer).
   issue (browser hitting unresolvable 127.0.0.1:8000). Phase 0's dual-var API base + public port
   8000 + CORS regex fixed it. Verified Playwright: clicking Run Workflow → two 200s from
   /agentic-ai/run, agent trace + confidence % rendered, 0 errors. Not a functional regression.
+
+### PHASE 2 (9.3) — data model + sample-data expansion — DONE (delegated to Fable 5)
+NOTE ON MODEL ROUTING: the named `fable-architect` subagent type was NOT resolvable in the running
+agent registry (only the .claude/agents/fable-architect.md file exists; available types were
+claude/general-purpose/Explore/Plan/etc.). To honor the 9.10/9.11 intent (Fable 5 reasoning for the
+4 high-stakes items, main thread stays Opus), I delegated via a general-purpose subagent with an
+explicit `model: "fable"` override + the architect guidance embedded. Same mechanism will be used
+for the other 3 delegated items (9.4, RL-state design, 9.6).
+
+Fable-5 delivered a BOUNDED, relabel+append expansion (no anchored figures mutated):
+- Real-world names: 3 divisions (Eastern/Central/Western), 6 regions, 12 markets, 24 branches (real
+  city/state), 360 households ("The Lockhart Family"…), 720 accounts, 64 products (16 sub-cats),
+  180 CRM opportunities, 300 varied CRM activities, 72 varied coaching summaries.
+- +12 OLDER months → 36 monthly periods (2023-08→2026-07) for trend visuals; older-than-LTM-window
+  by construction so trailing-12 LTM + current snapshots are unchanged.
+- One new vertex `phx_dm_coaching_task` (90 seed tasks) + 2 edges (+reverse) for 9.5's manager-
+  assigns-task feature. Saved-what-if needs no schema change (phx_dm_simulation_scenario exists);
+  branch ranking needs none (24 branches + advisor_in_branch).
+- Generator: scripts/expand_sample_data_v1_2.py (deterministic, idempotent). Manifest v1.1→1.2.
+
+INDEPENDENT verification by orchestrator (main thread) after restarting the backend on the new data:
+- Live API anchors unchanged: A001 revenue_ltm 387,293.22 / aum 10,018,200 / nnm_3m 102,080 / kpi
+  0.275; A020 539,262.90 / 25,990,000; firm F001 total revenue 38,365,750.01 (== pre-expansion).
+- 36-month trend live for A001 (from 2023-08). Real names live (hierarchy tree "Northstar Wealth
+  Management › Eastern Division › Northeast Region"; households "The Lockhart Family").
+- scripts/validate_package.py: STATUS PASS — 57 vertices / 128 edges / 185 files / 154,946 rows.
+- Deferred (Fable): foundation prose docs still cite old totals (cosmetic); new coaching_task GSQL
+  statically-validated only (no live TG compile on this hardware); legacy tigergraph/sample_data/
+  untouched (different id-space).

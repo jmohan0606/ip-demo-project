@@ -25,12 +25,12 @@ all_edges={**edges,**reverse}
 entries=manifest.get('files',[])
 
 # Catalog/schema integrity
-if len(vertices)!=56: fail('VERTEX_COUNT',f'Expected 56 vertices, found {len(vertices)}')
-else: ok('VERTEX_COUNT','56 vertex types catalogued',56)
-if len(edges)!=126: fail('EDGE_COUNT',f'Expected 126 directed edges, found {len(edges)}')
-else: ok('EDGE_COUNT','126 directed edge types catalogued',126)
-if len(reverse)!=126: fail('REVERSE_EDGE_COUNT',f'Expected 126 reverse edges, found {len(reverse)}')
-else: ok('REVERSE_EDGE_COUNT','126 explicit reverse edges catalogued',126)
+if len(vertices)!=57: fail('VERTEX_COUNT',f'Expected 57 vertices, found {len(vertices)}')
+else: ok('VERTEX_COUNT','57 vertex types catalogued',57)
+if len(edges)!=128: fail('EDGE_COUNT',f'Expected 128 directed edges, found {len(edges)}')
+else: ok('EDGE_COUNT','128 directed edge types catalogued',128)
+if len(reverse)!=128: fail('REVERSE_EDGE_COUNT',f'Expected 128 reverse edges, found {len(reverse)}')
+else: ok('REVERSE_EDGE_COUNT','128 explicit reverse edges catalogued',128)
 for e in edges.values():
     if e['from'] not in vertices or e['to'] not in vertices: fail('EDGE_ENDPOINT_SCHEMA',f"{e['name']} has unknown endpoint",e)
 
@@ -51,8 +51,8 @@ ok('SCHEMA_DECLARATIONS','Schema declarations and graph membership checked')
 
 # Manifest integrity
 paths=[e['file'] for e in entries]; orders=[e['order'] for e in entries]
-if len(entries)!=182: fail('MANIFEST_COUNT',f'Expected 182 entries, found {len(entries)}')
-else: ok('MANIFEST_COUNT','182 manifest-controlled CSV targets',182)
+if len(entries)!=185: fail('MANIFEST_COUNT',f'Expected 185 entries, found {len(entries)}')
+else: ok('MANIFEST_COUNT','185 manifest-controlled CSV targets',185)
 for label,values in [('file path',paths),('order',orders)]:
     duplicates=[x for x,n in Counter(values).items() if n>1]
     if duplicates: fail('MANIFEST_DUPLICATE',f'Duplicate manifest {label}s',duplicates)

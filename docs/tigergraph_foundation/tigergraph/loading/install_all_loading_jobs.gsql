@@ -182,3 +182,6 @@ USE GRAPH iperform_insights_coaching_demo
 @jobs/LOAD-180_phx_dm_execution_has_evaluation.gsql
 @jobs/LOAD-181_phx_dm_execution_has_guardrail_event.gsql
 @jobs/LOAD-182_phx_dm_execution_generated_reasoning.gsql
+@jobs/LOAD-183_phx_dm_coaching_task.gsql
+@jobs/LOAD-184_phx_dm_coaching_task_for_advisor.gsql
+@jobs/LOAD-185_phx_dm_coaching_task_assigned_by.gsql

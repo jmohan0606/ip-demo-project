@@ -193,7 +193,7 @@ def mock_query(name: str):
 
 class MockGraphClient:
     """Same interface and result envelope as RealGraphClient, backed by the
-    foundation package's 182 verified CSVs loaded into FoundationGraphStore.
+    foundation package's 185 verified CSVs loaded into FoundationGraphStore.
 
     Each GQ-### query has a Python equivalent registered in MOCK_QUERY_IMPLS that
     traverses the same vertices/edges the GSQL version traverses, returning the

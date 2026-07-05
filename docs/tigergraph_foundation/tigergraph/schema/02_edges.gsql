@@ -62,6 +62,8 @@ CREATE DIRECTED EDGE phx_dm_advisor_has_goal (FROM phx_dm_advisor, TO phx_dm_goa
 CREATE DIRECTED EDGE phx_dm_advisor_has_kpi (FROM phx_dm_advisor, TO phx_dm_kpi) WITH REVERSE_EDGE="rev_phx_dm_advisor_has_kpi";
 CREATE DIRECTED EDGE phx_dm_coaching_for_advisor (FROM phx_dm_coaching_session, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_coaching_for_advisor";
 CREATE DIRECTED EDGE phx_dm_coaching_for_enrollment (FROM phx_dm_coaching_session, TO phx_dm_agp_enrollment) WITH REVERSE_EDGE="rev_phx_dm_coaching_for_enrollment";
+CREATE DIRECTED EDGE phx_dm_coaching_task_for_advisor (FROM phx_dm_coaching_task, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_coaching_task_for_advisor";
+CREATE DIRECTED EDGE phx_dm_coaching_task_assigned_by (FROM phx_dm_coaching_task, TO phx_dm_persona_user) WITH REVERSE_EDGE="rev_phx_dm_coaching_task_assigned_by";
 CREATE DIRECTED EDGE phx_dm_review_for_advisor (FROM phx_dm_manager_review, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_review_for_advisor";
 CREATE DIRECTED EDGE phx_dm_review_for_enrollment (FROM phx_dm_manager_review, TO phx_dm_agp_enrollment) WITH REVERSE_EDGE="rev_phx_dm_review_for_enrollment";
 CREATE DIRECTED EDGE phx_dm_advisor_has_feature_snapshot (FROM phx_dm_advisor, TO phx_dm_feature_snapshot) WITH REVERSE_EDGE="rev_phx_dm_advisor_has_feature_snapshot";

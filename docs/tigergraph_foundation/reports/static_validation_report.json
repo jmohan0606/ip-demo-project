@@ -3,18 +3,18 @@
   "checks": [
     {
       "code": "VERTEX_COUNT",
-      "message": "56 vertex types catalogued",
-      "count": 56
+      "message": "57 vertex types catalogued",
+      "count": 57
     },
     {
       "code": "EDGE_COUNT",
-      "message": "126 directed edge types catalogued",
-      "count": 126
+      "message": "128 directed edge types catalogued",
+      "count": 128
     },
     {
       "code": "REVERSE_EDGE_COUNT",
-      "message": "126 explicit reverse edges catalogued",
-      "count": 126
+      "message": "128 explicit reverse edges catalogued",
+      "count": 128
     },
     {
       "code": "SCHEMA_DECLARATIONS",
@@ -23,13 +23,13 @@
     },
     {
       "code": "MANIFEST_COUNT",
-      "message": "182 manifest-controlled CSV targets",
-      "count": 182
+      "message": "185 manifest-controlled CSV targets",
+      "count": 185
     },
     {
       "code": "CSV_VALIDATION",
-      "message": "Validated 182 CSV files and 109328 data rows",
-      "count": 109328
+      "message": "Validated 185 CSV files and 154946 data rows",
+      "count": 154946
     },
     {
       "code": "QUERY_COUNT",
@@ -45,11 +45,11 @@
   "errors": [],
   "warnings": [],
   "summary": {
-    "vertices": 56,
-    "edges": 126,
-    "reverse_edges": 126,
-    "manifest_files": 182,
-    "data_rows": 109328,
+    "vertices": 57,
+    "edges": 128,
+    "reverse_edges": 128,
+    "manifest_files": 185,
+    "data_rows": 154946,
     "queries": 43
   }
 }

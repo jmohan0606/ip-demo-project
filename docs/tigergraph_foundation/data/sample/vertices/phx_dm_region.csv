@@ -1,7 +1,7 @@
 region_id,region_name,region_code,status
-R01,Region 1,REG1,ACTIVE
-R02,Region 2,REG2,ACTIVE
-R03,Region 3,REG3,ACTIVE
-R04,Region 4,REG4,ACTIVE
-R05,Region 5,REG5,ACTIVE
-R06,Region 6,REG6,ACTIVE
+R01,Northeast Region,NER,ACTIVE
+R02,Southeast Region,SER,ACTIVE
+R03,Great Lakes Region,GLR,ACTIVE
+R04,South Central Region,SCR,ACTIVE
+R05,Mountain West Region,MWR,ACTIVE
+R06,Pacific Region,PAC,ACTIVE

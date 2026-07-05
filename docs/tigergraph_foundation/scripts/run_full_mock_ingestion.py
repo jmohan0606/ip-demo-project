@@ -30,10 +30,10 @@ def summarize(status: dict):
 
 try:
     first=wait_for(service.start(None, skip_unchanged=False, batch_size=1000))
-    if first['status']!='COMPLETED' or first['succeeded_rows']!=109328 or first['failed_rows']!=0 or first['completed_files']!=182:
+    if first['status']!='COMPLETED' or first['succeeded_rows']!=154946 or first['failed_rows']!=0 or first['completed_files']!=185:
         raise RuntimeError(f'Initial mock load acceptance failed: {summarize(first)}')
     second=wait_for(service.start(None, skip_unchanged=True, batch_size=1000))
-    if second['status']!='COMPLETED' or second['skipped_rows']!=109328 or second['failed_rows']!=0 or second['completed_files']!=182:
+    if second['status']!='COMPLETED' or second['skipped_rows']!=154946 or second['failed_rows']!=0 or second['completed_files']!=185:
         raise RuntimeError(f'Unchanged reload acceptance failed: {summarize(second)}')
     report={
         'status':'PASS',

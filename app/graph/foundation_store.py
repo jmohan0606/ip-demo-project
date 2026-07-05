@@ -12,7 +12,7 @@ from app.config.settings import get_settings
 class FoundationGraphStore:
     """In-memory graph loaded from the TigerGraph Foundation package (Section 3).
 
-    Loads the 182 manifest-controlled CSVs (56 vertex types, 126 edge types) into
+    Loads the 185 manifest-controlled CSVs (57 vertex types, 128 edge types) into
     typed indexes so MockGraphClient query implementations can traverse the same
     graph the real GSQL queries traverse on TigerGraph.
     """

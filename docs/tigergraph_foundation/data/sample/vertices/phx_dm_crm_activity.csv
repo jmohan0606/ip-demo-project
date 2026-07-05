@@ -1,301 +1,301 @@
 activity_id,activity_type,activity_date,status,subject,notes_summary,next_action,next_action_date,sentiment
-ACT00100,MEETING,2026-06-24,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00101,CALL,2026-06-11,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00102,EMAIL,2026-05-29,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00103,REVIEW,2026-05-16,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00104,FOLLOW_UP,2026-05-03,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00200,MEETING,2026-06-17,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00201,CALL,2026-06-04,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00202,EMAIL,2026-05-22,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00203,REVIEW,2026-05-09,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00204,FOLLOW_UP,2026-04-26,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00300,MEETING,2026-06-10,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00301,CALL,2026-05-28,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00302,EMAIL,2026-05-15,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00303,REVIEW,2026-05-02,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00304,FOLLOW_UP,2026-04-19,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00400,MEETING,2026-06-03,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00401,CALL,2026-05-21,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00402,EMAIL,2026-05-08,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00403,REVIEW,2026-04-25,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00404,FOLLOW_UP,2026-04-12,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00500,MEETING,2026-05-27,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00501,CALL,2026-05-14,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00502,EMAIL,2026-05-01,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00503,REVIEW,2026-04-18,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00504,FOLLOW_UP,2026-04-05,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00600,MEETING,2026-05-20,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00601,CALL,2026-05-07,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00602,EMAIL,2026-04-24,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00603,REVIEW,2026-04-11,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00604,FOLLOW_UP,2026-03-29,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00700,MEETING,2026-05-13,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00701,CALL,2026-04-30,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00702,EMAIL,2026-04-17,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00703,REVIEW,2026-04-04,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00704,FOLLOW_UP,2026-03-22,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00800,MEETING,2026-05-06,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00801,CALL,2026-04-23,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00802,EMAIL,2026-04-10,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00803,REVIEW,2026-03-28,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00804,FOLLOW_UP,2026-03-15,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT00900,MEETING,2026-04-29,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT00901,CALL,2026-04-16,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT00902,EMAIL,2026-04-03,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT00903,REVIEW,2026-03-21,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT00904,FOLLOW_UP,2026-03-08,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01000,MEETING,2026-04-22,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01001,CALL,2026-04-09,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01002,EMAIL,2026-03-27,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01003,REVIEW,2026-03-14,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01004,FOLLOW_UP,2026-06-29,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01100,MEETING,2026-04-15,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01101,CALL,2026-04-02,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01102,EMAIL,2026-03-20,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01103,REVIEW,2026-03-07,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01104,FOLLOW_UP,2026-06-22,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01200,MEETING,2026-04-08,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01201,CALL,2026-03-26,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01202,EMAIL,2026-03-13,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01203,REVIEW,2026-06-28,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01204,FOLLOW_UP,2026-06-15,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01300,MEETING,2026-04-01,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01301,CALL,2026-03-19,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01302,EMAIL,2026-03-06,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01303,REVIEW,2026-06-21,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01304,FOLLOW_UP,2026-06-08,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01400,MEETING,2026-03-25,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01401,CALL,2026-03-12,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01402,EMAIL,2026-06-27,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01403,REVIEW,2026-06-14,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01404,FOLLOW_UP,2026-06-01,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01500,MEETING,2026-03-18,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01501,CALL,2026-03-05,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01502,EMAIL,2026-06-20,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01503,REVIEW,2026-06-07,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01504,FOLLOW_UP,2026-05-25,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01600,MEETING,2026-03-11,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01601,CALL,2026-06-26,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01602,EMAIL,2026-06-13,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01603,REVIEW,2026-05-31,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01604,FOLLOW_UP,2026-05-18,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01700,MEETING,2026-03-04,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01701,CALL,2026-06-19,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01702,EMAIL,2026-06-06,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01703,REVIEW,2026-05-24,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01704,FOLLOW_UP,2026-05-11,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01800,MEETING,2026-06-25,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01801,CALL,2026-06-12,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01802,EMAIL,2026-05-30,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01803,REVIEW,2026-05-17,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01804,FOLLOW_UP,2026-05-04,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT01900,MEETING,2026-06-18,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT01901,CALL,2026-06-05,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT01902,EMAIL,2026-05-23,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT01903,REVIEW,2026-05-10,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT01904,FOLLOW_UP,2026-04-27,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02000,MEETING,2026-06-11,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02001,CALL,2026-05-29,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02002,EMAIL,2026-05-16,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02003,REVIEW,2026-05-03,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02004,FOLLOW_UP,2026-04-20,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02100,MEETING,2026-06-04,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02101,CALL,2026-05-22,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02102,EMAIL,2026-05-09,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02103,REVIEW,2026-04-26,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02104,FOLLOW_UP,2026-04-13,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02200,MEETING,2026-05-28,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02201,CALL,2026-05-15,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02202,EMAIL,2026-05-02,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02203,REVIEW,2026-04-19,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02204,FOLLOW_UP,2026-04-06,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02300,MEETING,2026-05-21,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02301,CALL,2026-05-08,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02302,EMAIL,2026-04-25,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02303,REVIEW,2026-04-12,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02304,FOLLOW_UP,2026-03-30,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02400,MEETING,2026-05-14,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02401,CALL,2026-05-01,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02402,EMAIL,2026-04-18,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02403,REVIEW,2026-04-05,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02404,FOLLOW_UP,2026-03-23,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02500,MEETING,2026-05-07,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02501,CALL,2026-04-24,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02502,EMAIL,2026-04-11,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02503,REVIEW,2026-03-29,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02504,FOLLOW_UP,2026-03-16,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02600,MEETING,2026-04-30,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02601,CALL,2026-04-17,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02602,EMAIL,2026-04-04,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02603,REVIEW,2026-03-22,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02604,FOLLOW_UP,2026-03-09,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02700,MEETING,2026-04-23,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02701,CALL,2026-04-10,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02702,EMAIL,2026-03-28,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02703,REVIEW,2026-03-15,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02704,FOLLOW_UP,2026-06-30,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02800,MEETING,2026-04-16,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02801,CALL,2026-04-03,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02802,EMAIL,2026-03-21,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02803,REVIEW,2026-03-08,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02804,FOLLOW_UP,2026-06-23,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT02900,MEETING,2026-04-09,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT02901,CALL,2026-03-27,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT02902,EMAIL,2026-03-14,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT02903,REVIEW,2026-06-29,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT02904,FOLLOW_UP,2026-06-16,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03000,MEETING,2026-04-02,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03001,CALL,2026-03-20,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03002,EMAIL,2026-03-07,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03003,REVIEW,2026-06-22,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03004,FOLLOW_UP,2026-06-09,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03100,MEETING,2026-03-26,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03101,CALL,2026-03-13,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03102,EMAIL,2026-06-28,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03103,REVIEW,2026-06-15,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03104,FOLLOW_UP,2026-06-02,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03200,MEETING,2026-03-19,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03201,CALL,2026-03-06,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03202,EMAIL,2026-06-21,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03203,REVIEW,2026-06-08,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03204,FOLLOW_UP,2026-05-26,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03300,MEETING,2026-03-12,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03301,CALL,2026-06-27,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03302,EMAIL,2026-06-14,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03303,REVIEW,2026-06-01,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03304,FOLLOW_UP,2026-05-19,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03400,MEETING,2026-03-05,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03401,CALL,2026-06-20,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03402,EMAIL,2026-06-07,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03403,REVIEW,2026-05-25,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03404,FOLLOW_UP,2026-05-12,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03500,MEETING,2026-06-26,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03501,CALL,2026-06-13,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03502,EMAIL,2026-05-31,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03503,REVIEW,2026-05-18,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03504,FOLLOW_UP,2026-05-05,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03600,MEETING,2026-06-19,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03601,CALL,2026-06-06,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03602,EMAIL,2026-05-24,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03603,REVIEW,2026-05-11,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03604,FOLLOW_UP,2026-04-28,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03700,MEETING,2026-06-12,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03701,CALL,2026-05-30,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03702,EMAIL,2026-05-17,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03703,REVIEW,2026-05-04,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03704,FOLLOW_UP,2026-04-21,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03800,MEETING,2026-06-05,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03801,CALL,2026-05-23,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03802,EMAIL,2026-05-10,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03803,REVIEW,2026-04-27,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03804,FOLLOW_UP,2026-04-14,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT03900,MEETING,2026-05-29,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT03901,CALL,2026-05-16,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT03902,EMAIL,2026-05-03,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT03903,REVIEW,2026-04-20,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT03904,FOLLOW_UP,2026-04-07,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04000,MEETING,2026-05-22,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04001,CALL,2026-05-09,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04002,EMAIL,2026-04-26,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04003,REVIEW,2026-04-13,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04004,FOLLOW_UP,2026-03-31,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04100,MEETING,2026-05-15,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04101,CALL,2026-05-02,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04102,EMAIL,2026-04-19,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04103,REVIEW,2026-04-06,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04104,FOLLOW_UP,2026-03-24,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04200,MEETING,2026-05-08,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04201,CALL,2026-04-25,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04202,EMAIL,2026-04-12,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04203,REVIEW,2026-03-30,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04204,FOLLOW_UP,2026-03-17,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04300,MEETING,2026-05-01,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04301,CALL,2026-04-18,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04302,EMAIL,2026-04-05,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04303,REVIEW,2026-03-23,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04304,FOLLOW_UP,2026-03-10,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04400,MEETING,2026-04-24,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04401,CALL,2026-04-11,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04402,EMAIL,2026-03-29,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04403,REVIEW,2026-03-16,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04404,FOLLOW_UP,2026-07-01,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04500,MEETING,2026-04-17,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04501,CALL,2026-04-04,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04502,EMAIL,2026-03-22,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04503,REVIEW,2026-03-09,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04504,FOLLOW_UP,2026-06-24,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04600,MEETING,2026-04-10,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04601,CALL,2026-03-28,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04602,EMAIL,2026-03-15,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04603,REVIEW,2026-06-30,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04604,FOLLOW_UP,2026-06-17,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04700,MEETING,2026-04-03,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04701,CALL,2026-03-21,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04702,EMAIL,2026-03-08,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04703,REVIEW,2026-06-23,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04704,FOLLOW_UP,2026-06-10,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04800,MEETING,2026-03-27,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04801,CALL,2026-03-14,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04802,EMAIL,2026-06-29,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04803,REVIEW,2026-06-16,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04804,FOLLOW_UP,2026-06-03,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT04900,MEETING,2026-03-20,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT04901,CALL,2026-03-07,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT04902,EMAIL,2026-06-22,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT04903,REVIEW,2026-06-09,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT04904,FOLLOW_UP,2026-05-27,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05000,MEETING,2026-03-13,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05001,CALL,2026-06-28,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05002,EMAIL,2026-06-15,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05003,REVIEW,2026-06-02,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05004,FOLLOW_UP,2026-05-20,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05100,MEETING,2026-03-06,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05101,CALL,2026-06-21,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05102,EMAIL,2026-06-08,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05103,REVIEW,2026-05-26,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05104,FOLLOW_UP,2026-05-13,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05200,MEETING,2026-06-27,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05201,CALL,2026-06-14,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05202,EMAIL,2026-06-01,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05203,REVIEW,2026-05-19,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05204,FOLLOW_UP,2026-05-06,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05300,MEETING,2026-06-20,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05301,CALL,2026-06-07,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05302,EMAIL,2026-05-25,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05303,REVIEW,2026-05-12,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05304,FOLLOW_UP,2026-04-29,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05400,MEETING,2026-06-13,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05401,CALL,2026-05-31,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05402,EMAIL,2026-05-18,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05403,REVIEW,2026-05-05,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05404,FOLLOW_UP,2026-04-22,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05500,MEETING,2026-06-06,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05501,CALL,2026-05-24,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05502,EMAIL,2026-05-11,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05503,REVIEW,2026-04-28,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05504,FOLLOW_UP,2026-04-15,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05600,MEETING,2026-05-30,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05601,CALL,2026-05-17,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05602,EMAIL,2026-05-04,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05603,REVIEW,2026-04-21,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05604,FOLLOW_UP,2026-04-08,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05700,MEETING,2026-05-23,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05701,CALL,2026-05-10,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05702,EMAIL,2026-04-27,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05703,REVIEW,2026-04-14,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05704,FOLLOW_UP,2026-04-01,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05800,MEETING,2026-05-16,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05801,CALL,2026-05-03,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05802,EMAIL,2026-04-20,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05803,REVIEW,2026-04-07,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05804,FOLLOW_UP,2026-03-25,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT05900,MEETING,2026-05-09,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT05901,CALL,2026-04-26,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT05902,EMAIL,2026-04-13,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT05903,REVIEW,2026-03-31,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT05904,FOLLOW_UP,2026-03-18,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
-ACT06000,MEETING,2026-05-02,COMPLETED,Client activity 1,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-08,POSITIVE
-ACT06001,CALL,2026-04-19,COMPLETED,Client activity 2,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-09,NEUTRAL
-ACT06002,EMAIL,2026-04-06,COMPLETED,Client activity 3,"Discussed goals, portfolio position and next best action.",Send summary,2026-07-10,POSITIVE
-ACT06003,REVIEW,2026-03-24,COMPLETED,Client activity 4,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-11,NEUTRAL
-ACT06004,FOLLOW_UP,2026-03-11,OPEN,Client activity 5,"Discussed goals, portfolio position and next best action.",Schedule follow-up,2026-07-12,NEGATIVE
+ACT00100,MEETING,2026-06-24,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT00101,CALL,2026-06-11,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT00102,EMAIL,2026-05-29,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT00103,REVIEW,2026-05-16,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT00104,FOLLOW_UP,2026-05-03,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT00200,MEETING,2026-06-17,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT00201,CALL,2026-06-04,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT00202,EMAIL,2026-05-22,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT00203,REVIEW,2026-05-09,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT00204,FOLLOW_UP,2026-04-26,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT00300,MEETING,2026-06-10,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT00301,CALL,2026-05-28,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT00302,EMAIL,2026-05-15,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT00303,REVIEW,2026-05-02,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT00304,FOLLOW_UP,2026-04-19,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT00400,MEETING,2026-06-03,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT00401,CALL,2026-05-21,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT00402,EMAIL,2026-05-08,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT00403,REVIEW,2026-04-25,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT00404,FOLLOW_UP,2026-04-12,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT00500,MEETING,2026-05-27,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT00501,CALL,2026-05-14,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT00502,EMAIL,2026-05-01,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT00503,REVIEW,2026-04-18,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT00504,FOLLOW_UP,2026-04-05,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT00600,MEETING,2026-05-20,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT00601,CALL,2026-05-07,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT00602,EMAIL,2026-04-24,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT00603,REVIEW,2026-04-11,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT00604,FOLLOW_UP,2026-03-29,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT00700,MEETING,2026-05-13,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT00701,CALL,2026-04-30,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT00702,EMAIL,2026-04-17,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT00703,REVIEW,2026-04-04,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT00704,FOLLOW_UP,2026-03-22,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT00800,MEETING,2026-05-06,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT00801,CALL,2026-04-23,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT00802,EMAIL,2026-04-10,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT00803,REVIEW,2026-03-28,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT00804,FOLLOW_UP,2026-03-15,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT00900,MEETING,2026-04-29,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT00901,CALL,2026-04-16,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT00902,EMAIL,2026-04-03,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT00903,REVIEW,2026-03-21,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT00904,FOLLOW_UP,2026-03-08,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT01000,MEETING,2026-04-22,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT01001,CALL,2026-04-09,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT01002,EMAIL,2026-03-27,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT01003,REVIEW,2026-03-14,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT01004,FOLLOW_UP,2026-06-29,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT01100,MEETING,2026-04-15,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT01101,CALL,2026-04-02,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT01102,EMAIL,2026-03-20,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT01103,REVIEW,2026-03-07,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT01104,FOLLOW_UP,2026-06-22,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT01200,MEETING,2026-04-08,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT01201,CALL,2026-03-26,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT01202,EMAIL,2026-03-13,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT01203,REVIEW,2026-06-28,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT01204,FOLLOW_UP,2026-06-15,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT01300,MEETING,2026-04-01,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT01301,CALL,2026-03-19,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT01302,EMAIL,2026-03-06,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT01303,REVIEW,2026-06-21,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Schedule follow-up call,2026-07-11,NEUTRAL
+ACT01304,FOLLOW_UP,2026-06-08,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT01400,MEETING,2026-03-25,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT01401,CALL,2026-03-12,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT01402,EMAIL,2026-06-27,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT01403,REVIEW,2026-06-14,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT01404,FOLLOW_UP,2026-06-01,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT01500,MEETING,2026-03-18,COMPLETED,Annual Financial Plan Review,Met with the household to walk through annual Financial Plan Review. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT01501,CALL,2026-03-05,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT01502,EMAIL,2026-06-20,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT01503,REVIEW,2026-06-07,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT01504,FOLLOW_UP,2026-05-25,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT01600,MEETING,2026-03-11,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT01601,CALL,2026-06-26,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT01602,EMAIL,2026-06-13,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT01603,REVIEW,2026-05-31,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT01604,FOLLOW_UP,2026-05-18,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT01700,MEETING,2026-03-04,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT01701,CALL,2026-06-19,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT01702,EMAIL,2026-06-06,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT01703,REVIEW,2026-05-24,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT01704,FOLLOW_UP,2026-05-11,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT01800,MEETING,2026-06-25,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT01801,CALL,2026-06-12,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT01802,EMAIL,2026-05-30,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT01803,REVIEW,2026-05-17,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT01804,FOLLOW_UP,2026-05-04,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT01900,MEETING,2026-06-18,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT01901,CALL,2026-06-05,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT01902,EMAIL,2026-05-23,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT01903,REVIEW,2026-05-10,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT01904,FOLLOW_UP,2026-04-27,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT02000,MEETING,2026-06-11,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT02001,CALL,2026-05-29,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT02002,EMAIL,2026-05-16,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT02003,REVIEW,2026-05-03,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT02004,FOLLOW_UP,2026-04-20,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT02100,MEETING,2026-06-04,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT02101,CALL,2026-05-22,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT02102,EMAIL,2026-05-09,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Update financial plan,2026-07-10,POSITIVE
+ACT02103,REVIEW,2026-04-26,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT02104,FOLLOW_UP,2026-04-13,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT02200,MEETING,2026-05-28,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT02201,CALL,2026-05-15,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT02202,EMAIL,2026-05-02,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Update financial plan,2026-07-10,POSITIVE
+ACT02203,REVIEW,2026-04-19,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT02204,FOLLOW_UP,2026-04-06,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT02300,MEETING,2026-05-21,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT02301,CALL,2026-05-08,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT02302,EMAIL,2026-04-25,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT02303,REVIEW,2026-04-12,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT02304,FOLLOW_UP,2026-03-30,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT02400,MEETING,2026-05-14,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT02401,CALL,2026-05-01,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT02402,EMAIL,2026-04-18,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT02403,REVIEW,2026-04-05,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT02404,FOLLOW_UP,2026-03-23,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT02500,MEETING,2026-05-07,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT02501,CALL,2026-04-24,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT02502,EMAIL,2026-04-11,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT02503,REVIEW,2026-03-29,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT02504,FOLLOW_UP,2026-03-16,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT02600,MEETING,2026-04-30,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT02601,CALL,2026-04-17,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT02602,EMAIL,2026-04-04,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT02603,REVIEW,2026-03-22,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT02604,FOLLOW_UP,2026-03-09,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT02700,MEETING,2026-04-23,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT02701,CALL,2026-04-10,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT02702,EMAIL,2026-03-28,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT02703,REVIEW,2026-03-15,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Schedule follow-up call,2026-07-11,NEUTRAL
+ACT02704,FOLLOW_UP,2026-06-30,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT02800,MEETING,2026-04-16,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT02801,CALL,2026-04-03,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT02802,EMAIL,2026-03-21,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT02803,REVIEW,2026-03-08,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT02804,FOLLOW_UP,2026-06-23,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT02900,MEETING,2026-04-09,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT02901,CALL,2026-03-27,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT02902,EMAIL,2026-03-14,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Update financial plan,2026-07-10,POSITIVE
+ACT02903,REVIEW,2026-06-29,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT02904,FOLLOW_UP,2026-06-16,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT03000,MEETING,2026-04-02,COMPLETED,Annual Financial Plan Review,Met with the household to walk through annual Financial Plan Review. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT03001,CALL,2026-03-20,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT03002,EMAIL,2026-03-07,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT03003,REVIEW,2026-06-22,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Schedule follow-up call,2026-07-11,NEUTRAL
+ACT03004,FOLLOW_UP,2026-06-09,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT03100,MEETING,2026-03-26,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT03101,CALL,2026-03-13,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT03102,EMAIL,2026-06-28,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT03103,REVIEW,2026-06-15,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT03104,FOLLOW_UP,2026-06-02,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT03200,MEETING,2026-03-19,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT03201,CALL,2026-03-06,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT03202,EMAIL,2026-06-21,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT03203,REVIEW,2026-06-08,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT03204,FOLLOW_UP,2026-05-26,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT03300,MEETING,2026-03-12,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT03301,CALL,2026-06-27,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT03302,EMAIL,2026-06-14,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT03303,REVIEW,2026-06-01,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT03304,FOLLOW_UP,2026-05-19,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT03400,MEETING,2026-03-05,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT03401,CALL,2026-06-20,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT03402,EMAIL,2026-06-07,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT03403,REVIEW,2026-05-25,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT03404,FOLLOW_UP,2026-05-12,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT03500,MEETING,2026-06-26,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT03501,CALL,2026-06-13,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT03502,EMAIL,2026-05-31,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT03503,REVIEW,2026-05-18,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT03504,FOLLOW_UP,2026-05-05,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT03600,MEETING,2026-06-19,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT03601,CALL,2026-06-06,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT03602,EMAIL,2026-05-24,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT03603,REVIEW,2026-05-11,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT03604,FOLLOW_UP,2026-04-28,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT03700,MEETING,2026-06-12,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT03701,CALL,2026-05-30,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT03702,EMAIL,2026-05-17,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT03703,REVIEW,2026-05-04,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT03704,FOLLOW_UP,2026-04-21,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT03800,MEETING,2026-06-05,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT03801,CALL,2026-05-23,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT03802,EMAIL,2026-05-10,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT03803,REVIEW,2026-04-27,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT03804,FOLLOW_UP,2026-04-14,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT03900,MEETING,2026-05-29,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT03901,CALL,2026-05-16,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send requested documents,2026-07-09,NEUTRAL
+ACT03902,EMAIL,2026-05-03,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT03903,REVIEW,2026-04-20,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT03904,FOLLOW_UP,2026-04-07,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT04000,MEETING,2026-05-22,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT04001,CALL,2026-05-09,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT04002,EMAIL,2026-04-26,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT04003,REVIEW,2026-04-13,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT04004,FOLLOW_UP,2026-03-31,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT04100,MEETING,2026-05-15,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT04101,CALL,2026-05-02,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT04102,EMAIL,2026-04-19,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Update financial plan,2026-07-10,POSITIVE
+ACT04103,REVIEW,2026-04-06,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT04104,FOLLOW_UP,2026-03-24,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT04200,MEETING,2026-05-08,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT04201,CALL,2026-04-25,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT04202,EMAIL,2026-04-12,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT04203,REVIEW,2026-03-30,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Schedule follow-up call,2026-07-11,NEUTRAL
+ACT04204,FOLLOW_UP,2026-03-17,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT04300,MEETING,2026-05-01,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT04301,CALL,2026-04-18,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT04302,EMAIL,2026-04-05,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT04303,REVIEW,2026-03-23,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT04304,FOLLOW_UP,2026-03-10,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT04400,MEETING,2026-04-24,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT04401,CALL,2026-04-11,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT04402,EMAIL,2026-03-29,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT04403,REVIEW,2026-03-16,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT04404,FOLLOW_UP,2026-07-01,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT04500,MEETING,2026-04-17,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT04501,CALL,2026-04-04,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT04502,EMAIL,2026-03-22,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT04503,REVIEW,2026-03-09,COMPLETED,Concentration Risk Review,Completed concentration Risk Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT04504,FOLLOW_UP,2026-06-24,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT04600,MEETING,2026-04-10,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT04601,CALL,2026-03-28,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT04602,EMAIL,2026-03-15,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Update financial plan,2026-07-10,POSITIVE
+ACT04603,REVIEW,2026-06-30,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT04604,FOLLOW_UP,2026-06-17,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT04700,MEETING,2026-04-03,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT04701,CALL,2026-03-21,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT04702,EMAIL,2026-03-08,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT04703,REVIEW,2026-06-23,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT04704,FOLLOW_UP,2026-06-10,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT04800,MEETING,2026-03-27,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT04801,CALL,2026-03-14,COMPLETED,Tax-Loss Harvesting Discussion,Spoke with the client regarding tax-Loss Harvesting Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT04802,EMAIL,2026-06-29,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT04803,REVIEW,2026-06-16,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT04804,FOLLOW_UP,2026-06-03,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Update financial plan,2026-07-12,NEGATIVE
+ACT04900,MEETING,2026-03-20,COMPLETED,Annual Financial Plan Review,Met with the household to walk through annual Financial Plan Review. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT04901,CALL,2026-03-07,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT04902,EMAIL,2026-06-22,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT04903,REVIEW,2026-06-09,COMPLETED,Portfolio Risk Alignment Review,Completed portfolio Risk Alignment Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT04904,FOLLOW_UP,2026-05-27,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT05000,MEETING,2026-03-13,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Send meeting recap,2026-07-08,POSITIVE
+ACT05001,CALL,2026-06-28,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT05002,EMAIL,2026-06-15,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05003,REVIEW,2026-06-02,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT05004,FOLLOW_UP,2026-05-20,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT05100,MEETING,2026-03-06,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Book next review,2026-07-08,POSITIVE
+ACT05101,CALL,2026-06-21,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT05102,EMAIL,2026-06-08,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05103,REVIEW,2026-05-26,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT05104,FOLLOW_UP,2026-05-13,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE
+ACT05200,MEETING,2026-06-27,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT05201,CALL,2026-06-14,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Update financial plan,2026-07-09,NEUTRAL
+ACT05202,EMAIL,2026-06-01,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05203,REVIEW,2026-05-19,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT05204,FOLLOW_UP,2026-05-06,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT05300,MEETING,2026-06-20,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Send requested documents,2026-07-08,POSITIVE
+ACT05301,CALL,2026-06-07,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT05302,EMAIL,2026-05-25,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05303,REVIEW,2026-05-12,COMPLETED,Fee & Service Review,Completed fee & Service Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT05304,FOLLOW_UP,2026-04-29,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT05400,MEETING,2026-06-13,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Schedule follow-up call,2026-07-08,POSITIVE
+ACT05401,CALL,2026-05-31,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT05402,EMAIL,2026-05-18,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Prepare updated proposal,2026-07-10,POSITIVE
+ACT05403,REVIEW,2026-05-05,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT05404,FOLLOW_UP,2026-04-22,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT05500,MEETING,2026-06-06,COMPLETED,Quarterly Portfolio Review,Met with the household to walk through quarterly Portfolio Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT05501,CALL,2026-05-24,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Prepare updated proposal,2026-07-09,NEUTRAL
+ACT05502,EMAIL,2026-05-11,COMPLETED,Meeting Recap & Next Steps,Delivered materials for meeting Recap & Next Steps. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05503,REVIEW,2026-04-28,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send meeting recap,2026-07-11,NEUTRAL
+ACT05504,FOLLOW_UP,2026-04-15,OPEN,Post-Review Action Items,Followed up on post-Review Action Items. Confirmed remaining paperwork and owners for each open item.,Prepare updated proposal,2026-07-12,NEGATIVE
+ACT05600,MEETING,2026-05-30,COMPLETED,Annual Financial Plan Review,Met with the household to walk through annual Financial Plan Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT05601,CALL,2026-05-17,COMPLETED,Cash Needs Discussion,Spoke with the client regarding cash Needs Discussion. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT05602,EMAIL,2026-05-04,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Book next review,2026-07-10,POSITIVE
+ACT05603,REVIEW,2026-04-21,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Update financial plan,2026-07-11,NEUTRAL
+ACT05604,FOLLOW_UP,2026-04-08,OPEN,Referral Introduction Follow-Up,Followed up on referral Introduction Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT05700,MEETING,2026-05-23,COMPLETED,Retirement Planning Session,Met with the household to walk through retirement Planning Session. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT05701,CALL,2026-05-10,COMPLETED,Proposal Follow-Up Call,Spoke with the client regarding proposal Follow-Up Call. Addressed outstanding questions and confirmed follow-up items.,Book next review,2026-07-09,NEUTRAL
+ACT05702,EMAIL,2026-04-27,COMPLETED,Market Commentary Shared,Delivered materials for market Commentary Shared. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT05703,REVIEW,2026-04-14,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT05704,FOLLOW_UP,2026-04-01,OPEN,Rollover Paperwork Follow-Up,Followed up on rollover Paperwork Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send requested documents,2026-07-12,NEGATIVE
+ACT05800,MEETING,2026-05-16,COMPLETED,Annual Financial Plan Review,Met with the household to walk through annual Financial Plan Review. Reviewed allocation versus plan targets and agreed on next steps.,Prepare updated proposal,2026-07-08,POSITIVE
+ACT05801,CALL,2026-05-03,COMPLETED,RMD Planning Call,Spoke with the client regarding rMD Planning Call. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT05802,EMAIL,2026-04-20,COMPLETED,Tax Documents Delivered,Delivered materials for tax Documents Delivered. Flagged key figures and invited questions before the next review.,Schedule follow-up call,2026-07-10,POSITIVE
+ACT05803,REVIEW,2026-04-07,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Book next review,2026-07-11,NEUTRAL
+ACT05804,FOLLOW_UP,2026-03-25,OPEN,Beneficiary Update Follow-Up,Followed up on beneficiary Update Follow-Up. Confirmed remaining paperwork and owners for each open item.,Schedule follow-up call,2026-07-12,NEGATIVE
+ACT05900,MEETING,2026-05-09,COMPLETED,Estate Planning Discussion,Met with the household to walk through estate Planning Discussion. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT05901,CALL,2026-04-26,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Send meeting recap,2026-07-09,NEUTRAL
+ACT05902,EMAIL,2026-04-13,COMPLETED,Proposal Documents Sent,Delivered materials for proposal Documents Sent. Flagged key figures and invited questions before the next review.,Send requested documents,2026-07-10,POSITIVE
+ACT05903,REVIEW,2026-03-31,COMPLETED,Financial Plan Progress Review,Completed financial Plan Progress Review. Documented findings and updated the client file with current risk and objectives.,Send requested documents,2026-07-11,NEUTRAL
+ACT05904,FOLLOW_UP,2026-03-18,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Book next review,2026-07-12,NEGATIVE
+ACT06000,MEETING,2026-05-02,COMPLETED,New Account Onboarding Meeting,Met with the household to walk through new Account Onboarding Meeting. Reviewed allocation versus plan targets and agreed on next steps.,Update financial plan,2026-07-08,POSITIVE
+ACT06001,CALL,2026-04-19,COMPLETED,Market Volatility Check-In,Spoke with the client regarding market Volatility Check-In. Addressed outstanding questions and confirmed follow-up items.,Schedule follow-up call,2026-07-09,NEUTRAL
+ACT06002,EMAIL,2026-04-06,COMPLETED,Quarterly Performance Summary Sent,Delivered materials for quarterly Performance Summary Sent. Flagged key figures and invited questions before the next review.,Send meeting recap,2026-07-10,POSITIVE
+ACT06003,REVIEW,2026-03-24,COMPLETED,Annual Suitability Review,Completed annual Suitability Review. Documented findings and updated the client file with current risk and objectives.,Prepare updated proposal,2026-07-11,NEUTRAL
+ACT06004,FOLLOW_UP,2026-03-11,OPEN,Funding Confirmation Follow-Up,Followed up on funding Confirmation Follow-Up. Confirmed remaining paperwork and owners for each open item.,Send meeting recap,2026-07-12,NEGATIVE

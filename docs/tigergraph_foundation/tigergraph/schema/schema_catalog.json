@@ -886,6 +886,50 @@
       "purpose": "Advisor coaching session."
     },
     {
+      "name": "phx_dm_coaching_task",
+      "primary_id": "task_id",
+      "attrs": [
+        [
+          "title",
+          "STRING"
+        ],
+        [
+          "category",
+          "STRING"
+        ],
+        [
+          "instruction",
+          "STRING"
+        ],
+        [
+          "status",
+          "STRING"
+        ],
+        [
+          "priority",
+          "STRING"
+        ],
+        [
+          "created_date",
+          "DATETIME"
+        ],
+        [
+          "due_date",
+          "DATETIME"
+        ],
+        [
+          "completed_date",
+          "DATETIME"
+        ],
+        [
+          "created_by_user_id",
+          "STRING"
+        ]
+      ],
+      "domain": "Coaching",
+      "purpose": "Manager-assigned coaching instruction/task with lifecycle status (Section 9.5)."
+    },
+    {
       "name": "phx_dm_manager_review",
       "primary_id": "review_id",
       "attrs": [
@@ -2367,6 +2411,24 @@
       "domain": "Coaching",
       "purpose": "AGP coaching context.",
       "reverse_edge": "rev_phx_dm_coaching_for_enrollment"
+    },
+    {
+      "name": "phx_dm_coaching_task_for_advisor",
+      "from": "phx_dm_coaching_task",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "Coaching task targets an advisor.",
+      "reverse_edge": "rev_phx_dm_coaching_task_for_advisor"
+    },
+    {
+      "name": "phx_dm_coaching_task_assigned_by",
+      "from": "phx_dm_coaching_task",
+      "to": "phx_dm_persona_user",
+      "attrs": [],
+      "domain": "Coaching",
+      "purpose": "Coaching task assigned by a manager persona.",
+      "reverse_edge": "rev_phx_dm_coaching_task_assigned_by"
     },
     {
       "name": "phx_dm_review_for_advisor",

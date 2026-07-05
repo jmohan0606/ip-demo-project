@@ -1454,5 +1454,29 @@
     "csv": "edges/phx_dm_execution_generated_reasoning.csv",
     "kind": "edge",
     "target": "phx_dm_execution_generated_reasoning"
+  },
+  {
+    "order": 183,
+    "job_name": "load_phx_dm_coaching_task",
+    "file": "LOAD-183_phx_dm_coaching_task.gsql",
+    "csv": "vertices/phx_dm_coaching_task.csv",
+    "kind": "vertex",
+    "target": "phx_dm_coaching_task"
+  },
+  {
+    "order": 184,
+    "job_name": "load_phx_dm_coaching_task_for_advisor",
+    "file": "LOAD-184_phx_dm_coaching_task_for_advisor.gsql",
+    "csv": "edges/phx_dm_coaching_task_for_advisor.csv",
+    "kind": "edge",
+    "target": "phx_dm_coaching_task_for_advisor"
+  },
+  {
+    "order": 185,
+    "job_name": "load_phx_dm_coaching_task_assigned_by",
+    "file": "LOAD-185_phx_dm_coaching_task_assigned_by.gsql",
+    "csv": "edges/phx_dm_coaching_task_assigned_by.csv",
+    "kind": "edge",
+    "target": "phx_dm_coaching_task_assigned_by"
   }
 ]

@@ -1,25 +1,25 @@
 branch_id,branch_name,branch_code,status,city,state
-B001,Branch 1,BR001,ACTIVE,City 1,NY
-B002,Branch 2,BR002,ACTIVE,City 2,NJ
-B003,Branch 3,BR003,ACTIVE,City 3,PA
-B004,Branch 4,BR004,ACTIVE,City 4,VA
-B005,Branch 5,BR005,ACTIVE,City 5,NC
-B006,Branch 6,BR006,ACTIVE,City 6,GA
-B007,Branch 7,BR007,ACTIVE,City 7,FL
-B008,Branch 8,BR008,ACTIVE,City 8,OH
-B009,Branch 9,BR009,ACTIVE,City 9,MI
-B010,Branch 10,BR010,ACTIVE,City 10,IL
-B011,Branch 11,BR011,ACTIVE,City 11,TX
-B012,Branch 12,BR012,ACTIVE,City 12,CA
-B013,Branch 13,BR013,ACTIVE,City 13,NY
-B014,Branch 14,BR014,ACTIVE,City 14,NJ
-B015,Branch 15,BR015,ACTIVE,City 15,PA
-B016,Branch 16,BR016,ACTIVE,City 16,VA
-B017,Branch 17,BR017,ACTIVE,City 17,NC
-B018,Branch 18,BR018,ACTIVE,City 18,GA
-B019,Branch 19,BR019,ACTIVE,City 19,FL
-B020,Branch 20,BR020,ACTIVE,City 20,OH
-B021,Branch 21,BR021,ACTIVE,City 21,MI
-B022,Branch 22,BR022,ACTIVE,City 22,IL
-B023,Branch 23,BR023,ACTIVE,City 23,TX
-B024,Branch 24,BR024,ACTIVE,City 24,CA
+B001,Back Bay Office,BOS1,ACTIVE,Boston,MA
+B002,Financial District Office,BOS2,ACTIVE,Boston,MA
+B003,Midtown Manhattan Office,NYC1,ACTIVE,New York,NY
+B004,Long Island Office,NYC2,ACTIVE,Garden City,NY
+B005,Buckhead Office,ATL1,ACTIVE,Atlanta,GA
+B006,Alpharetta Office,ATL2,ACTIVE,Alpharetta,GA
+B007,Brickell Office,SFL1,ACTIVE,Miami,FL
+B008,Palm Beach Office,SFL2,ACTIVE,West Palm Beach,FL
+B009,The Loop Office,CHI1,ACTIVE,Chicago,IL
+B010,Naperville Office,CHI2,ACTIVE,Naperville,IL
+B011,Birmingham Office,DET1,ACTIVE,Birmingham,MI
+B012,Ann Arbor Office,DET2,ACTIVE,Ann Arbor,MI
+B013,Uptown Dallas Office,DFW1,ACTIVE,Dallas,TX
+B014,Fort Worth Office,DFW2,ACTIVE,Fort Worth,TX
+B015,Galleria Office,HOU1,ACTIVE,Houston,TX
+B016,The Woodlands Office,HOU2,ACTIVE,The Woodlands,TX
+B017,Cherry Creek Office,DEN1,ACTIVE,Denver,CO
+B018,Boulder Office,DEN2,ACTIVE,Boulder,CO
+B019,Camelback Office,PHX1,ACTIVE,Phoenix,AZ
+B020,Scottsdale Office,PHX2,ACTIVE,Scottsdale,AZ
+B021,Embarcadero Office,SFB1,ACTIVE,San Francisco,CA
+B022,Palo Alto Office,SFB2,ACTIVE,Palo Alto,CA
+B023,Century City Office,LAX1,ACTIVE,Los Angeles,CA
+B024,Newport Beach Office,LAX2,ACTIVE,Newport Beach,CA
