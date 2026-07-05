@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+
+from app.embeddings.similar_entities import _embeddings_by_entity, similar_entities
 from app.graph.client import get_graph_client
 
 
@@ -14,6 +17,57 @@ class Client360Service:
 
     def _v(self, vtype: str, vid: str) -> dict:
         return self._store.vertex(vtype, vid) or {}
+
+    def _recommendation_lineage(self, rid: str) -> dict:
+        """Explain HOW a recommendation was reached (CLAUDE.md 9.5): the addressed
+        opportunity, the prediction it is based on, the feature snapshot it used,
+        the reasoning steps and the concrete evidence — all from real lineage edges."""
+        store = self._store
+        sources: list[dict] = []
+
+        for opp_id in store.out_ids("phx_dm_recommendation_addresses_opportunity", rid):
+            o = self._v("phx_dm_opportunity", opp_id)
+            if o:
+                sources.append({
+                    "type": "Opportunity",
+                    "ref": opp_id,
+                    "detail": f"{o.get('category', 'opportunity')} · severity {o.get('severity')} · "
+                              f"est. impact ${float(o.get('estimated_revenue_impact') or 0):,.0f}",
+                })
+        for pred_id in store.out_ids("phx_dm_recommendation_based_on_prediction", rid):
+            p = self._v("phx_dm_prediction", pred_id)
+            if p:
+                sources.append({
+                    "type": "Prediction",
+                    "ref": pred_id,
+                    "detail": f"{p.get('prediction_type', 'prediction')} · score {p.get('score')} · {p.get('explanation', '')}"[:140],
+                })
+        for fs_id in store.out_ids("phx_dm_recommendation_uses_feature_snapshot", rid):
+            sources.append({"type": "Feature Snapshot", "ref": fs_id, "detail": "Phase-5 feature snapshot used as input"})
+        for pb_id in store.out_ids("phx_dm_recommendation_uses_playbook", rid):
+            pb = self._v("phx_dm_playbook", pb_id)
+            sources.append({"type": "Playbook", "ref": pb_id, "detail": pb.get("title") or pb.get("name") or pb_id})
+
+        reasoning_steps: list[str] = []
+        evidence: list[dict] = []
+        for reason_id in store.in_ids("phx_dm_reasoning_for_recommendation", rid):
+            r = self._v("phx_dm_reasoning_trace", reason_id)
+            try:
+                reasoning_steps = list(json.loads(r.get("reasoning_steps_json") or "[]"))
+            except (ValueError, TypeError):
+                reasoning_steps = []
+            try:
+                ev = json.loads(r.get("evidence_json") or "{}")
+            except (ValueError, TypeError):
+                ev = {}
+            # flatten one level of the evidence dict into label/value pairs, skipping
+            # id/type plumbing so only real signals surface as evidence
+            _skip = {"target_type", "target_id", "feature_snapshot_id", "advisor_id", "household_id"}
+            for key, val in (ev.get("features") or ev).items() if isinstance(ev, dict) else []:
+                if key not in _skip and isinstance(val, (int, float, str)):
+                    evidence.append({"label": key, "value": val})
+            break
+        return {"sources": sources, "reasoning_steps": reasoning_steps, "evidence": evidence[:8]}
 
     def households_for_advisor(self, advisor_id: str) -> list[dict]:
         store = self._store
@@ -81,11 +135,28 @@ class Client360Service:
                 recs.append({
                     "recommendation_id": rid,
                     "title": r.get("title"),
+                    "action_text": r.get("action_text"),
+                    "recommendation_type": r.get("recommendation_type"),
                     "severity": r.get("severity"),
                     "confidence": r.get("confidence"),
+                    "priority_score": r.get("priority_score"),
                     "estimated_revenue_impact": r.get("estimated_revenue_impact"),
+                    "impact_summary": r.get("impact_summary"),
                     "status": r.get("status"),
+                    # HOW it was reached (evidence + sources + reasoning) per CLAUDE.md 9.5
+                    "lineage": self._recommendation_lineage(rid),
                 })
+
+        # Similar households / accounts / portfolios — real cosine NN over embeddings.
+        hh_emb = _embeddings_by_entity(store, "HOUSEHOLD")
+        acct_emb = _embeddings_by_entity(store, "ACCOUNT")
+        similar = {
+            "households": similar_entities("HOUSEHOLD", household_id, 3) if household_id in hh_emb else None,
+            "accounts": None,
+        }
+        top_acct = next((a["account_id"] for a in accounts if a["account_id"] in acct_emb), None)
+        if top_acct:
+            similar["accounts"] = similar_entities("ACCOUNT", top_acct, 3)
 
         managed_value = sum(
             acc["current_value"] for acc in accounts if any(h["managed"] for h in acc["holdings"])
@@ -113,6 +184,7 @@ class Client360Service:
             "accounts": accounts,
             "transactions": txns[:15],
             "recommendations": recs,
+            "similar": similar,
             "evidence": {
                 "source": "phx_dm_household + household_owns_account/holds_product + "
                           "transaction_for_household + recommendation_for_household",

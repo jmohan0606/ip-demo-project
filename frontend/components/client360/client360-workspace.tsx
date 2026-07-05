@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { Wallet, Landmark, Receipt, Sparkles, UserCircle } from "lucide-react";
+import { Wallet, Landmark, Receipt, Sparkles, UserCircle, Users2, GitBranch } from "lucide-react";
+import { colors, type as typo } from "@/styles/tokens";
 import { useShellContext } from "@/components/layout/shell-context";
 import { resolveScope } from "@/lib/api/hierarchy";
 import {
@@ -140,30 +141,110 @@ export function Client360Workspace() {
           </Card>
 
           <Card>
-            <CardHeader className="p-3">
+            <CardHeader className="flex flex-row items-center justify-between p-3">
               <CardTitle className="flex items-center gap-2 text-[13px]">
-                <Sparkles className="h-4 w-4 text-primary" /> AI Recommendations
+                <Sparkles className="h-4 w-4" style={{ color: colors.aiAccent }} /> AI Recommendations
               </CardTitle>
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: colors.aiAccent, backgroundColor: "#EEF2FF", border: "1px solid #C7D2FE" }}>✦ AI Generated</span>
             </CardHeader>
-            <CardContent className="space-y-2 p-3 text-[12px]">
+            <CardContent className="space-y-3 p-3 text-[12px]">
               {(profile?.recommendations ?? []).length === 0 && (
                 <div className="p-3 text-center text-muted-foreground">None for this client.</div>
               )}
               {(profile?.recommendations ?? []).map((r) => (
-                <div key={r.recommendation_id} className="rounded-xl border bg-ai-soft p-2">
+                <div key={r.recommendation_id} className="rounded-xl border p-3" style={{ borderColor: colors.surface.border }}>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold">{r.title}</span>
+                    <span className="font-semibold" style={{ color: colors.text.primary }}>{r.title}</span>
                     <Badge variant={SEV_VARIANT[(r.severity ?? "").toUpperCase()] ?? "glass"}>{r.severity}</Badge>
                   </div>
-                  <div className="mt-1 text-muted-foreground">
-                    Impact {r.estimated_revenue_impact != null ? compactUsd(r.estimated_revenue_impact) : "—"} · conf{" "}
-                    {r.confidence != null ? `${(r.confidence * 100).toFixed(0)}%` : "—"} · {r.status}
+                  {r.action_text && <p className="mt-1" style={{ color: colors.text.secondary }}>{r.action_text}</p>}
+                  <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px]" style={{ color: colors.text.muted }}>
+                    <span>Impact <span className="font-mono" style={{ color: colors.positive }}>{r.estimated_revenue_impact != null ? compactUsd(r.estimated_revenue_impact) : "—"}</span></span>
+                    <span>Confidence <span className="font-mono">{r.confidence != null ? `${(r.confidence * 100).toFixed(0)}%` : "—"}</span></span>
+                    <span>Priority <span className="font-mono">{r.priority_score ?? "—"}</span></span>
+                    <span>Status <span className="font-semibold">{r.status}</span></span>
                   </div>
+
+                  {/* HOW this was reached (CLAUDE.md 9.5) */}
+                  {r.lineage && (r.lineage.reasoning_steps.length > 0 || r.lineage.sources.length > 0) && (
+                    <div className="mt-2 rounded-lg border p-2" style={{ borderColor: colors.surface.border, backgroundColor: colors.surface.canvas }}>
+                      <div className="flex items-center gap-1.5">
+                        <GitBranch className="h-3 w-3" style={{ color: colors.aiAccent }} />
+                        <span className={typo.label} style={{ color: colors.aiAccent }}>How this was reached</span>
+                      </div>
+                      {r.lineage.reasoning_steps.length > 0 && (
+                        <ol className="mt-1.5 space-y-0.5">
+                          {r.lineage.reasoning_steps.map((step, i) => (
+                            <li key={i} className="flex gap-1.5">
+                              <span className="font-mono text-[10px]" style={{ color: colors.text.muted }}>{i + 1}.</span>
+                              <span style={{ color: colors.text.secondary }}>{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                      {r.lineage.evidence.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {r.lineage.evidence.map((e) => (
+                            <span key={e.label} className="rounded border px-1.5 py-0.5 text-[10px]" style={{ borderColor: colors.surface.border, color: colors.text.secondary }}>
+                              {e.label}: <span className="font-mono" style={{ color: colors.text.primary }}>{String(e.value)}</span>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {r.lineage.sources.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {r.lineage.sources.map((sc) => (
+                            <span key={sc.ref} className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: "#EEF2FF", color: colors.aiAccent }} title={sc.detail}>
+                              {sc.type} · {sc.ref}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Similar households / accounts / portfolios (CLAUDE.md 9.5) */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        {(["households", "accounts"] as const).map((kind) => {
+          const block = profile?.similar?.[kind] ?? null;
+          return (
+            <Card key={kind}>
+              <CardHeader className="p-3">
+                <CardTitle className="flex items-center gap-2 text-[13px]">
+                  <Users2 className="h-4 w-4" style={{ color: colors.aiAccent }} /> Similar {kind === "households" ? "Households" : "Accounts / Portfolios"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 text-[12px]">
+                {block?.source ? (
+                  <>
+                    <p className="mb-2" style={{ color: colors.text.muted }}>
+                      Nearest to <span className="font-semibold" style={{ color: colors.text.secondary }}>{block.source.name}</span> by embedding cosine similarity
+                    </p>
+                    <ul className="space-y-1.5">
+                      {block.matches.map((m) => (
+                        <li key={m.entity_id} className="flex items-center gap-2">
+                          <span className="flex-1" style={{ color: colors.text.secondary }}>{m.name}</span>
+                          <div className="h-1.5 w-24 overflow-hidden rounded-full" style={{ backgroundColor: colors.surface.canvas }}>
+                            <div className="h-full rounded-full" style={{ width: `${Math.round(m.similarity * 100)}%`, backgroundColor: colors.aiAccent }} />
+                          </div>
+                          <span className="w-10 text-right font-mono" style={{ color: colors.text.primary }}>{Math.round(m.similarity * 100)}%</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p style={{ color: colors.text.muted }}>No embedding available for this {kind === "households" ? "household" : "account"}.</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Card>

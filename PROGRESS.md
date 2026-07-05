@@ -1189,10 +1189,31 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - Verified: tsc PASS; Playwright 0 console errors on A001 (5 gauges, drill-in chart, milestone
   statuses, AI insights, varied coaching). Screenshot: agp-after-a001.png.
 
-### RESUME AT: Phase 4 page 5/16 = **Client Intelligence 360** (9.5): rebuild the AI Recommendations
-card to the same structured standard as the Insight/Coaching cards (explain HOW reached — evidence,
-sources — not just state it; reuse structured_view + AiInsightSummary/AiCoachingCard); add similar
-households/accounts/portfolio comparisons (reuse similar_entities). Then: Coaching &
+**Page 5/16 — Client Intelligence 360 (9.5) — DONE.**
+- Backend (`app/client360/service.py`): each household recommendation now carries a `lineage`
+  block explaining HOW it was reached — traversed from real edges:
+  recommendation_addresses_opportunity, recommendation_based_on_prediction,
+  recommendation_uses_feature_snapshot, recommendation_uses_playbook (sources) +
+  reasoning_for_recommendation → reasoning_trace (reasoning_steps_json + evidence_json, with
+  id/type plumbing filtered out). Added `similar` {households, accounts} via `similar_entities`
+  (cosine NN over embeddings) for the household + its top account (30 households have recs).
+- Frontend: AI Recommendations card rebuilt to the structured standard — title + action + impact/
+  confidence/priority/status, then a "How this was reached" panel (numbered reasoning steps +
+  evidence chips + Opportunity/Prediction/Feature-Snapshot source pills) with the ✦ AI Generated
+  chip. New Similar Households + Similar Accounts/Portfolios cards (cosine % bars).
+- Verified: tsc PASS; Playwright 0 console errors — The Lockhart Family renders full profile,
+  rec "Review relationship growth opportunity" shows 6 reasoning steps + OPP_HH_H0006 +
+  FS_HH_H0006_202607 sources, similar households Eastman 100%/Everhart 96%/Kirkland 95%.
+  NOTE: uvicorn --reload mid-restart can transiently blank the page (no per-page retry-on-error,
+  a pre-existing app pattern); recovers on reload/Refresh. Screenshot: client360-after.png.
+
+### RESUME AT: Phase 4 page 6/16 = **Coaching & Reviews** (9.5/9.12): fix static/duplicate coaching
+data across advisors (real variation — the coaching_session data already varies per Phase 2, verify
++ surface it); **build the real manager-assigns-task feature** — manager picks a coaching
+instruction/task from a selectable list, persisted to DB (phx_dm_coaching_task exists from Phase 2),
+retrievable later with status, AND available as context to AI Assistant/recommendations (real read
+path, not just storage); Manager Reviews section shows the reviewing manager identity (photo/name)
+respecting viewer persona/hierarchy. Then: CRM Activities →
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

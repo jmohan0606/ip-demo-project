@@ -25,13 +25,29 @@ export interface ClientTransaction {
   gross_amount: number;
 }
 
+export interface RecLineage {
+  sources: Array<{ type: string; ref: string; detail: string }>;
+  reasoning_steps: string[];
+  evidence: Array<{ label: string; value: number | string }>;
+}
+
 export interface ClientRecommendation {
   recommendation_id: string;
   title: string | null;
+  action_text?: string | null;
+  recommendation_type?: string | null;
   severity: string | null;
   confidence: number | null;
+  priority_score?: number | null;
   estimated_revenue_impact: number | null;
+  impact_summary?: string | null;
   status: string | null;
+  lineage?: RecLineage;
+}
+
+export interface SimilarBlock {
+  source: { entity_id: string; name: string; [k: string]: unknown } | null;
+  matches: Array<{ entity_id: string; name: string; similarity: number; [k: string]: unknown }>;
 }
 
 export interface ClientProfile {
@@ -54,6 +70,7 @@ export interface ClientProfile {
   accounts: ClientAccount[];
   transactions: ClientTransaction[];
   recommendations: ClientRecommendation[];
+  similar?: { households: SimilarBlock | null; accounts: SimilarBlock | null };
   evidence: { source: string };
 }
 
