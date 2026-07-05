@@ -17,6 +17,16 @@ interface Contribution {
   why: string;
 }
 
+interface Methodology {
+  model_name: string;
+  model_family: string;
+  model_version: string;
+  trained_alternative: string;
+  pipeline: string[];
+  features_used: string[];
+  score_formula: string;
+}
+
 interface Prediction {
   prediction_id: string;
   prediction_type: string;
@@ -28,6 +38,7 @@ interface Prediction {
   contributions: Contribution[];
   feature_snapshot_id: string;
   explanation: string;
+  methodology?: Methodology;
   enrolled?: boolean;
 }
 
@@ -141,6 +152,33 @@ export function PredictionWorkspace() {
                 );
               })}
             </div>
+
+            {/* How this was derived — pipeline + model + formula (CLAUDE.md 9.5 ML/DL depth) */}
+            {prediction.methodology && (
+              <div className="mt-3 rounded-lg border p-2.5" style={{ borderColor: colors.surface.border, backgroundColor: colors.surface.canvas }}>
+                <div className={type.label} style={{ color: colors.aiAccent }}>How this was derived</div>
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: "#EEF2FF", color: colors.aiAccent }}>
+                    {prediction.methodology.model_name} {prediction.methodology.model_version}
+                  </span>
+                  <span className={type.data} style={{ color: colors.text.muted }}>{prediction.methodology.model_family}</span>
+                </div>
+                <ol className="mt-2 space-y-0.5">
+                  {prediction.methodology.pipeline.map((step, i) => (
+                    <li key={i} className="flex gap-1.5">
+                      <span className="font-mono text-[10px]" style={{ color: colors.text.muted }}>{i + 1}.</span>
+                      <span className={type.data} style={{ color: colors.text.secondary }}>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-2 rounded bg-white px-2 py-1 font-mono text-[10px]" style={{ color: colors.text.primary, border: `1px solid ${colors.surface.border}` }}>
+                  ƒ {prediction.methodology.score_formula}
+                </div>
+                <p className="mt-1.5 text-[10px]" style={{ color: colors.text.muted }}>
+                  Trained alternative · {prediction.methodology.trained_alternative}
+                </p>
+              </div>
+            )}
           </AiContentCard>
         ))}
         {predictions.length === 0 && !busy ? (

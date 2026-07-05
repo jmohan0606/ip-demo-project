@@ -1268,13 +1268,32 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - NOTE: mock upserts are in-memory (per running process) and reset on backend --reload/restart —
   same documented behavior as the coaching-task feature; fine for the demo session.
 
-### RESUME AT: Phase 4 page 9/16 = **Predictions & Forecasting** (9.5): fix advisor-scoping (9.1 —
-should already be done in Phase 1; verify it follows the breadcrumb). Add real detail on HOW each
-prediction was derived — the pipeline, the model/formula, the feature contributions — a core
-"ML/DL" selling point. Reuse the prediction service's contributions/explanation. Then:
-Opportunities&Recs [**RL learning-state = delegate to Fable via general-purpose subagent w/
-model:"fable"**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability, then Phase 5
-(Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
+**Page 9/16 — Predictions & Forecasting (9.5) — DONE.**
+- Scope-following already in place (`useScopedAdvisor`, Phase 1) — verified it follows the breadcrumb.
+- Backend: added a `methodology` block to both prediction results (`PredictionService._methodology`):
+  model name/family/version, the 6-step derivation pipeline (feature snapshot → select drivers →
+  weight each → sum+clamp → band+confidence → persist trace), features_used, and the score formula.
+  Honest framing — these are transparent additive scorecards (real per-feature weights), with the
+  scikit-learn RandomForest engine noted as the trained alternative. Predictions already carried
+  per-feature `contributions` (feature/value/points/why) + explanation + reasoning trace.
+- Frontend: each prediction card gained a "How this was derived" panel (model chip + pipeline steps
+  + ƒ formula + trained alternative) beneath the contribution bars + evidence pills.
+- Verified: tsc PASS; Playwright 0 console errors (Revenue Decline 16.7, AGP Off-Track 25.8, both
+  with methodology panels). Screenshot: predictions-after.png.
+
+### RESUME AT: Phase 4 page 10/16 = **Opportunities & Recommendations** (9.5) — THE FLAGSHIP PAGE
+(one of the 2-3 most important in the product). Requirements: fix advisor-scoping (9.1, should be
+done); summary cards for accepted/completed/in-progress/rejected (counts, %, green/amber/red);
+revenue-impact-over-time graph; color-coded category tags + icons on each card; color-coded
+accept/reject buttons; and **the RL learning-state must become a real, explained showcase of the
+feedback loop** — not just current weights, but a simple simulation/explanation of how weights move
+with feedback over time so a client understands WHY the system gets smarter. **DELEGATE the RL
+learning-state explanation DESIGN to Fable** (per 9.10/9.11: general-purpose subagent with
+model:"fable" + the fable-architect guidance) — a before/after or trend viz of weight movement over
+recorded feedback rounds is probably the right level, not a technical RL lecture. Backend already
+has LearningWeightStore (per-family weights, feedback deltas) + feedback pipeline — build the
+explanation/simulation on top. Then: Rec ROI → AI Assistant+Knowledge → Feature Lab →
+Explainability, then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG + .env), Phase 7.
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

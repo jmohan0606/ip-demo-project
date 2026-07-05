@@ -41,6 +41,32 @@ class PredictionService:
         present = sum(1 for name in used if features.get(name) is not None)
         return round(0.5 + 0.45 * present / len(used), 2) if used else 0.5
 
+    @staticmethod
+    def _methodology(ptype: str, contributions: list[dict], score: float) -> dict:
+        """The derivation detail (CLAUDE.md 9.5): the pipeline, the model/formula and
+        the per-feature attribution. Honest — these are transparent additive scorecards
+        (real code, per-feature weights), not a black box; a scikit-learn RandomForest
+        engine (app/prediction/prediction_engine.py) backs the trained path when
+        training data is sufficient."""
+        used = [c["feature"] for c in contributions]
+        return {
+            "model_name": "iPerform Risk Scorecard",
+            "model_family": "Additive weighted scorecard · transparent per-feature attribution",
+            "model_version": MODEL_VERSION,
+            "trained_alternative": "scikit-learn RandomForest (used when per-cohort training data is sufficient)",
+            "pipeline": [
+                "Compute the advisor's Phase-5 feature snapshot from graph facts",
+                f"Select the {len(used)} risk-driver features for {ptype.replace('_', ' ').title()}",
+                "Score each feature by its documented weight → points (clamped 0–100)",
+                "Sum the points and clamp the total to a 0–100 risk score",
+                "Map score → risk band; derive confidence from feature coverage",
+                "Persist the score with a full reasoning trace (feature → points → score)",
+            ],
+            "features_used": used,
+            "score_formula": "risk_score = clamp(Σ feature_points, 0, 100)  ·  band = severity_band(risk_score)",
+            "computed_score": score,
+        }
+
     # -- Prediction type 1: Revenue Decline Risk --
 
     def predict_revenue_decline(self, advisor_id: str, persist: bool = True) -> dict:
@@ -87,6 +113,7 @@ class PredictionService:
                 f"net cash flow ({ncf:,.0f}), diversification ({diversification:.2f}), "
                 f"peer gap ({peer_gap:+.1f}%) and engagement recency."
             ),
+            "methodology": self._methodology("REVENUE_DECLINE_RISK", contributions, score),
         }
         if persist:
             self._persist(result)
@@ -135,6 +162,7 @@ class PredictionService:
             "contributions": contributions,
             "feature_snapshot_id": snapshot["snapshot_id"],
             "explanation": track["explanation"],
+            "methodology": self._methodology("AGP_OFF_TRACK_RISK", contributions, score),
         }
         if persist:
             self._persist(result)
