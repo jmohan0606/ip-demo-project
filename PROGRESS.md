@@ -1018,3 +1018,19 @@ learning-state design in 9.5 Opportunities, 9.6 Revenue Trend Explorer).
 - Title-casing: convention set to Title Case for headers; per-page casing handled during each
   Phase 4 rebuild (guardrail: new pages use correct casing from the start).
 - tsc PASS.
+
+### PHASE 1 — root-cause fixes — DONE
+- **9.1 scope-following** (5 pages): shared `useScopedAdvisor()` hook wired into Predictions,
+  Opportunities & Recommendations, AI Assistant, Feature Engineering Lab, Explainability. Verified
+  Playwright: /predictions Firm→A001 (25.8/16.7), drill to Division D02→A009 (34.8/26.6) — different
+  advisor, different data, 0 errors. (commit cf4e136)
+- **9.2 filter bar** (commit 84973f0): Compare-To selector added; Refresh now real (shell
+  refreshNonce → scope-following pages refetch without losing scope); Search → /knowledge; Bell
+  removed (no notifications backend). Scope persistence across nav verified (drill→A009, navigate
+  away+back→still A009). Period dropdown updates state; real period→data filtering deferred to the
+  Phase 4 Revenue/Dashboard rebuilds (documented, not a silent gap).
+- **Agent Orchestration "Run Workflow"** — DIAGNOSED (per 9.5 hint, checked networking first):
+  the button was already wired to POST /agentic-ai/run; the "does nothing" was the same API-base
+  issue (browser hitting unresolvable 127.0.0.1:8000). Phase 0's dual-var API base + public port
+  8000 + CORS regex fixed it. Verified Playwright: clicking Run Workflow → two 200s from
+  /agentic-ai/run, agent trace + confidence % rendered, 0 errors. Not a functional regression.
