@@ -892,3 +892,59 @@ Fix (repoint to the real data, the stronger reconciliation — not aligning to s
   now reads `phx_dm_revenue_transaction.csv` — TOTAL 10,080, FAILED 0, 20% progress, real
   checkpoint id; manifest table shows the corrected CSV/vertex/PK for all 15 entities.
   Screenshot fix_ingestion.png. The prior "ingestion sample-CSV mismatch" known-issue is resolved.
+
+
+## Session 5 — 2026-07-05 — Consolidation sweep completion + opportunity grounding fix
+
+Continued the consolidation sweep and closed the remaining items with real before/after evidence.
+
+**Sweep items 1-2 (commit a116486) — dormant runtime cluster + /ui-integrated deleted.**
+- Item 1: deleted the dormant runtime-family modules (zero live callers — only tethers were
+  package `__init__` re-exports, now emptied): `app/features/{similarity,prediction_runtime,
+  feature_runtime}.py`, `app/graph/{graph_runtime,tigergraph_production_runtime}.py`,
+  `app/knowledge/{knowledge_runtime,chroma_adapter,mock_vector_store}.py`,
+  `app/recommendations/{recommendation_runtime,opportunity_engine,learning_engine,learning_store,
+  compliance}.py`, and `app/memory/`. Kept live Phase-8 `recommendation_engine`,
+  `compliance_validator`, playbook/repo/linker.
+- Item 2: deleted both `/ui-integrated` routers + services (all consumers were dead code — the
+  `integrated-dashboard` component had no route/nav), unregistered from `main.py`, removed the
+  frontend `integrated-ui`/`integrated-expanded` clients + component.
+- Items 3 (`/orchestration` dedup) and 4 (`InsightDataCollector` repoint off old
+  `FeatureStoreService`) were already resolved in prior sessions.
+- Backend 38→36 routes; frontend tsc/build green (25/25 pages).
+
+**Sweep follow-ups (commit 3d6b79c).**
+- Gitignored the runtime SQLite DBs (`data/feature_store/*.db`, `data/sqlite/*.db`) and
+  `git rm --cached` the two tracked ones — resolves the Session-2 git-hygiene flag. Verified a
+  fresh write no longer appears in `git status`.
+- Documented the 4 real-engine TigerGraph 4.2.3 GSQL/loader bugs found in Phase 2 in
+  `docs/tigergraph_foundation/UPSTREAM_FIXES.md` (trailing `;` after `WITH`, uninitialized
+  `DEFINE FILENAME`, missing `QUOTE="double"`, `QUOTE`+comma tokenizer) — each with root cause,
+  fix, and a suggested validator check, so the foundation package can fix its own validators.
+
+**Opportunity grounding fix (commit d14289a) — verified, not deferred.**
+- Checked whether the legacy `app/services/opportunity_service.py` zero/empty bug reaches
+  user-visible output before deferring its repoint. Split by page:
+  - **Agentic (`/agentic-ai/run`): NOT affected** — `service_tools.py` only *imported* the legacy
+    service (dead import); its `run_opportunities` already used the real
+    `OpportunityDetectionService`. Removed the dead import (+ 2 unused request-model imports); no
+    behavior change.
+  - **Chat (`/ai-chat/ask`): WAS degraded** — `context_assembler` called legacy
+    `list_opportunities`, which read an unpopulated repo → **0 opportunity context items**, so a
+    chat question about "top opportunities" was grounded in everything except the real
+    opportunities. Repointed to `OpportunityDetectionService.detect_for_advisor` (Advisor-scoped).
+    Real HTTP before/after: A001 opp-context 0→2 (CRM_EXECUTION 65.4, ADVISOR_GROWTH 49.5),
+    A020 0→3 (AGP_MILESTONE 74.8, CRM_EXECUTION 68.1, ADVISOR_GROWTH 56.8) — match Phase-8 exactly.
+- Confirmed A020's two 56.8 values are independent: AGP_MILESTONE's 56.8 = the AGP_OFF_TRACK_RISK
+  prediction score (`derived_from_prediction=PRED_AGPRISK_A020`, entering as its `intelligence`
+  component); ADVISOR_GROWTH's 56.8 = a separate severity composite (`derived_from_prediction=
+  None`) from managed-mix features (49.8·.25+35.9·.25+49.2·.20+100·.15+70·.15≈56.8). Coincidence,
+  no leakage.
+
+Known issues / deferred:
+- Legacy `app/services/opportunity_service.py` now has one remaining consumer
+  (`app/services/recommendation_service.py` facade, itself legacy); full deletion gated on
+  repointing/removing that facade — separate scoped follow-up.
+
+Next: repoint/remove the `recommendation_service` facade to allow deleting the last legacy
+opportunity_service; optional TigerGraph live validation on a larger host.
