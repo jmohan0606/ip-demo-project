@@ -21,6 +21,11 @@ def track_status(advisor_id: str):
     return ok(data=AgpService().track_status(advisor_id))
 
 
+@router.get("/kpi-scorecard/{advisor_id}")
+def kpi_scorecard(advisor_id: str):
+    return ok(data=AgpService().kpi_scorecard(advisor_id))
+
+
 @router.get("/coaching/{advisor_id}")
 def coaching_history(advisor_id: str):
     return ok(data=AgpService().coaching_history(advisor_id))

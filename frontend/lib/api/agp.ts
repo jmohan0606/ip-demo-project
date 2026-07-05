@@ -54,6 +54,20 @@ export interface AgpCoachingSession {
   session_type: string | null;
   status: string | null;
   summary: string | null;
+  action_items_json?: string | null;
+  coach_user_id?: string | null;
+}
+
+export interface AgpKpiHistoryPoint {
+  label: string; month: number; target: number; actual: number; attainment_pct: number; status: string | null; measured_at: string | null;
+}
+export interface AgpKpiRow {
+  kpi_id: string; kpi_name: string; unit: string | null; direction: string | null;
+  target: number | null; current: number | null; attainment_pct: number; status: string | null;
+  history: AgpKpiHistoryPoint[];
+}
+export async function fetchAgpKpiScorecard(advisorId: string): Promise<{ scorecard: AgpKpiRow[] }> {
+  return apiClient.get<{ scorecard: AgpKpiRow[] }>(`/agp/kpi-scorecard/${advisorId}`);
 }
 
 export async function fetchAgpTrackStatus(advisorId: string): Promise<AgpTrackStatus> {

@@ -1171,11 +1171,28 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   entities honestly show "No embedding available") → scope-following + AGP adaptation both PASS.
   Screenshots: advisor360-after-a001.png, advisor360-after-a025.png.
 
-### RESUME AT: Phase 4 page 4/16 = **AGP Goals & Coaching** (9.5/9.12): real KPI gauges/meters
-(visual, not text); all charts get legends; real Goals & KPIs table (KPI name, Target, Current,
-Progress %, Status color-coded) drilling into a Target-vs-Actual bar chart over time + AI "KPI
-Insights" block + "My Action Items" checklist; program milestones with real Completed/In-Progress/
-Not-Started; coaching sessions with real per-advisor variation (not static). Then: Client 360 →
+**Page 4/16 — AGP Goals & Coaching (9.5/9.12) — DONE.**
+- Backend: new `AgpService.kpi_scorecard(advisor_id)` + `GET /agp/kpi-scorecard/{id}` — per-KPI
+  Target vs Current, attainment %, on/off-track status and an 8-point milestone history, traversed
+  advisor→enrollment→milestone_progress→kpi_measurement→kpi over real `phx_dm_agp_kpi_measurement`
+  rows (960 measurements, 5 KPIs). Verified per-advisor variation (A001 3 OFF_TRACK vs A009 mostly
+  ON_TRACK). Coaching already varies per advisor (8 distinct summaries across 72 sessions from the
+  Phase-2 expansion) — confirmed, no change needed; now render action_items_json too.
+- Frontend: new `kpi-gauge.tsx` (radial attainment meter, on/off-track color) + `kpi-target-actual.tsx`
+  (Target-vs-Actual grouped bars WITH legend). Added a legend to `agp-cohort-bars.tsx`. Workspace
+  rebuilt: KPI Attainment Meters row (5 gauges), Goals & KPIs table (Target/Current/Progress
+  bar/Status color-coded) with row-select drill-in → Target-vs-Actual chart, Program Milestones
+  strip (Completed/In-Progress/Not-Started from milestone_progress status), Cohort rollup w/ legend,
+  AI KPI Insights (reuses `AiInsightSummary` fed by /advisor/360/{id}/ai — grounded), coaching
+  sessions with action-item checklists. Non-enrolled advisors get a clean "not enrolled" state.
+  refreshNonce dep. KPI cards gained icons.
+- Verified: tsc PASS; Playwright 0 console errors on A001 (5 gauges, drill-in chart, milestone
+  statuses, AI insights, varied coaching). Screenshot: agp-after-a001.png.
+
+### RESUME AT: Phase 4 page 5/16 = **Client Intelligence 360** (9.5): rebuild the AI Recommendations
+card to the same structured standard as the Insight/Coaching cards (explain HOW reached — evidence,
+sources — not just state it; reuse structured_view + AiInsightSummary/AiCoachingCard); add similar
+households/accounts/portfolio comparisons (reuse similar_entities). Then: Coaching &
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

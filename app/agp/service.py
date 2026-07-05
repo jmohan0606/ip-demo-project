@@ -130,6 +130,64 @@ class AgpService:
             "kpis": merged.get("kpis", []),
         }
 
+    # -- AGP-002/003: per-KPI Target vs Current scorecard with history --
+
+    def kpi_scorecard(self, advisor_id: str) -> dict:
+        """Per-KPI Target vs Current, attainment %, on/off-track status and a time
+        history, traversed advisor -> enrollment -> milestone_progress ->
+        kpi_measurement -> kpi. Backed by real phx_dm_agp_kpi_measurement rows."""
+        store = self.graph.store
+
+        def vattrs(vtype: str, vid: str) -> dict:
+            return store.vertex(vtype, vid) or {}
+
+        kpi_rows: dict[str, dict] = {}
+        for enr in store.out_ids("phx_dm_advisor_has_agp_enrollment", advisor_id):
+            for prog in store.out_ids("phx_dm_enrollment_has_milestone_progress", enr):
+                ms_ids = store.out_ids("phx_dm_progress_for_milestone", prog)
+                month = vattrs("phx_dm_agp_milestone", ms_ids[0]).get("milestone_month") if ms_ids else None
+                for meas in store.out_ids("phx_dm_progress_has_kpi_measurement", prog):
+                    m = vattrs("phx_dm_agp_kpi_measurement", meas)
+                    kpi_ids = store.out_ids("phx_dm_measurement_for_kpi", meas)
+                    if not kpi_ids:
+                        continue
+                    kid = kpi_ids[0]
+                    kdef = vattrs("phx_dm_kpi", kid)
+                    row = kpi_rows.setdefault(kid, {
+                        "kpi_id": kid,
+                        "kpi_name": kdef.get("kpi_name", kid),
+                        "unit": kdef.get("unit"),
+                        "direction": kdef.get("direction"),
+                        "history": [],
+                    })
+                    row["history"].append({
+                        "label": f"M{month}" if month else str(m.get("measured_at"))[:7],
+                        "month": int(month or 0),
+                        "target": float(m.get("target_value") or 0),
+                        "actual": float(m.get("actual_value") or 0),
+                        "attainment_pct": float(m.get("attainment_pct") or 0),
+                        "status": m.get("status"),
+                        "measured_at": m.get("measured_at"),
+                    })
+
+        scorecard = []
+        for row in kpi_rows.values():
+            row["history"].sort(key=lambda h: (h["month"], str(h["measured_at"])))
+            latest = row["history"][-1] if row["history"] else {}
+            scorecard.append({
+                "kpi_id": row["kpi_id"],
+                "kpi_name": row["kpi_name"],
+                "unit": row["unit"],
+                "direction": row["direction"],
+                "target": latest.get("target"),
+                "current": latest.get("actual"),
+                "attainment_pct": round(float(latest.get("attainment_pct") or 0), 1),
+                "status": latest.get("status"),
+                "history": row["history"],
+            })
+        scorecard.sort(key=lambda r: r["kpi_name"])
+        return {"advisor_id": advisor_id, "scorecard": scorecard}
+
     # -- AGP-004: on/off-track score + band + explanation --
 
     def track_status(self, advisor_id: str) -> dict:

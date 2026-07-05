@@ -18,6 +18,7 @@ const STATUS_COLOR: Record<string, string> = {
 export function AgpCohortBars({ data }: { data: AgpCohortSummary["milestone_summary"] }) {
   const rows = [...data].sort((a, b) => b.progress_count - a.progress_count);
   return (
+    <div>
     <div className="h-[220px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} margin={{ top: 8, right: 12, bottom: 4, left: 4 }}>
@@ -45,6 +46,15 @@ export function AgpCohortBars({ data }: { data: AgpCohortSummary["milestone_summ
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+    </div>
+    <div className="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      {rows.map((r) => (
+        <span key={r.milestone_status} className="inline-flex items-center gap-1.5 text-[10px]" style={{ color: colors.text.muted }}>
+          <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: STATUS_COLOR[r.milestone_status] ?? colors.primary }} />
+          {r.milestone_status.replace("_", " ")}
+        </span>
+      ))}
+    </div>
     </div>
   );
 }
