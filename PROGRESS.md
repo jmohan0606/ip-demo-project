@@ -1363,18 +1363,66 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 ## tsc clean, Playwright 0 console errors, screenshot in docs/qa_screenshots/, committed + pushed.
 ============================================================================================
 
-### RESUME AT: **Phase 5 — Revenue Trend Explorer (9.6)** — NEW capability, **DELEGATE DESIGN TO
-FABLE** (9.10/9.11: general-purpose subagent, model:"fable"). Bar chart of revenue over a
-user-selected date range + granularity (monthly/quarterly), sliced by a user-selectable dimension
-(advisor/region/market/division/branch); alongside each period an AI-generated driver summary
-(reuse get_llm_client, grounded in real data, same evidence bar) + explicit up/down vs prior
-comparable period. Must be presentation/screenshot quality. Data exists: 36 monthly periods
-(2023-08→2026-07) from Phase 2; extend RevenueAnalyticsService or add app/revenue/trend_explorer.
-Can live in Revenue Analytics or its own page (prefer extending Revenue Analytics if clean). Then
-Phase 6 (RAG corpus writers for PDF/DOCX/PPTX via reportlab/fpdf2 + .env.example completeness incl.
-TG_*/GRAPH_TIER_* vars from Phase 3), Phase 7 (closing verify: re-screenshot all pages, no-purple
-audit, scope-following spot-check, currency/casing/color-coding consistency, full boot check —
-backend import + route count + frontend build).
+## PHASE 5 — Revenue Trend Explorer (9.6) — DONE (Fable-5 designed).
+- Fable built `app/revenue/trend_explorer.py` (`RevenueTrendExplorerService`, analytics.py
+  untouched) + `GET /revenue/trend` (params: dimension [division|region|market|branch|advisor|
+  business_line], granularity [monthly|quarterly], start/end YYYY-MM, scope_type/scope_id). Per
+  period: total_revenue, prior_revenue, change_pct (vs immediately preceding bucket, computed from
+  full data so the first in-range period still has a real prior), slice breakdown (top-5 + Other),
+  top_slice, and an AI `driver_summary` (get_llm_client, grounded ONLY in that period's computed
+  figures). Real: per-advisor→dimension mapping via hierarchy edges; business_line via
+  transaction_for_product→subcategory→category; Σ revenue_amount over real transactions.
+- Fable built self-contained `revenue-trend-explorer.tsx` (default export, zero props, self-fetches,
+  reads ShellContext so it follows the breadcrumb): Slice-By select (6 dims), Monthly/Quarterly
+  toggle, From/To month range; stacked Recharts bars in fixed slice order (Other = muted slate),
+  legend, currency axis; click-a-bar → Period Drivers card (AiContentCard "✦ AI Generated" chip)
+  with total, DeltaIndicator vs prior, driver summary, per-slice figures, evidence. No purple;
+  dataviz palette validated. Main thread integrated `<RevenueTrendExplorer />` into the Revenue
+  Analytics page.
+- Verified: tsc PASS; endpoint curl-verified (division/quarterly 13 buckets, business_line 8→top5+
+  Other, real deltas); Playwright 0 console errors, stacked bars + AI driver card render (tall-
+  viewport capture — below-fold Recharts under-measure in headless fullPage, a capture artifact
+  only). Screenshot: revenue-trend-explorer.png.
+
+## PHASE 6 — DONE.
+- **9.8 RAG corpus**: new `scripts/generate_rag_corpus_docs.py` writes 6 realistic practice-mgmt
+  docs across formats (2 PDF via reportlab, 2 DOCX via python-docx, 2 PPTX via python-pptx) into
+  data/documents/sample_knowledge (Reg BI Suitability Manual, Market Outlook, Managed-Account SOP,
+  AGP Milestone Recovery, AGP Onboarding deck, Referral/COI workshop). Fixed
+  `ingest_sample_knowledge` to glob ALL supported suffixes (.txt/.md/.pdf/.docx/.pptx), not just
+  .txt — so the real multi-format parsers are exercised. Verified: parsers read all 3 formats;
+  ingest = 15 docs incl the 6 new-format ones; retrieval — the new `reg_bi_suitability_manual.pdf`
+  is the TOP cited source (sim 0.663) for "supervisory principal review threshold". (Non-issue
+  noted: `/knowledge/ask` body field is `query` not `question`; re-ingesting duplicates chunks in
+  the in-memory store — resets on reload.)
+- **9.9 .env.example**: complete — every var in use documented (already committed).
+
+## PHASE 7 — closing verification — DONE.
+- **No-purple audit**: grep for violet/purple hex + tailwind purple classes across frontend →
+  clean (only the aiAccent indigo remains, which is the approved 9.0 replacement).
+- **Backend boot**: `from app.api.main import app` imports cleanly; OpenAPI reports **90 documented
+  paths**; all 7 new Section-9 endpoints registered (/revenue/trend, /coaching/tasks,
+  /advisor/360/{id}/ai, /agp/kpi-scorecard/{id}, /whatif/save-recommendation,
+  /recommendations/advisor/{id}, /crm/activities/{id}).
+- **Frontend**: `npx tsc --noEmit` exit 0 (whole app). All 11 rebuilt page routes return HTTP 200.
+- **Consistency**: shared `formatCurrency` used across 10 component files; shared DeltaIndicator/
+  KpiStatCard across 18 — currency + green/red delta color-coding is centralized, not ad hoc.
+- **Scope-following**: proven per-page throughout the session (real two-advisor screenshots on the
+  flagship pages; useScopedAdvisor / ShellContext everywhere else).
+
+============================================================================================
+## SECTION 9 RUN COMPLETE — Phases 0-7 all done.
+## Phase 4 = all 14 page rebuilds. Phase 5 = Revenue Trend Explorer (Fable). Phase 6 = RAG
+## multi-format corpus + complete .env.example. Phase 7 = closing verification passed.
+## Two Fable-5 delegations this session: RL learning-state showcase (page 10) + Revenue Trend
+## Explorer (Phase 5). Every page: real backend logic, tsc clean, 0 console errors, screenshot,
+## committed + pushed (origin in sync). Genuine new features shipped: manager-assigns-task CRUD
+## with AI read-path, What-If save-as-recommendation, RL weight-trajectory showcase.
+## Known standing caveats (unchanged, documented): mock graph upserts are in-memory (reset on
+## backend --reload/restart); live TigerGraph query INSTALL still unverified on this 2-core box
+## (Phase 2/3 C++ compile limit); mock-LLM output carries a deterministic tag that FormattedAnswer
+## strips on the AI-heavy pages (real Azure/Claude output has none).
+============================================================================================
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),
