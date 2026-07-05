@@ -1329,15 +1329,31 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
 - Verified: tsc PASS; Playwright drove a suggestion on each page, 0 console errors, structured
   output rendered. Screenshots: assistant-after.png, knowledge-after.png.
 
-### RESUME AT: Phase 4 page 13/16 = **Feature Engineering Lab** (9.5): fix advisor-scoping (9.1 —
-should be done, verify); re-verify the similarity/feature computation is behaving (cross-check as
-used throughout the build); **make the lineage section VISUAL — a real diagram of source→feature
-flow, not a text list**. File: find the feature lab component under frontend/components/ (likely
-feature*/ or embeddings). Then: Explainability (real memory-timeline content + deeper client-legible
-lineage chain), then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus writers for
-PDF/DOCX/PPTX + .env.example completeness incl. TG_*/GRAPH_TIER_* vars), Phase 7 (closing verify:
-re-screenshot all, no-purple audit, scope-following spot-check, currency/casing/color-coding
-consistency, full boot check).
+**Page 13/16 — Feature Engineering Lab (9.5) — DONE.**
+- Scope-following (useScopedAdvisor) verified. Feature computation cross-checked: A001 anchors match
+  every prior verification (revenue_ltm 387,293.22 / aum_total 10,018,200 / nnm_3m 102,080 /
+  kpi_on_track 0.275); 33 features across 8 groups (Revenue/Book/Peer/CRM/AGP/Feedback/Graph/Risk);
+  similar advisors A004 0.858 … A011 0.744.
+- **Visual lineage** (was a raw JSON `<pre>`): new `feature-lineage-diagram.tsx` renders the real
+  source→feature flow as connected stage nodes with arrows — Graph Evidence (the feature's real
+  evidence facts) → Source Query (GQ-### / computation) → Feature (name + group badge + value) →
+  Consumed By (Feature Snapshot → Predictions → Opportunities & Recommendations). Feature table rows
+  are click-to-select and drive the diagram; replaced the cramped side panel with a full-width flow
+  card + a Feature Groups summary. Verified live: revenue_ltm → GQ-004 get_revenue_summary_by_scope,
+  evidence {window, transaction_count 91}, value 387,293.22.
+- Verified: tsc PASS; Playwright clicked a feature, 0 console errors, diagram rendered.
+  Screenshot: featurelab-after.png.
+
+### RESUME AT: Phase 4 page 14/16 = **Explainability Explorer** (9.5): fix advisor-scoping (9.1 —
+should be done, verify); this page needs real **memory-timeline content** (currently effectively
+absent) and a **more detailed, client-legible lineage chain** — enough that a client could follow
+"why did the system say this" end to end (feature→prediction→opportunity→recommendation→
+feedback→memory). Files: find under frontend/components/ (memory-explainability route,
+memory/explainability component). Backend: app/api/routers/explainability.py + memory service
+(phx_dm_memory* vertices exist). Then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG
+corpus writers for PDF/DOCX/PPTX + .env.example completeness incl. TG_*/GRAPH_TIER_* vars), Phase 7
+(closing verify: re-screenshot all, no-purple audit, scope-following spot-check, currency/casing/
+color-coding consistency, full boot check).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

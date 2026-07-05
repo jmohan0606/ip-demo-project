@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { EmbeddingScatter, type ProjectionPoint } from "@/components/charts/embedding-scatter";
+import { FeatureLineageDiagram } from "@/components/features-lab/feature-lineage-diagram";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
@@ -189,29 +190,37 @@ export function FeatureLabWorkspace() {
           </table>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
-            <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Lineage</h2>
-            {selected && snapshot ? (
-              <div className="mt-2 space-y-2">
-                <p className={`font-mono ${type.data}`} style={{ color: colors.aiAccent }}>{selected}</p>
-                <p className={type.data} style={{ color: colors.text.secondary }}>
-                  Source: {snapshot.lineage[selected]?.source}
-                </p>
-                <pre
-                  className="max-h-64 overflow-auto rounded-lg border p-2 font-mono text-[10px] leading-4"
-                  style={{ borderColor: colors.surface.border, backgroundColor: colors.surface.canvas, color: colors.text.secondary }}
-                >
-                  {JSON.stringify(snapshot.lineage[selected]?.evidence, null, 2)}
-                </pre>
-              </div>
-            ) : (
-              <p className={`mt-2 ${type.data}`} style={{ color: colors.text.muted }}>
-                Select a feature row to inspect which query and evidence produced its value.
-              </p>
-            )}
+        <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Feature Groups</h2>
+          <p className={`mt-1 ${type.data}`} style={{ color: colors.text.muted }}>
+            {featureNames.length} features across {groups.length} groups. Click any feature to trace its source→feature flow below.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {groups.map((g) => (
+              <span key={g} className="rounded-full border px-2 py-0.5 text-[11px] font-medium" style={{ borderColor: colors.surface.border, color: colors.text.secondary }}>
+                {g} · {featureNames.filter((n) => (snapshot!.lineage[n]?.group ?? "Other") === g).length}
+              </span>
+            ))}
           </div>
         </div>
+      </div>
+
+      {/* Visual source → feature lineage flow diagram (CLAUDE.md 9.5) */}
+      <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
+        <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Lineage · Source → Feature Flow</h2>
+        {selected && snapshot && snapshot.lineage[selected] ? (
+          <div className="mt-3">
+            <FeatureLineageDiagram
+              name={selected}
+              value={snapshot.features[selected]}
+              entry={snapshot.lineage[selected]}
+            />
+          </div>
+        ) : (
+          <p className={`mt-2 ${type.data}`} style={{ color: colors.text.muted }}>
+            Select a feature row above to see the visual flow: graph evidence → source query → feature → downstream consumers.
+          </p>
+        )}
       </div>
     </div>
   );
