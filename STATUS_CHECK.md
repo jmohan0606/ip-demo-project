@@ -1,206 +1,105 @@
-# Status Check — 2026-07-05 — OpportunityService zero/empty bug: does it degrade live output?
+# STATUS_CHECK — Section 9 run, resumed after overnight codespace stop
 
-Verified before deferring the repoint, against the same evidence bar as the rest of the build
-(real HTTP calls, real advisor figures, before/after). **Verdict: the bug reaches user-visible
-output on the CHAT page — so it was NOT deferred; the repoint was done now. The AGENTIC page was
-never affected.**
+_Generated 2026-07-05. Based on `git log`, `git status`, and `PROGRESS.md` — not memory.
+No new build work has been started; this is a read-only status report as requested._
 
-## Method
+## TL;DR
 
-Traced how the legacy `app/services/opportunity_service.py` output flows to each page, then ran
-real endpoints for A001 and A020 (`GRAPH_CLIENT_MODE=mock`, `LLM_CLIENT_MODE=mock`, 109,328 rows).
-
-## Findings per page
-
-### Agentic page (`/agentic-ai/run`) — NOT affected
-- `app/agents/tools/service_tools.py` **imported** the legacy `OpportunityService` (line 17) but
-  **never called it** — a dead import. The toolbox's `run_opportunities` uses the real Phase-8
-  `OpportunityDetectionService.detect_for_advisor` (returns A001 65.4/49.5, A020 74.8/68.1/56.8).
-- So the zero/empty legacy bug **cannot** reach agentic output. Confirmed by inspection + a live
-  run (A020: confidence 0.85, 5 tasks, real answer, 0 errors).
-- Action taken: removed the dead legacy import (+ two unused request-model imports) for hygiene —
-  **no behavior change**.
-
-### Chat page (`/ai-chat/ask`) — WAS degraded (bug reaches visible output)
-- `app/ai/chat/context_assembler.py` **did call** the legacy
-  `OpportunityService.list_opportunities(entity_id)`, which reads an **unpopulated** SQLite repo
-  and returned **0 rows** for every advisor. (Note: the operative mechanism here is the empty
-  repo-backed read, not literally `FeatureStoreService` zeroing — chat only reads, never writes.)
-- **BEFORE (real HTTP):** for a question literally asking *"What are my top opportunities and
-  their revenue impact?"*, the assembled chat context contained **0 opportunity items** for both
-  A001 and A020 (context sources were only Context-Memory / Knowledge-RAG / Insights). The real
-  pipeline meanwhile has 2 (A001) / 3 (A020) real opportunities. The chat answer to an
-  opportunity question was grounded in everything *except* the real opportunities — a demonstrable
-  visible degradation, not merely an internal tool result.
-
-## Fix (chat repoint — done now, ADV0001-standard before/after)
-
-Repointed `context_assembler` off the legacy `OpportunityService` onto the real
-`OpportunityDetectionService.detect_for_advisor(entity_id)` (guarded to Advisor scope), mapping
-`opportunity_type→title`, `impact_summary→content`, `score→score`.
-
-| Advisor | BEFORE opp-context items | AFTER opp-context items (real Phase-8) |
-|---|---|---|
-| A001 | 0 | 2 — CRM_EXECUTION **65.4** ($405k pipeline / $324k weighted, 3 overdue), ADVISOR_GROWTH **49.5** (managed 11.2% vs 35%) |
-| A020 | 0 | 3 — AGP_MILESTONE **74.8** (off-track 56.8/100), CRM_EXECUTION **68.1** ($1.05M pipeline / $642.5k weighted), ADVISOR_GROWTH **56.8** (managed 15.1% vs 35%) |
-
-AFTER figures match `OpportunityDetectionService` exactly. The visible A020 answer now surfaces
-the real opportunity ("AGP off-track risk scored 56.8/100 … recover attainment").
-
-## Verification
-
-- Backend imports OK; live server came up; **36 app routes** (unchanged — no routers touched).
-- Chat before/after captured over real HTTP (0 → 2 for A001, 0 → 3 for A020, real figures).
-- Agentic live run post-change: 0.85 confidence, 5 tasks, real answer, 0 errors (no regression).
-- Frontend `tsc --noEmit`: PASS (change is backend-only; no frontend files touched).
-
-## Remaining state
-
-- Legacy `app/services/opportunity_service.py` now has **one** consumer left: the
-  `app/services/recommendation_service.py` facade. Full deletion is still gated on that facade
-  (itself legacy) being repointed/removed — a separate, scoped follow-up, not this fix.
+- **Working tree: CLEAN.** Nothing uncommitted, nothing staged, no untracked files. Every
+  completed unit of work is committed. Local `main` is **70 commits ahead of `origin/main`**
+  (not pushed — expected, push only on request).
+- **Phases 0–3: fully done and committed.** Phase 4: **1 of 16 pages done** (Executive
+  Dashboard) plus the deferred 9.2 Period-wiring item. **Phases 5–7: not started.**
+- **Why it stopped: the codespace was stopped externally (overnight), not a usage limit or a
+  code blocker.** The last commit is a clean, self-contained checkpoint at 11:18 UTC. There is
+  no partial/in-progress edit sitting uncommitted.
+- **Safe to resume** at the exact point PROGRESS.md names: **Phase 4, page 2/16 = Revenue
+  Analytics full rebuild.**
 
 ---
 
-# Final Closure Pass — 2026-07-05
+## 1. Phase-by-phase status (Phases 0–7)
 
-## PART A — Repoint recommendation_service facade + delete opportunity_service — DONE
+| Phase | Scope | Status | Evidence |
+|-------|-------|--------|----------|
+| **Phase 0** | Shared foundation: no-purple, delta-indicator component, currency/format utils, dual API base URL, title-casing convention | ✅ **DONE** | commit `9515cbe` |
+| **Phase 1** | 9.1 scope-following (5 pages), 9.2 filter bar, Run Workflow diagnosis | ✅ **DONE** | commits `cf4e136`, `84973f0`, `e0abe19` |
+| **Phase 2 (9.3)** | Data model + bounded sample-data expansion (real names, 36 months, coaching_task vertex) — Fable-5 delegated | ✅ **DONE** | commit `3db087f`; validate_package.py PASS (57 vtx / 128 edge / 185 files / 154,946 rows) |
+| **Phase 3 (9.4)** | TigerGraph 4-tier MCP adapter (MCP→pyTG→RESTPP→Mock) with tier logging — Fable-5 delegated | ✅ **DONE** | commit `3f9699f`; all 4 tiers live-verified once against Docker TG |
+| **Phase 4** | Page-by-page rebuilds (16 pages) | 🟡 **PARTIAL — 1/16** | see §2 |
+| **Phase 5 (9.6)** | Revenue Trend Explorer (Fable) | ⬜ **NOT STARTED** | — |
+| **Phase 6** | RAG corpus expansion (9.8) + `.env.example` completeness (9.9) | ⬜ **NOT STARTED** | — |
+| **Phase 7** | Closing verification (re-screenshot all pages, no-purple/scope/format audits, full boot check) | ⬜ **NOT STARTED** | — |
 
-- **Finding:** the facade `app/services/recommendation_service.py` used the legacy
-  `OpportunityService` only inside `run_recommendations`, which was already **broken/dead**: it
-  called `RecommendationEngine.generate(entity_id, min, limit)` but the real signature is
-  `generate(opportunities)` → **TypeError by construction**. Not reachable from any router;
-  `feedback_learning_service` uses only `update_status`/`repo`, `context_assembler` only
-  `list_recommendations`, and `service_tools`'s facade import is dead (uses the real pipeline).
-- **Fix (same pattern as the chat-context repoint):** `run_recommendations` now delegates to the
-  real Phase-8 `app.recommendations.service.RecommendationService.generate_for_advisor`, which
-  internally detects opportunities via the real `OpportunityDetectionService` and persists the
-  full lineage chain. Dropped the `OpportunityService`, `RecommendationEngine`, and
-  `TigerGraphRecommendationLinker` usages from the facade.
-- **Before/after (real):**
-  - BEFORE: `run_recommendations(A001)` → `TypeError: RecommendationEngine.generate() takes 2
-    positional arguments but 4 were given`.
-  - AFTER: A001 → completed, **2** recs (REC_OPP_PIPELINE 74.6, REC_OPP_MANAGEDMIX 50.0);
-    A020 → completed, **3** recs (REC_OPP_AGPRESCUE 85.3, REC_OPP_PIPELINE 77.6,
-    REC_OPP_MANAGEDMIX 57.4). Figures match the live `/recommendations` router output exactly.
-- **Deletion:** confirmed `app/services/opportunity_service.py` now has **zero** live consumers
-  (grep across `app/`), deleted it. Backend imports clean — 36 routes.
+---
 
-## PART B — Full-system integration test via AI Assistant chat — DONE (2 gaps found + fixed)
+## 2. Phase 4 detail — where exactly it was cut off
 
-Ran all 6 questions through `/ai-chat/ask` for A001 and A020 (mock), plus Q1/Q6 in **claude**
-mode, plus Q5 through `/agentic-ai/run`. The whole pipeline connects; two real gaps were found
-and fixed mid-test.
+Phase 4 is a 16-page sequence. Completed and committed:
 
-### Evidence chain per question (which services ran / what the answer used)
-Every chat call assembled context from the real pipeline. Context sources observed per call:
-Context-Memory (1) + Knowledge-RAG (4) + Insights (1) + Opportunities (2 for A001 / 3 for A020) +
-Recommendations (2 / 3). **RAG retrieval is genuinely question-adaptive** — the 4 retrieved docs
-differ correctly by question:
-- Q1 revenue → market_research_notes_2026q2, managed_account_growth_playbook
-- Q2 next actions → crm_engagement_guide, advisor_prospecting_playbook
-- Q4 AGP → agp_program_overview, agp_coaching_guide
-- Q5 guaranteed-return → client_review_procedures ×4
-- Q6 managed-review policy → managed_account_growth_playbook, client_review_procedures
+- **Page 1/16 — Executive Dashboard (9.5)** — ✅ DONE (commit `a27b857`). Icon-in-soft-circle
+  KPI cards, prior-year deltas via a new backend `comparison` block, AGP Program Status card,
+  Top Advisors + "Needs Attention" tables with stated reasons. Fixed a real bug: gap-free
+  `TRACK_BANDS` thresholds in `rollup.py` and `agp/service.py`. Playwright-verified, tsc PASS.
+- **9.2 Period wiring** — ✅ DONE (commit `81c7168`, the latest commit). This item was
+  explicitly deferred out of Phase 1 and completed here: Time Period dropdown now really
+  filters revenue data (Firm ALL 15,116 tx/$109M → YTD 2,940/$22.2M → MTD 420/$3.4M).
 
-### Explainability (does the ANSWER cite real figures) — claude mode
-Claude-mode answers are question-responsive and cite real, cross-checked figures:
-- **A001 Q1:** "LTM revenue $387,293 … 3-month growth 23.3% … NNM $102,080 … off-track risk
-  25.8/100 … KPI on-track 0.275 … 3 overdue follow-ups … $405,000 open CRM pipeline ($324,000
-  weighted)." Cites Top recommendation + Top opportunity (CRM_EXECUTION).
-- **A020 Q1:** "off-track risk 56.8/100 … 2 overdue follow-ups … KPI 0.375 … LTM $539,263 … NNM
-  $262,080." Cites AGP_MILESTONE opportunity.
-- **Cross-check vs verified anchors (PROGRESS/VERIFICATION_CHECKPOINT):** 387,293 ✓, 539,262 ✓,
-  off-track 25.8 ✓ / 56.8 ✓, KPI 0.275 ✓. **Zero mismatches.**
-- Mock mode note: the deterministic mock LLM returns the same insight-summary template regardless
-  of question (expected for the free mock driver) — claude mode is what demonstrates real
-  question-responsive explainability, which is why it was run.
+**In progress at stop time: NONE.** The last commit (`81c7168`, 11:18 UTC) is a clean
+checkpoint — PROGRESS.md's "SESSION 7 CHECKPOINT" block was written as a deliberate resume
+marker, and `git status` confirms zero uncommitted changes. The session did **not** stop
+mid-edit.
 
-### Gap 1 (FIXED) — recommendations missing from chat grounding
-`context_assembler` read recommendations via the legacy facade `list_recommendations`, which hit
-an unpopulated repo → **0 recommendation context items** (Q2 "next best actions" had no rec
-grounding). Repointed to the real `RecommendationService.generate_for_advisor` (same pattern as
-the opportunity fix). AFTER: A001 Q2 → 2 recs (Accelerate stalled CRM pipeline **74.6**, managed
-review sprints **50.0**); A020 → 3 recs (**85.3 / 77.6 / 57.4**). Match the pipeline exactly.
+**Next unit of work (per PROGRESS.md, verbatim resume point):**
+> Phase 4 page 2/16 = **Revenue Analytics FULL rebuild** (9.5/9.12): geographic map (revenue by
+> region/market), Revenue by Business Line (donut) + by Channel (bar) + by Region (map) as three
+> distinct charts, cohort/product breakdowns, and diagnose the broken "Revenue by scope".
 
-### Gap 2 (FIXED) — compliance guardrail unreachable for a prohibited *request*
-Q5 ("guaranteed return") produced **no compliance block** on either surface: the chat path had no
-compliance evaluation, and the agentic `compliance_review` was `null` (COMP-001 only scans
-generated recommendation text, and the supervisor didn't route Q5 to recommendations/compliance).
-Fix (reusing the existing `ComplianceAgent.PROHIBITED_CLAIMS`, not new rules): added a request-
-level COMP-001 screen in `chat_engine` that raises a **visible block** in the answer. AFTER (mock
-AND claude): Q5 → "⛔ Compliance block (COMP-001): this request references a prohibited
-performance claim ('guaranteed return') …", confidence 0.99, reasoning_steps records the COMP-001
-BLOCK. Regression-checked: a normal question (Q1) is NOT blocked (no block text, confidence 0.82).
+Remaining Phase 4 pages after that (in order): Advisor 360 → AGP Goals & Coaching → Client
+Intelligence 360 → Coaching & Reviews (manager-task CRUD) → CRM Activities → What-If
+(save-as-rec) → Predictions (methodology depth) → Opportunities & Recs (**RL learning-state =
+delegate to Fable**) → Recommendation ROI → AI Assistant + Knowledge Hub → Feature Engineering
+Lab → Explainability Explorer.
 
-### Result
-The system connects end-to-end: real graph-derived features → predictions → opportunities →
-recommendations → RAG knowledge → grounded, figure-citing answer, with a now-reachable compliance
-guardrail. Both fixes verified over real HTTP in mock and claude modes.
+---
 
-## PART C — Nav page-by-page reality check (Playwright, all 20 nav routes) — DONE
+## 3. Why the session stopped
 
-Loaded every nav route in headless Chromium (1440px), capturing HTTP status, console/page
-errors, placeholder/debug text, and content length. **Result: all 20 pages HTTP 200, zero
-console errors, zero page errors, zero placeholder/lorem/"Graph: MOCK"/pending-rebuild/undefined
-text, all with substantial real content** (text length 1174–20635 chars). No page failed. This
-matches the Part-1 gap table — every listed page is built and API-backed; zero stubs remain.
+**Cause: external codespace stop (overnight idle/shutdown), not a limit or a blocker.**
 
-Routes verified: dashboard, revenue-analytics, advisor-360, agp, client-360, coaching-reviews,
-crm-activities, peer-benchmarking, what-if, predictions, recommendations, recommendation-roi,
-ai-assistant, knowledge, graph-explorer, features-embeddings, memory-explainability, agents,
-data-ingestion, admin. Report: `docs/qa_screenshots/_qa_report.json`.
+- No usage-limit note anywhere in PROGRESS.md. No blocker note. The final PROGRESS.md block is a
+  normal end-of-run checkpoint ("stopped here after a long run; RESUME AT: …"), which reads as a
+  planned pause, and the codespace then stopped before the next session began.
+- Commit cadence was steady and healthy right up to the end: `9515cbe` 09:49 → `cf4e136` 09:57 →
+  `84973f0` 10:03 → `e0abe19` 10:05 → `3db087f` 10:34 → `3f9699f` 11:00 → `a27b857` 11:13 →
+  `81c7168` 11:18. No error-shaped gap or truncation.
+- Working tree clean confirms no work was lost to the stop — the standing rule "commit after
+  every phase AND after every page" held, so the overnight stop cost nothing.
 
-## PART D — Screenshot pass + fix (desktop 1440px) — DONE
+**One environment note for resume:** PROGRESS.md records that at stop time the backend (:8000,
+mock mode) and frontend dev server (:3000) were running, with ports 8000/3000 set Public. After
+a codespace restart these servers are **down** and will need restarting before any Playwright/
+browser verification. The Docker TigerGraph container was intentionally returned to `exited`
+state at the end of Phase 3.
 
-Screenshotted all 20 pages to `docs/qa_screenshots/` (gitignored, persistent on disk). Did an
-in-depth visual review of the flagship/chart-heavy pages against the reference mockups:
-- **Dashboard** — sidebar/KPI row/revenue-by-division bar/status donut (severity palette)/top-
-  advisor table/evidence footer/system-status pill/hierarchy breadcrumb all match. High fidelity.
-- **Advisor 360** — KPIs (LTM $387,293, AUM $10,018,200, NNM $102,080 — verified anchors),
-  24-mo revenue trend line, account-type donut, AGP status w/ explanation, CRM execution,
-  AI-artifact counts, households table. Match.
-- **Revenue Analytics** — 24-mo trend area + channel donut + division bar + evidence. Match.
-- **Agent Orchestration** — live reasoning route, per-agent task table w/ durations, adapter
-  modes, evidence cards (surfaces the COMP-001 block from Part B, Revenue Agent cites $387,293.22).
+---
 
-**Fix applied (honesty/evidence-bar):** the dashboard Top-Advisors table showed **GOAL 0% and
-RISK 0** for advisors with **no AGP enrollment** (their `kpi_on_track_ratio`/`agp_risk_score`
-snapshot features are `None`, and `ScopeRollupService._top_advisors` coerced `None→0.0`,
-rendering a fabricated "0% / 0 / on-track"). Changed the rollup to emit `None` for absent AGP
-data and the frontend to render it as **"—" / "n/a"** — never a number the data can't back.
-Verified over HTTP (`goal_attainment: null`, `status: "n/a"`) and re-screenshotted: the table now
-shows "—"/"n/a" for non-AGP advisors. Backend restarted, frontend rebuilt (tsc PASS, build green).
-The remaining 16 pages passed the automated Part-C checks and reuse the same Section-1B design
-primitives; no drift or debug artifacts observed.
+## 4. `/status` (session / usage state)
 
-## PART E — Final boot check + dead-import sweep — DONE
+I can't capture this one directly: **`/status` is an interactive Claude Code CLI command, not a
+tool I can invoke from here**, so I have no programmatic way to read the live session/usage
+counters. To get it, please type `/status` in the prompt yourself — it will render the current
+session, model, and usage/limit state inline.
 
-- **Backend imports clean:** `import app.api.main` OK. Live server exposes **80 real API paths**
-  (verified via `/openapi.json`) — every one a real domain endpoint; **zero** `/ui-integrated`,
-  `/ui-remediation`, `*-runtime`, or `*-activation` routes survive (consolidation fully clean).
-- **Frontend:** `tsc --noEmit` PASS; `npm run build` compiled successfully, 25/25 static pages.
-- **Dead-import sweep (pyflakes across `app/`):** found 33 raw findings; 10 are intentional
-  `# noqa: F401` registration side-effect imports (`app/graph/queries/__init__` +
-  `app/graph/client.py` — importing them registers the GQ implementations, must stay). Cleaned
-  **all remaining genuinely-dead imports**:
-  - `app/agents/tools/service_tools.py` — removed 4 dead consolidation-era imports
-    (PredictionService/RecommendationService facades + unused request models; the toolbox uses
-    local pipeline imports).
-  - Trivial unused imports removed across 11 files (`json`, `typing.Any`, `pathlib.Path`,
-    `collections.defaultdict`, unused model/`FeatureValue`/`FeatureSnapshot`/`CoachingPlan`/
-    `InsightCard`/`OutcomeType` imports).
-  - `app/agents/workflows/advisor_coaching_graph.py` — removed a dead import of
-    `NativeLangGraphCollaborationWorkflow` (referenced nowhere; the agentic pipeline never used
-    it). That left `native_langgraph_collaboration.py` with **zero importers** → deleted the
-    orphaned module. Agentic pipeline regression-tested after each step (A001 & A020: confidence
-    0.85, 6 tasks, real answer — no change).
-  - Marked the legitimate `langgraph.graph.StateGraph` availability-probe import `# noqa: F401`.
-  - **Final pyflakes: zero real dead imports** (only the intended registration side-effects remain).
+What I *can* confirm from the environment:
+- Model: Opus 4.8 (1M context) — `claude-opus-4-8[1m]` (the session's main thread, per the 9.11
+  routing plan; Fable-5 items were delegated to subagents).
+- Branch `main`, clean, 70 commits ahead of `origin/main` (unpushed).
+- Date 2026-07-05.
 
-## Closure pass — overall result
-All five parts done, each committed, PROGRESS.md kept in sync. Two deferred/hidden functional
-gaps were found and fixed under the same evidence bar as the rest of the build (chat recommendation
-grounding; request-level compliance guardrail), plus one dashboard honesty fix (absent AGP data →
-"—"). Backend 80 real routes, frontend build green, zero dead imports, all 20 nav pages render real
-data with no console errors or placeholders. System is ready for client-style testing.
+---
+
+## Recommended resume action (for your approval — not started)
+
+Restart backend (:8000, mock) + frontend (:3000), re-confirm ports Public, then begin **Phase 4
+page 2/16 — Revenue Analytics full rebuild**. Awaiting your go-ahead before doing any of this.

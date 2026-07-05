@@ -1110,15 +1110,52 @@ dropdown now changes data: Firm ALL 15,116 tx/$109M → YTD 2,940/$22.2M → MTD
 analytics default (no period) = ALL = full 36 months, so the dashboard prior-year `comparison`
 (-7.4%) is unaffected. tsc PASS.
 
-### SESSION 7 CHECKPOINT — stopped here after a long run; RESUME AT: Phase 4 page 2/16 = Revenue
-Analytics FULL rebuild (9.5/9.12): geographic map (revenue by region/market — needs a map lib or an
-SVG choropleth on household `state`), Revenue by Business Line (donut) + by Channel (bar) + by Region
-(map) as three distinct charts, cohort/product breakdowns, "Revenue by scope" diagnosis. Then the
-remaining Phase 4 pages in order (Advisor 360 → AGP → Client 360 → Coaching&Reviews[manager-task CRUD]
-→ CRM Activities → What-If[save-as-rec] → Predictions[methodology depth] → Opportunities&Recs[**RL
-learning-state = delegate to Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability),
-then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example completeness incl.
-the new TG_*/GRAPH_TIER_* vars from Phase 3), Phase 7 (closing verification).
+## Session 8 — 2026-07-05 (resumed after overnight codespace stop)
+Servers restarted cleanly (backend :8000 mock + `--reload`, frontend :3000; port 8000 re-set Public
+after the restart reset it to private — visibility does NOT survive a codespace stop). Pushed the 70
+local commits to origin/main first (origin now 72 commits, tip 81c7168). Added reusable QA scripts
+`frontend/scripts/shot.mjs` (screenshot + console-error capture) and `verify-revenue-scope.mjs`
+(interactive scope-following check) — carry these forward for the remaining Phase 4 pages.
+
+**Page 2/16 — Revenue Analytics FULL rebuild (9.5/9.12) — DONE.**
+- **"Revenue by scope" diagnosis:** backend `by_child` drill-down was already correct at every
+  level (curl-verified FIRM→3 div, DIVISION→2 region, REGION→2 market, MARKET→6 advisor, ADVISOR→0).
+  The actual visible defect was the **Revenue-by-Channel donut rendering blank** (ResponsiveContainer
+  measure race inside a fixed 180×180 flex child — same pattern as `account-mix-donut`). Fixed by
+  building the new donut at a FIXED PieChart pixel size (no ResponsiveContainer) with animation off.
+- **Backend (`app/revenue/analytics.py`)** now returns three distinct real breakdown dimensions plus
+  a prior-year comparison, all Σ revenue_amount over the scope's resolved advisors:
+  - `by_business_line` — transaction_for_product → product_in_subcategory → subcategory_in_category
+    (8 categories: Managed Accounts / Brokerage / Fixed Income / Equities / Mutual Funds /
+    Alternatives / Cash & Lending / Insurance). product→category resolved once (64 products).
+  - `by_channel` — transaction_type (FEE/COMMISSION/TRAIL/INTEREST), now rendered as a **bar**.
+  - `by_geography` — advisor_in_branch → branch.state (10 states firm-wide: CA/TX/MI/IL/FL/GA/MA/NY/
+    AZ/CO), scope-aware (Central Division → 3 states TX/MI/IL).
+  - `comparison` — same-period-prior-year (months shifted −12). **Coverage-gated**: change_pct is
+    suppressed (None) when the prior window isn't fully in the data, so ALL (36mo, partial prior)
+    shows no delta while YTD (−0.8%) and LTM (−7.4%, matches the dashboard) do. Single traversal per
+    advisor keeps advisor identity for the geo attribution.
+  - Anchors unchanged: FIRM ALL total $109,256,399 / 15,116 tx (== pre-rebuild).
+- **Frontend**: new `components/charts/revenue-state-map.tsx` (US tile-grid cartogram, zero new deps,
+  sequential blue fill by revenue, ranked list, theme-safe) and `components/charts/revenue-donut.tsx`
+  (fixed-size donut with the total centered inside the ring per 9.5). Workspace rebuilt: KPI cards
+  now use icons + the shared DeltaIndicator (Total Revenue shows vs-prior-yr, green/red), trend area
+  with prior-year annotation, Business Line donut, Channel bar, geographic map, scope drill-down bar,
+  updated evidence footer. Uses shared `formatCurrency`. **Fixed refreshNonce dep** so the shell
+  Refresh button re-fetches this page.
+- **Verified**: tsc PASS; Playwright 0 console errors at FIRM ($22.2M/10 states) AND drilled Central
+  Division ($7.4M/3 states, childHeading→Region, evidence "20 advisors under DIVISION D02") →
+  scope-following PASS. Screenshots: docs/qa_screenshots/revenue-after-firm.png, revenue-after-division.png.
+
+### RESUME AT: Phase 4 page 3/16 = **Advisor 360 / Client 360** (9.5): AGP status card only for
+AGP-enrolled advisors (hide/adapt otherwise); AI Insight Summary + AI Coaching Card (structured
+Key Drivers/Watch Outs/Action Steps, per-advisor); CRM execution cards color-coded by outcome
+(won=green/lost=red/negotiate=amber); make/remove the "AI artifacts" section meaningful; households
+table + a visual account/segment breakdown; similar households/accounts/portfolios (extend
+similar-advisors). Then: AGP → Client 360 → Coaching&Reviews[manager-task CRUD] → CRM Activities →
+What-If[save-as-rec] → Predictions[methodology depth] → Opportunities&Recs[**RL learning-state =
+delegate to Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability), then Phase 5
+(Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
 DELEGATION NOTE: the named `fable-architect` agent type is NOT registered; delegate the 2 remaining
 Fable items via a general-purpose subagent with `model: "fable"` (as done for Phases 2 & 3).
-Servers currently running: backend :8000 (mock), dev frontend :3000. Ports 8000/3000 Public.
+Servers running: backend :8000 (mock, --reload), dev frontend :3000. Ports 8000/3000 Public.
