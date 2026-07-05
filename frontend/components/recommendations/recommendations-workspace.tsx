@@ -8,6 +8,7 @@ import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
+import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
 interface ImpactTrend {
@@ -45,7 +46,8 @@ interface GenerateResponse {
 
 const FEEDBACK_ACTIONS = ["ACCEPT", "COMPLETE", "MODIFY", "IGNORE", "REJECT"] as const;
 
-export function RecommendationsWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+export function RecommendationsWorkspace() {
+  const { advisorId } = useScopedAdvisor();
   const [data, setData] = useState<GenerateResponse | null>(null);
   const [impact, setImpact] = useState<ImpactTrend | null>(null);
   const [busy, setBusy] = useState(false);
@@ -53,6 +55,7 @@ export function RecommendationsWorkspace({ advisorId = "A001" }: { advisorId?: s
   const [error, setError] = useState<string | null>(null);
 
   const generate = useCallback(async () => {
+    if (!advisorId) return;
     setBusy(true);
     setError(null);
     try {

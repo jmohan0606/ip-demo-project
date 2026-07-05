@@ -7,6 +7,7 @@ import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
+import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
 interface Contribution {
@@ -30,11 +31,13 @@ interface Prediction {
   enrolled?: boolean;
 }
 
-export function PredictionWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+export function PredictionWorkspace() {
+  const { advisorId } = useScopedAdvisor();
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [busy, setBusy] = useState(false);
 
   const run = useCallback(async () => {
+    if (!advisorId) return;
     setBusy(true);
     try {
       const data = await apiClient.post<{ predictions: Prediction[] }>(`/predictions/run/${advisorId}`);

@@ -9,6 +9,7 @@ import {
   type AgenticAnswer,
   type ChatAnswer,
 } from "@/lib/api/assistant";
+import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
 const SUGGESTIONS = [
@@ -23,7 +24,8 @@ type Turn =
   | { role: "chat"; data: ChatAnswer }
   | { role: "agentic"; data: AgenticAnswer };
 
-export function AiAssistantWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+export function AiAssistantWorkspace() {
+  const { advisorId } = useScopedAdvisor();
   const [question, setQuestion] = useState("");
   const [mode, setMode] = useState<"chat" | "agentic">("chat");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -32,7 +34,7 @@ export function AiAssistantWorkspace({ advisorId = "A001" }: { advisorId?: strin
 
   async function submit(text?: string) {
     const q = (text ?? question).trim();
-    if (!q || busy) return;
+    if (!q || busy || !advisorId) return;
     setBusy(true);
     setError(null);
     setTurns((cur) => [...cur, { role: "user", content: q }]);

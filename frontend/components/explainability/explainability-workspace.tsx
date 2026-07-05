@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
+import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
 interface Vertex {
@@ -35,13 +36,15 @@ const CHAIN_STAGES: Array<{ key: keyof ChainResponse; label: string }> = [
   { key: "learning", label: "Learning Signal" },
 ];
 
-export function ExplainabilityWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+export function ExplainabilityWorkspace() {
+  const { advisorId } = useScopedAdvisor();
   const [recIds, setRecIds] = useState<string[]>([]);
   const [selectedRec, setSelectedRec] = useState<string | null>(null);
   const [chain, setChain] = useState<ChainResponse | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!advisorId) return;
     apiClient
       .post<{ recommendations: Array<{ recommendation_id: string }> }>(`/recommendations/generate/${advisorId}`)
       .then((data) => {

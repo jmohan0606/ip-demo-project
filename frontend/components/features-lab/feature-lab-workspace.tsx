@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EmbeddingScatter, type ProjectionPoint } from "@/components/charts/embedding-scatter";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { apiClient } from "@/lib/api/client";
+import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
 
 interface Projection {
@@ -33,7 +34,8 @@ interface SimilarResponse {
   simulation_note: string;
 }
 
-export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string }) {
+export function FeatureLabWorkspace() {
+  const { advisorId } = useScopedAdvisor();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [similar, setSimilar] = useState<SimilarResponse | null>(null);
   const [projection, setProjection] = useState<Projection | null>(null);
@@ -41,6 +43,7 @@ export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
+    if (!advisorId) return;
     setBusy(true);
     try {
       const snap = await apiClient.get<Snapshot | null>(`/features/snapshot/${advisorId}`);
@@ -57,6 +60,7 @@ export function FeatureLabWorkspace({ advisorId = "A001" }: { advisorId?: string
   }, [load]);
 
   const compute = async () => {
+    if (!advisorId) return;
     setBusy(true);
     try {
       await apiClient.post(`/features/compute/${advisorId}`);
