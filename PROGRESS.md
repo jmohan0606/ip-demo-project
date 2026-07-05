@@ -1470,3 +1470,33 @@ Inspected the on-disk labeled data that fresh-boot training would use
 Next: delegate 11.1 model/training-approach design to Fable (ModelClient adapter, which models, real-
 label derivation at household/txn level, SHAP, GRU forecast, Isolation Forest, GDS algos, TigerGraph-
 native vs deterministic vector storage, model registry), then implement on main thread with real metrics.
+
+### 11.1 DESIGN — delegated to Fable 5 (general-purpose subagent, model:"fable") — DONE
+Design doc: docs/section11/11_1_model_design.md. Grounded in real repo/data (cited file:line); Fable
+independently measured label prevalence on the real CSVs. 11 commit-sized units (§12). Recommends
+XGBoost over the dormant RF; household×cut training level (n≈2159) per the honest small-data rule;
+deterministic tier never deleted (real mode falls back per-type via a registry quality gate, so it can
+never regress today's endpoint). Installs needed: torch-geometric only (done). Top risks: live-TG on
+2 cores (all fallback-first, time-boxed), AGP label leakage (exclusion list + AUC>0.97 tripwire),
+churn rarity 3.8% (class weight + PR-AUC gate). NOTE: earlier "xgboost/shap missing" import check was
+transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) is benign (full stack + backend import OK).
+
+### 11.1 COMMIT 1/11 — ModelClient adapter skeleton + registry — DONE (4bc726d)
+- app/ml/client.py: ModelClient Protocol + DeterministicModelClient (score_risk raises
+  ModelUnavailableError → live scorecard unchanged; real seasonal-naive forecast) + RealModelClient
+  skeleton (registry-gated; raises until artifacts land) + get_model_client()/reset. Heavy imports lazy.
+- app/ml/registry.py: JSON registry (metrics/metadata only), atomic upsert, serves() precedence gate.
+  models/registry.json committed; models/artifacts/ gitignored (+.gitkeep).
+- settings + .env.example: MODEL_CLIENT_MODE (default deterministic) / VECTOR_CLIENT_MODE / ML_ARTIFACTS_DIR
+  / ML_TIME_BOX_MINUTES. Verified: backend boots 36 routes; both modes fall back to scorecard (no
+  live endpoint changed yet).
+
+### 11.1 COMMIT 2/11 — real-label dataset builders — DONE
+- app/ml/training/datasets.py: household×cut frame (6 cuts 2024-08…2025-11, $500 activity floor) with
+  20 leakage-safe features + REVENUE_DECLINE (rev(t,t+6m]<0.85×trailing) + CHURN (<0.70×) labels; AGP
+  frame (960 KPI measurements → advisor via progress→enrollment→advisor edge traversal) with advisor
+  behavioral features (from raw txns, NOT attainment-derived — status excluded) + kpi one-hot, label
+  status==OFF_TRACK. Read-only over foundation CSVs (no upsert, anchors untouched).
+- Prevalence report REPRODUCES Fable's independent measurement EXACTLY: n=2159 / decline 0.2663 /
+  churn 0.0384 (83 pos) / AGP 960 @ 0.6396. Anti-leakage temporal-wall check (rule 1): 60 rows rebuilt
+  from a hard-filtered (<cut) transaction frame → 0 feature mismatches. ~15-22s runtime.
