@@ -25,6 +25,7 @@ import {
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import RevenueTrendExplorer from "@/components/revenue/revenue-trend-explorer";
 import { RevenueDonut } from "@/components/charts/revenue-donut";
 import { RevenueStateMap } from "@/components/charts/revenue-state-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -238,6 +239,9 @@ export function RevenueAnalyticsWorkspace() {
           )}
         </CardContent>
       </Card>
+
+      {/* Revenue Trend Explorer (9.6, Fable-designed) — dimensional trend + AI drivers */}
+      <RevenueTrendExplorer />
 
       {data && (
         <div className="rounded-xl border bg-good-soft p-3 text-[11px] text-muted-foreground">
