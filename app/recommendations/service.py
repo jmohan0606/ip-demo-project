@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from datetime import date
 from pathlib import Path
@@ -8,6 +9,7 @@ from app.config.settings import get_settings
 from app.graph.artifacts import upsert_edge, upsert_vertex, write_reasoning_trace
 from app.graph.client import GraphClient, get_graph_client
 from app.opportunities.service import OpportunityDetectionService
+from app.shared.ids import new_id
 
 MODEL_VERSION = "v2.0"
 
@@ -162,6 +164,127 @@ class RecommendationService:
             "recommendations": recommendations,
             "learning_weights": self.learning.all_weights(),
             "feature_snapshot_id": detection["feature_snapshot_id"],
+        }
+
+    def list_for_advisor(self, advisor_id: str) -> dict:
+        """Read the persisted recommendation vertices for an advisor (via
+        recommendation_for_advisor) — includes engine-generated recs AND ones saved
+        from the What-If Simulator, since both go through the same real pipeline."""
+        store = getattr(self.graph, "store", None)
+        recs: list[dict] = []
+        if store is not None:
+            for rid in store.in_ids("phx_dm_recommendation_for_advisor", advisor_id):
+                r = store.vertex("phx_dm_recommendation", rid) or {}
+                recs.append({
+                    "recommendation_id": r.get("recommendation_id", rid),
+                    "recommendation_type": r.get("recommendation_type"),
+                    "title": r.get("title"),
+                    "action_text": r.get("action_text"),
+                    "severity": r.get("severity"),
+                    "priority_score": r.get("priority_score"),
+                    "confidence": r.get("confidence"),
+                    "estimated_revenue_impact": r.get("estimated_revenue_impact"),
+                    "impact_summary": r.get("impact_summary"),
+                    "status": r.get("status"),
+                    "generated_at": r.get("generated_at"),
+                })
+        recs.sort(key=lambda r: float(r.get("priority_score") or 0), reverse=True)
+        return {"advisor_id": advisor_id, "recommendations": recs}
+
+    def save_scenario_as_recommendation(
+        self,
+        advisor_id: str,
+        title: str,
+        category: str,
+        levers: dict,
+        metrics: list[dict],
+        snapshot_id: str | None = None,
+        high_priority: bool = False,
+        created_date: str | None = None,
+    ) -> dict:
+        """Persist a What-If scenario result as a REAL recommendation through the same
+        pipeline generate_for_advisor uses (recommendation vertex + for_advisor /
+        uses_feature_snapshot edges + reasoning trace) — NOT a separate table
+        (CLAUDE.md 9.5). Also stores the scenario itself for provenance."""
+        when = created_date or self.as_of.isoformat()
+        snapshot_id = snapshot_id or (
+            self.graph.store.out_ids("phx_dm_advisor_has_feature_snapshot", advisor_id)[:1] or [None]
+        )[0] if hasattr(self.graph, "store") else snapshot_id
+
+        # 1) persist the saved scenario for provenance
+        scenario_id = new_id("SCENW")
+        revenue_metric = next((m for m in metrics if str(m.get("metric")).lower().startswith("total revenue")), None)
+        revenue_impact = round(float(revenue_metric["change"]), 2) if revenue_metric else 0.0
+        upsert_vertex(self.graph, "phx_dm_simulation_scenario", "scenario_id", {
+            "scenario_id": scenario_id,
+            "scenario_type": "WHATIF_SAVED",
+            "scope_type": "ADVISOR",
+            "scope_id": advisor_id,
+            "assumptions_json": json.dumps(levers),
+            "baseline_json": json.dumps({m["metric"]: m.get("current") for m in metrics}),
+            "projected_json": json.dumps({m["metric"]: m.get("projected") for m in metrics}),
+            "created_at": when,
+        })
+        upsert_edge(self.graph, "phx_dm_scenario_for_advisor", "phx_dm_simulation_scenario",
+                    "phx_dm_advisor", scenario_id, advisor_id)
+
+        # 2) persist the recommendation through the real chain
+        rec_id = new_id("REC_WHATIF")
+        lever_txt = ", ".join(f"{k.replace('_', ' ')}={v}" for k, v in levers.items() if v)
+        action_text = (
+            f"Execute the modelled scenario ({lever_txt or 'baseline levers'}). Projected impact: "
+            + "; ".join(f"{m['metric']} {m['change']:+.0f}{'%' if m['unit']=='pts' else ''}" for m in metrics[:3])
+            + f". Save-as-recommendation from the What-If Simulator for {advisor_id}."
+        )
+        record = {
+            "recommendation_id": rec_id,
+            "recommendation_type": "SCENARIO_ACTION",
+            "title": title,
+            "action_text": action_text,
+            "priority_score": 92.0 if high_priority else 62.0,
+            "severity": "CRITICAL" if high_priority else "ATTENTION",
+            "confidence": 0.72,
+            "estimated_revenue_impact": revenue_impact,
+            "impact_summary": f"What-If scenario · category {category}",
+            "status": "PRESENTED",
+            "generated_at": when,
+        }
+        upsert_vertex(self.graph, "phx_dm_recommendation", "recommendation_id", record)
+        upsert_edge(self.graph, "phx_dm_recommendation_for_advisor", "phx_dm_recommendation",
+                    "phx_dm_advisor", rec_id, advisor_id)
+        if snapshot_id:
+            upsert_edge(self.graph, "phx_dm_recommendation_uses_feature_snapshot", "phx_dm_recommendation",
+                        "phx_dm_feature_snapshot", rec_id, snapshot_id)
+        write_reasoning_trace(
+            self.graph,
+            reasoning_id=f"REASON_{rec_id}",
+            artifact_type="RECOMMENDATION",
+            artifact_id=rec_id,
+            steps=[
+                "Manager ran a What-If scenario over the advisor's real current feature snapshot",
+                f"Applied levers: {lever_txt or 'none'}",
+                "Projected impact via the documented What-If elasticities (transparent formula)",
+                f"Saved as a {('high-priority ' if high_priority else '')}recommendation in category {category}",
+            ],
+            evidence={
+                "scenario_id": scenario_id,
+                "category": category,
+                "high_priority": high_priority,
+                "levers": levers,
+                "projected_metrics": {m["metric"]: m.get("projected") for m in metrics},
+            },
+            feature_snapshot_id=snapshot_id,
+            created_at=when,
+        )
+        return {
+            "saved": True,
+            "recommendation_id": rec_id,
+            "scenario_id": scenario_id,
+            "advisor_id": advisor_id,
+            "category": category,
+            "high_priority": high_priority,
+            "estimated_revenue_impact": revenue_impact,
+            **record,
         }
 
     def _persist(self, rec: dict, advisor_id: str, snapshot_id: str) -> None:

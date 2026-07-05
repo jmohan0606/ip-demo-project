@@ -1251,13 +1251,30 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   in a later polish pass. Per-advisor CRM volume is thin (5 activities, 3 opps each) — that's the
   Phase-2 seed reality, not a bug; richer volume would need another data-expansion pass.
 
-### RESUME AT: Phase 4 page 8/16 = **What-If Simulator** (9.5): add "save as recommendation" — a
-manager can save a what-if scenario result as a real recommendation against the advisor, with a
-category and a high-priority flag, persisted THROUGH the real recommendations pipeline (not a
-separate fake table). Reuse the recommendations service write path + the coaching-task upsert
-pattern. Then: Predictions[methodology depth] → Opportunities&Recs[**RL learning-state = delegate to
-Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue
-Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
+**Page 8/16 — What-If Simulator (9.5) — DONE.**
+- Backend: `RecommendationService.save_scenario_as_recommendation()` persists a What-If result
+  through the SAME real pipeline generate_for_advisor uses — upsert recommendation vertex
+  (type SCENARIO_ACTION, category, high_priority→CRITICAL/priority 92) + recommendation_for_advisor
+  + uses_feature_snapshot edges + a reasoning_trace grounded in the scenario levers/projection; also
+  persists a phx_dm_simulation_scenario vertex (+scenario_for_advisor) for provenance. New
+  `list_for_advisor()` + `GET /recommendations/advisor/{id}` reads persisted recs; new
+  `POST /whatif/save-recommendation`. VERIFIED roundtrip: saved What-If rec appears alongside the 3
+  engine-generated recs in /recommendations/advisor/A001 (SCENARIO_ACTION, CRITICAL, priority 92).
+- Frontend: apiClient already had post; added save panel to the simulator (category dropdown,
+  High-priority checkbox, Save button) with a live confirmation showing the persisted
+  recommendation_id + scenario_id + projected impact.
+- Verified: tsc PASS; Playwright drove Run→Save, 0 console errors, confirmation rendered.
+  Screenshot: whatif-after.png.
+- NOTE: mock upserts are in-memory (per running process) and reset on backend --reload/restart —
+  same documented behavior as the coaching-task feature; fine for the demo session.
+
+### RESUME AT: Phase 4 page 9/16 = **Predictions & Forecasting** (9.5): fix advisor-scoping (9.1 —
+should already be done in Phase 1; verify it follows the breadcrumb). Add real detail on HOW each
+prediction was derived — the pipeline, the model/formula, the feature contributions — a core
+"ML/DL" selling point. Reuse the prediction service's contributions/explanation. Then:
+Opportunities&Recs [**RL learning-state = delegate to Fable via general-purpose subagent w/
+model:"fable"**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability, then Phase 5
+(Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
 Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
 depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
 Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),

@@ -42,3 +42,21 @@ export async function simulateWhatIf(
     ...levers,
   });
 }
+
+export interface SavedRecommendation {
+  saved: boolean;
+  recommendation_id: string;
+  scenario_id: string;
+  category: string;
+  high_priority: boolean;
+  estimated_revenue_impact: number;
+}
+
+/** Save a What-If scenario result as a REAL recommendation through the
+ * recommendations pipeline (persisted, retrievable everywhere recs are). */
+export async function saveScenarioAsRecommendation(body: {
+  advisor_id: string; title: string; category: string; high_priority: boolean;
+  levers: Record<string, number>; metrics: WhatIfMetric[]; snapshot_id: string | null;
+}): Promise<SavedRecommendation> {
+  return apiClient.post<SavedRecommendation>("/whatif/save-recommendation", body);
+}

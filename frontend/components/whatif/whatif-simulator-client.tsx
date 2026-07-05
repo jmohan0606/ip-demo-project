@@ -1,10 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { PlayCircle, Sparkles } from "lucide-react";
+import { PlayCircle, Sparkles, Save, CheckCircle2 } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
-import { simulateWhatIf, type WhatIfLevers, type WhatIfResult } from "@/lib/api/whatif";
+import { simulateWhatIf, saveScenarioAsRecommendation, type WhatIfLevers, type WhatIfResult, type SavedRecommendation } from "@/lib/api/whatif";
+import { colors } from "@/styles/tokens";
 import { AssumptionSlider } from "@/components/whatif/assumption-slider";
 import { WhatIfImpactBars } from "@/components/charts/whatif-impact-bars";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +34,10 @@ export function WhatIfSimulatorClient() {
   const [levers, setLevers] = useState<WhatIfLevers>(DEFAULT_LEVERS);
   const [result, setResult] = useState<WhatIfResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [saveCategory, setSaveCategory] = useState("GROWTH");
+  const [highPriority, setHighPriority] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<SavedRecommendation | null>(null);
 
   useEffect(() => {
     apiClient
@@ -56,12 +61,32 @@ export function WhatIfSimulatorClient() {
 
   const run = useCallback(async () => {
     setBusy(true);
+    setSaved(null);
     try {
       setResult(await simulateWhatIf(advisorId, levers));
     } finally {
       setBusy(false);
     }
   }, [advisorId, levers]);
+
+  const save = async () => {
+    if (!result) return;
+    setSaving(true);
+    try {
+      const res = await saveScenarioAsRecommendation({
+        advisor_id: advisorId,
+        title: `What-If: ${advisorName} · ${saveCategory}`,
+        category: saveCategory,
+        high_priority: highPriority,
+        levers: result.levers,
+        metrics: result.metrics,
+        snapshot_id: result.snapshot_id,
+      });
+      setSaved(res);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const advisorName =
     advisors.find((a) => a.advisor_id === advisorId)?.advisor_name ?? advisorId;
@@ -190,6 +215,36 @@ export function WhatIfSimulatorClient() {
                   <span className="font-mono">{result.snapshot_id ?? "computed on-the-fly"}</span> ·
                   revenue_ltm {formatCurrency(result.baseline_features.revenue_ltm)} · aum_total{" "}
                   {formatCurrency(result.baseline_features.aum_total)}.
+                </div>
+
+                {/* Save as Recommendation — persists through the real recommendations pipeline (9.5) */}
+                <div className="rounded-xl border bg-background/80 p-3" style={{ borderColor: colors.surface.border }}>
+                  <div className="flex items-center gap-2">
+                    <Save className="h-4 w-4" style={{ color: colors.primary }} />
+                    <span className="text-[12px] font-bold" style={{ color: colors.text.primary }}>Save as Recommendation</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Persist this scenario as a real recommendation against {advisorName} — retrievable on the Recommendations, Advisor 360 and Explainability pages.
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <select className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]" value={saveCategory} onChange={(e) => setSaveCategory(e.target.value)}>
+                      {["GROWTH", "RETENTION", "AGP", "CRM_EXECUTION"].map((c) => <option key={c} value={c}>{c.replace("_", " ")}</option>)}
+                    </select>
+                    <label className="flex items-center gap-1.5 text-[12px]" style={{ color: colors.text.secondary }}>
+                      <input type="checkbox" checked={highPriority} onChange={(e) => setHighPriority(e.target.checked)} /> High priority
+                    </label>
+                    <Button variant="premium" className="h-8 gap-1.5 text-[12px]" onClick={save} disabled={saving}>
+                      <Save className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}
+                    </Button>
+                  </div>
+                  {saved && (
+                    <div className="mt-2 flex items-start gap-1.5 rounded-lg p-2 text-[11px]" style={{ backgroundColor: "#F0FDFA", color: "#0F766E" }}>
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>
+                        Saved <span className="font-mono font-semibold">{saved.recommendation_id}</span> ({saved.high_priority ? "high priority" : "normal"}, {saved.category}) through the recommendations pipeline · projected impact {formatCurrency(saved.estimated_revenue_impact)}. Scenario <span className="font-mono">{saved.scenario_id}</span> persisted.
+                      </span>
+                    </div>
+                  )}
                 </div>
               </>
             )}
