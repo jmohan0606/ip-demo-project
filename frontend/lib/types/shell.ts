@@ -22,6 +22,8 @@ export type ShellContextState = {
   period: TimePeriod;
   compareTo: "Prior Period" | "Prior Year" | "Peer Benchmark" | "None";
   hierarchy: HierarchyNode | null;
+  /** Bumped by the Refresh button; scope-following hooks include it in their fetch deps. */
+  refreshNonce: number;
 };
 
 export type ShellContextActions = {
@@ -32,6 +34,8 @@ export type ShellContextActions = {
   setPeriod: (value: TimePeriod) => void;
   setCompareTo: (value: ShellContextState["compareTo"]) => void;
   setLoading: (value: boolean) => void;
+  /** Re-fetch the current page's data without losing scope (Refresh button). */
+  refresh: () => void;
 };
 
 export type ShellContextValue = ShellContextState & ShellContextActions;

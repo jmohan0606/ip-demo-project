@@ -11,7 +11,7 @@ export function AiContentCard({ title, children, footer }: { title: string; chil
         <h3 className={type.cardTitle} style={{ color: colors.text.primary }}>{title}</h3>
         <span
           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]"
-          style={{ color: colors.aiAccent, backgroundColor: "#F5F3FF", border: `1px solid #DDD6FE` }}
+          style={{ color: colors.aiAccent, backgroundColor: "#EEF2FF", border: `1px solid #C7D2FE` }}
         >
           ✦ AI Generated
         </span>

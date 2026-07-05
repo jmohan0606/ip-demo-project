@@ -23,6 +23,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [hierarchy, setHierarchy] = useState<HierarchyNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const refresh = () => setRefreshNonce((n) => n + 1);
 
   useEffect(() => {
     fetchHierarchyTree()
@@ -51,10 +53,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const context = useMemo(
     () => ({
-      persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy,
-      setPersona, setScope, setScopeType, setScopeId, setPeriod, setCompareTo, setLoading,
+      persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy, refreshNonce,
+      setPersona, setScope, setScopeType, setScopeId, setPeriod, setCompareTo, setLoading, refresh,
     }),
-    [persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy],
+    [persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy, refreshNonce],
   );
 
   return (

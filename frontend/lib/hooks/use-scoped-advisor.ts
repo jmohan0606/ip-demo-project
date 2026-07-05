@@ -9,7 +9,7 @@ import { resolveScope } from "@/lib/api/hierarchy";
  * back to the first advisor beneath it. Re-resolves whenever the breadcrumb/advisor selector
  * changes, so the page re-fetches on scope change. This is the ONE place the pattern lives.
  */
-export function useScopedAdvisor(): { advisorId: string | null; scopeType: string; scopeId: string } {
+export function useScopedAdvisor(): { advisorId: string | null; scopeType: string; scopeId: string; refreshNonce: number } {
   const shell = useShellContext();
   const [advisorId, setAdvisorId] = useState<string | null>(
     shell.scopeType === "Advisor" ? shell.scopeId : null,
@@ -27,5 +27,5 @@ export function useScopedAdvisor(): { advisorId: string | null; scopeType: strin
     return () => { active = false; };
   }, [shell.scopeType, shell.scopeId]);
 
-  return { advisorId, scopeType: shell.scopeType, scopeId: shell.scopeId };
+  return { advisorId, scopeType: shell.scopeType, scopeId: shell.scopeId, refreshNonce: shell.refreshNonce };
 }

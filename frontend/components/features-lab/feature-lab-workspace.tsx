@@ -35,7 +35,7 @@ interface SimilarResponse {
 }
 
 export function FeatureLabWorkspace() {
-  const { advisorId } = useScopedAdvisor();
+  const { advisorId, refreshNonce } = useScopedAdvisor();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [similar, setSimilar] = useState<SimilarResponse | null>(null);
   const [projection, setProjection] = useState<Projection | null>(null);
@@ -53,7 +53,7 @@ export function FeatureLabWorkspace() {
     } finally {
       setBusy(false);
     }
-  }, [advisorId]);
+  }, [advisorId, refreshNonce]);
 
   useEffect(() => {
     void load();

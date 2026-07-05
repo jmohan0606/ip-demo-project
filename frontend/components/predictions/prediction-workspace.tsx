@@ -32,7 +32,7 @@ interface Prediction {
 }
 
 export function PredictionWorkspace() {
-  const { advisorId } = useScopedAdvisor();
+  const { advisorId, refreshNonce } = useScopedAdvisor();
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -45,7 +45,7 @@ export function PredictionWorkspace() {
     } finally {
       setBusy(false);
     }
-  }, [advisorId]);
+  }, [advisorId, refreshNonce]);
 
   useEffect(() => {
     void run();

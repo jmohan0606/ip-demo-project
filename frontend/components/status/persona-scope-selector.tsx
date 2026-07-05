@@ -6,6 +6,9 @@ import type { Persona, TimePeriod } from "@/lib/types/navigation";
 
 const personas: Persona[] = ["Advisor", "AGP", "DDW", "MDW"];
 const periods: TimePeriod[] = ["MTD", "QTD", "YTD", "LTM"];
+const compareOptions: Array<"Prior Period" | "Prior Year" | "Peer Benchmark" | "None"> = [
+  "Prior Year", "Prior Period", "Peer Benchmark", "None",
+];
 
 const personaLabel: Record<Persona, string> = {
   Advisor: "Advisor",
@@ -48,6 +51,19 @@ export function PersonaScopeSelector() {
         >
           {periods.map((p) => (
             <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="flex items-center gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Compare To</span>
+        <select
+          className={cls}
+          value={ctx.compareTo}
+          onChange={(e) => ctx.setCompareTo(e.target.value as typeof compareOptions[number])}
+        >
+          {compareOptions.map((c) => (
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
       </label>

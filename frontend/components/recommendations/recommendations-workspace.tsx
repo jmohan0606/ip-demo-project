@@ -47,7 +47,7 @@ interface GenerateResponse {
 const FEEDBACK_ACTIONS = ["ACCEPT", "COMPLETE", "MODIFY", "IGNORE", "REJECT"] as const;
 
 export function RecommendationsWorkspace() {
-  const { advisorId } = useScopedAdvisor();
+  const { advisorId, refreshNonce } = useScopedAdvisor();
   const [data, setData] = useState<GenerateResponse | null>(null);
   const [impact, setImpact] = useState<ImpactTrend | null>(null);
   const [busy, setBusy] = useState(false);
@@ -65,7 +65,7 @@ export function RecommendationsWorkspace() {
     } finally {
       setBusy(false);
     }
-  }, [advisorId]);
+  }, [advisorId, refreshNonce]);
 
   useEffect(() => {
     void generate();
@@ -182,7 +182,7 @@ export function RecommendationsWorkspace() {
       {lastEffect ? (
         <div
           className="rounded-lg border px-3 py-2 text-[12px]"
-          style={{ borderColor: "#DDD6FE", backgroundColor: "#F5F3FF", color: colors.aiAccent }}
+          style={{ borderColor: "#C7D2FE", backgroundColor: "#EEF2FF", color: colors.aiAccent }}
         >
           Learning signal applied: {lastEffect}
         </div>

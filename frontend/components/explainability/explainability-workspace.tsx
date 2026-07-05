@@ -37,7 +37,7 @@ const CHAIN_STAGES: Array<{ key: keyof ChainResponse; label: string }> = [
 ];
 
 export function ExplainabilityWorkspace() {
-  const { advisorId } = useScopedAdvisor();
+  const { advisorId, refreshNonce } = useScopedAdvisor();
   const [recIds, setRecIds] = useState<string[]>([]);
   const [selectedRec, setSelectedRec] = useState<string | null>(null);
   const [chain, setChain] = useState<ChainResponse | null>(null);
@@ -53,7 +53,7 @@ export function ExplainabilityWorkspace() {
         if (ids[0]) setSelectedRec(ids[0]);
       })
       .catch(() => setRecIds([]));
-  }, [advisorId]);
+  }, [advisorId, refreshNonce]);
 
   const loadChain = useCallback(async (recommendationId: string) => {
     setBusy(true);
@@ -115,7 +115,7 @@ export function ExplainabilityWorkspace() {
                   className="rounded-lg border px-3 py-2 text-center"
                   style={{
                     borderColor: items.length ? colors.aiAccent : colors.surface.border,
-                    backgroundColor: items.length ? "#F5F3FF" : colors.surface.canvas,
+                    backgroundColor: items.length ? "#EEF2FF" : colors.surface.canvas,
                   }}
                 >
                   <div className={type.label} style={{ color: items.length ? colors.aiAccent : colors.text.muted }}>
