@@ -22,6 +22,14 @@ class Settings(BaseSettings):
         default="sentence-transformers/all-MiniLM-L6-v2", alias="LOCAL_EMBEDDING_MODEL"
     )
 
+    # Section 11.1: real model tier (ModelClient) + graph-entity vector storage (VectorClient).
+    # Defaults keep the verified deterministic scorers/vectors as the working path; `real`/
+    # `tigergraph` are opt-in and always fall back to deterministic when no artifact/engine.
+    model_client_mode: str = Field(default="deterministic", alias="MODEL_CLIENT_MODE")  # deterministic | real
+    vector_client_mode: str = Field(default="local", alias="VECTOR_CLIENT_MODE")  # local | tigergraph
+    ml_artifacts_dir: str = Field(default="models/artifacts", alias="ML_ARTIFACTS_DIR")
+    ml_time_box_minutes: int = Field(default=10, alias="ML_TIME_BOX_MINUTES")
+
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
     openai_embedding_model: str = Field(default="text-embedding-3-small", alias="OPENAI_EMBEDDING_MODEL")
