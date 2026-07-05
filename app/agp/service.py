@@ -25,8 +25,10 @@ MILESTONE_MONTHS = [3, 6, 9, 12, 15, 18, 21, 24]  # AGP-002
 
 
 def _band(score: float, bands: list[tuple[int, int, str]]) -> str:
+    # Treat each band's integer `high` as "up to (high+1) exclusive" so fractional scores in the
+    # old inter-band gaps (e.g. 39.9) classify into the lower band instead of falling through.
     for low, high, label in bands:
-        if low <= score <= high:
+        if score < high + 1:
             return label
     return bands[-1][2]
 

@@ -37,14 +37,23 @@ export interface ScopeTopAdvisor {
   goal_attainment: number | null;
   agp_risk_score: number | null;
   status: string;
+  reason?: string;
+}
+
+export interface ScopeComparison {
+  revenue_current_12m: number;
+  revenue_prior_12m: number;
+  revenue_change_pct: number;
 }
 
 export interface ScopeSummary {
   scope_type: string;
   scope_id: string;
   totals: ScopeTotals;
+  comparison: ScopeComparison;
   child_breakdown: ScopeChild[];
   top_advisors: ScopeTopAdvisor[];
+  bottom_advisors: ScopeTopAdvisor[];
   evidence: {
     source: string;
     advisor_ids_resolved: number;

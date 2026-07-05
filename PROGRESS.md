@@ -1090,3 +1090,15 @@ Orchestrator independent verify (backend restarted, mock mode): A001 revenue_ltm
 /adapters/status → graph_tiers.mode=mock, chain=[tier4], per-request logging works (total_served
 counting). Deferred: frontend Admin UI to render graph_tiers (Phase 4 Admin rebuild); a parallel
 legacy graph-access stack still duplicates this (consolidation candidate, out of 9.4 scope).
+
+### PHASE 4 — page rebuilds (commit per page)
+**Page 1/16 — Executive Dashboard (9.5) — DONE.** Shared KpiStatCard now renders a colored
+icon-in-soft-circle + the Phase-0 DeltaIndicator; every dashboard KPI got an icon; Revenue (LTM)
+shows a real prior-year delta (-7.4%, from a new backend `comparison` block = trailing-12 vs prior-12
+of the 36-month trend). Added: AGP Program Status card (on/attention/urgent/critical counts +
+View Details→/agp), Top Advisors AND "Needs Attention" (bottom) tables each with a stated reason
+(new backend bottom_advisors + reason). Refresh button now re-fetches the dashboard (refreshNonce).
+Bug fixed: TRACK_BANDS had gaps (39→40, 69→70, 84→85) so fractional risk like 39.9 fell through to
+"critical" — `_band` in rollup.py AND agp/service.py rewritten to gap-free thresholds (verified 39.9→
+on_track, anchors 25.8→on_track / 56.8→attention unchanged). Verified Playwright: dashboard renders
+icons + delta + AGP card + both tables, 0 errors. tsc PASS.

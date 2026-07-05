@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { Building2, TrendingUp, Users, Target } from "lucide-react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { Building2, TrendingUp, TrendingDown, Users, Target, DollarSign, Wallet, PiggyBank, Layers, Gauge, ShieldAlert, AlertTriangle } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { fetchScopeSummary, type ScopeSummary } from "@/lib/api/scope";
 import { ScopeChildBars } from "@/components/charts/scope-child-bars";
@@ -27,6 +27,50 @@ const STATUS_STYLE: Record<string, "success" | "warning" | "destructive"> = {
   critical: "destructive",
 };
 
+function AdvisorTable({
+  title,
+  icon,
+  rows,
+  onSelect,
+}: {
+  title: string;
+  icon: ReactNode;
+  rows: import("@/lib/api/scope").ScopeTopAdvisor[];
+  onSelect: (t: ScopeType, id: string, label: string) => void;
+}) {
+  return (
+    <Card>
+      <CardHeader className="p-3">
+        <CardTitle className="flex items-center gap-2 text-[13px]">{icon} {title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="border-b text-left text-[10px] uppercase tracking-wide text-muted-foreground">
+                <th className="px-3 py-2">Advisor</th>
+                <th className="px-3 py-2 text-right">Revenue (LTM)</th>
+                <th className="px-3 py-2 text-right">Risk</th>
+                <th className="px-3 py-2">Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((a) => (
+                <tr key={a.advisor_id} className="cursor-pointer border-b last:border-0 hover:bg-muted/40" onClick={() => onSelect("Advisor", a.advisor_id, a.advisor_name)}>
+                  <td className="px-3 py-2 font-medium">{a.advisor_name}</td>
+                  <td className="px-3 py-2 text-right font-mono">{compactUsd(a.revenue_ltm)}</td>
+                  <td className="px-3 py-2 text-right"><Badge variant={STATUS_STYLE[a.status] ?? "glass"}>{a.agp_risk_score ?? "—"}</Badge></td>
+                  <td className="px-3 py-2 text-[11px] text-muted-foreground">{a.reason ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function ExecutiveDashboard() {
   const shell = useShellContext();
   const [data, setData] = useState<ScopeSummary | null>(null);
@@ -43,11 +87,14 @@ export function ExecutiveDashboard() {
 
   useEffect(() => {
     void load();
-  }, [load]);
+  }, [load, shell.refreshNonce]);
 
   const t = data?.totals;
+  const cmp = data?.comparison;
+  const revDelta = cmp?.revenue_change_pct;
   const childHeading = CHILD_LABEL[shell.scopeType] ?? "Breakdown";
   const isAdvisor = shell.scopeType === "Advisor";
+  const atRisk = t ? t.status_distribution.attention + t.status_distribution.urgent + t.status_distribution.critical : 0;
 
   return (
     <div className="space-y-3">
@@ -64,25 +111,31 @@ export function ExecutiveDashboard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiStatCard label="Advisors In Scope" value={String(t?.advisor_count ?? "—")} />
-        <KpiStatCard label="Revenue (LTM)" value={t ? compactUsd(t.revenue_ltm) : "—"} />
-        <KpiStatCard label="AUM" value={t ? compactUsd(t.aum_total) : "—"} />
-        <KpiStatCard label="NNM (Annualized)" value={t ? compactUsd(t.nnm_annualized) : "—"} />
-        <KpiStatCard label="Managed Revenue" value={t ? compactUsd(t.managed_revenue) : "—"} />
-        <KpiStatCard
-          label="Avg Goal Attainment"
-          value={t ? `${t.avg_goal_attainment}%` : "—"}
-        />
-        <KpiStatCard label="Avg AGP Risk Score" value={t ? String(t.avg_agp_risk_score) : "—"} />
-        <KpiStatCard
-          label="At-Risk Advisors"
-          value={
-            t
-              ? String(t.status_distribution.attention + t.status_distribution.urgent + t.status_distribution.critical)
-              : "—"
-          }
-        />
+        <KpiStatCard label="Advisors In Scope" value={String(t?.advisor_count ?? "—")} icon={Users} iconColor="#2563EB" />
+        <KpiStatCard label="Revenue (LTM)" value={t ? compactUsd(t.revenue_ltm) : "—"} icon={DollarSign} iconColor="#2563EB" changePct={revDelta} deltaSuffix="vs prior yr" />
+        <KpiStatCard label="AUM" value={t ? compactUsd(t.aum_total) : "—"} icon={Wallet} iconColor="#14B8A6" />
+        <KpiStatCard label="NNM (Annualized)" value={t ? compactUsd(t.nnm_annualized) : "—"} icon={PiggyBank} iconColor="#14B8A6" />
+        <KpiStatCard label="Managed Revenue" value={t ? compactUsd(t.managed_revenue) : "—"} icon={Layers} iconColor="#4F46E5" />
+        <KpiStatCard label="Avg Goal Attainment" value={t ? `${t.avg_goal_attainment}%` : "—"} icon={Gauge} iconColor="#4F46E5" />
+        <KpiStatCard label="Avg AGP Risk Score" value={t ? String(t.avg_agp_risk_score) : "—"} icon={ShieldAlert} iconColor="#F59E0B" />
+        <KpiStatCard label="At-Risk Advisors" value={t ? String(atRisk) : "—"} icon={AlertTriangle} iconColor="#DC2626" />
       </div>
+
+      {/* AGP Program Status (9.5) */}
+      {t && !isAdvisor && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]"><Target className="h-4 w-4 text-primary" /> AGP Program Status</CardTitle>
+            <a href="/agp" className="text-[11px] font-semibold text-primary hover:underline">View Details →</a>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
+            <div className="rounded-lg border bg-teal-50 px-3 py-2"><div className="text-[10px] uppercase text-muted-foreground">On Track</div><div className="text-[18px] font-bold text-teal-700">{t.status_distribution.on_track}</div></div>
+            <div className="rounded-lg border bg-amber-50 px-3 py-2"><div className="text-[10px] uppercase text-muted-foreground">Attention</div><div className="text-[18px] font-bold text-amber-700">{t.status_distribution.attention}</div></div>
+            <div className="rounded-lg border bg-orange-50 px-3 py-2"><div className="text-[10px] uppercase text-muted-foreground">Urgent</div><div className="text-[18px] font-bold text-orange-700">{t.status_distribution.urgent}</div></div>
+            <div className="rounded-lg border bg-red-50 px-3 py-2"><div className="text-[10px] uppercase text-muted-foreground">Critical</div><div className="text-[18px] font-bold text-red-700">{t.status_distribution.critical}</div></div>
+          </CardContent>
+        </Card>
+      )}
 
       {!isAdvisor && (
         <div className="grid gap-3 xl:grid-cols-[1.5fr_1fr]">
@@ -117,48 +170,12 @@ export function ExecutiveDashboard() {
         </div>
       )}
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between p-3">
-          <CardTitle className="flex items-center gap-2 text-[13px]">
-            <TrendingUp className="h-4 w-4 text-primary" /> Top Advisors In Scope
-          </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-[12px]">
-              <thead>
-                <tr className="border-b text-left text-[10px] uppercase tracking-wide text-muted-foreground">
-                  <th className="px-3 py-2">Advisor</th>
-                  <th className="px-3 py-2 text-right">Revenue (LTM)</th>
-                  <th className="px-3 py-2 text-right">AUM</th>
-                  <th className="px-3 py-2 text-right">Goal</th>
-                  <th className="px-3 py-2 text-right">Risk</th>
-                  <th className="px-3 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data?.top_advisors ?? []).map((a) => (
-                  <tr
-                    key={a.advisor_id}
-                    className="cursor-pointer border-b last:border-0 hover:bg-muted/40"
-                    onClick={() => shell.setScope("Advisor", a.advisor_id, a.advisor_name)}
-                  >
-                    <td className="px-3 py-2 font-medium">{a.advisor_name}</td>
-                    <td className="px-3 py-2 text-right font-mono">{compactUsd(a.revenue_ltm)}</td>
-                    <td className="px-3 py-2 text-right font-mono">{compactUsd(a.aum_total)}</td>
-                    <td className="px-3 py-2 text-right font-mono">{a.goal_attainment == null ? "—" : `${a.goal_attainment}%`}</td>
-                    <td className="px-3 py-2 text-right font-mono">{a.agp_risk_score == null ? "—" : a.agp_risk_score}</td>
-                    <td className="px-3 py-2">
-                      <Badge variant={STATUS_STYLE[a.status] ?? "glass"}>{a.status.replace("_", " ")}</Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      {!isAdvisor && (
+        <div className="grid gap-3 xl:grid-cols-2">
+          <AdvisorTable title="Top Advisors" icon={<TrendingUp className="h-4 w-4 text-teal-600" />} rows={data?.top_advisors ?? []} onSelect={shell.setScope} />
+          <AdvisorTable title="Needs Attention" icon={<TrendingDown className="h-4 w-4 text-red-600" />} rows={data?.bottom_advisors ?? []} onSelect={shell.setScope} />
+        </div>
+      )}
 
       {data && (
         <div className="rounded-xl border bg-good-soft p-3 text-[11px] text-muted-foreground">

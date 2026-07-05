@@ -26,10 +26,15 @@ _CHILDREN = {
 
 
 def _band(score: float) -> str:
-    for low, high, label in TRACK_BANDS:
-        if low <= score <= high:
-            return label
-    return TRACK_BANDS[-1][2]
+    # Upper-bound thresholds so fractional scores in the old gaps (e.g. 39.9, 69.5) classify
+    # correctly instead of falling through to "critical". <40 on_track / <70 attention / <85 urgent.
+    if score < 40:
+        return "on_track"
+    if score < 70:
+        return "attention"
+    if score < 85:
+        return "urgent"
+    return "critical"
 
 
 class ScopeRollupService:
@@ -110,7 +115,7 @@ class ScopeRollupService:
             })
         return rows
 
-    def _top_advisors(self, advisor_ids: list[str], limit: int = 8) -> list[dict]:
+    def _top_advisors(self, advisor_ids: list[str], limit: int = 8, ascending: bool = False) -> list[dict]:
         rows = []
         for advisor_id in advisor_ids:
             f = self._features(advisor_id)
@@ -129,8 +134,32 @@ class ScopeRollupService:
                 "agp_risk_score": round(float(risk), 1) if risk is not None else None,
                 "status": _band(float(risk)) if risk is not None else "n/a",
             })
-        rows.sort(key=lambda r: r["revenue_ltm"], reverse=True)
-        return rows[:limit]
+        rows.sort(key=lambda r: r["revenue_ltm"], reverse=not ascending)
+        picked = rows[:limit]
+        # Stated reason per advisor (9.5: top AND bottom, each with a why).
+        for r in picked:
+            if ascending:
+                if r["status"] in ("attention", "urgent", "critical"):
+                    r["reason"] = f"AGP {r['status'].replace('_', ' ')} (risk {r['agp_risk_score']})"
+                else:
+                    r["reason"] = "Lowest LTM revenue in scope"
+            else:
+                r["reason"] = "Highest LTM revenue in scope"
+        return picked
+
+    def _comparison(self, scope_type: str, scope_id: str) -> dict:
+        """Current trailing-12mo revenue vs the prior 12mo, from the 36-month trend — powers the
+        prior-year delta badges (9.5). Reuses the same monthly aggregation the Revenue page uses."""
+        from app.revenue.analytics import RevenueAnalyticsService
+        try:
+            trend = RevenueAnalyticsService().analytics(scope_type, scope_id).get("monthly_trend", [])
+            revs = [float(m.get("revenue", 0) or 0) for m in trend]
+        except Exception:
+            revs = []
+        cur = round(sum(revs[-12:]), 2)
+        prior = round(sum(revs[-24:-12]), 2)
+        pct = round(((cur - prior) / prior * 100.0), 1) if prior else 0.0
+        return {"revenue_current_12m": cur, "revenue_prior_12m": prior, "revenue_change_pct": pct}
 
     def summary(self, scope_type: str = "FIRM", scope_id: str = "F001") -> dict:
         st = (scope_type or "FIRM").upper()
@@ -140,8 +169,10 @@ class ScopeRollupService:
             "scope_type": st,
             "scope_id": scope_id,
             "totals": agg,
+            "comparison": self._comparison(st, scope_id),
             "child_breakdown": self._child_breakdown(st, scope_id),
             "top_advisors": self._top_advisors(advisor_ids),
+            "bottom_advisors": self._top_advisors(advisor_ids, ascending=True),
             "evidence": {
                 "source": "per-advisor latest feature snapshots (SnapshotStore), summed/averaged",
                 "advisor_ids_resolved": len(advisor_ids),
