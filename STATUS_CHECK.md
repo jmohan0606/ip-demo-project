@@ -59,3 +59,29 @@ the real opportunity ("AGP off-track risk scored 56.8/100 … recover attainment
 - Legacy `app/services/opportunity_service.py` now has **one** consumer left: the
   `app/services/recommendation_service.py` facade. Full deletion is still gated on that facade
   (itself legacy) being repointed/removed — a separate, scoped follow-up, not this fix.
+
+---
+
+# Final Closure Pass — 2026-07-05
+
+## PART A — Repoint recommendation_service facade + delete opportunity_service — DONE
+
+- **Finding:** the facade `app/services/recommendation_service.py` used the legacy
+  `OpportunityService` only inside `run_recommendations`, which was already **broken/dead**: it
+  called `RecommendationEngine.generate(entity_id, min, limit)` but the real signature is
+  `generate(opportunities)` → **TypeError by construction**. Not reachable from any router;
+  `feedback_learning_service` uses only `update_status`/`repo`, `context_assembler` only
+  `list_recommendations`, and `service_tools`'s facade import is dead (uses the real pipeline).
+- **Fix (same pattern as the chat-context repoint):** `run_recommendations` now delegates to the
+  real Phase-8 `app.recommendations.service.RecommendationService.generate_for_advisor`, which
+  internally detects opportunities via the real `OpportunityDetectionService` and persists the
+  full lineage chain. Dropped the `OpportunityService`, `RecommendationEngine`, and
+  `TigerGraphRecommendationLinker` usages from the facade.
+- **Before/after (real):**
+  - BEFORE: `run_recommendations(A001)` → `TypeError: RecommendationEngine.generate() takes 2
+    positional arguments but 4 were given`.
+  - AFTER: A001 → completed, **2** recs (REC_OPP_PIPELINE 74.6, REC_OPP_MANAGEDMIX 50.0);
+    A020 → completed, **3** recs (REC_OPP_AGPRESCUE 85.3, REC_OPP_PIPELINE 77.6,
+    REC_OPP_MANAGEDMIX 57.4). Figures match the live `/recommendations` router output exactly.
+- **Deletion:** confirmed `app/services/opportunity_service.py` now has **zero** live consumers
+  (grep across `app/`), deleted it. Backend imports clean — 36 routes.

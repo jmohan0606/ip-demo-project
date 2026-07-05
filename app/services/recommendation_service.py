@@ -1,36 +1,22 @@
 from __future__ import annotations
 
-from app.models.opportunities import OpportunityRunRequest
 from app.models.recommendations import RecommendationActionRequest, RecommendationRunRequest, RecommendationRunResult, RecommendationSearchRequest
-from app.recommendations.recommendation_engine import RecommendationEngine
 from app.recommendations.recommendation_repository import RecommendationRepository
-from app.recommendations.tigergraph_recommendation_linker import TigerGraphRecommendationLinker
-from app.services.opportunity_service import OpportunityService
+from app.recommendations.service import RecommendationService as PipelineRecommendationService
 
 
 class RecommendationService:
     def __init__(self) -> None:
-        self.opportunity_service = OpportunityService()
-        self.engine = RecommendationEngine()
         self.repo = RecommendationRepository()
-        self.linker = TigerGraphRecommendationLinker()
 
     def run_recommendations(self, request: RecommendationRunRequest) -> RecommendationRunResult:
-        # Ensure opportunities exist.
-        self.opportunity_service.run_opportunities(
-            OpportunityRunRequest(
-                entity_id=request.entity_id,
-                write_to_tigergraph=False,
-                min_score=request.min_opportunity_score,
-                limit=request.limit,
-            )
-        )
-        recommendations = self.engine.generate(request.entity_id, request.min_opportunity_score, request.limit)
-        for rec in recommendations:
-            self.repo.save_recommendation(rec)
-            if request.write_to_tigergraph:
-                self.linker.upsert_recommendation(rec)
-
+        # Delegate to the real Phase-8 pipeline, which detects opportunities via the real
+        # OpportunityDetectionService and persists the full lineage chain (opportunity →
+        # feature snapshot → playbook → learning-weighted priority). The legacy path here used
+        # the dormant OpportunityService plus a clobbered RecommendationEngine whose signature
+        # no longer matched — run_recommendations raised TypeError by construction.
+        result = PipelineRecommendationService().generate_for_advisor(request.entity_id, persist=True)
+        recommendations = result.get("recommendations", [])
         return RecommendationRunResult(
             recommendations_created=len(recommendations),
             status="completed",
