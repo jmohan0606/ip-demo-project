@@ -142,6 +142,12 @@ of the running app and compare side-by-side against the corresponding reference 
 continuing to the next page. Note and fix any drift (density, color, type weight) immediately —
 don't defer visual QA to the end, since by then it compounds across all 32 pages.
 
+**Screenshot location — standing rule, no exceptions:** always save screenshots to a project-
+relative, persistent path (`docs/qa_screenshots/`, gitignored) — never `/tmp` or any scratchpad
+path outside the repo. Ephemeral storage is wiped on every codespace restart; this has already
+caused a lost-workspace confusion once in this project. This applies to every screenshot taken
+anywhere in this project, not just during Section 1B's own construction.
+
 **Visualization fidelity rule (added after Phase 10 review — real gap found, not optional
 polish):** every page must render data using the visualization type the reference mockups use
 for that concept — line chart for trends over time, donut for category breakdown, bar for
@@ -405,3 +411,370 @@ If `tigergraph/community:latest` has issues, try a pinned version tag such as
 
 Note: this validates GraphClient/GSQL only. LLMClient stays mocked regardless — there is no
 equivalent free local stand-in for the client's Azure OpenAI deployment worth setting up here.
+
+## 9. Client Review Round 2 (2026-07-05) — enterprise UX, missing components, new infra
+
+Comprehensive client review after Phase 11 closure. Root theme: the pipeline/data layer has
+been repeatedly proven real and correct (see PROGRESS.md/VERIFICATION_CHECKPOINT.md) — this
+round's issues are almost entirely (a) pages not consuming the real scope/hierarchy context that
+already exists, (b) UI components that are plainer than enterprise wealth-management standards
+require, and (c) real feature/infra gaps (MCP adapter tier, richer data, new capabilities). Work
+this section in the priority order below — each tier fixes/unblocks the one after it.
+
+### 9.0 Non-negotiable design correction: NO PURPLE anywhere
+
+Client-directed change, overrides the original Section 1B token choice. Replace the violet
+`#7C3AED` "AI Generated" accent with a professional, non-purple alternative (e.g. a deep
+teal/indigo-blue distinct from the existing severity blue) — pick one and apply it consistently
+everywhere the AI-generated chip/accent appears. Audit every page for any remaining purple/violet
+and replace.
+
+### 9.1 PRIORITY 1 — Root-cause: advisor-scope-following (fixes 5 pages at once)
+
+Predictions, Opportunities & Recommendations, AI Assistant, Feature Engineering Lab, and
+Explainability Explorer are hardcoded to advisor A001 and do not respond to the hierarchy
+breadcrumb / advisor selector built in Phase 11 Part 2/4. This is a frontend wiring gap, not a
+backend gap — the backend has been proven repeatedly to return different, correct data per
+advisor. Fix: make all 5 pages consume the shell's scope context (same pattern already used by
+advisor-360, dashboard, revenue-analytics, etc. since Part 4) and re-fetch when the selected
+advisor changes. Verify with real screenshots: same page, two different advisors selected,
+visibly different data.
+
+### 9.2 PRIORITY 2 — Filter bar fixes (affects every page)
+
+- Filter/scope selection must be persistent and navigable — going to a different page and back
+  must not lose the selected scope. Fix the underlying state management (shell-level context is
+  correct; audit for any page-level override that resets it).
+- The Time Period dropdown does nothing — wire it to actually filter/re-scope displayed data.
+- Add a "Compare To" selector (compare current period to a selectable prior period), matching
+  the Hackathon mockup's filter bar.
+- Clarify or fix the refresh/search/alert icon buttons at top — each must either do something
+  real (refresh = re-fetch current page data; search = real search; alert = real
+  notifications/system alerts) or be removed. No decorative dead buttons.
+
+### 9.3 PRIORITY 3 — Data model & sample data expansion
+
+- **Real-world entity names**: divisions, regions, markets, branches, households, accounts,
+  portfolios, opportunities, leads, referrals currently use generic placeholder names
+  ("Household 1", "Division 1"). Replace with plausible real-world names throughout the seed
+  data generator (e.g. real-sounding firm/branch/household names) — this affects perceived
+  quality on every page.
+- **Richer, wider sample data**: current date range is too narrow for meaningful trend/seasonal
+  visuals (e.g. the new Revenue Trend feature in 9.6 needs multi-year monthly granularity).
+  Expand the seed generator's time range and volume where current data can't support new
+  visualizations (geographic map needs real region/market distribution; top/bottom
+  markets/branches needs enough branches to rank; CRM needs realistic lead/referral/opportunity
+  variety, not near-duplicate rows).
+- **Schema changes**: if a requirement below needs a vertex/edge/attribute that doesn't exist
+  (e.g. branch performance, coaching task assignments, saved what-if scenarios), add it to the
+  TigerGraph schema (`tigergraph/schema/`) and update the manifest/loading jobs/mock seed data
+  consistently — same rigor as the original foundation package validation (structural checks
+  before assuming it works).
+- Do this before/alongside 9.4-9.7, since several of those page rebuilds depend on data that
+  doesn't exist yet in adequate form.
+
+### 9.4 PRIORITY 4 — TigerGraph adapter: 4-tier fallback chain (client standard)
+
+Extend the Section-2 `GraphClient` adapter with a proper tiered fallback, using the client's
+actual standard stack:
+- **Tier 1 — `tigergraph-mcp`** (official package, github.com/tigergraph/tigergraph-mcp / PyPI
+  `tigergraph-mcp`, built on pyTigerGraph's async APIs) for AI/agent-driven graph access and
+  query execution. This is the primary path for anything agent-initiated.
+- **Tier 2 — `pyTigerGraph`** direct (sync/async connection) as fallback if the MCP server is
+  unavailable, and as the standard path for non-agent backend code (the client's other standard).
+- **Tier 3 — RESTPP** direct (the current `RealGraphClient`) as fallback if pyTigerGraph itself
+  can't connect.
+- **Tier 4 — `MockGraphClient`** (current default) as final fallback.
+Implement as one adapter with automatic tier fallback on connection failure, logging which tier
+actually served each request (for the Admin/Data Health page's adapter-status display). This is
+new architecture — Fable-appropriate (see Section 9.9 model routing).
+
+### 9.5 PRIORITY 5 — Page-by-page rebuilds (condensed from full client feedback; treat each as a
+real requirement, not a suggestion — build the backend logic behind each if it doesn't exist yet)
+
+**Executive Dashboard**: Add — AI Insight Summary card (Key Drivers / Watch Outs / What to
+Monitor structure, matching the Hackathon mockup exactly); AI Coaching Card (Recommendation /
+Shoutout / Action Steps / Guideline Basis); Revenue by Product Category AND Sub-Category;
+Revenue Drivers vs prior year; Peer Benchmarking; Recent Transaction Highlights; Top/Bottom
+Markets; consider Branch Performance. Every KPI card needs a small icon + up/down arrow +
+%/point delta vs prior year, green/red color-coded. Donut charts show the total value centered
+inside the donut. Top AND bottom advisors, each with a stated reason why. AGP Program Status
+card (on-track/off-track counts + link to AGP page). "View Details" link on every card whose
+full detail lives elsewhere (link to the real page, or a modal if no dedicated page exists yet
+— build the modal's content for real, don't stub it).
+
+**Revenue Analytics**: Add a real geographic map (revenue by region/market/location, not a
+placeholder). Build out beyond one line + one donut to match enterprise BI standards (channel
+bar, cohort/product breakdowns, etc., per the mockups already provided). Fix "Revenue by scope"
+— currently broken, diagnose and repair.
+
+**Advisor 360 / Client 360**: AGP status card must only render for advisors actually enrolled in
+AGP — hide/adapt for non-AGP advisors, page must serve both populations well. Add AI Insight
+Summary + AI Coaching Card (same structured format as the dashboard, per-advisor). CRM execution
+cards color-coded by outcome (won=green, lost=red, negotiate=amber). Clarify or remove "AI
+artifacts" section — make it meaningful (link to real explainability/lineage) or drop it.
+Households table: add a visual breakdown between accounts/segments, not just a raw table. Build
+"similar households / similar accounts / similar portfolios" (extending the existing similar-
+advisors capability) if this doesn't exist yet.
+
+**AGP Goals & Coaching**: Add real KPI gauges/meters (visual, not text). All charts get legends.
+Real Goals & KPIs table: KPI name, Target, Current, Progress %, Status (on/off track, color-
+coded). Program milestones with real Completed/In-Progress/Not-Started status. Coaching sessions
+must show real per-advisor variation, not the same static content everywhere.
+
+**Client Intelligence 360**: Rebuild the AI Recommendations card to the same structured standard
+as the Insight/Coaching cards — must explain HOW the recommendation was reached (evidence,
+sources), not just state it. Add similar households/accounts/portfolio comparisons.
+
+**Coaching & Reviews**: Fix static/duplicate coaching-session data across advisors — real
+variation. Build a real manager-facing feature: manager can add a coaching instruction/task
+(selectable task list), persisted to the database, retrievable later with status, and available
+as context to the AI Assistant/recommendations (real read path, not just storage).
+
+**CRM Activities**: Build realistic, varied leads/referrals/opportunities (depends on 9.3's data
+expansion). Fix the pipeline funnel visualization — diagnose what's actually wrong with it (a
+funnel/stage chart, not whatever is currently rendering oddly); revisit further in a later
+session if not fully resolved now. Add: upcoming activities/meetings/notes/tasks with
+type/subject/who/when/status columns, a calendar view, activities grouped by type with icons,
+and recent notes that genuinely vary per advisor.
+
+**What-If Simulator**: Add "save as recommendation" — a manager can save a what-if scenario
+result as a real recommendation against the advisor, with a category and a high-priority flag,
+persisted through the real recommendations pipeline (not a separate fake table).
+
+**Predictions & Forecasting**: Fix advisor-scoping (see 9.1). Beyond that: add real detail on
+HOW each prediction was derived — the pipeline, the model/formula, the feature contributions —
+this is one of the client's core "ML/DL" selling points and needs to look like it.
+
+**Opportunities & Recommendations**: Fix advisor-scoping (9.1). Add: summary cards for total
+accepted/completed/in-progress/rejected with counts, %, and green/amber/red color coding; a
+revenue-impact-over-time graph; color-coded category tags with icons on each opportunity/
+recommendation card; color-coded accept/reject buttons. **The "Learning state" section needs to
+become a real, explained showcase of the RL feedback loop** — don't just show current weights;
+add a simple simulation/explanation of how weights move with feedback over time so a client can
+understand *why* the system gets smarter, not just that numbers change. This is explicitly one
+of the two or three most important pages in the whole product per earlier direction — treat
+accordingly.
+
+**Recommendation Impact/ROI**: Fix static top-card values — must reflect the selected advisor/
+scope for real (uses the same real feedback-learning data already proven elsewhere; this is a
+wiring gap, not a missing-data gap).
+
+**AI Assistant + Knowledge Hub**: Fix advisor-scoping (9.1) for AI Assistant. Restructure chat/
+agentic responses to be readable — bulleted/sectioned, not one dense paragraph. Make the chat
+input box larger and multi-line. Knowledge Hub answers get the same structured-card treatment:
+answer / cited chunks / similarity scores as distinct, color-coded sections, not an
+undifferentiated block.
+
+**Feature Engineering Lab**: Fix advisor-scoping (9.1). Verify the underlying similarity/feature
+computation is behaving correctly (re-run the same kind of cross-check verification used
+throughout this build). Make the lineage section visual (a real diagram of source→feature flow),
+not a text list.
+
+**Explainability Explorer**: Fix advisor-scoping (9.1). This page needs real memory-timeline
+content (currently effectively absent) and a more detailed, client-legible lineage chain —
+enough that a client could follow "why did the system say this" end to end.
+
+**Agent Orchestration & Observability**: The "Run Workflow" button currently does nothing.
+Diagnose first — check whether this is the same frontend/backend networking issue from the
+empty-page investigation (API base URL, server not running) before assuming it's a new
+functional regression; this page was proven working earlier in the build. Fix whichever it
+actually is, with real evidence, not an assumption either way.
+
+### 9.6 New feature: Revenue Trend Explorer (new capability, can live in Revenue Analytics or as
+its own page — decide during implementation, prefer extending Revenue Analytics if it fits
+cleanly)
+
+Bar chart of revenue over a user-selected date range and granularity (monthly/quarterly), sliced
+by advisor / region / market / division / branch (user-selectable dimension). Below/alongside
+each bar: an AI-generated summary of drivers for that period (reuse `get_llm_client()`, grounded
+in real underlying data, same evidence standard as every other AI-generated card in this build),
+and an explicit up/down indicator vs. the prior comparable period. This needs to look
+presentation-quality — a client should be able to screenshot this for a deck. Depends on 9.3's
+data expansion (needs enough real date range and dimensional variety to be meaningful).
+
+### 9.7 Formatting corrections (mechanical, low-risk, can be done in parallel with anything above)
+
+- Add missing `$` symbols wherever a dollar figure is displayed without one.
+- Fix inconsistent title-casing across every header/title/section-title in the app — pick ONE
+  convention (Title Case recommended for headers, matching most of the mockups) and apply it
+  everywhere; audit systematically rather than fixing spot instances.
+- Apply the green(positive)/red(negative) color-coding rule to EVERY numeric delta and
+  up/down indicator across the whole app, not just where it currently exists — this should be a
+  shared component/utility, not implemented ad hoc per page.
+
+### 9.8 RAG corpus expansion
+
+Test and expand the knowledge base with more real-world-style enterprise wealth-management and
+AGP practice-management documents, across PDF/DOCX/PPTX formats (not just the current .txt-
+sourced set) — exercise the real parsers built in Part 2A properly, with realistic document
+volume and variety, not just enough to prove the pipeline works.
+
+### 9.9 `.env` completeness
+
+Produce a complete `.env.example` (and confirm `.env` locally) covering every configuration
+value now in use: existing adapter modes/keys plus the new TigerGraph MCP tier's connection
+variables (`TG_HOST`, `TG_GRAPHNAME`, `TG_USERNAME`/`TG_PASSWORD` or `TG_API_TOKEN`, etc., per
+the tigergraph-mcp package's documented environment variables).
+
+### 9.10 Model routing for this section
+
+Given the volume and the client's explicit accuracy concern: use **Fable 5** for genuinely new
+architecture/design work — the TigerGraph MCP adapter tier (9.4), the data model/schema
+expansion (9.3), the RL learning-state explanation design (part of 9.5's Opportunities page), and
+the Revenue Trend Explorer (9.6). Use **Opus 4.8** for the rest — the scope-following fix (9.1,
+mechanical pattern-application), filter bar fixes (9.2), page component rebuilds that follow
+already-established card/chart patterns (9.5's other items), formatting (9.7), RAG corpus
+expansion (9.8, content work), and `.env` (9.9).
+
+### 9.11 Execution plan — reasoned phases, dependencies, and safety rules
+
+This replaces a first-pass ordering that under-thought two real risks: (a) the data-expansion
+item has no natural stopping point and could consume an entire unattended session with nothing
+else getting done, and (b) the new TigerGraph-MCP tier could get stuck fighting the same 2-core
+hardware limit that already capped live query installs in Phase 2 — if unbounded, a single
+stuck item can eat the whole run. The phases below are ordered by genuine dependency (what must
+exist before what) and risk (bounded/certain work before open-ended/uncertain work), with
+explicit guardrails on the two riskiest items.
+
+**Model routing for this session: main thread on Opus 4.8, delegate 4 specific high-stakes items
+to the `fable-architect` subagent (see `.claude/agents/fable-architect.md`).** This is a real
+mechanism, not a workaround for not being able to run `/model` mid-session: Claude Code supports
+custom subagents with their own model setting, invoked automatically by task match or explicitly
+via the Task tool. Keep the main orchestrating thread on whatever model the session starts on
+(Opus 4.8) for cost efficiency on the many mechanical/pattern-following items, and explicitly
+delegate these four to the `fable-architect` subagent: 9.3 (data model/sample data design), 9.4
+(TigerGraph MCP adapter architecture), the RL-learning-state explanation design inside 9.5's
+Opportunities & Recommendations rebuild, and 9.6 (Revenue Trend Explorer design). When you reach
+each of these four in the phase order below, use the Task tool to delegate to `fable-architect`
+by name rather than doing the design work in the main thread.
+
+**PHASE 0 — shared foundation (build once, reuse everywhere in Phase 3-4; do this first)**
+- 9.0: replace the violet AI-accent color sitewide with the chosen non-purple alternative.
+- Build ONE reusable delta-indicator component (icon + up/down arrow + %/point change,
+  green/red) and ONE currency-formatting utility. Every subsequent page rebuild in Phase 3-4
+  must use these, not hand-rolled formatting per page — this is the only way 9.7's color-coding
+  rule ends up actually consistent instead of redone 15 times with small variations.
+- First-pass title-casing sweep on pages that already exist (any NEW page built later in this
+  session should just use correct casing from the start — no second full sweep needed at the end
+  unless something slips through).
+- **Fix the API-base-URL config properly, once, so the earlier empty-frontend bug cannot silently
+  recur across a long session:** use a server-only (non-`NEXT_PUBLIC_`) env var pointed at
+  `127.0.0.1:8000` for SSR and any internal tooling (Playwright, curl checks) — this is always
+  correct from inside the container. Use a separate `NEXT_PUBLIC_`-prefixed var pointed at the
+  actual public forwarded Codespaces URL for browser-side client fetches — this is what an
+  external browser needs. Document both in `.env.example` (ties into 9.9). Confirm port 8000 is
+  set to Public visibility in the Codespaces Ports panel. Verify both paths work: an internal
+  curl/Playwright check AND a note of the exact public URL for the person to open in their own
+  browser later.
+- **Mid-session discipline for a run this long:** re-read the relevant Section 9 subsection at
+  the start of each phase below, not just once at the start of the session — a session spanning
+  many hours and many files should not rely on memory of a single early read.
+
+**PHASE 1 — root-cause fixes (bounded, well-understood pattern, highest complaint density)**
+- 9.1: scope-following fix on the 5 hardcoded pages (Predictions, Opportunities &
+  Recommendations, AI Assistant, Feature Engineering Lab, Explainability Explorer) — the
+  hierarchy/scope context already exists (Phase 11 Part 4), this is applying an established
+  pattern, not inventing one.
+- 9.2: filter bar (persistence across navigation, Time Period wiring, Compare-To selector,
+  fix/clarify the refresh/search/alert icon buttons).
+- Agent Orchestration "Run Workflow" button: diagnose BEFORE assuming a regression — check
+  whether this is the same frontend/backend API-base-URL issue found during the earlier
+  empty-page investigation (this page was proven working earlier in the build; a networking
+  config issue reappearing is more likely than new breakage). Fix whichever it actually is.
+
+**PHASE 2 — data foundation (gates several Phase 3-4 items; BOUNDED SCOPE, read the guardrails)**
+- 9.3: data model + sample data expansion.
+- **Guardrail 1 — do not silently invalidate prior verification.** A001, A020, and every other
+  advisor whose figures are already cross-checked in PROGRESS.md/VERIFICATION_CHECKPOINT.md have
+  real anchor numbers this entire build's credibility rests on. Expand data by ADDING new
+  entities, date range, and variety — do not regenerate or mutate already-anchored advisors'
+  underlying figures. If a genuine reason requires changing one, state exactly what changed and
+  why, prominently, in PROGRESS.md — never let a previously-verified number silently drift.
+- **Guardrail 2 — bounded target, not open-ended embellishment.** Define a concrete finish line
+  before starting: e.g. expand the modeled date range to a specific number of months/years;
+  expand each division to a specific number of additional branches/households with real-world-
+  style names; add a specific number of additional varied CRM leads/referrals/opportunities.
+  Pick reasonable concrete numbers and stop there — "richer data" has no natural end, so an
+  explicit target is what prevents this phase from consuming the whole session.
+- Schema changes (new vertices/edges/attributes) only where a specific Phase 3-4 requirement
+  genuinely needs one — validate structurally (vertex/edge references resolve, manifest/CSV
+  counts match) with the same rigor as the original foundation package audit, not by assumption.
+
+**PHASE 3 — TigerGraph MCP adapter tier (highest implementation risk; BOUNDED EFFORT)**
+- 9.4: build the 4-tier `GraphClient` (MCP → pyTigerGraph → RESTPP → Mock).
+- **Guardrail — time-box Tier 1 specifically.** Build the adapter interface and all four tier
+  implementations fully — that part is straightforward and low-risk. But actually getting the
+  `tigergraph-mcp` server running live against this 2-core codespace's TigerGraph container is
+  the uncertain part (this exact box already struggled with query C++ compilation in Phase 2).
+  Attempt it once, reasonably. If it doesn't come up cleanly after a genuine but bounded attempt,
+  do NOT keep fighting it for hours — fall back to documenting Tier 1 as implemented-but-
+  unverified-on-this-hardware (same honest pattern as Phase 2's Section 8 finding), confirm
+  Tier 2 (pyTigerGraph direct) works as the practical default, and move on. The architecture
+  being correct matters more tonight than Tier 1 being proven live on underpowered hardware.
+
+**PHASE 4 — page rebuilds (use Phase 0's shared components + Phase 2's expanded data)**
+In this order — flagship first, then roughly the order most pages depend on Phase 2's data:
+Executive Dashboard → Revenue Analytics (needs Phase 2's geographic/regional data) → Advisor 360
+→ AGP Goals & Coaching → Client Intelligence 360 → Coaching & Reviews (includes the real
+manager-assigns-task CRUD feature — this is a genuine new feature, not just a display fix, treat
+it with the same rigor as any other new capability) → CRM Activities (needs Phase 2's realistic
+lead/referral/opportunity data) → What-If Simulator (save-as-recommendation) → Predictions &
+Forecasting (methodology/derivation depth) → Opportunities & Recommendations (including the
+RL-learning-state explanation — this is a real design problem, give it real thought: how does a
+non-technical client come to understand that the system's rankings improve from feedback? a
+simple before/after or trend visualization of weight movement over recorded feedback rounds is
+probably the right level, not a technical RL lecture) → Recommendation ROI → AI Assistant +
+Knowledge Hub (response structuring, larger chat input) → Feature Engineering Lab (visual
+lineage) → Explainability Explorer (real memory-timeline content, deeper lineage detail).
+
+**PHASE 5 — new capability (needs Phase 2's data)**
+- 9.6: Revenue Trend Explorer.
+
+**PHASE 6 — independent content/config work (good filler if any earlier phase is blocked)**
+- 9.8: RAG corpus expansion. Note: this needs WRITE capability for PDF/DOCX/PPTX, not just the
+  read/parse capability built in Phase 2A — `python-docx`/`python-pptx` support writing already;
+  PDF writing needs adding a library (`reportlab` or `fpdf2`) since only reading (`pypdf`) exists
+  today. Add whatever's missing.
+- 9.9: `.env.example` completeness for every adapter mode now in use, including the new MCP tier.
+
+**PHASE 7 — closing verification (same discipline as every prior closure pass this build)**
+Re-screenshot every page. Confirm: no purple remains anywhere, scope-following actually changes
+displayed data when the advisor/scope selector changes (real test, not assumed), formatting
+(currency/casing/color-coding) is consistent across all pages including the newly-built ones,
+full boot check (backend imports, route count, frontend build).
+
+**Standing rules for the whole session, restated for emphasis given its length:**
+- Commit after every phase AND after every meaningful sub-item within Phase 4 (each page), not
+  only at phase boundaries — a session this long needs frequent, small, resumable checkpoints.
+- Update PROGRESS.md continuously, not just at the end of a phase.
+- Do not stop to ask permission or wait for confirmation between phases or sub-items. Only pause
+  for: a genuine blocker with no reasonable default (write it into PROGRESS.md, move to the next
+  non-blocked item — don't just stop the whole session over one stuck item); or approaching a
+  real usage/session limit (finish and commit whatever's in progress cleanly first).
+- If every phase's well-defined work is exhausted before the session ends, re-read Section 9 in
+  full and pick the next reasonable uncompleted item yourself rather than stopping — there is
+  more real work listed here than one session will likely finish.
+
+### 9.12 Mockup detail confirmations (from direct review of the "Wealth360" 15-panel grid and the
+Hackathon flagship mockup — refines, does not replace, the 9.5 bullets above)
+
+- **Recommendations page needs an inline Explainability panel**, not just a link to the separate
+  Explainability Explorer: confidence % (e.g. "91%"), reasoning steps, key factors, and info
+  sources shown directly alongside the selected recommendation.
+- **Revenue Analytics has three distinct breakdown dimensions**, each its own chart: Revenue by
+  Business Line (donut), Revenue by Channel (bar), Revenue by Region (map) — plus the trend line.
+  Treat these as three separate required visualizations, not one generic "breakdown chart."
+- **CRM Activities "Recent Meetings" table columns, exactly**: Date, Subject, With, Type,
+  Outcome, Next Step. "Activities This Week" is a row of icon-labeled counts by type (Meetings /
+  Calls / Emails / Tasks).
+- **AGP "Goals & KPIs Detail" page structure**: a table row per goal/KPI (name, Target, Current,
+  Progress %, Status with color coding) that drills into a detail view with a Target-vs-Actual
+  bar chart over time, an AI-Generated "KPI Insights" recommendations block, and a "My Action
+  Items" checklist.
+- **Coaching & Reviews "Manager Reviews" section** shows the reviewing manager's identity (photo/
+  name) alongside their review — reinforces that this page should respect the viewer's own
+  persona/hierarchy level (a DDW/MDW manager reviewing "their" advisors), consistent with the
+  scope-following fix in Phase 1, not just the advisor's own data.
+- KPI cards throughout use a colored icon in a soft-colored circle to their left (not just a
+  bare number) — confirmed directly in both mockups; apply via the Phase 0 shared component.
