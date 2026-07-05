@@ -49,10 +49,11 @@ HOUSEHOLD_FEATURES = [
     "seg_HNW", "seg_AFFLUENT", "risk_conservative", "risk_moderate", "risk_aggressive",
 ]
 
-# AGP model excludes any attainment-derived column (status is a function of attainment_pct).
+# AGP model excludes any attainment-/status-derived column (status is a deterministic
+# function of attainment_pct — including any of these would leak the label).
 AGP_EXCLUDED = {
     "attainment_pct", "actual_value", "milestone_attainment_pct",
-    "kpi_on_track_ratio", "agp_risk_score",
+    "kpi_on_track_ratio", "agp_risk_score", "revenue_at_risk_estimate",
 }
 
 
@@ -164,6 +165,7 @@ def _household_features(tx_h: pd.DataFrame, meta: pd.Series, t_idx: int) -> dict
     }
 
 
+@lru_cache(maxsize=1)
 def build_household_frame() -> HouseholdFrame:
     """Household × cut supervised frame with features (<= t) + both revenue-risk labels."""
     tx_rev = _load_transactions()  # product left-join keeps one row per (tx, product)
@@ -224,6 +226,35 @@ def verify_temporal_wall(sample: int = 60) -> dict:
 # --------------------------------------------------------------------------------------
 
 @lru_cache(maxsize=1)
+def _advisor_snapshot_features() -> dict[str, dict]:
+    """The advisor's real Feature_Catalog behavioral features (§3.2), pulled from the
+    persisted snapshot store, keeping only numeric columns that are NOT attainment-/status-
+    derived (AGP_EXCLUDED). Prefixed `f_` to namespace them. Read-only; computes a snapshot
+    only if one isn't already persisted."""
+    from app.features.engineering import FeatureEngineeringService
+    from app.features.snapshot_store import SnapshotStore
+
+    store = SnapshotStore()
+    engine = FeatureEngineeringService()
+    serves = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_advisor_serves_household.csv")
+    advisors = sorted(set(serves["from_id"]))
+    out: dict[str, dict] = {}
+    for adv in advisors:
+        snap = store.latest_for_entity("ADVISOR", adv)
+        vals = snap.get("features") if isinstance(snap, dict) else None
+        if not vals:
+            vals = engine.compute_advisor_snapshot(adv).values()
+        feats = {}
+        for k, v in vals.items():
+            if k in AGP_EXCLUDED:
+                continue
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                feats[f"f_{k}"] = float(v)
+        out[adv] = feats
+    return out
+
+
+@lru_cache(maxsize=1)
 def _measurement_to_advisor() -> dict[str, str]:
     """measurement -> advisor via progress -> enrollment -> advisor (real edge traversal)."""
     prog_meas = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_progress_has_kpi_measurement.csv")
@@ -239,6 +270,7 @@ def _measurement_to_advisor() -> dict[str, str]:
     return out
 
 
+@lru_cache(maxsize=1)
 def build_agp_frame() -> HouseholdFrame:
     """One row per KPI measurement (960) with advisor behavioral features (from raw
     transactions, NOT attainment-derived) + KPI metadata; label = status == OFF_TRACK."""
@@ -247,12 +279,15 @@ def build_agp_frame() -> HouseholdFrame:
     kpi_of = dict(zip(meas_kpi["from_id"], meas_kpi["to_id"]))
     m2a = _measurement_to_advisor()
 
-    # advisor behavioral features as-of the snapshot (2026-07), from raw transactions
+    # advisor behavioral features as-of the snapshot (2026-07): raw-transaction trailing
+    # revenue + the advisor's real Feature_Catalog behavioral features (§3.2), with all
+    # attainment-/status-derived columns excluded (AGP_EXCLUDED) so the label never leaks.
     tx = _load_transactions().drop_duplicates(subset=["transaction_id"])
     serves = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_advisor_serves_household.csv")
     hh2adv = dict(zip(serves["to_id"], serves["from_id"]))
     tx = tx.assign(advisor_id=tx["household_id"].map(hh2adv))
     t_idx = _month_idx("2026-07")
+    snap_feats = _advisor_snapshot_features()
     adv_feats: dict[str, dict] = {}
     for adv, tx_a in tx.groupby("advisor_id"):
         if not isinstance(adv, str):
@@ -265,6 +300,7 @@ def build_agp_frame() -> HouseholdFrame:
             "adv_rev_slope_6m": _ols_slope(last6),
             "adv_tx_count_6m": int(((tx_a["midx"] >= t_idx - 6) & (tx_a["midx"] <= t_idx - 1)).sum()),
             "adv_household_count": int(tx_a["household_id"].nunique()),
+            **snap_feats.get(adv, {}),
         }
 
     kpi_types = sorted(set(kpi_of.values()))

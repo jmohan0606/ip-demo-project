@@ -1500,3 +1500,22 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
 - Prevalence report REPRODUCES Fable's independent measurement EXACTLY: n=2159 / decline 0.2663 /
   churn 0.0384 (83 pos) / AGP 960 @ 0.6396. Anti-leakage temporal-wall check (rule 1): 60 rows rebuilt
   from a hard-filtered (<cut) transaction frame → 0 feature mismatches. ~15-22s runtime.
+
+### 11.1 COMMIT 3/11 — train 3 XGBoost classifiers (real metrics, honest gates) — DONE
+- app/ml/training/classifiers.py + scripts/train/{train_revenue_decline,train_household_churn,
+  train_agp_off_track,run_all}.py. XGBClassifier (hist, §2 baseline config). Temporal split for the
+  two revenue models (train cuts 2024-08…2025-05, test 2025-08 & 2025-11); GroupShuffleSplit-by-advisor
+  for AGP. Prints ROC-AUC/PR-AUC/Brier/precision@decile/5-bin calibration. Quality gate + AUC>0.97
+  leakage tripwire enforced; artifacts→models/artifacts/*.joblib (gitignored), metrics→models/registry.json
+  (committed). Each script asserts anchored A001 (revenue_ltm 387293.22 / aum 10018200 / nnm_3m 102080)
+  intact — passed on every run.
+- **REAL results (honest, NOT tuned to pass):**
+  - revenue-decline-xgb: test ROC-AUC **0.7755** ≥0.65 → **gate PASSED, serves()=True** (calibration sane).
+  - household-churn-xgb: PR-AUC 0.0117 < floor 0.0208 (3× base) → **gate FAILED** — rare-positive
+    (test base rate 0.7%); by design does NOT serve, falls back to scorecard. Card names the proxy nature.
+  - agp-off-track-xgb: ROC-AUC 0.6347 < 0.65 → **gate FAILED** (honest near-miss). Made ONE
+    design-sanctioned improvement (enriched with the advisor's real Feature_Catalog behavioral features
+    per §3.2, all attainment-/status-derived cols excluded incl. revenue_at_risk_estimate → 0.6239→0.6347);
+    did NOT tune further to game the gate. Stays gate-failed → live AGP prediction stays on the scorecard.
+  - Net: only REVENUE_DECLINE_RISK promotes to the live model path at commit 4; the other two honestly
+    fall back. serves() verified: revenue-decline True, churn/agp False. Backend boots 36 routes.

@@ -1,4 +1,292 @@
 {
-  "schema_version": 1,
-  "models": {}
+  "models": {
+    "agp-off-track-xgb": {
+      "algorithm": "XGBoost (XGBClassifier, hist)",
+      "artifact_path": "models/artifacts/agp-off-track-xgb.joblib",
+      "artifact_sha256": "45223ce863b30ccf",
+      "caveats": "Demo-scale synthetic-seeded data; n\u22482.2K household-period samples from 360 households / 60 advisors. Metrics indicate the pipeline is real, not production accuracy.",
+      "features": [
+        "target_value",
+        "adv_rev_trailing_6m",
+        "adv_rev_trailing_12m",
+        "adv_rev_slope_6m",
+        "adv_tx_count_6m",
+        "adv_household_count",
+        "f_revenue_ltm",
+        "f_revenue_growth_3m_pct",
+        "f_managed_revenue_ratio",
+        "f_product_diversification_score",
+        "f_household_count",
+        "f_account_count",
+        "f_aum_total",
+        "f_aum_growth_3m_pct",
+        "f_ncf_3m",
+        "f_nnm_3m",
+        "f_peer_revenue_gap_pct",
+        "f_pending_lead_count",
+        "f_completed_lead_count",
+        "f_lead_completion_rate",
+        "f_lead_conversion_rate",
+        "f_pending_referral_count",
+        "f_referral_completion_rate",
+        "f_referral_conversion_rate",
+        "f_crm_pipeline_value",
+        "f_weighted_pipeline_value",
+        "f_overdue_followup_count",
+        "f_days_since_last_client_activity",
+        "f_agp_program_month",
+        "f_milestone_days_remaining",
+        "f_recommendation_acceptance_rate",
+        "f_recommendation_completion_rate",
+        "f_advisor_degree_centrality",
+        "f_client_value_score",
+        "f_time_sensitivity_score",
+        "kpi_KPI_AUM",
+        "kpi_KPI_CRM",
+        "kpi_KPI_LEAD",
+        "kpi_KPI_REF",
+        "kpi_KPI_REV"
+      ],
+      "label_definition": "measurement.status == 'OFF_TRACK' (single 2026-07-01 snapshot; learns co-occurring behaviors)",
+      "metrics": {
+        "calibration": [
+          {
+            "bin": "0.0-0.2",
+            "n": 0,
+            "obs_rate": null,
+            "pred_mean": null
+          },
+          {
+            "bin": "0.2-0.4",
+            "n": 8,
+            "obs_rate": 0.5,
+            "pred_mean": 0.391
+          },
+          {
+            "bin": "0.4-0.6",
+            "n": 72,
+            "obs_rate": 0.472,
+            "pred_mean": 0.516
+          },
+          {
+            "bin": "0.6-0.8",
+            "n": 104,
+            "obs_rate": 0.673,
+            "pred_mean": 0.704
+          },
+          {
+            "bin": "0.8-1.0",
+            "n": 16,
+            "obs_rate": 0.812,
+            "pred_mean": 0.85
+          }
+        ],
+        "test": {
+          "base_rate": 0.605,
+          "brier": 0.2278,
+          "n": 200,
+          "pr_auc": 0.712,
+          "precision_at_top_decile": 0.8,
+          "roc_auc": 0.6347
+        },
+        "train": {
+          "base_rate": 0.6487,
+          "brier": 0.2043,
+          "n": 760,
+          "pr_auc": 0.7877,
+          "precision_at_top_decile": 0.8816,
+          "roc_auc": 0.6881
+        }
+      },
+      "name": "agp-off-track-xgb",
+      "primary_metric": "roc_auc",
+      "primary_metric_value": 0.6347,
+      "quality_floor": 0.65,
+      "quality_gate": "failed",
+      "served_since": null,
+      "split": "GroupShuffleSplit by advisor (80/20, seed 42) \u2014 no advisor spans both sides",
+      "training_data": "foundation sample: 960 KPI measurements \u2192 advisor via edge traversal",
+      "training_date": "2026-07-05",
+      "version": "1.0"
+    },
+    "household-churn-xgb": {
+      "algorithm": "XGBoost (XGBClassifier, hist, class-weighted)",
+      "artifact_path": "models/artifacts/household-churn-xgb.joblib",
+      "artifact_sha256": "87bec8aaa05cccc8",
+      "caveats": "Demo-scale synthetic-seeded data; n\u22482.2K household-period samples from 360 households / 60 advisors. Metrics indicate the pipeline is real, not production accuracy.",
+      "features": [
+        "rev_trailing_3m",
+        "rev_trailing_6m",
+        "rev_trailing_12m",
+        "rev_slope_6m",
+        "rev_volatility_12m",
+        "months_since_peak",
+        "tx_count_3m",
+        "tx_count_6m",
+        "mean_tx_size_6m_ratio",
+        "max_tx_size_6m_ratio",
+        "product_count",
+        "product_diversification",
+        "account_count",
+        "total_aum",
+        "days_since_last_tx",
+        "seg_HNW",
+        "seg_AFFLUENT",
+        "risk_conservative",
+        "risk_moderate",
+        "risk_aggressive"
+      ],
+      "label_definition": "rev(t, t+6m] < 0.70 \u00d7 rev(t-6m, t] \u2014 severe attrition proxy (no true churn in data)",
+      "metrics": {
+        "calibration": [
+          {
+            "bin": "0.0-0.2",
+            "n": 719,
+            "obs_rate": 0.007,
+            "pred_mean": 0.004
+          },
+          {
+            "bin": "0.2-0.4",
+            "n": 1,
+            "obs_rate": 0.0,
+            "pred_mean": 0.212
+          },
+          {
+            "bin": "0.4-0.6",
+            "n": 0,
+            "obs_rate": null,
+            "pred_mean": null
+          },
+          {
+            "bin": "0.6-0.8",
+            "n": 0,
+            "obs_rate": null,
+            "pred_mean": null
+          },
+          {
+            "bin": "0.8-1.0",
+            "n": 0,
+            "obs_rate": null,
+            "pred_mean": null
+          }
+        ],
+        "test": {
+          "base_rate": 0.0069,
+          "brier": 0.007,
+          "n": 720,
+          "pr_auc": 0.0117,
+          "precision_at_top_decile": 0.0139,
+          "roc_auc": 0.5759
+        },
+        "train": {
+          "base_rate": 0.0542,
+          "brier": 0.0023,
+          "n": 1439,
+          "pr_auc": 1.0,
+          "precision_at_top_decile": 0.5455,
+          "roc_auc": 1.0
+        }
+      },
+      "name": "household-churn-xgb",
+      "primary_metric": "pr_auc",
+      "primary_metric_value": 0.0117,
+      "quality_floor": 0.0208,
+      "quality_gate": "failed",
+      "served_since": null,
+      "split": "temporal \u2014 train cuts 2024-08\u20262025-05, test cuts 2025-08 & 2025-11",
+      "training_data": "foundation sample: 360 households \u00d7 6 cuts; 83 positives",
+      "training_date": "2026-07-05",
+      "version": "1.0"
+    },
+    "revenue-decline-xgb": {
+      "algorithm": "XGBoost (XGBClassifier, hist)",
+      "artifact_path": "models/artifacts/revenue-decline-xgb.joblib",
+      "artifact_sha256": "bb6772523dd613b6",
+      "caveats": "Demo-scale synthetic-seeded data; n\u22482.2K household-period samples from 360 households / 60 advisors. Metrics indicate the pipeline is real, not production accuracy.",
+      "features": [
+        "rev_trailing_3m",
+        "rev_trailing_6m",
+        "rev_trailing_12m",
+        "rev_slope_6m",
+        "rev_volatility_12m",
+        "months_since_peak",
+        "tx_count_3m",
+        "tx_count_6m",
+        "mean_tx_size_6m_ratio",
+        "max_tx_size_6m_ratio",
+        "product_count",
+        "product_diversification",
+        "account_count",
+        "total_aum",
+        "days_since_last_tx",
+        "seg_HNW",
+        "seg_AFFLUENT",
+        "risk_conservative",
+        "risk_moderate",
+        "risk_aggressive"
+      ],
+      "label_definition": "rev(t, t+6m] < 0.85 \u00d7 rev(t-6m, t] at household\u00d7cut level",
+      "metrics": {
+        "calibration": [
+          {
+            "bin": "0.0-0.2",
+            "n": 378,
+            "obs_rate": 0.071,
+            "pred_mean": 0.087
+          },
+          {
+            "bin": "0.2-0.4",
+            "n": 163,
+            "obs_rate": 0.313,
+            "pred_mean": 0.293
+          },
+          {
+            "bin": "0.4-0.6",
+            "n": 98,
+            "obs_rate": 0.408,
+            "pred_mean": 0.492
+          },
+          {
+            "bin": "0.6-0.8",
+            "n": 63,
+            "obs_rate": 0.413,
+            "pred_mean": 0.69
+          },
+          {
+            "bin": "0.8-1.0",
+            "n": 18,
+            "obs_rate": 0.667,
+            "pred_mean": 0.837
+          }
+        ],
+        "test": {
+          "base_rate": 0.2167,
+          "brier": 0.1507,
+          "n": 720,
+          "pr_auc": 0.4573,
+          "precision_at_top_decile": 0.4861,
+          "roc_auc": 0.7755
+        },
+        "train": {
+          "base_rate": 0.2912,
+          "brier": 0.0285,
+          "n": 1439,
+          "pr_auc": 0.9966,
+          "precision_at_top_decile": 1.0,
+          "roc_auc": 0.9985
+        }
+      },
+      "name": "revenue-decline-xgb",
+      "primary_metric": "roc_auc",
+      "primary_metric_value": 0.7755,
+      "quality_floor": 0.65,
+      "quality_gate": "passed",
+      "served_since": "2026-07-05",
+      "split": "temporal \u2014 train cuts 2024-08\u20262025-05, test cuts 2025-08 & 2025-11",
+      "training_data": "foundation sample: 15,116 revenue transactions / 360 households, cuts 2024-08\u20262025-11",
+      "training_date": "2026-07-05",
+      "version": "1.0"
+    }
+  },
+  "schema_version": 1
 }
