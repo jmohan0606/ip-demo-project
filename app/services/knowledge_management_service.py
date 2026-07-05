@@ -57,8 +57,11 @@ class KnowledgeManagementService:
         sample_dir = Path(self.settings.documents_path) / "sample_knowledge"
         if not sample_dir.exists():
             sample_dir = Path("data/documents/sample_knowledge")
+        # Ingest every supported format, not just .txt (CLAUDE.md 9.8) — exercises the
+        # real PDF/DOCX/PPTX parsers, not only the text path.
+        supported = {".txt", ".md", ".pdf", ".docx", ".pptx"}
         results = []
-        for file_path in sorted(sample_dir.glob("*.txt")):
+        for file_path in sorted(p for p in sample_dir.iterdir() if p.suffix.lower() in supported):
             category = self._category_for(file_path.name)
             results.append(self.ingest_document(KnowledgeIngestionRequest(source_path=str(file_path), document_category=category)))
         return results
