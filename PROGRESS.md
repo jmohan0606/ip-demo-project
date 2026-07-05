@@ -1063,3 +1063,30 @@ INDEPENDENT verification by orchestrator (main thread) after restarting the back
 - Deferred (Fable): foundation prose docs still cite old totals (cosmetic); new coaching_task GSQL
   statically-validated only (no live TG compile on this hardware); legacy tigergraph/sample_data/
   untouched (different id-space).
+
+### PHASE 3 (9.4) — TigerGraph 4-tier MCP adapter — DONE (delegated to Fable 5)
+Fable-5 built ONE `TieredGraphClient` (app/graph/tiered_client.py) behind the unchanged GraphClient
+interface: Tier 1 MCP (tigergraph-mcp stdio) → Tier 2 pyTigerGraph → Tier 3 RESTPP (RealGraphClient)
+→ Tier 4 Mock. Automatic fallback with per-tier cooldown; per-request tier logging
+(app/graph/tier_log.py) surfaced to the Admin page via GET /adapters/status → new `graph_tiers`
+{mode, chain, usage{total_served, served_by_tier, recent_requests}}. Each query result carries
+served_by_tier. Mode routing: mock → raw MockGraphClient (unchanged, preserves isinstance + .store
+callers); auto|tiered|mcp → full chain; local_real|real → pyTG→RESTPP→mock. SDK imports lazy inside
+tier classes (missing package never breaks the mock path).
+
+Beyond the guardrail, Fable started the existing Docker TG container (bounded, one attempt) and
+LIVE-VERIFIED all 4 tiers: Tier 1 MCP read round-trip healthy, Tier 2 pyTG echo "Hello GSQL", Tier 3
+RESTPP healthy, full-chain cascade 1→2→3→4 with mock serving GQ (queries never INSTALLed on-engine —
+the documented Phase-2 C++ hardware limit, unchanged) and the full fallback trail logged. GPE wedged
+under load on 2 cores (SYS-0001/503, correctly propagated) — stopped per guardrail, container
+returned to exited state. Also fixed a live bug in tigergraph_mcp_stdio_client.py (dict-valued query
+params crashed `value in {None, ""}`).
+
+New env vars (for 9.9): TG_HOST, TG_GRAPHNAME, TG_USERNAME/TG_PASSWORD, TG_API_TOKEN, TG_RESTPP_PORT,
+TG_GS_PORT, GRAPH_TIER_COOLDOWN_SECONDS, GRAPH_TIER_PROBE_TIMEOUT_SECONDS, TIGERGRAPH_MCP_COMMAND/ARGS;
+GRAPH_CLIENT_MODE gains auto|tiered|mcp. All defaults mock-friendly.
+
+Orchestrator independent verify (backend restarted, mock mode): A001 revenue_ltm 387,293.22 unchanged;
+/adapters/status → graph_tiers.mode=mock, chain=[tier4], per-request logging works (total_served
+counting). Deferred: frontend Admin UI to render graph_tiers (Phase 4 Admin rebuild); a parallel
+legacy graph-access stack still duplicates this (consolidation candidate, out of 9.4 scope).

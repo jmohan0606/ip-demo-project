@@ -154,7 +154,7 @@ class TigerGraphMcpToolMapper:
     def _filter_args(self, tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
         props = self._schema_properties(tool_name)
         if not props:
-            return {k: v for k, v in args.items() if v not in {None, ""}}
+            return {k: v for k, v in args.items() if not (v is None or v == "")}
 
         aliases = {
             "graph_name": ["graph_name", "graphName", "graph", "graphname"],
@@ -173,7 +173,7 @@ class TigerGraphMcpToolMapper:
         }
         output: dict[str, Any] = {}
         for canonical, value in args.items():
-            if value in {None, ""}:
+            if value is None or value == "":
                 continue
             names = aliases.get(canonical, [canonical])
             chosen = next((name for name in names if name in props), None)

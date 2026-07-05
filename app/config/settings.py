@@ -52,6 +52,22 @@ class Settings(BaseSettings):
     # TigerGraph Foundation package (Section 3 — source of truth for schema/data/queries)
     foundation_dir: str = Field(default="docs/tigergraph_foundation", alias="FOUNDATION_DIR")
 
+    # --- Section 9.4: 4-tier GraphClient adapter (MCP → pyTigerGraph → RESTPP → mock) ---
+    # TG_* vars use the official tigergraph-mcp naming so the same env drives both the
+    # MCP server subprocess (Tier 1) and the direct pyTigerGraph connection (Tier 2).
+    # Defaults are mock-friendly: with no live TigerGraph the chain falls to Tier 4.
+    tg_host: str = Field(default="http://127.0.0.1", alias="TG_HOST")
+    tg_graphname: str | None = Field(default=None, alias="TG_GRAPHNAME")  # None → TIGERGRAPH_GRAPH
+    tg_username: str = Field(default="tigergraph", alias="TG_USERNAME")
+    tg_password: str = Field(default="tigergraph", alias="TG_PASSWORD")
+    tg_api_token: str | None = Field(default=None, alias="TG_API_TOKEN")
+    tg_restpp_port: int = Field(default=9000, alias="TG_RESTPP_PORT")
+    tg_gs_port: int = Field(default=14240, alias="TG_GS_PORT")
+    # Tier-1 MCP server subprocess (stdio); see TIGERGRAPH_MCP_COMMAND/ARGS in
+    # tigergraph_mcp_stdio_client.py (read via os.getenv for subprocess spawning).
+    graph_tier_cooldown_seconds: int = Field(default=60, alias="GRAPH_TIER_COOLDOWN_SECONDS")
+    graph_tier_probe_timeout_seconds: int = Field(default=10, alias="GRAPH_TIER_PROBE_TIMEOUT_SECONDS")
+
     # TigerGraph MCP-first graph access
     graph_access_strategy: str = "mcp_rest_mock"
     tigergraph_mcp_url: str = ""

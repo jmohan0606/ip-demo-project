@@ -1,12 +1,24 @@
 from __future__ import annotations
 
 import json
+import time
 from typing import Any, Callable, Protocol
 
 import httpx
 
 from app.config.settings import get_settings
 from app.graph.foundation_store import FoundationGraphStore, get_foundation_store
+from app.graph.tier_log import get_tier_log
+
+
+def _record_direct(tier: int, operation: str, target: str, start: float, ok: bool, error: str | None = None) -> None:
+    """Tier-usage recording for clients used DIRECTLY (mock/real modes without the
+    tiered wrapper). No-op while TieredGraphClient is dispatching, so tiered
+    requests are recorded exactly once (by the dispatcher). Never raises."""
+    log = get_tier_log()
+    if log.dispatch_active():
+        return
+    log.record(tier, operation, target, ok=ok, duration_ms=(time.perf_counter() - start) * 1000, error=error)
 
 
 class GraphClientError(RuntimeError):
@@ -69,16 +81,22 @@ class RealGraphClient:
             return {"healthy": False, "mode": "real", "graph": self.graph_name, "restpp_url": self.base, "error": str(exc)}
 
     def run_query(self, query_name: str, params: dict | None = None) -> dict:
-        with self._client() as client:
-            response = client.get(
-                f"{self.base}/query/{self.graph_name}/{query_name}",
-                headers=self.headers,
-                params=params or {},
-            )
-            response.raise_for_status()
-            data = response.json()
-        if data.get("error"):
-            raise GraphClientError(data.get("message") or f"TigerGraph query failed: {query_name}")
+        start = time.perf_counter()
+        try:
+            with self._client() as client:
+                response = client.get(
+                    f"{self.base}/query/{self.graph_name}/{query_name}",
+                    headers=self.headers,
+                    params=params or {},
+                )
+                response.raise_for_status()
+                data = response.json()
+            if data.get("error"):
+                raise GraphClientError(data.get("message") or f"TigerGraph query failed: {query_name}")
+        except Exception as exc:
+            _record_direct(3, "run_query", query_name, start, ok=False, error=str(exc))
+            raise
+        _record_direct(3, "run_query", query_name, start, ok=True)
         return data
 
     def _attributes(self, entry: dict, row: dict, excluded: set[str]) -> dict:
@@ -138,6 +156,16 @@ class RealGraphClient:
     def upsert(self, entry: dict, records: list[dict]) -> dict:
         if not records:
             return {"accepted_vertices": 0, "accepted_edges": 0, "errors": []}
+        start = time.perf_counter()
+        try:
+            result = self._upsert(entry, records)
+        except Exception as exc:
+            _record_direct(3, "upsert", entry.get("target", "?"), start, ok=False, error=str(exc))
+            raise
+        _record_direct(3, "upsert", entry.get("target", "?"), start, ok=True)
+        return result
+
+    def _upsert(self, entry: dict, records: list[dict]) -> dict:
         payload = self.build_payload(entry, records)
         params = {"vertex_must_exist": "true"} if entry["kind"] == "edge" else None
         with self._client() as client:
@@ -218,19 +246,29 @@ class MockGraphClient:
         }
 
     def run_query(self, query_name: str, params: dict | None = None) -> dict:
+        start = time.perf_counter()
         impl = MOCK_QUERY_IMPLS.get(query_name)
         if impl is None:
-            raise GraphClientError(
+            error = (
                 f"MockGraphClient has no implementation registered for query '{query_name}'. "
                 f"Registered: {sorted(MOCK_QUERY_IMPLS)}"
             )
+            _record_direct(4, "run_query", query_name, start, ok=False, error=error)
+            raise GraphClientError(error)
         results = impl(self.store, params or {})
+        _record_direct(4, "run_query", query_name, start, ok=True)
         return {"error": False, "results": results, "mode": "mock", "query": query_name}
 
     def upsert(self, entry: dict, records: list[dict]) -> dict:
         """Writes into the same indexes the query implementations traverse —
         mirroring real TigerGraph, where upserted artifacts are immediately
         visible to installed queries (the traceability chain depends on this)."""
+        start = time.perf_counter()
+        result = self._upsert(entry, records)
+        _record_direct(4, "upsert", entry.get("target", "?"), start, ok=True)
+        return result
+
+    def _upsert(self, entry: dict, records: list[dict]) -> dict:
         accepted = 0
         if entry["kind"] == "vertex":
             vertex_type = entry["target"]
@@ -276,16 +314,29 @@ _graph_client: GraphClient | None = None
 
 
 def get_graph_client() -> GraphClient:
-    """Select the GraphClient per GRAPH_CLIENT_MODE (mock | local_real | real)."""
+    """Select the GraphClient per GRAPH_CLIENT_MODE.
+
+    mode=mock                → MockGraphClient directly (Tier 4 only) — the working
+                               default; behavior identical to before Section 9.4.
+    mode=auto|tiered|mcp     → TieredGraphClient with the full 4-tier chain
+                               (tigergraph-mcp → pyTigerGraph → RESTPP → mock).
+    mode=local_real|real     → TieredGraphClient with the non-agent chain
+                               (pyTigerGraph → RESTPP → mock) — real engine first,
+                               automatic fallback to mock if it is unreachable.
+    """
     global _graph_client
     if _graph_client is None:
         mode = get_settings().graph_client_mode.lower()
-        if mode in {"local_real", "real"}:
-            _graph_client = RealGraphClient()
-        elif mode == "mock":
+        if mode == "mock":
             _graph_client = MockGraphClient()
+        elif mode in {"auto", "tiered", "mcp", "local_real", "real"}:
+            from app.graph.tiered_client import TieredGraphClient  # lazy: avoids import cycle
+
+            _graph_client = TieredGraphClient.for_mode(mode)
         else:
-            raise GraphClientError(f"Unknown GRAPH_CLIENT_MODE '{mode}' (expected mock|local_real|real)")
+            raise GraphClientError(
+                f"Unknown GRAPH_CLIENT_MODE '{mode}' (expected mock|auto|tiered|mcp|local_real|real)"
+            )
     return _graph_client
 
 
