@@ -97,6 +97,9 @@ app.include_router(config_status_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000","http://127.0.0.1:3000","http://localhost:3001","http://127.0.0.1:3001"],
+    # Allow the GitHub Codespaces forwarded frontend origin (e.g.
+    # https://<codespace>-3000.app.github.dev) so an external browser can reach the API.
+    allow_origin_regex=r"https://.*\.app\.github\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
