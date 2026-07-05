@@ -9,7 +9,7 @@ router = APIRouter(prefix="/revenue", tags=["Revenue Analytics"])
 
 
 @router.get("/analytics")
-def analytics(scope_type: str = "FIRM", scope_id: str = "F001"):
+def analytics(scope_type: str = "FIRM", scope_id: str = "F001", period: str = "ALL"):
     """Scope-aware revenue intelligence from real transactions: monthly trend,
     channel mix, per-child breakdown, KPIs."""
-    return ok(data=RevenueAnalyticsService().analytics(scope_type=scope_type, scope_id=scope_id))
+    return ok(data=RevenueAnalyticsService().analytics(scope_type=scope_type, scope_id=scope_id, period=period))

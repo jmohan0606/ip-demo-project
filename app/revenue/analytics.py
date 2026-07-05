@@ -31,10 +31,36 @@ class RevenueAnalyticsService:
     def _rev(attrs: dict) -> float:
         return float(attrs.get("revenue_amount") or 0.0)
 
-    def analytics(self, scope_type: str = "FIRM", scope_id: str = "F001") -> dict:
+    @staticmethod
+    def _period_predicate(rows: list[dict], period: str):
+        """Return a filter predicate for the Time Period dropdown (MTD/QTD/YTD/LTM), anchored to
+        the most recent transaction month in the data. LTM = trailing 12 calendar months."""
+        months = sorted({str(a.get("transaction_date"))[:7] for a in rows if a.get("transaction_date")})
+        months = [m for m in months if m and m != "None"]
+        if not months:
+            return lambda a: True
+        ref = months[-1]  # e.g. "2026-07"
+        ry, rm = int(ref[:4]), int(ref[5:7])
+        p = (period or "ALL").upper()
+        if p in ("ALL", "ALLTIME", ""):
+            return lambda a: True
+        if p == "MTD":
+            return lambda a: str(a.get("transaction_date"))[:7] == ref
+        if p == "QTD":
+            q = (rm - 1) // 3
+            return lambda a: (str(a.get("transaction_date"))[:4] == str(ry) and ((int(str(a.get("transaction_date"))[5:7] or 1) - 1) // 3) == q)
+        if p == "YTD":
+            return lambda a: str(a.get("transaction_date"))[:4] == str(ry)
+        # LTM: trailing 12 months
+        cutoff = f"{ry - 1 if rm == 12 else ry}-{rm:02d}" if False else months[-12] if len(months) >= 12 else months[0]
+        return lambda a: str(a.get("transaction_date"))[:7] >= cutoff
+
+    def analytics(self, scope_type: str = "FIRM", scope_id: str = "F001", period: str = "ALL") -> dict:
         st = (scope_type or "FIRM").upper()
         advisor_ids = resolve_scope_advisor_ids(self._store, st, scope_id)
-        rows = [attrs for _, attrs in advisor_transactions(self._store, advisor_ids)]
+        all_rows = [attrs for _, attrs in advisor_transactions(self._store, advisor_ids)]
+        keep = self._period_predicate(all_rows, period)
+        rows = [a for a in all_rows if keep(a)]
 
         by_month: dict[str, float] = defaultdict(float)
         by_type: dict[str, float] = defaultdict(float)
@@ -60,7 +86,7 @@ class RevenueAnalyticsService:
             child_type, edge, child_vtype, name_attr = _CHILDREN[st]
             for child_id in sorted(self._store.in_ids(edge, scope_id)):
                 child_ids = resolve_scope_advisor_ids(self._store, child_type, child_id)
-                child_rev = sum(self._rev(attrs) for _, attrs in advisor_transactions(self._store, child_ids))
+                child_rev = sum(self._rev(attrs) for _, attrs in advisor_transactions(self._store, child_ids) if keep(attrs))
                 by_child.append({
                     "scope_type": child_type,
                     "scope_id": child_id,
@@ -81,6 +107,7 @@ class RevenueAnalyticsService:
                 "avg_revenue_per_advisor": round(total / len(advisor_ids), 2) if advisor_ids else 0.0,
                 "months_covered": len(monthly_trend),
                 "top_channel": top_channel,
+                "period": (period or "ALL").upper(),
             },
             "monthly_trend": monthly_trend,
             "by_channel": by_channel,

@@ -57,13 +57,13 @@ export function RevenueAnalyticsWorkspace() {
     try {
       setData(
         await apiClient.get<RevenueAnalytics>(
-          `/revenue/analytics?scope_type=${shell.scopeType.toUpperCase()}&scope_id=${encodeURIComponent(shell.scopeId)}`,
+          `/revenue/analytics?scope_type=${shell.scopeType.toUpperCase()}&scope_id=${encodeURIComponent(shell.scopeId)}&period=${encodeURIComponent(shell.period)}`,
         ),
       );
     } finally {
       setBusy(false);
     }
-  }, [shell.scopeType, shell.scopeId]);
+  }, [shell.scopeType, shell.scopeId, shell.period]);
 
   useEffect(() => {
     void load();

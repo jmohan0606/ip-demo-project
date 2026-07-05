@@ -1102,3 +1102,23 @@ Bug fixed: TRACK_BANDS had gaps (39→40, 69→70, 84→85) so fractional risk l
 "critical" — `_band` in rollup.py AND agp/service.py rewritten to gap-free thresholds (verified 39.9→
 on_track, anchors 25.8→on_track / 56.8→attention unchanged). Verified Playwright: dashboard renders
 icons + delta + AGP card + both tables, 0 errors. tsc PASS.
+
+**9.2 Period wiring COMPLETED (was deferred from Phase 1).** RevenueAnalyticsService.analytics now
+takes a `period` (MTD/QTD/YTD/LTM/ALL), filtering transactions by a window anchored to the latest
+data month; router + revenue page pass shell.period and re-fetch on change. Live-verified the Period
+dropdown now changes data: Firm ALL 15,116 tx/$109M → YTD 2,940/$22.2M → MTD 420/$3.4M. Guardrail:
+analytics default (no period) = ALL = full 36 months, so the dashboard prior-year `comparison`
+(-7.4%) is unaffected. tsc PASS.
+
+### SESSION 7 CHECKPOINT — stopped here after a long run; RESUME AT: Phase 4 page 2/16 = Revenue
+Analytics FULL rebuild (9.5/9.12): geographic map (revenue by region/market — needs a map lib or an
+SVG choropleth on household `state`), Revenue by Business Line (donut) + by Channel (bar) + by Region
+(map) as three distinct charts, cohort/product breakdowns, "Revenue by scope" diagnosis. Then the
+remaining Phase 4 pages in order (Advisor 360 → AGP → Client 360 → Coaching&Reviews[manager-task CRUD]
+→ CRM Activities → What-If[save-as-rec] → Predictions[methodology depth] → Opportunities&Recs[**RL
+learning-state = delegate to Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability),
+then Phase 5 (Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example completeness incl.
+the new TG_*/GRAPH_TIER_* vars from Phase 3), Phase 7 (closing verification).
+DELEGATION NOTE: the named `fable-architect` agent type is NOT registered; delegate the 2 remaining
+Fable items via a general-purpose subagent with `model: "fable"` (as done for Phases 2 & 3).
+Servers currently running: backend :8000 (mock), dev frontend :3000. Ports 8000/3000 Public.
