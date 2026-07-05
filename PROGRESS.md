@@ -1147,15 +1147,41 @@ local commits to origin/main first (origin now 72 commits, tip 81c7168). Added r
   Division ($7.4M/3 states, childHeading→Region, evidence "20 advisors under DIVISION D02") →
   scope-following PASS. Screenshots: docs/qa_screenshots/revenue-after-firm.png, revenue-after-division.png.
 
-### RESUME AT: Phase 4 page 3/16 = **Advisor 360 / Client 360** (9.5): AGP status card only for
-AGP-enrolled advisors (hide/adapt otherwise); AI Insight Summary + AI Coaching Card (structured
-Key Drivers/Watch Outs/Action Steps, per-advisor); CRM execution cards color-coded by outcome
-(won=green/lost=red/negotiate=amber); make/remove the "AI artifacts" section meaningful; households
-table + a visual account/segment breakdown; similar households/accounts/portfolios (extend
-similar-advisors). Then: AGP → Client 360 → Coaching&Reviews[manager-task CRUD] → CRM Activities →
-What-If[save-as-rec] → Predictions[methodology depth] → Opportunities&Recs[**RL learning-state =
-delegate to Fable**] → Rec ROI → AI Assistant+Knowledge → Feature Lab → Explainability), then Phase 5
-(Revenue Trend Explorer = **Fable**), Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
+**Page 3/16 — Advisor 360 / Client 360 (9.5) — DONE.**
+- Reused the existing Phase-5..9 insight engine (`/insights-coaching/generate`) — no new AI backend.
+  New `app/ai/insights/structured_view.py` reshapes its payload into the exact client sections:
+  AI Insight Summary = Key Drivers / Watch Outs / What to Monitor; AI Coaching Card = Recommendation
+  / Shoutout / Action Steps / Guideline Basis. Deterministic, grounded only in real card evidence.
+  New endpoint `GET /advisor/360/{id}/ai` (read-only: write_to_memory/tigergraph=False).
+- New `app/embeddings/similar_entities.py`: extends advisor similarity to **households & accounts**
+  via real cosine NN over persisted `phx_dm_embedding.vector_preview` vectors (60 HOUSEHOLD + 60
+  ACCOUNT embeddings). advisor_360 response now carries `crm_opportunities` (CRM-003, with
+  stage/status for outcome coding), `segment_mix` (household segment split), and `similar`
+  {households, accounts} for the advisor's largest-AUM embedded entity.
+- Frontend: two reusable pattern components `ai-insight-summary.tsx` + `ai-coaching-card.tsx`
+  (wrap the shared AiContentCard "✦ AI Generated" chip) — will be reused on Dashboard/Client 360.
+  Workspace rebuilt: structured AI cards (load async), AGP card adapts (enrolled → risk score;
+  NOT enrolled → explanatory copy, no dead card), CRM Execution outcome cards color-coded
+  (won=green/lost=red/negotiate=amber via `outcomeTone`), Households-by-Segment bars, Similar
+  Households/Accounts with cosine % bars, households table gained AUM + a real "View AI lineage"
+  link to /memory-explainability (replaced the vague "AI artifacts" counter block). refreshNonce dep.
+- **Verified**: tsc PASS; Playwright 0 console errors on A001 (enrolled, AGP 19.7/on_track, WON/LOST/
+  NEGOTIATE CRM cards, similar Lockhart→Eastman 100%/Everhart 96%/Kirkland 95%) AND A025 (Reese
+  Patel, non-enrolled → AGP "NOT ENROLLED" adaptive copy, entirely different data $595.6K, similar-
+  entities honestly show "No embedding available") → scope-following + AGP adaptation both PASS.
+  Screenshots: advisor360-after-a001.png, advisor360-after-a025.png.
+
+### RESUME AT: Phase 4 page 4/16 = **AGP Goals & Coaching** (9.5/9.12): real KPI gauges/meters
+(visual, not text); all charts get legends; real Goals & KPIs table (KPI name, Target, Current,
+Progress %, Status color-coded) drilling into a Target-vs-Actual bar chart over time + AI "KPI
+Insights" block + "My Action Items" checklist; program milestones with real Completed/In-Progress/
+Not-Started; coaching sessions with real per-advisor variation (not static). Then: Client 360 →
+Coaching&Reviews[manager-task CRUD] → CRM Activities → What-If[save-as-rec] → Predictions[methodology
+depth] → Opportunities&Recs[**RL learning-state = delegate to Fable**] → Rec ROI → AI
+Assistant+Knowledge → Feature Lab → Explainability), then Phase 5 (Revenue Trend Explorer = **Fable**),
+Phase 6 (RAG corpus + .env.example), Phase 7 (closing verify).
+REUSABLE now: `AiInsightSummary`/`AiCoachingCard` components + `structured_insight_coaching()` +
+`similar_entities()` + `/insights-coaching/generate` — use these on Dashboard & Client 360 rebuilds.
 DELEGATION NOTE: the named `fable-architect` agent type is NOT registered; delegate the 2 remaining
 Fable items via a general-purpose subagent with `model: "fable"` (as done for Phases 2 & 3).
 Servers running: backend :8000 (mock, --reload), dev frontend :3000. Ports 8000/3000 Public.
