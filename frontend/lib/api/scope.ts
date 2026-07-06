@@ -70,3 +70,61 @@ export async function fetchScopeSummary(scopeType: string, scopeId: string): Pro
     `/scope/summary?scope_type=${encodeURIComponent(scopeType)}&scope_id=${encodeURIComponent(scopeId)}`,
   );
 }
+
+// --- Executive Dashboard: period + compare-to aware composed payload (12.1) -----
+export interface RevenueDriver { category: string; revenue: number; prior_revenue: number; change: number; change_pct: number | null }
+export interface MarketRow { scope_type: string; scope_id: string; label: string; revenue_ltm: number; advisor_count: number; rev_per_advisor: number }
+export interface BenchmarkRow { scope_id: string; label: string; per_advisor: number; advisor_count: number; is_current: boolean }
+export interface ScopeDashboard {
+  scope_type: string;
+  scope_id: string;
+  period: string;
+  compare_to: string;
+  headline: { revenue: number; delta_pct: number | null; prior?: number | null; basis: string; compare_to: string };
+  totals: ScopeTotals;
+  comparison: ScopeComparison;
+  top_advisors: ScopeTopAdvisor[];
+  bottom_advisors: ScopeTopAdvisor[];
+  child_breakdown: ScopeChild[];
+  revenue: {
+    monthly_trend: Array<{ month: string; revenue: number }>;
+    by_business_line: Array<{ category: string; revenue: number }>;
+    by_channel: Array<{ channel: string; revenue: number }>;
+    revenue_drivers: RevenueDriver[];
+    by_geography: Array<{ state: string; revenue: number; advisor_count: number }>;
+    kpis: Record<string, number | string | null>;
+    comparison: { prior_revenue: number | null; change_pct: number | null; basis: string };
+  };
+  markets: { top: MarketRow[]; bottom: MarketRow[] };
+  benchmark: {
+    peer_type: string;
+    current_per_advisor: number;
+    firm_per_advisor: number;
+    vs_firm_pct: number | null;
+    percentile: number | null;
+    rows: BenchmarkRow[];
+  };
+  evidence: ScopeSummary["evidence"];
+}
+
+export async function fetchScopeDashboard(
+  scopeType: string, scopeId: string, period: string, compareTo: string,
+): Promise<ScopeDashboard> {
+  const q = new URLSearchParams({ scope_type: scopeType, scope_id: scopeId, period, compare_to: compareTo });
+  return apiClient.get<ScopeDashboard>(`/scope/dashboard?${q.toString()}`);
+}
+
+export interface ScopeAiInsight {
+  scope_type: string;
+  scope_id: string;
+  period: string;
+  insight: import("@/components/patterns/ai-insight-summary").AiInsightData;
+  grounding: string;
+}
+
+export async function fetchScopeAiInsight(
+  scopeType: string, scopeId: string, period: string, compareTo: string, persona: string,
+): Promise<ScopeAiInsight> {
+  const q = new URLSearchParams({ scope_type: scopeType, scope_id: scopeId, period, compare_to: compareTo, persona });
+  return apiClient.get<ScopeAiInsight>(`/scope/ai-insight?${q.toString()}`);
+}

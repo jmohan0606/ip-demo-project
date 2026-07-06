@@ -1,91 +1,77 @@
-# STATUS_CHECK — Section 11 COMPLETE
+# STATUS_CHECK — Master Execution Run (Sections 12 → 13 → 13B → 10 → 14)
 
-_Date 2026-07-06. Traced from PROGRESS.md, `git log`, and live verification — not memory._
+_Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architect` / general-purpose subagent with `model:"fable"`._
 
-## Headline
+## Master Execution Order (from CLAUDE.md §12 header) — CONFIRMED
 
-**All buildable subsections of Section 11 are complete** (11.1–11.8 + 11.11; 11.9/11.10 were
-model-routing guidance / poster placement, satisfied). Every subsection shipped with real metrics,
-honest quality gates, and real-Claude verification wherever AI *behavior* is claimed.
+Follow EXACTLY, no reordering:
 
-- **29 Section-11 commits this session**, all pushed. `origin/main` == `HEAD` == **120 commits**, 0 unpushed.
-- Backend imports clean (**42 routes**); frontend `tsc --noEmit` exit 0; no binaries tracked (artifacts gitignored).
-- **7 models registered, 5 serving** (2 correctly gated to fallback).
-- **Section 10 remains deferred** — not started, per standing instruction.
+1. **Section 12 — Regression Audit & Critical Fixes.** Fix the broken foundation first: filter
+   bars, Executive Dashboard missing components, Revenue Analytics (real geographic map), Advisor
+   360 centrality clarity + accounts/segment split, CRM funnel redesign, explicit advisor-selector
+   dropdowns on the 4 pipeline pages, Feature Lab re-verify post-§11, Opportunities visible-feedback
+   minimum, Admin Health/Observability Next.js errors, nav/branding (rename Firm → **Chase Wealth
+   Management** in seed data, not just a label).
+2. **Section 13 — End-to-End Stateful Recommendation Lifecycle.** Real state machine
+   (OPEN→ACCEPTED→IN_PROGRESS→COMPLETED / REJECTED / IGNORED / MODIFIED), persisted transitions with
+   timestamp+actor, terminal-status button disabling, real simulated impact ledger on completion
+   (linked by edge to the recommendation), cross-screen propagation, AI Assistant awareness,
+   regeneration cycle, explainability retained. Design delegated to `fable-architect`.
+3. **Section 13B — Guided End-to-End Story Mode.** The NARRATION layer built ON TOP of §13's real
+   loop: a "How It Works" pipeline-trace view (Data→Features→Model→Opportunity/Rec→Context/
+   Compliance→Output with real artifacts + timing), a replayable 10-step flagship guided scenario
+   driving the REAL app on REAL data, a rollup-persona (DDW/MDW) journey, and a business-impact/ROI
+   summary from real recorded outcomes. Design delegated to `fable-architect`.
+4. **Section 10 — Remaining items only.** Household-level model extensions, AGP cohort/mentor/ROI,
+   real search/notification icons, AUM net-flows waterfall, PDF/PPT export — re-check each against
+   what §11–13B already built; build only the genuinely-unsatisfied ones. `fable-architect` only for
+   AGP-ROI methodology + mentor-matching algorithm.
+5. **Section 14 — Final directive.** Flip running config to real graph + real LLM
+   (`GRAPH_CLIENT_MODE=real`/`local_real`, `LLM_CLIENT_MODE=claude`), confirm the backend actually
+   boots and serves in that config before handover.
 
-## What shipped (real results)
+## Confirmed understanding: §13 vs §13B are DISTINCT layers
 
-| § | Deliverable | Real result |
-|---|---|---|
-| 11.1 | Real model tier (`ModelClient` adapter) | XGBoost revenue-decline promoted to the LIVE /predictions path with real TreeSHAP (ROC-AUC 0.7755); GRU forecast (sMAPE 0.081, beats seasonal-naive); GraphSAGE GNN (link-pred AUC 0.92); Isolation Forest anomaly (care-framed); model registry in Admin. Dormant synthetic-label RF retired. **2 of 6 models honestly gated → fallback** (agp-off-track 0.63, household-churn PR-AUC 0.012). |
-| 11.2 | RL formalization | Verified feedback loop documented as a contextual bandit (state/action/reward/policy/update), surfaced above the weight-trajectory replay. |
-| 11.3 | FL = Feedback Loop (NOT Federated Learning) | +144 outcome-variety rows (real success/failure mix incl. negative outcomes); contrastive GNN fine-tune (`graphsage-v1-ft`, AUC-retention-gated 0.969→0.953); live before/after retraining control with honest "small on demo-scale" note. |
-| 11.4 | Temporal knowledge graph | Point-in-time feature snapshots (as-of date; A001 AUM $9.06M→$10.02M across dates); as-of graph traversal (19→13 nodes, AI artifacts hidden pre-2026); Memory Timeline temporal link. |
-| 11.5 | Evaluation & Trust | Golden 25-Q set (20 grounded + 5 refusal); real-Claude harness (fails loudly in mock); **groundedness 85% / citation 100% / refusal 100% / 22-25 pass** (3 honest FAILs where Claude declined). Admin "Evaluation & Trust" tab. |
-| 11.6 | Context engineering | RerankClient (local/cohere); scope-aware aggregate reasoning (real-Claude DDW division answer names 24 advisors, $14.7M, top + needs-attention — not one advisor); all 6 poster memory types populated; visible retrieve→rerank→prune trace on Explainability. |
-| 11.7 | Observability | Per-LLM-call token/cost/latency (real from Claude response.usage; estimated for mock, flagged); Admin "Observability" tab. |
-| 11.8 | MCP layer | feature_store + model_serving MCP tool families (6 tools); GET /mcp/tools + POST /mcp/invoke (verified live: model.similar_advisors → real GNN result). |
-| 11.11 | Two AI Systems visible | "iPerform Insights and Coaching" (proactive) vs "iPerform Coach Q&A Assistant" (reactive) labeling; Model Strategy + AI Protections Admin tabs; business-outcome KPI mapping on Exec Dashboard. |
-| 11.9 / 11.10 | Model routing / posters | Fable-designed items (11.1, 11.3, 11.5) delegated via general-purpose subagent with `model:"fable"`; 12 architecture posters already committed. |
+- **Section 13 = the STATE MACHINE / real stateful loop.** It makes the recommendation lifecycle
+  genuinely stateful: statuses actually transition and persist, completing one generates a real
+  persisted consequence (impact-ledger transaction linked by edge), the change is really visible on
+  other screens, the AI Assistant really reflects it, recommendations really regenerate. It is about
+  the *system's behavior* being real end-to-end.
+- **Section 13B = the GUIDED-NARRATIVE layer built ON TOP of that real loop.** It does not add new
+  state or fake anything — it makes the already-real flow *legible*: a left-to-right pipeline-trace
+  view of any AI output's real journey, a scripted replayable guided scenario that drives the real
+  app through the real §13 loop step by step, a rollup-persona journey, and an ROI summary from the
+  real recorded outcomes. It is about the real behavior being *followable as a story*.
 
-## Honesty held throughout
+In one line: **§13 makes the loop real; §13B makes the real loop watchable.** 13B depends on 13 and
+must not be started until 13's loop is genuinely working with real evidence.
 
-- Deterministic / scorecard / graphsage-v1 / bandit fallbacks are never deleted — real mode falls
-  back per-type via registry quality gates, so it can never regress the shipped behavior.
-- No gate was tuned to pass: 2 XGBoost models + churn correctly do NOT serve; the eval shows 3
-  genuine FAILs where Claude honestly declined partial answers (the hallucination guard working).
-- Anchored advisor figures (A001 387,293.22 / A020 / firm F001 38,365,750.01) asserted intact on
-  every training run and after the data expansion.
-- Small effects (FL embedding separation, eval score) are shown truthfully with amber caveats, not massaged.
+## Standing rules for this run
+- Commit after every numbered sub-item; push at every section boundary minimum.
+- Update PROGRESS.md continuously.
+- Every "done" claim needs REAL evidence (before/after values, screenshots, command output) — never
+  a status assertion alone.
+- Every AI-behavior check uses REAL Claude (`LLM_CLIENT_MODE=claude`), never mock.
+- Diagnose root cause before fixing; state for each item whether it's a §11 regression, an
+  original never-closed gap, or a clarification.
+- Screenshots → `docs/qa_screenshots/` (persistent, gitignored), never /tmp.
+- Do not stop for routine check-ins — only a genuine blocker (document, move on) or approaching
+  usage limit (finish + commit current item cleanly).
 
-## Artifacts
+## User clarification (mid-run) — NEW SURFACES for parts of 13/13B
+Fold in when reaching §13/§13B. Some items need genuinely NEW screens (nav entry, real data,
+design-system consistent) — do NOT cram into an existing page:
+- **13B.2 guided-scenario walkthrough** → a guided overlay/mode layer over the real app (new surface).
+- **13B.4 business-impact/ROI summary** → its own dedicated view (new page).
+- **13.2 impact ledger** → a visible view of recommendation→consequence records (new page), not just stored data.
+Everything else in 12/13/13B stays an extension of an existing page (pipeline-trace extends
+Explainability, state-machine UI extends Opportunities, etc.). Rule: new surface when cramming would
+compromise either page; extension when it genuinely belongs with existing content.
 
-- Full narrative: `PROGRESS.md` (Session 9 entries).
-- Fable design docs: `docs/section11/11_1_model_design.md`, `11_3_fl_design.md`, `11_5_eval_design.md`.
-- Eval runs (committed): `docs/section11/eval/` (golden set + real Claude runs + trend).
-- QA screenshots: `docs/qa_screenshots/s11-*.png`.
-- Trained artifacts: `models/artifacts/` (gitignored) + committed `models/registry.json`.
-
-## Ops note (carry forward)
-
-Run the backend CWD-independent to avoid the recurring empty-graph-store issue:
-`env PYTHONPATH=/workspaces/ip-demo-project FOUNDATION_DIR=/workspaces/ip-demo-project/docs/tigergraph_foundation SQLITE_DB_PATH=/workspaces/ip-demo-project/data/feature_store/iperform_features.db uvicorn app.api.main:app --host 127.0.0.1 --port 8000`.
-Set `LLM_CLIENT_MODE=claude` for any AI-behavior demo/verification; `MODEL_CLIENT_MODE=real` to serve the trained models.
-
-## Closing verifications (2026-07-06, requested before final close)
-
-### Registry reconciliation (7 registered vs "2 of 6")
-The 7th registry entry is **`graphsage-v1-ft`** — the Section-11.3 outcome-driven fine-tune of the
-GNN — NOT the retired dormant scorecard (that is a code-level fallback, never a registry entry). So
-7 registered = the 6 base 11.1 models + `graphsage-v1-ft`; **5 serving**, 2 gated to fallback
-(`agp-off-track-xgb` ROC-AUC 0.6347 < 0.65; `household-churn-xgb` PR-AUC 0.0117 < gate).
-
-### 1. Advisor-level multi-turn continuity — RUN LIVE on real Claude (LLM_CLIENT_MODE=claude)
-Distinct capability from the division-level test; run fresh, not inferred. Advisor A007:
-- **Turn 1** — "What is this advisor's single biggest revenue risk right now?" → grounded answer
-  (LTM revenue $470,497.69, 3-mo growth 17.83%, AGP goal attainment at risk).
-- **Memory write CONFIRMED** — conversation memories for A007 went **0 → 1**; the newest conversation
-  memory literally stores the turn-1 Q&A ("Q: What is this advisor's single biggest revenue risk… A:
-  For Advisor A007… LTM revenue of $470,497.69…").
-- **Turn 2 assembled context INCLUDES turn 1** — for the follow-up, the assembled `Context Memory`
-  item contains: "- Conversation Memory: Q: What is this advisor's single biggest revenue risk right
-  now? A: For Advisor A007… LTM revenue of $470,497.69 and strong 3-month growth of 17.83%, though AGP
-  goal attainment…". Turn 1's memory is demonstrably in turn 2's context.
-- **Turn 2 answer BUILDS on turn 1** — the follow-up "And what single action would most reduce **that
-  risk**?" (never restating what the risk is) returned a concrete action (managed-account review of
-  high-AUM/low-penetration households; RETENTION opportunity, revenue-decline risk 54.5/100, $64,105
-  exposed) and explicitly noted "Relevant memory was used to preserve prior context." PASS.
-
-### 2. RerankClient before/after — concrete ordering change on a real query
-Diverse candidate set of one chunk from each of 6 distinct docs, with the relevant one deliberately
-placed **last** in input order:
-- **BEFORE (input order):** `reg_bi_suitability_manual.pdf` at position input[5] (last).
-- **Query:** "What dollar threshold triggers supervisory principal review of a recommendation?"
-- **AFTER rerank:** `reg_bi_suitability_manual.pdf` → **#1 (rerank 0.6696)**, far above the runner-up
-  (client_review 0.4155); the least-relevant `market_outlook_2026_q3.pdf` sinks to last.
-So the reranker measurably changes both **ordering** (last → first) and, under top-K pruning,
-**selection** (the answer-bearing doc is now kept, not dropped). Not just "the adapter exists."
-
----
-_Status: SECTION 11 COMPLETE — all subsections done + both closing verifications passed on real
-Claude, committed and pushed to origin/main. Section 10 deferred._
+## Progress — Section 12
+- [x] 12.1 Executive Dashboard — DONE. New `/scope/dashboard` + `/scope/ai-insight` (period + Compare-To
+  aware). Added Revenue Trend, Revenue by Product Category (donut), Revenue Drivers vs Prior Year (YoY bars),
+  Benchmarking vs Peers (per-advisor bars + firm-avg line + percentile), Top & Bottom Markets, AI Insight
+  Summary (grounded), AI Coaching (Advisor scope only), explicit Bottom Advisors + AUM/Why detail. Removed
+  Business Outcomes strip. Added Reset-filters. VERIFIED real re-roll: Firm/YTD $22.2M/−0.8% → Eastern
+  Division/QTD $1.3M/+19%, 0 console errors (s12-1-dashboard-firm.png, s12-1-dashboard-division-qtd.png).

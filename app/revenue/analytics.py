@@ -110,20 +110,36 @@ class RevenueAnalyticsService:
         data_months = {m for m in all_months if m and m != "None"}
         prior_fully_covered = bool(cur_months) and prior_months.issubset(data_months)
 
+        # Prior *period* (Compare-To = "Prior Period"): the equal-length contiguous
+        # window of months immediately preceding the current window. Distinct from the
+        # prior-*year* window above.
+        sorted_data_months = sorted(data_months)
+        prior_period_months: set[str] = set()
+        if cur_months:
+            earliest_cur = min(cur_months)
+            before = [m for m in sorted_data_months if m < earliest_cur]
+            prior_period_months = set(before[-len(cur_months):]) if before else set()
+        prior_period_covered = len(prior_period_months) == len(cur_months) and bool(prior_period_months)
+
         def in_cur(a: dict) -> bool:
             return str(a.get("transaction_date"))[:7] in cur_months
 
         by_month: dict[str, float] = defaultdict(float)
         by_type: dict[str, float] = defaultdict(float)
         by_line: dict[str, float] = defaultdict(float)
+        by_line_prior: dict[str, float] = defaultdict(float)  # same category, prior-year window
         total = 0.0
         kept_count = 0
         prior_total = 0.0
+        prior_period_total = 0.0
         for tx, a in all_rows:
             month = str(a.get("transaction_date"))[:7]
             rev = self._rev(a)
+            if month in prior_period_months:
+                prior_period_total += rev
             if month in prior_months:
                 prior_total += rev
+                by_line_prior[self._tx_category(tx)] += rev
             if month not in cur_months:
                 continue
             kept_count += 1
@@ -141,6 +157,24 @@ class RevenueAnalyticsService:
             ({"category": c, "revenue": round(v, 2)} for c, v in by_line.items()),
             key=lambda r: r["revenue"], reverse=True,
         )
+
+        # Revenue drivers vs prior year (12.1): per business-line current vs prior-window
+        # revenue and the $ change — ranked by absolute contribution to the YoY swing so
+        # the biggest movers (up or down) surface first. Only honest when the prior-year
+        # window is fully present in the data (same rule as the headline YoY).
+        revenue_drivers = []
+        if prior_fully_covered:
+            for cat in set(by_line) | set(by_line_prior):
+                cur_v = round(by_line.get(cat, 0.0), 2)
+                pri_v = round(by_line_prior.get(cat, 0.0), 2)
+                revenue_drivers.append({
+                    "category": cat,
+                    "revenue": cur_v,
+                    "prior_revenue": pri_v,
+                    "change": round(cur_v - pri_v, 2),
+                    "change_pct": round((cur_v - pri_v) / pri_v * 100, 1) if pri_v else None,
+                })
+            revenue_drivers.sort(key=lambda r: abs(r["change"]), reverse=True)
 
         # geographic distribution: advisor -> branch.state
         state_rev: dict[str, float] = defaultdict(float)
@@ -211,9 +245,18 @@ class RevenueAnalyticsService:
                 "change_pct": change_pct,
                 "basis": "same period, prior year (months shifted -12)",
             },
+            "comparison_prior_period": {
+                "prior_revenue": round(prior_period_total, 2) if prior_period_covered else None,
+                "change_pct": (
+                    round((total - prior_period_total) / prior_period_total * 100, 1)
+                    if (prior_period_covered and prior_period_total > 0) else None
+                ),
+                "basis": "immediately preceding equal-length period",
+            },
             "monthly_trend": monthly_trend,
             "by_channel": by_channel,
             "by_business_line": by_business_line,
+            "revenue_drivers": revenue_drivers,
             "by_geography": by_geography,
             "by_child": by_child,
             "evidence": {

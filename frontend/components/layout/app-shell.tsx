@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // separate data-control lens per the hierarchy breadcrumb).
   const [scopeType, setScopeType] = useState<ScopeType>("Firm");
   const [scopeId, setScopeId] = useState("F001");
-  const [scopeLabel, setScopeLabel] = useState("Northstar Wealth Management");
+  const [scopeLabel, setScopeLabel] = useState("Chase Wealth Management");
   const [period, setPeriod] = useState<TimePeriod>("YTD");
   const [compareTo, setCompareTo] = useState<ShellContextState["compareTo"]>("Prior Year");
   const [hierarchy, setHierarchy] = useState<HierarchyNode | null>(null);
@@ -25,6 +25,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
   const refresh = () => setRefreshNonce((n) => n + 1);
+
+  // Reset filters (12.1): return scope + period + compare-to to firm-wide defaults.
+  function resetFilters() {
+    const root = hierarchy;
+    const node = findNode(root, "F001");
+    setScope("Firm", "F001", node?.label ?? "Chase Wealth Management");
+    setPeriod("LTM");
+    setCompareTo("Prior Year");
+    setRefreshNonce((n) => n + 1);
+  }
 
   useEffect(() => {
     fetchHierarchyTree()
@@ -54,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const context = useMemo(
     () => ({
       persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy, refreshNonce,
-      setPersona, setScope, setScopeType, setScopeId, setPeriod, setCompareTo, setLoading, refresh,
+      setPersona, setScope, setScopeType, setScopeId, setPeriod, setCompareTo, setLoading, refresh, resetFilters,
     }),
     [persona, scopeType, scopeId, scopeLabel, period, compareTo, hierarchy, refreshNonce],
   );

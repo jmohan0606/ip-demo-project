@@ -36,6 +36,8 @@ export type ShellContextActions = {
   setLoading: (value: boolean) => void;
   /** Re-fetch the current page's data without losing scope (Refresh button). */
   refresh: () => void;
+  /** Reset scope + period + compare-to to the firm-wide defaults (Reset filters, 12.1). */
+  resetFilters: () => void;
 };
 
 export type ShellContextValue = ShellContextState & ShellContextActions;

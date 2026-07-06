@@ -1790,3 +1790,35 @@ Next: 11.6 context engineering (RerankClient + memory audit + scope-aware AI, re
   household_churn), 6 tools. GET /mcp/tools + POST /mcp/invoke; MCP Tools card on the Admin Model
   Strategy tab. Verified live: model.similar_advisors A020 → real GNN result (graphsage-v1-ft, A019 0.98).
   (Graph access remains the 9.4 4-tier GraphClient MCP adapter.)
+
+## Session 10 — 2026-07-06 — SECTION 12 (Regression Audit & Critical Fixes) begins
+Master order: 12 → 13 → 13B → 10 (remaining) → 14. Main thread Opus 4.8; §13/§13B design → fable subagent.
+
+### 12.1 Executive Dashboard — DONE (verified real before/after)
+Root-cause diagnosis: Period + Compare-To were UI-only because `/scope/summary` ignored them (original
+never-closed 9.2 gap, not a §11 regression). Hierarchy drill-down "intermittent" = breadcrumb skeleton on
+hierarchy-fetch race (data-timing, not logic).
+Backend:
+- `app/revenue/analytics.py`: added per-business-line prior-year tracking → `revenue_drivers` (YoY per
+  category), and a prior-*period* window → `comparison_prior_period` (immediately preceding equal-length).
+- NEW `app/scope/dashboard.py` `ScopeDashboardService.dashboard(scope,period,compare_to)`: composes rollup
+  totals/status/top+bottom advisors + period-windowed revenue (trend/product-category/channel/drivers/geo)
+  + top & bottom markets + peer benchmark (rev/advisor vs firm avg + percentile) + a headline whose delta
+  respects Compare-To (Prior Year | Prior Period | Peer Benchmark | None). All real sums/means.
+- NEW `app/scope/insight.py` `ScopeInsightService`: scope-level AI Insight (Key Drivers/Watch Outs/What to
+  Monitor) DERIVED from the real scope+period numbers; LLM writes only the executive-summary narrative.
+- `app/api/routers/scope.py`: `GET /scope/dashboard`, `GET /scope/ai-insight`.
+Frontend:
+- Rewrote `components/command-center/executive-dashboard.tsx` to consume `/scope/dashboard` (period +
+  compareTo from shell). Added Revenue Trend, Revenue by Product Category (donut w/ centered total),
+  Revenue Drivers vs Prior Year (green/red YoY bars), Benchmarking vs Peers (bars + firm-avg line +
+  percentile), Top & Bottom Markets, AI Insight Summary (grounded, lazy `/scope/ai-insight`), AI Coaching
+  (Advisor scope only, from `/advisor/360/{id}/ai`). Renamed "Needs Attention"→"Bottom Advisors", added
+  AUM + Why columns. REMOVED the Business Outcomes strip (client-directed). 
+- Shell: added `resetFilters()` (scope→F001/Firm, period→LTM, compare→Prior Year) + a "Reset filters"
+  button in the filter bar. Firm fallback label set to "Chase Wealth Management" (seed rename pending 12.10).
+Evidence: Firm/YTD $22.2M (−0.8% vs Prior Year) → drill Eastern Division + QTD → $1.3M (+19% vs Prior
+Year), 24 advisors, division-specific categories/markets/regions, benchmark highlights Eastern. 0 console
+errors both. Screenshots s12-1-dashboard-firm.png, s12-1-dashboard-division-qtd.png.
+QA tooling: added `frontend/scripts/qa-shot.mjs` (proxies browser API calls to local backend so in-container
+Playwright renders real data without the public-URL CORS/auth issue).
