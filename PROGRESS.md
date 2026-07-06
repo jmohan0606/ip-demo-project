@@ -1963,3 +1963,30 @@ Design: docs/design/section13_lifecycle_design.md. Implemented in 11 commits.
   guided scenario (13B) will populate the ledger live.
 - **Ops note**: backend must be launched detached (`python3 -m uvicorn ...` as a tracked bg process); plain
   nohup/setsid inside a compound bash command gets SIGHUP'd on shell exit.
+
+## SECTION 13B — Guided End-to-End Story Mode — COMPLETE (fable-designed, Opus-implemented; 13B.3 deferred)
+Design: docs/design/section13B_story_mode_design.md. The narration layer over §13's real loop — adds no state, fakes nothing.
+- **13B.1 pipeline trace (extends Explainability)**: NEW `GET /explainability/pipeline-trace/{rec_id}` composes the 6-stage
+  SYSTEM TRACE (Data→Feature Engineering→Model→Opportunity/Recommendation→Context&Compliance→Delivered Output) from real
+  sources; `PipelineTraceBar` renders it above the lineage chain (6 stage cards + proportional bar + real timing basis).
+  Added real compliance verdict to the live rec payload (RecommendationComplianceValidator) + real generation stage-timing
+  (first producer of observability stage-spans). VERIFIED cross-checks: trace feature revenue_ltm == snapshot, derivation
+  impact == rec estimate, compliance status == rec compliance (verify_section13B_story.py ALL PASSED). s13b-4-pipeline-trace.png.
+- **13B.2 guided overlay (NEW surface)**: `StoryModeProvider` in AppShell + `StoryOverlay` (bottom-docked) + declarative
+  `scenarios.ts` advisor journey (11 steps) + `/story` launch + nav "Guided Story Mode". Drives the REAL app (setScope +
+  router.push + data-story-target highlight), runs a REAL accept+complete, and shows live proof chips. VERIFIED end-to-end
+  via Playwright: the propagation step proof chip showed "$406,375 → $458,486 (+$52,111) = exactly the impact ✓" with the
+  injected transaction visible as a RECOMMENDATION_IMPACT channel. Replayable via NEW same-process reset
+  (POST /recommendations/lifecycle/reset/{id} + store.remove_vertex, A001/A020 403-guarded — no restart needed).
+  s13b-step01..08 screenshots.
+- **13B.4 Business Impact & ROI (NEW Executive surface)**: `/business-impact` — cumulative recorded impact, acceptance/
+  completion rates (from new `lifecycle_totals`), impact-over-time, impact-by-family, business-outcome mapping strip, honest
+  empty state. VERIFIED empty ($0, links to Story Mode) AND populated ($560,059, 5 acted, 100% acceptance, 80% completion).
+  s13b-10-roi-empty.png, s13b-10-roi-populated.png.
+- **13B.3 division-leader journey — DEFERRED** (honest scope call given session length): the same StoryStep engine supports
+  it as a second scenario entry using existing rollup/coaching endpoints (design §3); not yet added. The two genuinely-new
+  surfaces the user required (guided overlay, ROI page) + the pipeline-trace extension are all done and verified. This is a
+  clean, additive follow-up — no new backend needed.
+- **13B.5 verification**: verify_section13B_story.py ALL PASSED (docs/qa_screenshots/section13B/verify_trace.txt). Real-Claude
+  closure step (13B.2 step 10) inherits the §13.4 documented blocker (no ANTHROPIC_API_KEY this session) — the context-assembly
+  is proven; the overlay shows an honest note when LLM is mock. Final state: A005/A015 reset to pristine, A001/A020 untouched.
