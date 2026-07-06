@@ -22,6 +22,7 @@ CREATE DIRECTED EDGE phx_dm_product_in_subcategory (FROM phx_dm_product, TO phx_
 CREATE DIRECTED EDGE phx_dm_subcategory_in_category (FROM phx_dm_product_subcategory, TO phx_dm_product_category) WITH REVERSE_EDGE="rev_phx_dm_subcategory_in_category";
 CREATE DIRECTED EDGE phx_dm_account_holds_product (FROM phx_dm_account, TO phx_dm_product, market_value DOUBLE, allocation_pct DOUBLE, as_of_date DATETIME) WITH REVERSE_EDGE="rev_phx_dm_account_holds_product";
 CREATE DIRECTED EDGE phx_dm_transaction_for_advisor (FROM phx_dm_revenue_transaction, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_transaction_for_advisor";
+CREATE DIRECTED EDGE phx_dm_transaction_from_recommendation (FROM phx_dm_revenue_transaction, TO phx_dm_recommendation) WITH REVERSE_EDGE="rev_phx_dm_transaction_from_recommendation";
 CREATE DIRECTED EDGE phx_dm_transaction_for_household (FROM phx_dm_revenue_transaction, TO phx_dm_household) WITH REVERSE_EDGE="rev_phx_dm_transaction_for_household";
 CREATE DIRECTED EDGE phx_dm_transaction_for_account (FROM phx_dm_revenue_transaction, TO phx_dm_account) WITH REVERSE_EDGE="rev_phx_dm_transaction_for_account";
 CREATE DIRECTED EDGE phx_dm_transaction_for_product (FROM phx_dm_revenue_transaction, TO phx_dm_product) WITH REVERSE_EDGE="rev_phx_dm_transaction_for_product";

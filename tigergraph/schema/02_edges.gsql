@@ -16,6 +16,8 @@ CREATE DIRECTED EDGE phx_dm_product_in_subcategory (FROM phx_dm_product, TO phx_
 CREATE DIRECTED EDGE phx_dm_subcategory_in_category (FROM phx_dm_product_subcategory, TO phx_dm_product_category)
 
 CREATE DIRECTED EDGE phx_dm_transaction_for_advisor (FROM phx_dm_transaction, TO phx_dm_advisor)
+-- Section 13.2: links a completed recommendation's impact transaction back to the rec.
+CREATE DIRECTED EDGE phx_dm_transaction_from_recommendation (FROM phx_dm_transaction, TO phx_dm_recommendation)
 CREATE DIRECTED EDGE phx_dm_transaction_for_household (FROM phx_dm_transaction, TO phx_dm_household)
 CREATE DIRECTED EDGE phx_dm_transaction_for_account (FROM phx_dm_transaction, TO phx_dm_account)
 CREATE DIRECTED EDGE phx_dm_transaction_for_product (FROM phx_dm_transaction, TO phx_dm_product)

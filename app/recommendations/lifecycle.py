@@ -230,7 +230,7 @@ class RecommendationLifecycleService:
 
         # Inject the synthetic revenue transaction + edges (idempotent via deterministic tx_id).
         upsert_vertex(graph, "phx_dm_revenue_transaction", "transaction_id", {
-            "transaction_id": tx_id, "transaction_date": "2026-07-03",
+            "transaction_id": tx_id, "transaction_date": "2026-06-30",
             "revenue_amount": impact_amount, "transaction_type": "RECOMMENDATION_IMPACT",
             "quantity": 0, "gross_amount": impact_amount, "source_system": "IPERFORM_LIFECYCLE",
         })
@@ -355,7 +355,7 @@ class RecommendationLifecycleService:
         for rid, advisor_id, amount, tx_id in ledger:
             try:
                 upsert_vertex(graph, "phx_dm_revenue_transaction", "transaction_id", {
-                    "transaction_id": tx_id, "transaction_date": "2026-07-03",
+                    "transaction_id": tx_id, "transaction_date": "2026-06-30",
                     "revenue_amount": float(amount), "transaction_type": "RECOMMENDATION_IMPACT",
                     "quantity": 0, "gross_amount": float(amount), "source_system": "IPERFORM_LIFECYCLE"})
                 if advisor_id:
