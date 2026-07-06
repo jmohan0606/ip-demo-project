@@ -58,6 +58,25 @@ interface Recommendation {
   opportunity_id: string;
   prediction_id: string | null;
   playbook_id: string | null;
+  // Section 13.1 lifecycle fields (authoritative, server-driven)
+  status?: string;
+  status_note?: string | null;
+  allowed_actions?: string[];
+  terminal?: boolean;
+}
+
+interface AddressedOpportunity {
+  opportunity_id: string;
+  category: string;
+  severity?: string;
+  addressed_by?: string;
+  completed_ts?: string;
+  note?: string;
+}
+
+interface LifecycleCounts {
+  open: number; accepted: number; in_progress: number; completed: number;
+  rejected: number; ignored: number; modified: number;
 }
 
 interface GenerateResponse {
@@ -65,6 +84,8 @@ interface GenerateResponse {
   recommendations: Recommendation[];
   learning_weights: Array<{ family: string; weight: number; feedback_count: number }>;
   feature_snapshot_id: string;
+  lifecycle_counts?: LifecycleCounts;
+  addressed_opportunities?: AddressedOpportunity[];
 }
 
 const FEEDBACK_ACTIONS = ["ACCEPT", "COMPLETE", "MODIFY", "IGNORE", "REJECT"] as const;
@@ -116,20 +137,31 @@ export function RecommendationsWorkspace() {
   const submitFeedback = async (rec: Recommendation, action: string) => {
     setBusy(true);
     try {
-      const result = await apiClient.post<{ effect: string }>("/feedback-learning/submit", {
-        recommendation_id: rec.recommendation_id,
-        action,
-        action_family: rec.action_family,
-      });
-      // Optimistically mark this recommendation's new status so the card visibly changes.
-      setActedStatus((prev) => ({ ...prev, [rec.recommendation_id]: STATUS_FOR_ACTION[action] ?? action }));
-      // A concrete "what changed" note naming the rec + action + the learning effect.
-      setLastEffect(`You ${action.toLowerCase()}ed "${rec.title}" → status ${STATUS_FOR_ACTION[action] ?? action}. ${result.effect}`);
-      // Re-fetch BOTH the recommendation queue (re-ranked) AND the impact totals so the
-      // Accepted/Completed/Rejected summary counts visibly increment.
+      const result = await apiClient.post<{ effect: string; lifecycle?: { to_status: string; impact?: { impact_amount: number } | null } }>(
+        "/feedback-learning/submit", { recommendation_id: rec.recommendation_id, action, action_family: rec.action_family });
+      const to = result.lifecycle?.to_status ?? STATUS_FOR_ACTION[action] ?? action;
+      setActedStatus((prev) => ({ ...prev, [rec.recommendation_id]: to }));
+      const impactTxt = result.lifecycle?.impact ? ` Impact +$${Math.round(result.lifecycle.impact.impact_amount).toLocaleString()} recorded — see the Impact Ledger.` : "";
+      setLastEffect(`You ${action.toLowerCase()}ed "${rec.title}" → status ${to}. ${result.effect}${impactTxt}`);
+      // Re-generate (statuses are now server-authoritative) + refresh impact trend.
       await Promise.all([generate(), loadImpact()]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Feedback failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Section 13.1: pure lifecycle transition (Start) — no learning signal.
+  const transitionRec = async (rec: Recommendation, action: string) => {
+    setBusy(true);
+    try {
+      const lc = await apiClient.post<{ to_status: string }>(`/recommendations/${rec.recommendation_id}/transition`, { action, actor_id: advisorId ?? undefined });
+      setActedStatus((prev) => ({ ...prev, [rec.recommendation_id]: lc.to_status }));
+      setLastEffect(`Started "${rec.title}" → status ${lc.to_status}.`);
+      await generate();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Transition failed");
     } finally {
       setBusy(false);
     }
@@ -172,25 +204,20 @@ export function RecommendationsWorkspace() {
       {/* Feedback-outcome summary cards: accepted / completed / in-progress / rejected (9.5) */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {(() => {
-          const t = impact?.totals;
-          // Overlay THIS session's feedback actions onto the base totals so the counts
-          // visibly change the moment a button is clicked (12.8). §13 persists these.
-          const sess = Object.values(actedStatus).reduce(
-            (acc, s) => { const k = s === "ACCEPTED" ? "accepted" : s === "COMPLETED" ? "implemented" : s === "IN PROGRESS" ? "modified" : s === "REJECTED" ? "rejected" : "ignored"; acc[k] = (acc[k] ?? 0) + 1; return acc; },
-            {} as Record<string, number>,
-          );
-          const val = (base: number | undefined, key: string) => (base ?? 0) + (sess[key] ?? 0);
-          const accepted = val(t?.accepted, "accepted");
-          const implemented = val(t?.implemented, "implemented");
-          const modified = val((t as { modified?: number } | undefined)?.modified, "modified");
-          const rejected = val(t?.rejected, "rejected");
-          const ignored = val((t as { ignored?: number } | undefined)?.ignored, "ignored");
-          const total = accepted + implemented + rejected + modified + ignored;
+          // Section 13.1: real per-advisor lifecycle counts from the server (persisted),
+          // no longer the 12.8 optimistic session overlay.
+          const lc = data?.lifecycle_counts;
+          const accepted = lc?.accepted ?? 0;
+          const implemented = lc?.completed ?? 0;
+          const inProgress = lc?.in_progress ?? 0;
+          const rejected = lc?.rejected ?? 0;
+          const ignored = lc?.ignored ?? 0;
+          const total = accepted + implemented + inProgress + rejected + ignored + (lc?.open ?? 0) + (lc?.modified ?? 0);
           const pct = (n: number) => (total ? `${Math.round((n / total) * 100)}%` : "—");
           const cards = [
             { label: "Accepted", n: accepted, color: colors.positive, bg: "#F0FDFA", icon: CheckCircle2 },
             { label: "Completed", n: implemented, color: "#059669", bg: "#ECFDF5", icon: CircleCheck },
-            { label: "In Progress", n: modified, color: colors.warning, bg: "#FFFBEB", icon: PencilLine },
+            { label: "In Progress", n: inProgress, color: colors.warning, bg: "#FFFBEB", icon: PencilLine },
             { label: "Rejected", n: rejected, color: colors.negative, bg: "#FEF2F2", icon: XCircle },
           ];
           return cards.map((c) => (
@@ -287,16 +314,32 @@ export function RecommendationsWorkspace() {
                     { kind: "playbook", id: rec.playbook_id },
                   ]}
                 />
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
+                  {/* Section 13.1: START appears only when the server allows it (ACCEPTED/IN_PROGRESS). */}
+                  {(rec.allowed_actions ?? []).includes("start") && (
+                    <button
+                      onClick={() => void transitionRec(rec, "start")}
+                      disabled={busy}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wide disabled:opacity-50"
+                      style={{ color: colors.warning, backgroundColor: "#FFFBEB", border: `1px solid ${colors.warning}33` }}
+                    >
+                      <PencilLine style={{ width: 12, height: 12 }} /> START
+                    </button>
+                  )}
                   {FEEDBACK_ACTIONS.map((action) => {
                     const m = ACTION_META[action];
                     const Icon = m.icon;
+                    // Server-driven enablement: only enabled when this action is allowed
+                    // for the rec's current status ([] ⇒ terminal ⇒ all disabled).
+                    const allowed = rec.allowed_actions ?? ["accept", "complete", "modify", "ignore", "reject"];
+                    const enabled = allowed.includes(action.toLowerCase());
                     return (
                       <button
                         key={action}
                         onClick={() => void submitFeedback(rec, action)}
-                        disabled={busy}
-                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wide disabled:opacity-50"
+                        disabled={busy || !enabled}
+                        title={!enabled ? `Not available for status ${rec.status ?? "OPEN"}` : undefined}
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wide disabled:cursor-not-allowed disabled:opacity-40"
                         style={{ color: m.color, backgroundColor: m.bg, border: `1px solid ${m.color}33` }}
                       >
                         <Icon style={{ width: 12, height: 12 }} /> {action}
@@ -316,8 +359,10 @@ export function RecommendationsWorkspace() {
                     </span>
                   ); })()}
                   {(() => {
-                    const st = actedStatus[rec.recommendation_id];
-                    if (!st) return null;
+                    // Prefer the server-authoritative status; fall back to optimistic.
+                    const raw = (rec.status && rec.status !== "OPEN" ? rec.status : actedStatus[rec.recommendation_id]) || "";
+                    const st = raw.toUpperCase().replace("_", " ");
+                    if (!st || st === "OPEN") return null;
                     const done = st === "ACCEPTED" || st === "COMPLETED";
                     const bad = st === "REJECTED" || st === "IGNORED";
                     const c = done ? colors.positive : bad ? colors.negative : colors.warning;
@@ -329,6 +374,11 @@ export function RecommendationsWorkspace() {
                   })()}
                 </div>
                 <p className={type.body} style={{ color: colors.text.primary }}>{rec.action_text}</p>
+                {rec.status_note && (
+                  <p className={`mt-1 rounded-md px-2 py-1 ${type.data}`} style={{ color: "#065F46", backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
+                    {rec.status_note} <a href="/impact-ledger" className="font-semibold underline">View in Impact Ledger →</a>
+                  </p>
+                )}
                 <p className={`mt-1 ${type.data}`} style={{ color: colors.text.muted }}>
                   priority {rec.priority_score} = base {rec.base_priority_score} × learned weight {rec.learning_weight}
                   {" · "}confidence {(rec.confidence * 100).toFixed(0)}%
@@ -345,6 +395,21 @@ export function RecommendationsWorkspace() {
           </p>
         ) : null}
       </div>
+
+      {/* Section 13.5: opportunities addressed by a completed recommendation — no longer re-issued. */}
+      {(data?.addressed_opportunities?.length ?? 0) > 0 && (
+        <div className="rounded-xl border p-3" style={{ borderColor: "#A7F3D0", backgroundColor: "#F0FDF4" }}>
+          <div className={`mb-1.5 ${type.label}`} style={{ color: "#065F46" }}>Addressed ({data!.addressed_opportunities!.length}) — completed, not regenerating</div>
+          <ul className="space-y-1">
+            {data!.addressed_opportunities!.map((a) => (
+              <li key={a.opportunity_id} className={type.data} style={{ color: colors.text.secondary }}>
+                <span className="font-mono text-[11px]" style={{ color: colors.text.muted }}>{a.opportunity_id}</span>
+                {" · "}{a.note ?? `Completed ${(a.completed_ts ?? "").slice(0, 10)} by ${a.addressed_by}`}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* RL feedback-loop showcase — how weights move with feedback over rounds (9.5, Fable-designed) */}
       <LearningStateShowcase />
