@@ -1519,3 +1519,25 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
     did NOT tune further to game the gate. Stays gate-failed → live AGP prediction stays on the scorecard.
   - Net: only REVENUE_DECLINE_RISK promotes to the live model path at commit 4; the other two honestly
     fall back. serves() verified: revenue-decline True, churn/agp False. Backend boots 36 routes.
+
+### 11.1 COMMIT 4/11 — live-path promotion + real SHAP + retire dormant path — DONE
+- app/ml/real_scoring.py: loads the XGB artifact, scores each of an advisor's households as-of the
+  latest month, revenue-weights P(decline)→0-100 advisor score, TreeSHAP → additive signed-point
+  contributions (score≈base_value+Σ signed_points) in the EXACT {feature,value,points,why}+direction
+  shape the frontend consumes. Rich methodology_patch (pipeline, base_value, additivity, households_scored,
+  training_metrics, caveats).
+- app/prediction/service.py: predict_revenue_decline / predict_agp_off_track now try the real ModelClient
+  first, fall back to the (unchanged) scorecard on ModelUnavailableError. Result schema untouched; methodology
+  carries served_by (+fallback_reason). Deterministic mode → always scorecard.
+- **Retired the dormant synthetic-label path** (Section 0B "no just-in-case duplicates"): repointed
+  app/ai/chat/context_assembler.py off app/services/prediction_service.py onto PredictionRepository
+  directly (read-only list_predictions), then deleted app/services/prediction_service.py +
+  app/prediction/{prediction_engine,feature_matrix_builder,tigergraph_prediction_linker}.py. Kept
+  prediction_repository.py (still used) + models/predictions.py. Fixed the now-inaccurate "RandomForest"
+  methodology string → XGBoost.
+- **scripts/verify_contributions.py** (evidence → docs/section11/evidence/contributions_before_after.json):
+  BEFORE (scorecard) A001 16.7 / A020 15.9 vs AFTER (XGB+TreeSHAP) A001 29.2 / A020 48.1 — real per-advisor
+  SHAP with direction, base 29.6, schema-identical between modes (asserted), synthetic-label RF reference
+  captured once before deletion (degrades gracefully after). Live predict_advisor(A020) real mode:
+  REVENUE_DECLINE served_by=revenue-decline-xgb v1.0 (48.1); AGP served_by=scorecard (56.8, matches anchor).
+  Backend boots 36 routes; ChatContextAssembler imports clean.

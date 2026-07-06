@@ -199,6 +199,42 @@ def build_household_frame() -> HouseholdFrame:
     return HouseholdFrame(df=df, feature_cols=list(HOUSEHOLD_FEATURES))
 
 
+@lru_cache(maxsize=1)
+def _advisor_household_map() -> dict[str, list[str]]:
+    serves = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_advisor_serves_household.csv")
+    out: dict[str, list[str]] = {}
+    for adv, hid in zip(serves["from_id"], serves["to_id"]):
+        out.setdefault(adv, []).append(hid)
+    return out
+
+
+# Live forward-scoring cut: features use facts <= 2026-07 (data end), predicting the
+# unobserved next 6 months. Trailing-6m window = 2026-02..2026-07.
+CURRENT_CUT = "2026-08"
+
+
+def build_current_household_features(advisor_id: str) -> tuple[pd.DataFrame, "pd.Series"]:
+    """Per-household leakage-safe feature rows for one advisor, as-of the latest data month
+    (for live forward prediction). Returns (features_df indexed by household_id, revenue
+    weights). Read-only."""
+    tx_rev = _load_transactions()
+    hh_meta = _load_households().set_index("household_id")
+    t_idx = _month_idx(CURRENT_CUT)
+    prior_lo, prior_hi = t_idx - 6, t_idx - 1
+    rows, weights, index = [], [], []
+    for hid in _advisor_household_map().get(advisor_id, []):
+        if hid not in hh_meta.index:
+            continue
+        tx_h = tx_rev[tx_rev["household_id"] == hid]
+        tx_h_u = tx_h.drop_duplicates(subset=["transaction_id"])
+        prior_rev = _window_revenue(tx_h_u, prior_lo, prior_hi)
+        rows.append(_household_features(tx_h, hh_meta.loc[hid], t_idx))
+        weights.append(max(prior_rev, 0.0))
+        index.append(hid)
+    df = pd.DataFrame(rows, index=index)[list(HOUSEHOLD_FEATURES)] if rows else pd.DataFrame(columns=HOUSEHOLD_FEATURES)
+    return df, pd.Series(weights, index=index, dtype=float)
+
+
 def verify_temporal_wall(sample: int = 60) -> dict:
     """Anti-leakage rule 1: recompute a sample of rows' features from a transaction frame
     HARD-FILTERED to < cut month, and assert bit-identical to the full-frame features. If

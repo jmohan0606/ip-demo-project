@@ -5,13 +5,12 @@ from app.models.ai_chat import ChatContextItem, ChatContextSource, ChatRequest
 from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.models.knowledge import KnowledgeSearchRequest
 from app.models.memory import MemoryRetrievalRequest, MemoryScopeType
-from app.models.predictions import PredictionSearchRequest
 from app.opportunities.service import OpportunityDetectionService
 from app.recommendations.service import RecommendationService as RecommendationPipelineService
 from app.services.context_service import ContextService
 from app.services.insights_coaching_service import InsightsCoachingService
 from app.services.knowledge_management_service import KnowledgeManagementService
-from app.services.prediction_service import PredictionService
+from app.prediction.prediction_repository import PredictionRepository
 
 
 class ChatContextAssembler:
@@ -19,7 +18,7 @@ class ChatContextAssembler:
         self.context_service = ContextService()
         self.knowledge_service = KnowledgeManagementService()
         self.insight_service = InsightsCoachingService()
-        self.prediction_service = PredictionService()
+        self.prediction_repo = PredictionRepository()
         self.opportunity_service = OpportunityDetectionService()
         self.recommendation_service = RecommendationPipelineService()
         self.coaching_service = CoachingReviewService()
@@ -121,9 +120,7 @@ class ChatContextAssembler:
                 ))
 
         try:
-            predictions = self.prediction_service.list_predictions(
-                PredictionSearchRequest(entity_id=entity_id, limit=5)
-            )
+            predictions = self.prediction_repo.list_predictions(entity_id=entity_id, limit=5)
             for p in predictions[:5]:
                 items.append(ChatContextItem(
                     source=ChatContextSource.PREDICTIONS,

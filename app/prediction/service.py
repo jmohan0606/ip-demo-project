@@ -7,6 +7,7 @@ from app.features.engineering import FeatureEngineeringService
 from app.features.snapshot_store import SnapshotStore
 from app.graph.artifacts import upsert_edge, upsert_vertex, write_reasoning_trace
 from app.graph.client import GraphClient, get_graph_client
+from app.ml.client import ModelUnavailableError, get_model_client
 
 MODEL_VERSION = "v2.0"
 
@@ -45,15 +46,16 @@ class PredictionService:
     def _methodology(ptype: str, contributions: list[dict], score: float) -> dict:
         """The derivation detail (CLAUDE.md 9.5): the pipeline, the model/formula and
         the per-feature attribution. Honest — these are transparent additive scorecards
-        (real code, per-feature weights), not a black box; a scikit-learn RandomForest
-        engine (app/prediction/prediction_engine.py) backs the trained path when
-        training data is sufficient."""
+        (real code, per-feature weights). When a trained XGBoost model passes its registry
+        quality gate for a prediction type (Section 11.1), the live path serves that model
+        instead (with real TreeSHAP attribution) and this methodology is patched with its
+        details; otherwise the scorecard below serves and served_by='scorecard'."""
         used = [c["feature"] for c in contributions]
         return {
             "model_name": "iPerform Risk Scorecard",
             "model_family": "Additive weighted scorecard · transparent per-feature attribution",
             "model_version": MODEL_VERSION,
-            "trained_alternative": "scikit-learn RandomForest (used when per-cohort training data is sufficient)",
+            "trained_alternative": "XGBoost model (served when its held-out quality gate is met; Section 11.1)",
             "pipeline": [
                 "Compute the advisor's Phase-5 feature snapshot from graph facts",
                 f"Select the {len(used)} risk-driver features for {ptype.replace('_', ' ').title()}",
@@ -67,10 +69,52 @@ class PredictionService:
             "computed_score": score,
         }
 
+    def _result_from_model(self, advisor_id: str, ptype: str, id_prefix: str,
+                           snapshot: dict, ms: dict, horizon_days: int) -> dict:
+        """Assemble the standard result dict from a real ModelScore. The methodology is the
+        scorecard base patched by the model's methodology_patch + served_by, so the frontend
+        'how this was derived' section gets strictly deeper, not different."""
+        score = ms["score"]
+        methodology = {
+            **self._methodology(ptype, ms["contributions"], score),
+            **ms["methodology_patch"],
+            "served_by": ms["served_by"],
+        }
+        return {
+            "prediction_id": f"{id_prefix}_{advisor_id}_{MODEL_VERSION}",
+            "prediction_type": ptype,
+            "target_type": "ADVISOR",
+            "target_id": advisor_id,
+            "score": score,
+            "risk_band": _risk_band(score),
+            "severity": _risk_band(score),
+            "confidence": ms["confidence"],
+            "horizon_days": horizon_days,
+            "contributions": ms["contributions"],
+            "feature_snapshot_id": snapshot["snapshot_id"],
+            "explanation": ms.get("explanation", f"Trained model score {score}/100."),
+            "methodology": methodology,
+        }
+
     # -- Prediction type 1: Revenue Decline Risk --
 
     def predict_revenue_decline(self, advisor_id: str, persist: bool = True) -> dict:
+        """Real-model tier first (Section 11.1 §2); falls back to the deterministic
+        scorecard when no trained model passes its registry quality gate for this type."""
         snapshot = self._snapshot(advisor_id)
+        try:
+            ms = get_model_client().score_risk(
+                "REVENUE_DECLINE_RISK", "ADVISOR", advisor_id, snapshot["features"])
+            result = self._result_from_model(
+                advisor_id, "REVENUE_DECLINE_RISK", "PRED_REVDECL", snapshot, ms, 180)
+        except ModelUnavailableError as exc:
+            result = self._revenue_decline_scorecard(advisor_id, snapshot, fallback_reason=str(exc))
+        if persist:
+            self._persist(result)
+        return result
+
+    def _revenue_decline_scorecard(self, advisor_id: str, snapshot: dict,
+                                   fallback_reason: str | None = None) -> dict:
         f = snapshot["features"]
         contributions = []
 
@@ -96,7 +140,11 @@ class PredictionService:
         score = round(min(100.0, score), 1)
 
         used = [c["feature"] for c in contributions]
-        result = {
+        methodology = self._methodology("REVENUE_DECLINE_RISK", contributions, score)
+        methodology["served_by"] = "scorecard"
+        if fallback_reason:
+            methodology["fallback_reason"] = fallback_reason
+        return {
             "prediction_id": f"PRED_REVDECL_{advisor_id}_{MODEL_VERSION}",
             "prediction_type": "REVENUE_DECLINE_RISK",
             "target_type": "ADVISOR",
@@ -113,16 +161,25 @@ class PredictionService:
                 f"net cash flow ({ncf:,.0f}), diversification ({diversification:.2f}), "
                 f"peer gap ({peer_gap:+.1f}%) and engagement recency."
             ),
-            "methodology": self._methodology("REVENUE_DECLINE_RISK", contributions, score),
+            "methodology": methodology,
         }
-        if persist:
-            self._persist(result)
-        return result
 
     # -- Prediction type 2: AGP Off-Track Risk --
 
     def predict_agp_off_track(self, advisor_id: str, persist: bool = True) -> dict:
+        """Real-model tier first; AGP currently falls back (model below its quality gate),
+        so this serves the deterministic scorecard until an AGP model passes the floor."""
         snapshot = self._snapshot(advisor_id)
+        try:
+            ms = get_model_client().score_risk(
+                "AGP_OFF_TRACK_RISK", "ADVISOR", advisor_id, snapshot["features"])
+            result = self._result_from_model(
+                advisor_id, "AGP_OFF_TRACK_RISK", "PRED_AGPRISK", snapshot, ms, 90)
+            if persist:
+                self._persist(result)
+            return result
+        except ModelUnavailableError:
+            pass
         f = snapshot["features"]
         track = AgpService(self.graph, today=self.as_of).track_status(advisor_id)
         if not track.get("enrolled"):
@@ -149,6 +206,8 @@ class PredictionService:
                                   "why": "fewer than half of KPI measurements on track"})
 
         used = [c["feature"] for c in contributions]
+        agp_methodology = self._methodology("AGP_OFF_TRACK_RISK", contributions, score)
+        agp_methodology["served_by"] = "scorecard"
         result = {
             "prediction_id": f"PRED_AGPRISK_{advisor_id}_{MODEL_VERSION}",
             "prediction_type": "AGP_OFF_TRACK_RISK",
@@ -162,7 +221,7 @@ class PredictionService:
             "contributions": contributions,
             "feature_snapshot_id": snapshot["snapshot_id"],
             "explanation": track["explanation"],
-            "methodology": self._methodology("AGP_OFF_TRACK_RISK", contributions, score),
+            "methodology": agp_methodology,
         }
         if persist:
             self._persist(result)
