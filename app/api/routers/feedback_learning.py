@@ -39,3 +39,34 @@ def impact_trend(advisor_ids: str = "A001,A002,A005,A015,A020,A031"):
     the real feedback loop over the cohort's real recommendations (no side effects)."""
     ids = [a.strip() for a in advisor_ids.split(",") if a.strip()]
     return ok(data=FeedbackLearningService().impact_trend(ids))
+
+
+class RetrainRequest(BaseModel):
+    dry_run: bool = False
+
+
+@router.post("/retrain")
+def retrain(request: RetrainRequest):
+    """Section 11.3 — outcome-driven learning: fine-tune the GNN on the real recorded
+    outcome history (successful vs unsuccessful) and return before/after metrics. dry_run
+    previews pairs + baseline metrics without writing the -ft model."""
+    from app.ml.fl_finetune import run_finetune
+
+    return ok(data=run_finetune(dry_run=request.dry_run))
+
+
+@router.get("/before-after")
+def before_after(advisor_id: str = "A001", top_k: int = 5):
+    """The before/after demonstration payload — similar advisors + per-family outcome
+    affinity under the base vs the outcome-fine-tuned embeddings."""
+    from app.ml.fl_service import before_after as _ba
+
+    return ok(data=_ba(advisor_id, top_k))
+
+
+@router.get("/outcome-learning")
+def outcome_learning():
+    """Status of the deeper (outcome-driven) learning layer."""
+    from app.ml.fl_service import outcome_learning_state
+
+    return ok(data=outcome_learning_state())

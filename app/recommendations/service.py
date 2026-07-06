@@ -124,8 +124,32 @@ class RecommendationService:
             return {"playbook_id": first[0], **first[1]} if first else None
         return None  # live mode: playbook selection via installed query once added to the catalog
 
+    @staticmethod
+    def _outcome_affinities(advisor_id: str) -> dict[str, float]:
+        """Per-family outcome-driven-learning affinity for the advisor (Section 11.3).
+        Empty until the GNN has been fine-tuned on recorded outcomes; never blocks generation."""
+        try:
+            from app.ml.fl_service import family_affinity
+            return family_affinity(advisor_id)
+        except Exception:
+            return {}
+
+    @staticmethod
+    def _affinity_block(family: str, affinities: dict[str, float]) -> dict | None:
+        if family not in affinities:
+            return None
+        val = affinities[family]
+        tone = "a positive" if val > 0.02 else ("a negative" if val < -0.02 else "a neutral")
+        return {
+            "value": round(float(val), 4),
+            "sentence": f"Advisors in situations like this one have {tone} recorded track record "
+                        f"with {family.replace('_', ' ').title()} actions (affinity {val:+.2f}, "
+                        f"outcome-driven learning).",
+        }
+
     def generate_for_advisor(self, advisor_id: str, persist: bool = True) -> dict:
         detection = self.opportunities.detect_for_advisor(advisor_id, persist=persist)
+        affinities = self._outcome_affinities(advisor_id)
         recommendations = []
         for opp in detection["opportunities"]:
             mapping = ACTION_FAMILIES.get(opp["category"])
@@ -136,6 +160,14 @@ class RecommendationService:
             base_priority = opp["score"]
             priority = round(min(100.0, base_priority * weight), 1)
             confidence = round(min(0.99, (opp["components"]["confidence_evidence"] / 100) * weight), 2)
+            # Section 11.3: outcome-driven-learning affinity — evidence always; a bounded
+            # ±10% confidence modifier when enabled. Does NOT touch priority (bandit owns rank).
+            outcome_affinity = self._affinity_block(mapping["family"], affinities)
+            if outcome_affinity and get_settings().fl_affinity_in_confidence:
+                import math
+                mod = max(0.90, min(1.10, 1 + 0.15 * math.tanh(2 * outcome_affinity["value"])))
+                confidence = round(min(0.99, confidence * mod), 2)
+                outcome_affinity["confidence_modifier"] = round(mod, 3)
             recommendation = {
                 "recommendation_id": f"REC_{opp['opportunity_id']}",
                 "recommendation_type": "NEXT_BEST_ACTION",
@@ -151,6 +183,7 @@ class RecommendationService:
                 "opportunity_id": opp["opportunity_id"],
                 "prediction_id": opp.get("derived_from_prediction"),
                 "playbook_id": playbook["playbook_id"] if playbook else None,
+                "outcome_affinity": outcome_affinity,
                 "status": "PRESENTED",
             }
             recommendations.append(recommendation)

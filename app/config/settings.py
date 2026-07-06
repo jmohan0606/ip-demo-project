@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     vector_client_mode: str = Field(default="local", alias="VECTOR_CLIENT_MODE")  # local | tigergraph
     ml_artifacts_dir: str = Field(default="models/artifacts", alias="ML_ARTIFACTS_DIR")
     ml_time_box_minutes: int = Field(default=10, alias="ML_TIME_BOX_MINUTES")
+    # Section 11.3: apply the outcome-driven-learning affinity as a bounded ±10% confidence
+    # modifier on recommendations (evidence is always attached regardless). Priority ranking
+    # stays owned by the bandit weight alone.
+    fl_affinity_in_confidence: bool = Field(default=True, alias="FL_AFFINITY_IN_CONFIDENCE")
 
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
