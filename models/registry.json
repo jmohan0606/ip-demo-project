@@ -1,5 +1,36 @@
 {
   "models": {
+    "activity-anomaly-iforest": {
+      "algorithm": "Isolation Forest (200 trees, contamination 0.05) \u00b7 household own-history features",
+      "artifact_path": "models/artifacts/activity-anomaly-iforest.joblib",
+      "artifact_sha256": "85236e449c6b3ad2",
+      "caveats": "Statistical flag, not a determination. At 5% contamination on 360 households ~18 flags; most are benign. Own-history-relative (never a peer/wealth comparison).",
+      "features": [
+        "recent_rev_zmax",
+        "largest_tx_vs_median",
+        "tx_frequency_ratio",
+        "slope_break",
+        "recency_vs_own_gap",
+        "single_tx_share"
+      ],
+      "label_definition": "unsupervised \u2014 unusual activity vs the household's OWN 12-month history",
+      "metrics": {
+        "flagged": 18,
+        "flagged_pct": 5.0,
+        "households": 360
+      },
+      "name": "activity-anomaly-iforest",
+      "primary_metric": "flagged_pct",
+      "primary_metric_value": 5.0,
+      "quality_floor": null,
+      "quality_gate": "passed",
+      "served_by": "activity-anomaly-iforest",
+      "served_since": "2026-07-06",
+      "split": "unsupervised (no labels)",
+      "training_data": "360 households, own-history anomaly features (segment/AUM excluded)",
+      "training_date": "2026-07-06",
+      "version": "1.0"
+    },
     "agp-off-track-xgb": {
       "algorithm": "XGBoost (XGBClassifier, hist)",
       "artifact_path": "models/artifacts/agp-off-track-xgb.joblib",

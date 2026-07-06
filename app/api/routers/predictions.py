@@ -29,6 +29,15 @@ def household_churn(advisor_id: str):
     return ok(data=get_model_client().household_churn(advisor_id))
 
 
+@router.get("/activity-review/{advisor_id}")
+def activity_review(advisor_id: str):
+    """Care-framed Activity Pattern Review (Section 11.1 §9, Isolation Forest own-history).
+    Names the pattern not the person; statistical flag, not a determination."""
+    from app.ml.anomaly import activity_review as _ar
+
+    return ok(data=_ar(advisor_id))
+
+
 @router.get("/forecast/{advisor_id}")
 def revenue_forecast(advisor_id: str, horizon: int = 6):
     """Monthly revenue forecast with an uncertainty band (Section 11.1 §5). Served by the

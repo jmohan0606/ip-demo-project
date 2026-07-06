@@ -215,7 +215,7 @@ class RealModelClient:
 
         if not registry.serves("activity-anomaly-iforest"):
             return []
-        from app.ml.real_anomaly import anomaly_scores as _an
+        from app.ml.anomaly import anomaly_scores as _an
 
         return _an(entity_type, rows)
 

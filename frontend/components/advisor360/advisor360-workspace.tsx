@@ -68,6 +68,7 @@ export function Advisor360Workspace() {
   const [ai, setAi] = useState<AiResponse | null>(null);
   const [churn, setChurn] = useState<ChurnResponse | null>(null);
   const [referral, setReferral] = useState<{ available: boolean; tier?: string; percentile?: number; degree?: number; summary?: string } | null>(null);
+  const [review, setReview] = useState<{ available: boolean; disclaimer?: string; false_positive_note?: string; flagged?: Array<{ household_id: string; review_reason: string; top_signals: Array<{ signal: string; value: number }> }> } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -99,6 +100,8 @@ export function Advisor360Workspace() {
       apiClient.get<ChurnResponse>(`/predictions/household-churn/${advisorId}`).then(setChurn).catch(() => setChurn(null));
       // Referral Network Position (Section 11.1 §6 — PageRank over the real referral/book graph).
       apiClient.get<typeof referral>(`/graph-insights/referral/${advisorId}`).then(setReferral).catch(() => setReferral(null));
+      // Activity Pattern Review (Section 11.1 §9 — Isolation Forest, care-framed).
+      apiClient.get<typeof review>(`/predictions/activity-review/${advisorId}`).then(setReview).catch(() => setReview(null));
     } finally {
       setBusy(false);
     }
@@ -298,6 +301,32 @@ export function Advisor360Workspace() {
           );
         })}
       </div>
+
+      {/* Activity Pattern Review (Section 11.1 §9 · Isolation Forest, care-framed) */}
+      {review?.available && (review.flagged?.length ?? 0) > 0 ? (
+        <div className="rounded-xl border px-4 py-3 shadow-sm" style={{ borderColor: "#FDE68A", background: "#FFFBEB" }}>
+          <div className="flex items-center justify-between">
+            <h2 className={type.cardTitle} style={{ color: "#92400E" }}>Activity Pattern Review</h2>
+            <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ color: "#92400E", background: "#FEF3C7", borderColor: "#FDE68A" }}>
+              {review.flagged!.length} to review
+            </span>
+          </div>
+          <p className="mt-1 text-[11px]" style={{ color: "#92400E" }}>{review.disclaimer}</p>
+          <div className="mt-2 space-y-1.5">
+            {review.flagged!.map((f) => (
+              <div key={f.household_id} className="rounded-lg border bg-white px-3 py-1.5 text-[12px]" style={{ borderColor: "#FDE68A" }}>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold" style={{ color: colors.text.primary }}>{f.household_id} · {f.review_reason}</span>
+                  <span className="text-[11px]" style={{ color: colors.text.muted }}>
+                    {f.top_signals.map((s) => `${s.signal} ${s.value}`).join(" · ")}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px]" style={{ color: colors.text.muted }}>{review.false_positive_note}</p>
+        </div>
+      ) : null}
 
       {/* Referral Network Position (Section 11.1 §6 · PageRank) */}
       {referral?.available ? (

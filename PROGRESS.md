@@ -1624,3 +1624,19 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   env-only on adequate hardware. NOT run live (container Exited; hardware limit already established Phase 2/3).
 - Verified LIVE: GET /graph-insights/similar/ADVISOR/A020 → A019 0.98/A013 0.93/A026 0.93/A027 0.90 via
   VectorClient (backend=local). 1140 vectors dim 32. Backend imports clean (37 routes).
+
+### 11.1 COMMIT 10/11 — Isolation Forest anomaly + Activity Pattern Review — DONE
+- app/ml/anomaly.py: IsolationForest(200 trees, contamination 0.05) at household level over 6 OWN-HISTORY-
+  relative features (recent-rev z vs own 12mo, largest-tx vs own median, tx-frequency ratio, slope break,
+  recency vs own gap, single-tx share). Segment/AUM EXCLUDED so wealth level can't drive a flag.
+  scripts/train/train_anomaly_detector.py. ModelClient.anomaly_scores wired.
+- **Real result: 360 households, 18 flagged = exactly 5.0% (contamination). Card states the false-positive
+  expectation out loud.** activity_review(advisor) returns care-framed flags: "Unusual activity pattern —
+  review suggested" (never "vulnerable"/"suspicious"), top own-history signals, "Statistical flag, not a
+  determination" disclaimer + "own pattern, never a peer/wealth comparison" note.
+- Endpoint GET /predictions/activity-review/{advisor_id}. Advisor 360: amber/slate care-framed "Activity
+  Pattern Review" card (shows ONLY when the advisor has flagged households; capped at ~5% by construction).
+- Verified LIVE: /predictions/activity-review/A042 → H0247 flagged (recent_rev_zmax 2.415). Card hides for
+  unflagged advisors (A001 screenshot s11-anomaly.png, 0 console errors) — honest. tsc PASS. The 6 binding
+  non-alarmist presentation rules (§9) are honored in the copy + styling (pattern-not-person, amber-not-red,
+  evidence attached, explicit uncertainty, human disposition, FP expectation stated).
