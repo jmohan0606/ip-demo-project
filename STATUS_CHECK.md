@@ -2,6 +2,46 @@
 
 _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architect` / general-purpose subagent with `model:"fable"`._
 
+---
+
+## 13B.3 Division-Leader Guided Journey — remaining-work assessment (2026-07-06)
+
+**Verdict: it is the guided-overlay wrapper only — NO backend is missing.** Every capability the
+division journey needs already exists and was probed live and returns real data:
+- Division rollup: `GET /scope/dashboard?scope_type=DIVISION&scope_id=D01` → real totals (rev_ltm
+  $14,738,198) + `bottom_advisors` with stated reasons (Avery Diaz "lowest LTM revenue", Jordan
+  Garcia "AGP attention (risk 56.6)"). ✅ (built §12.1)
+- Division-scope AI insight: `GET /scope/ai-insight?scope_type=DIVISION` → 200, grounded prose. ✅
+- **Scope-aware rollup reasoning (§11.6) works**: `POST /ai-chat/ask` with `scope_type=Division,
+  persona=DDW` → 200; the §11.6 ScopeRollupService path was already verified with real Claude
+  ("Division D01 'why is revenue lagging' reasons across 24 advisors, names Top + Needs-attention,
+  not one advisor"). So the DDW "which of my advisors need attention?" step is real, not a stub.
+- Coaching-task CRUD (§9.5): `GET /coaching/task-catalog` 200 + `POST /coaching/tasks` exist —
+  the manager-assigns-a-task step is a real persisted write, retrievable as AI context. ✅
+- Division-level propagation: division `totals.revenue_ltm = Σ advisor snapshots`, so completing a
+  rec for a contributing advisor moves the division rollup by exactly the impact — the SAME §13.3
+  math already verified to the cent at firm level. No new code; it holds by construction.
+
+**What's actually left to build (all frontend, ~80–120 lines, no new backend):**
+1. A second `Scenario` entry (~7 steps) in `frontend/components/story/scenarios.ts` — the story-launch
+   page already `.map`s SCENARIOS, so a second card auto-appears. Steps: division view → who-needs-
+   attention (real `bottom_advisors`) → drill into that advisor → assign a coaching task (real
+   `POST /coaching/tasks` as a story `action`) → accept+complete the advisor's top rec (reuses the
+   existing action machinery verbatim) → division rollup moved (before/after proof) → ask as the leader.
+2. Provider: derive the division `{D}` from the chosen advisor at launch (today `start()` passes a
+   hardcoded "D01") — resolve via the already-loaded hierarchy tree, ~15 lines; set persona DDW
+   (`shell.setPersona("DDW")` — the mechanism already exists).
+3. Two `data-story-target` attributes: `bottom-advisors-table` on the Executive Dashboard and one on
+   the coaching-reviews task area (attribute-only edits).
+4. One new story `action` shape: POST a task from `/coaching/task-catalog` (the overlay's action
+   runner already does POST calls — just a new call spec).
+5. Verification: a Playwright pass through the ~7 stops + assert the division rollup before/after
+   differs by exactly the impact (same assertion style as `verify_section13B_story.py`).
+
+**Effort: ~1.5–2.5 focused hours; risk LOW.** The only genuinely-new wiring is the coaching-task
+story-action and the advisor→division resolution at launch. All reasoning, rollups, propagation, and
+coaching persistence are done and verified. It was deferred purely for session length, not difficulty.
+
 ## Master Execution Order (from CLAUDE.md §12 header) — CONFIRMED
 
 Follow EXACTLY, no reordering:
