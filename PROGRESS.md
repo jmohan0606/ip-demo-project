@@ -1640,3 +1640,36 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   unflagged advisors (A001 screenshot s11-anomaly.png, 0 console errors) — honest. tsc PASS. The 6 binding
   non-alarmist presentation rules (§9) are honored in the copy + styling (pattern-not-person, amber-not-red,
   evidence attached, explicit uncertainty, human disposition, FP expectation stated).
+
+### 11.1 COMMIT 11/11 — Model Registry tab in Admin + model tier in /adapters/status — DONE
+- Backend: new /admin/models + /admin/models/{name} routes (read registry). /adapters/status now reports
+  the ModelClient tier (model_client_mode, tier, registered count, serving list) + vector_client_mode.
+- Frontend: AdminHealthWorkspace gained a System Health | Model Registry tab switch (lightweight, no new
+  dep) + a "Model Client (11.1)" adapter card on the health tab. Model Registry tab = table (name /
+  algorithm / trained / primary metric / serving-or-gated badge) with a click-to-expand model card
+  (algorithm, label, training data, split, metrics, features, caveats banner).
+- Verified LIVE + Playwright: /admin/models → 6 models, 4 serving; Admin Model Registry tab renders all 6
+  with honest badges (revenue-decline-xgb roc_auc 0.7755 serving, graphsage-v1 0.9234 serving,
+  revenue-forecast-gru sMAPE 0.081 serving, activity-anomaly-iforest serving; agp-off-track-xgb 0.6347 +
+  household-churn-xgb 0.0117 GATED/fallback). tsc PASS; 0 console errors (fixed a React key warning).
+  Screenshot s11-model-registry.png.
+
+============================================================================================
+## SECTION 11.1 COMPLETE — real model tier (ModelClient adapter) end to end.
+## 11 commit-sized units, all with REAL metrics + honest gates (no tuning to pass):
+##  - XGBoost REVENUE_DECLINE_RISK promoted to the LIVE /predictions path with real TreeSHAP
+##    contributions (ROC-AUC 0.7755); dormant synthetic-label RandomForest retired.
+##  - Household churn (gated → indicative), AGP off-track (gated → scorecard fallback) — honest.
+##  - GRU revenue forecast with uncertainty band (sMAPE 0.081, beats seasonal-naive/ma3).
+##  - Classical GDS: networkx PageRank (Referral Network Position) + Louvain (Peer Communities).
+##  - Real GNN: PyG GraphSAGE link-prediction (ROC-AUC 0.9234), 32-dim embeddings via VectorClient.
+##  - Isolation Forest anomaly (Activity Pattern Review, care-framed, 5% flags).
+##  - Model registry + model cards in Admin; deterministic tier NEVER deleted (per-type fallback).
+## Every model: real training script, real printed metrics, registry entry, honest quality gate
+## (2 of 6 correctly DON'T serve). Anchored advisor figures (A001/A020/F001) asserted intact on
+## every training run. Adapter discipline: MODEL_CLIENT_MODE / VECTOR_CLIENT_MODE, heavy imports
+## isolated to app/ml/real_*.py + app/ml/training/ + app/ml/{gnn,anomaly,graph_algorithms}.py.
+## Fable-designed (general-purpose subagent, model:"fable"): the full 11.1 model/training approach
+## (docs/section11/11_1_model_design.md). Next Section-11 items: 11.2 RL formalization → 11.3 FL
+## (feedback loop, needs outcome-variety data expansion) → 11.4–11.8, 11.11.
+============================================================================================

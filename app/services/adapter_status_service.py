@@ -36,6 +36,19 @@ class AdapterStatusService:
             "llm": llm.describe(),
             "embedding_client_mode": settings.embedding_client_mode,
             "embedding": get_embedding_client().describe(),
+            "model_client_mode": settings.model_client_mode,
+            "model": self._model_tier(),
+            "vector_client_mode": settings.vector_client_mode,
             "anthropic_configured": bool(settings.anthropic_api_key),
             "azure_openai_configured": bool(settings.azure_openai_endpoint and settings.azure_openai_api_key),
         }
+
+    @staticmethod
+    def _model_tier() -> dict:
+        """Section 11.1: active ModelClient tier + which trained models are serving."""
+        from app.ml import registry
+        from app.ml.client import get_model_client
+
+        described = get_model_client().describe()
+        serving = [e["name"] for e in registry.list_entries() if e.get("quality_gate") == "passed"]
+        return {**described, "registered": len(registry.list_entries()), "serving": serving}
