@@ -1689,3 +1689,39 @@ Formalizes the ALREADY-VERIFIED feedback loop as a documented contextual bandit;
   weight-trajectory (CRM Execution→1.50 / Managed Mix→0.53) render together, 0 console errors, tsc PASS.
   Screenshot s11-bandit.png.
 Next: 11.3 FL (outcome-driven learning — needs outcome-variety data expansion first, Fable-designed).
+
+## Session 9 (cont.) — SECTION 11.3 — FL = Feedback Loop (outcome-driven learning) — DONE
+NOT Federated Learning (client-corrected). Additive deeper layer on top of the verified bandit (11.2):
+recorded recommendation outcomes fine-tune the GNN's embeddings so peer/situation evidence stops
+pointing at combinations that failed. Fable-designed (docs/section11/11_3_fl_design.md); 7 commit-sized
+units. graphsage-v1 + the bandit loop stay intact; -ft serves only past a link-pred retention gate.
+- **Commit 1 (Part A data):** expand_outcome_variety_v1_3.py — +144 (feedback,outcome,learning_signal)
+  triples across ALL 3 families with a real success/failure mix incl. 18 genuinely-negative outcome_value
+  rows ("completed but it hurt"). 7 files 36→180, manifest 7/7. validate_package PASS (155,954 rows);
+  idempotent; anchors intact.
+- **Commit 2:** gnn.py saves graphsage-v1.pt state_dict; registry.active_embedding_model(); VectorClient
+  model_name param + ?model= on /graph-insights/similar (before/after inspection).
+- **Commit 3:** app/ml/fl_pairs.py — chain-walk pair builder (P1 same-family-positive pull / P2 pos-vs-neg
+  push / P3-P4 relationship), legacy vocab map, seeded 20% holdout. 180 events → 1347 pairs, deterministic.
+  Honest data note: MANAGED_MIX/RETENTION recs target few households → thin advisor pairs; CRM + relationship
+  pairs carry the signal.
+- **Commit 4:** app/ml/fl_finetune.py — L = L_linkpred + 0.5·margin-contrastive (m=0.2, lr 1e-3, ≤20 epochs,
+  time-boxed). Persists graphsage-v1-ft (v1 rows PK-immutable) + per-advisor/family affinity for both models.
+  Real result: link-pred AUC 0.969→0.953 (retention gate PASSED); separation −0.0215→−0.0175 (right
+  direction, tiny — anticipated small-effect case); RETENTION per-family +0.035. active model → -ft.
+- **Commit 5:** app/ml/fl_service.py + endpoints POST /feedback-learning/retrain, GET /before-after,
+  /outcome-learning. RecommendationService attaches outcome_affinity evidence (always) + bounded ±10%
+  confidence modifier (FL_AFFINITY_IN_CONFIDENCE, default true; priority stays bandit-owned). Verified live:
+  POST recs/generate/A020 → affinity evidence per rec; affinity real per-advisor (A001 +0.02 / A005 −0.04).
+- **Commit 6:** outcome-learning-panel.tsx on the Recommendations page (below the bandit replay): two-layer
+  explainer, Run-Feedback-Driven-Retraining button, real metrics, before/after similar-advisor columns +
+  rank-move badges, per-family affinity deltas, mandatory amber "small on demo-scale" honesty note. All
+  numbers from the payload; tsc PASS; 0 console errors. Screenshot s11-fl-panel.png.
+- **Commit 7:** .env.example FL_AFFINITY_IN_CONFIDENCE; Admin Model Registry tab renders graphsage-v1-ft
+  automatically ("7 models · 5 serving", -ft serving, separation_after=−0.0175). Screenshot s11-fl-registry.png.
+Honesty: v1/bandit/deterministic fallbacks never deleted; -ft gated by AUC retention; small effect shown
+truthfully (not tuned); terminology "outcome-driven learning"/"feedback loop" throughout.
+Known standing caveats: mock graph upserts in-memory (reset on --reload); run the backend from repo root
+(or with absolute FOUNDATION_DIR/SQLITE_DB_PATH) — relative data paths fail under a wrong CWD.
+Next Section-11 items: 11.4 temporal KG showcase → 11.5 Eval & Trust (Fable-designed) → 11.6 context
+engineering → 11.7 observability → 11.8 MCP layer → 11.11 two-AI-systems labeling.
