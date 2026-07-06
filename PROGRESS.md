@@ -1744,3 +1744,24 @@ Surfaces the temporal capability that existed only in fragments. Real point-in-t
 - Verified: tsc PASS; Playwright 0 console errors on both pages; screenshots s11-pit-features.png,
   s11-temporal-graph.png. Honest caveat: some features are current-state (crm_pipeline) not time-windowed,
   so they don't move across dates — the revenue/AUM/NNM/managed features do.
+
+## Session 9 (cont.) — SECTION 11.11 (Two AI Systems visible) + SECTION 11.5 (Evaluation & Trust) — DONE
+### 11.11 (main thread)
+- app/api/routers/architecture.py: /architecture/{model-strategy,ai-protections,business-outcomes}. Model
+  Strategy = real per-function serving (live registry + adapter modes); AI Protections = honest Top-10
+  (7 implemented / 3 partial). Admin gained "Model Strategy" + "AI Protections" tabs.
+- Labeling: AI Assistant → "iPerform Coach Q&A Assistant" (reactive); AiContentCard chip → "iPerform
+  Insights and Coaching" (proactive); Exec Dashboard KPIs annotated with business outcomes.
+- Backend launch made CWD-independent (PYTHONPATH + absolute FOUNDATION_DIR/SQLITE_DB_PATH; evaluation
+  router resolves paths via __file__) — the robust fix for the recurring wrong-CWD empty-store issue.
+### 11.5 (Fable-designed harness)
+- golden_qa.json (v2): 25 Q (20 grounded + 5 refusal), synonym-group matcher. scripts/eval/run_golden_eval.py
+  runs the REAL RagGenerationService.answer (== POST /knowledge/ask) on LLM_CLIENT_MODE=claude; deterministic
+  scoring (groundedness = point in answer AND evidence; citation = inline [n]+must_cite; refusal = honest
+  decline). Fails loudly in mock (exit 1, verified).
+- **REAL Claude runs committed (trend): v1 80% → v2 88% pass** after ONE sanctioned calibration (widened
+  G02/G04 must_cite to the valid co-retrieved doc). Latest: **groundedness 85%, citation 100%, refusal 100%,
+  22/25 pass.** 3 honest FAILs (G05/G06/G12) where Claude declined partial answers — the guard working.
+- Read-only /evaluation/runs{,/latest}; Admin "Evaluation & Trust" tab (guard banner, KPI cards, per-question
+  expandable point-level evidence, trend chart). tsc PASS; Playwright 0 errors; screenshots.
+Next: 11.6 context engineering (RerankClient + memory audit + scope-aware AI, real Claude) → 11.7 → 11.8.

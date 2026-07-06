@@ -7,6 +7,7 @@ import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { colors } from "@/styles/tokens";
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const compact = (v: number) => Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v);
 
@@ -90,6 +91,94 @@ function AiProtectionsTab() {
         })}
       </CardContent>
     </Card>
+  );
+}
+
+interface EvalQuestion { id: string; type: string; pass: boolean; found: boolean; groundedness_score: number | null; has_citation: boolean | null; cited_docs: string[]; point_results: Array<{ label: string; in_answer: boolean; in_evidence: boolean }>; answer_excerpt: string }
+interface EvalRun { available: boolean; hint?: string; run_id?: string; timestamp_utc?: string; golden_version?: number; llm?: { mode?: string; model?: string }; aggregates?: Record<string, number>; questions?: EvalQuestion[] }
+interface EvalHistory { history: Array<{ run_id: string; timestamp_utc: string; groundedness_pct: number; citation_coverage_pct: number; refusal_correctness_pct: number; pass_rate_pct: number }> }
+
+function EvaluationTrustTab() {
+  const [latest, setLatest] = useState<EvalRun | null>(null);
+  const [history, setHistory] = useState<EvalHistory["history"]>([]);
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    apiClient.get<EvalRun>("/evaluation/runs/latest").then(setLatest).catch(() => setLatest(null));
+    apiClient.get<EvalHistory>("/evaluation/runs").then((r) => setHistory(r.history ?? [])).catch(() => setHistory([]));
+  }, []);
+  const kpiColor = (v: number) => v >= 80 ? "#0F766E" : v >= 60 ? "#B45309" : "#B91C1C";
+  if (!latest?.available) {
+    return <Card><CardContent className="p-4 text-[12px] text-muted-foreground">{latest?.hint ?? "Loading…"}</CardContent></Card>;
+  }
+  const agg = latest.aggregates ?? {};
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border px-3 py-2 text-[11px]" style={{ borderColor: "#C7D2FE", background: "#EEF2FF", color: "#3730A3" }}>
+        <b>Hallucination guard:</b> every answer must trace to retrieved evidence — a grounded answer with zero citations is scored FAIL.
+        Run {latest.run_id} · {latest.llm?.mode ?? "?"}/{latest.llm?.model ?? "?"} · golden v{latest.golden_version}.
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {([["Groundedness", "groundedness_pct"], ["Citation Coverage", "citation_coverage_pct"], ["Refusal Correctness", "refusal_correctness_pct"], ["Pass Rate", "pass_rate_pct"]] as const).map(([label, key]) => (
+          <div key={key} className="rounded-xl border bg-white p-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
+            <div className="text-[11px] uppercase text-muted-foreground">{label}</div>
+            <div className="text-[22px] font-black" style={{ color: kpiColor(agg[key] ?? 0) }}>{agg[key] ?? "—"}%</div>
+          </div>
+        ))}
+      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between p-3">
+          <CardTitle className="flex items-center gap-2 text-[13px]"><CheckCircle2 className="h-4 w-4 text-primary" /> Golden Q&amp;A — per-question</CardTitle>
+          <span className="text-[10px] text-muted-foreground">{agg.pass_count}/{agg.total} pass</span>
+        </CardHeader>
+        <CardContent className="p-3">
+          <table className="w-full text-[12px]">
+            <thead><tr className="border-b text-left text-[11px] uppercase text-muted-foreground">{["Q", "Type", "Result", "Ground", "Cited"].map((h) => <th key={h} className="px-2 py-1.5">{h}</th>)}</tr></thead>
+            <tbody>
+              {(latest.questions ?? []).map((q) => (
+                <Fragment key={q.id}>
+                  <tr className="cursor-pointer border-b hover:bg-slate-50" onClick={() => setOpen(open === q.id ? null : q.id)}>
+                    <td className="px-2 py-1.5 font-mono font-semibold">{q.id}</td>
+                    <td className="px-2 py-1.5"><Badge variant="glass">{q.type}</Badge></td>
+                    <td className="px-2 py-1.5"><Badge variant={q.pass ? "success" : "warning"}>{q.pass ? "pass" : "fail"}</Badge></td>
+                    <td className="px-2 py-1.5 font-mono">{q.groundedness_score ?? "—"}</td>
+                    <td className="px-2 py-1.5 font-mono text-[11px]">{q.cited_docs.slice(0, 2).join(", ") || "—"}</td>
+                  </tr>
+                  {open === q.id && (
+                    <tr className="border-b bg-slate-50/60"><td colSpan={5} className="px-3 py-2">
+                      <div className="text-[12px]">
+                        {q.point_results.map((p) => (
+                          <div key={p.label} className="flex gap-3"><span className="w-56 text-muted-foreground">{p.label}</span>
+                            <span style={{ color: p.in_answer ? "#0F766E" : "#B91C1C" }}>in answer: {String(p.in_answer)}</span>
+                            <span style={{ color: p.in_evidence ? "#0F766E" : "#B91C1C" }}>in evidence: {String(p.in_evidence)}</span></div>
+                        ))}
+                        <div className="mt-1.5 rounded border bg-white px-2 py-1 text-[11px]" style={{ borderColor: colors.surface.border }}>{q.answer_excerpt}</div>
+                      </div>
+                    </td></tr>
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+      {history.length > 1 ? (
+        <Card>
+          <CardHeader className="p-3"><CardTitle className="text-[13px]">Trend across runs</CardTitle></CardHeader>
+          <CardContent className="p-3">
+            <div style={{ width: "100%", height: 200 }}>
+              <ResponsiveContainer>
+                <LineChart data={history.map((h) => ({ run: h.run_id.replace("run_", "").slice(0, 8), groundedness: h.groundedness_pct, citation: h.citation_coverage_pct, pass: h.pass_rate_pct }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={colors.surface.border} />
+                  <XAxis dataKey="run" tick={{ fontSize: 10 }} /><YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ fontSize: 11 }} /><Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line dataKey="groundedness" stroke={colors.primary} dot /><Line dataKey="citation" stroke={colors.aiAccent} dot /><Line dataKey="pass" stroke="#14B8A6" dot />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+    </div>
   );
 }
 
@@ -194,7 +283,7 @@ function AdapterCard({
 export function AdminHealthWorkspace() {
   const [status, setStatus] = useState<AdapterStatus | null>(null);
   const [entityCount, setEntityCount] = useState<number>(0);
-  const [tab, setTab] = useState<"health" | "models" | "strategy" | "protections">("health");
+  const [tab, setTab] = useState<"health" | "models" | "strategy" | "protections" | "eval">("health");
 
   useEffect(() => {
     fetchAdapterStatus().then(setStatus).catch(() => setStatus(null));
@@ -217,7 +306,7 @@ export function AdminHealthWorkspace() {
       </div>
 
       <div className="flex flex-wrap gap-1 border-b">
-        {([["health", "System Health"], ["models", "Model Registry"], ["strategy", "Model Strategy"], ["protections", "AI Protections"]] as const).map(([t, label]) => (
+        {([["health", "System Health"], ["models", "Model Registry"], ["strategy", "Model Strategy"], ["protections", "AI Protections"], ["eval", "Evaluation & Trust"]] as const).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-3 py-1.5 text-[12px] font-semibold ${tab === t ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}>
             {label}
@@ -225,7 +314,7 @@ export function AdminHealthWorkspace() {
         ))}
       </div>
 
-      {tab === "models" ? <ModelRegistryTab /> : tab === "strategy" ? <ModelStrategyTab /> : tab === "protections" ? <AiProtectionsTab /> : (
+      {tab === "models" ? <ModelRegistryTab /> : tab === "strategy" ? <ModelStrategyTab /> : tab === "protections" ? <AiProtectionsTab /> : tab === "eval" ? <EvaluationTrustTab /> : (
       <div className="space-y-3">
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
