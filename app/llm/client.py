@@ -4,6 +4,7 @@ import hashlib
 from typing import Protocol
 
 from app.config.settings import get_settings
+from app.shared.adapter_logging import logged_adapter_call
 
 
 class LLMClientError(RuntimeError):
@@ -70,6 +71,7 @@ class MockLLMClient:
     burning tokens on every hot reload.
     """
 
+    @logged_adapter_call("llm")
     def generate(self, prompt: str, context: dict | None = None) -> str:
         import time as _t
         _start = _t.perf_counter()
@@ -107,6 +109,7 @@ class ClaudeLLMClient:
         self._client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         self.model = settings.anthropic_model
 
+    @logged_adapter_call("llm")
     def generate(self, prompt: str, context: dict | None = None) -> str:
         import time as _t
         _start = _t.perf_counter()
@@ -147,6 +150,7 @@ class RealLLMClient:
         )
         self.deployment = settings.azure_openai_deployment
 
+    @logged_adapter_call("llm")
     def generate(self, prompt: str, context: dict | None = None) -> str:
         import time as _t
         _start = _t.perf_counter()

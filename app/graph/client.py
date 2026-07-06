@@ -9,6 +9,7 @@ import httpx
 from app.config.settings import get_settings
 from app.graph.foundation_store import FoundationGraphStore, get_foundation_store
 from app.graph.tier_log import get_tier_log
+from app.shared.adapter_logging import logged_adapter_call
 
 
 def _record_direct(tier: int, operation: str, target: str, start: float, ok: bool, error: str | None = None) -> None:
@@ -80,6 +81,7 @@ class RealGraphClient:
         except Exception as exc:
             return {"healthy": False, "mode": "real", "graph": self.graph_name, "restpp_url": self.base, "error": str(exc)}
 
+    @logged_adapter_call("graph")
     def run_query(self, query_name: str, params: dict | None = None) -> dict:
         start = time.perf_counter()
         try:
@@ -153,6 +155,7 @@ class RealGraphClient:
                         total += value
         return total
 
+    @logged_adapter_call("graph")
     def upsert(self, entry: dict, records: list[dict]) -> dict:
         if not records:
             return {"accepted_vertices": 0, "accepted_edges": 0, "errors": []}
@@ -245,6 +248,8 @@ class MockGraphClient:
             "load_report": self.store.load_report,
         }
 
+    @logged_adapter_call("graph")
+    @logged_adapter_call("graph")
     def run_query(self, query_name: str, params: dict | None = None) -> dict:
         start = time.perf_counter()
         impl = MOCK_QUERY_IMPLS.get(query_name)
@@ -259,6 +264,7 @@ class MockGraphClient:
         _record_direct(4, "run_query", query_name, start, ok=True)
         return {"error": False, "results": results, "mode": "mock", "query": query_name}
 
+    @logged_adapter_call("graph")
     def upsert(self, entry: dict, records: list[dict]) -> dict:
         """Writes into the same indexes the query implementations traverse —
         mirroring real TigerGraph, where upserted artifacts are immediately

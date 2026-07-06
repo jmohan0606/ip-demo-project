@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.middleware.error_handlers import register_exception_handlers
+from app.api.middleware.correlation import CorrelationIdMiddleware
 from app.api.routers.adapters import router as adapters_router
 from app.api.routers.config import router as config_router
 from app.api.routers.health import router as health_router
@@ -65,6 +66,8 @@ async def lifespan(app: FastAPI):
 
 app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching', lifespan=lifespan)
 register_exception_handlers(app)
+# Correlation-id + request logging (added last below via add_middleware so it runs
+# outermost — id is bound before any handler/adapter emits a log line).
 @app.get('/health', response_model=HealthResponse)
 def health() -> HealthResponse:
     return HealthResponse(status='ok', app_name=settings.app_name, app_version=settings.app_version, environment=settings.app_env, graph_name=GRAPH_NAME, schema_prefix=SCHEMA_PREFIX)
@@ -126,6 +129,12 @@ app.include_router(agentic_ai_router)
 
 
 app.include_router(config_status_router)
+
+if settings.enable_diagnostics_routes:
+    from app.api.routers.diagnostics import router as diagnostics_router
+    app.include_router(diagnostics_router)
+
+app.add_middleware(CorrelationIdMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

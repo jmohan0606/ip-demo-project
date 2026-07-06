@@ -4,6 +4,51 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Structured logging & error handling — CloudWatch-ready backend (2026-07-06)
+
+Added production-grade, ECS/CloudWatch-ready observability to the FastAPI backend. Replaced the
+loguru-stderr-only setup with stdlib `logging` emitting single-line JSON events.
+
+**What was built**
+- `app/shared/logging.py` — `JsonFormatter` (timestamp, level, logger, correlation_id, message,
+  source, promoted `extra=` fields, and full `exception.{type,message,stack_trace}` on errors) +
+  `configure_logging()` with a **swappable sink via `LOG_SINK`**: `file` (RotatingFileHandler →
+  `logs/app.log`, 10 MB × 5 backups, local default) · `stdout` (same JSON to stdout — the
+  Fargate→CloudWatch path) · `cloudwatch` (watchtower handler, safe stdout fallback if the pkg/
+  creds are missing). Both documented in the module docstring so switching is a config change,
+  not a rewrite. Routes uvicorn/fastapi loggers through the same handler.
+- `app/shared/correlation.py` + `app/api/middleware/correlation.py` — contextvar-based
+  correlation id; middleware reuses inbound `X-Correlation-ID`/`X-Request-ID` or mints one,
+  binds it to every log line for the request, echoes it back on the response header, and logs
+  request start/complete/failed with method/path/status/duration.
+- `app/api/middleware/error_handlers.py` — global handlers now log full traces (`exc_info=True`)
+  and return a clean structured envelope `{success,error,message,correlation_id}` — never a raw
+  stack to the user. Generic `Exception` → 500 "Unexpected server error".
+- `app/shared/adapter_logging.py` — `@logged_adapter_call("graph"|"llm")` applied to
+  GraphClient `run_query`/`upsert` (Real+Mock) and all three LLMClient `generate` methods: on
+  failure logs component/operation/redacted-args/error_type + trace, then re-raises so the API
+  boundary returns the clean error.
+- `app/api/routers/diagnostics.py` — `/_diagnostics/{ping,boom,handled-error}` (gated by
+  `ENABLE_DIAGNOSTICS_ROUTES`, off in prod) for verifying the log pipeline.
+- Settings + `pyproject.toml` optional `aws` extra (`watchtower`, `boto3`).
+
+**Verified (real evidence, port 8011, mock mode)**
+- `GET /_diagnostics/boom` with `X-Correlation-ID: test-trace-123` → client got clean
+  `{"success":false,"error":"internal_error","message":"Unexpected server error",
+  "correlation_id":"test-trace-123"}` HTTP 500 (no stack leaked).
+- `logs/app.log` captured the matching ERROR JSON records (`app.request` + `app.api`) with
+  `exception.type=RuntimeError`, full `stack_trace`, and `correlation_id=test-trace-123`.
+- Adapter decorator fired on a bad query: `app.adapter` record with
+  `adapter_component=graph, adapter_operation=run_query, adapter_args=['NO_SUCH_QUERY_XYZ',
+  "<dict keys=['advisor_id']>"]`, full trace, and re-raised (404 to client).
+- `LOG_SINK=stdout` emitted valid JSON to stdout with `extra` fields promoted (ECS path).
+- Response `X-Correlation-ID` header present on normal requests. App imports clean (45 routes).
+
+**Deferred / notes:** `watchtower`/`boto3` are lazy-imported optional deps (only for
+`LOG_SINK=cloudwatch`); `LOG_SINK=stdout` needs neither. `*.log` already gitignored.
+
+---
+
 ## 13B.3 Division-Leader Guided Journey — remaining-work assessment (2026-07-06)
 
 **Verdict: it is the guided-overlay wrapper only — NO backend is missing.** Every capability the

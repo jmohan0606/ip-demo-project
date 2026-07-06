@@ -14,6 +14,25 @@ class Settings(BaseSettings):
     app_version: str = Field(default="11.0.1", alias="APP_VERSION")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
+    # --- Structured logging / CloudWatch-ready sink (see app/shared/logging.py docstring) ---
+    # log_sink selects WHERE structured JSON logs go, so switching for ECS/Fargate is a
+    # config change, not a code change:
+    #   file       → RotatingFileHandler to logs/app.log (local default)
+    #   stdout     → structured JSON to stdout (Fargate ships stdout straight to CloudWatch)
+    #   cloudwatch → watchtower CloudWatchLogHandler (falls back to stdout if unavailable)
+    log_sink: str = Field(default="file", alias="LOG_SINK")  # file | stdout | cloudwatch
+    log_json: bool = Field(default=True, alias="LOG_JSON")  # JSON when true; human console when false
+    log_dir: str = Field(default="logs", alias="LOG_DIR")
+    log_file_name: str = Field(default="app.log", alias="LOG_FILE_NAME")
+    log_rotate_max_bytes: int = Field(default=10_485_760, alias="LOG_ROTATE_MAX_BYTES")  # 10 MB
+    log_rotate_backup_count: int = Field(default=5, alias="LOG_ROTATE_BACKUP_COUNT")
+    # CloudWatch (log_sink=cloudwatch) — used only by the watchtower handler.
+    log_cloudwatch_group: str = Field(default="/iperform/insights-coaching", alias="LOG_CLOUDWATCH_GROUP")
+    log_cloudwatch_stream: str | None = Field(default=None, alias="LOG_CLOUDWATCH_STREAM")
+    aws_region: str | None = Field(default=None, alias="AWS_REGION")
+    # Register the deliberate-error diagnostics route (/_diagnostics/*). Kept out of prod.
+    enable_diagnostics_routes: bool = Field(default=True, alias="ENABLE_DIAGNOSTICS_ROUTES")
+
     # Adapter selection (Section 2 of the rebuild brief)
     graph_client_mode: str = Field(default="mock", alias="GRAPH_CLIENT_MODE")  # mock | local_real | real
     llm_client_mode: str = Field(default="mock", alias="LLM_CLIENT_MODE")  # mock | claude | real
