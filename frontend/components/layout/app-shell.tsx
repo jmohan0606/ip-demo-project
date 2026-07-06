@@ -2,6 +2,7 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { SidebarNavigation } from "@/components/navigation/sidebar-navigation";
 import { TopHeader } from "@/components/layout/top-header";
+import { StoryModeProvider } from "@/components/story/story-mode-provider";
 import { ShellContext } from "@/components/layout/shell-context";
 import { GlobalLoadingOverlay } from "@/components/loading/global-loading-overlay";
 import { fetchHierarchyTree } from "@/lib/api/hierarchy";
@@ -77,7 +78,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SidebarNavigation collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
           <div className="flex min-w-0 flex-1 flex-col">
             <TopHeader />
-            <main className="flex-1 px-3 py-3 xl:px-4">{children}</main>
+            <StoryModeProvider>
+              <main className="flex-1 px-3 py-3 xl:px-4">{children}</main>
+            </StoryModeProvider>
           </div>
         </div>
       </div>

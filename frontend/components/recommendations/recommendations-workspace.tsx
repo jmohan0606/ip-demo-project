@@ -63,6 +63,7 @@ interface Recommendation {
   status_note?: string | null;
   allowed_actions?: string[];
   terminal?: boolean;
+  compliance?: { status: string; warnings: string[] };
 }
 
 interface AddressedOpportunity {
@@ -301,8 +302,8 @@ export function RecommendationsWorkspace() {
 
       <div className="space-y-3">
         {recs.map((rec, index) => (
+          <div key={rec.recommendation_id} data-story-target={index === 0 ? "rec-card-top" : undefined}>
           <AiContentCard
-            key={rec.recommendation_id}
             title={`#${index + 1} · ${rec.title}`}
             footer={
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -372,6 +373,18 @@ export function RecommendationsWorkspace() {
                       </span>
                     );
                   })()}
+                  {rec.compliance && (() => {
+                    const ok = rec.compliance.status === "PASSED";
+                    const cc = ok ? colors.positive : colors.warning;
+                    return (
+                      <span data-story-target={index === 0 ? "rec-compliance-chip" : undefined}
+                        title={rec.compliance.warnings.join(" · ") || "Compliance check passed"}
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]"
+                        style={{ color: cc, backgroundColor: `${cc}14`, border: `1px solid ${cc}44` }}>
+                        <ShieldCheck style={{ width: 11, height: 11 }} /> Compliance {rec.compliance.status}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p className={type.body} style={{ color: colors.text.primary }}>{rec.action_text}</p>
                 {rec.status_note && (
@@ -388,6 +401,7 @@ export function RecommendationsWorkspace() {
               <SeverityBadge value={rec.severity} />
             </div>
           </AiContentCard>
+          </div>
         ))}
         {recs.length === 0 && !busy ? (
           <p className={type.body} style={{ color: colors.text.muted }}>
@@ -399,7 +413,7 @@ export function RecommendationsWorkspace() {
       {/* Section 13.5: opportunities addressed by a completed recommendation — no longer re-issued. */}
       {(data?.addressed_opportunities?.length ?? 0) > 0 && (
         <div className="rounded-xl border p-3" style={{ borderColor: "#A7F3D0", backgroundColor: "#F0FDF4" }}>
-          <div className={`mb-1.5 ${type.label}`} style={{ color: "#065F46" }}>Addressed ({data!.addressed_opportunities!.length}) — completed, not regenerating</div>
+          <div data-story-target="addressed-section" className={`mb-1.5 ${type.label}`} style={{ color: "#065F46" }}>Addressed ({data!.addressed_opportunities!.length}) — completed, not regenerating</div>
           <ul className="space-y-1">
             {data!.addressed_opportunities!.map((a) => (
               <li key={a.opportunity_id} className={type.data} style={{ color: colors.text.secondary }}>
@@ -412,7 +426,7 @@ export function RecommendationsWorkspace() {
       )}
 
       {/* RL feedback-loop showcase — how weights move with feedback over rounds (9.5, Fable-designed) */}
-      <LearningStateShowcase />
+      <div data-story-target="learning-state"><LearningStateShowcase /></div>
 
       <OutcomeLearningPanel />
     </div>

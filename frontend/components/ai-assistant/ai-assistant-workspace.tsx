@@ -118,7 +118,7 @@ export function AiAssistantWorkspace() {
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 flex items-end gap-2 rounded-xl border bg-white p-2 shadow-sm" style={{ borderColor: colors.surface.border }}>
+      <div data-story-target="chat-input" className="sticky bottom-0 flex items-end gap-2 rounded-xl border bg-white p-2 shadow-sm" style={{ borderColor: colors.surface.border }}>
         <textarea
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

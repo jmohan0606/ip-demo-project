@@ -78,3 +78,16 @@
 .bg-warn-soft { background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.30); }
 .bg-bad-soft { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25); }
 .bg-ai-soft { background: rgba(79,70,229,.08); border-color: rgba(79,70,229,.25); }
+
+/* Section 13B.2 — Guided Story Mode highlight ring */
+@keyframes story-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(37,99,235,0.55), 0 0 0 8px rgba(37,99,235,0.12); }
+  50% { box-shadow: 0 0 0 3px rgba(37,99,235,0.85), 0 0 0 14px rgba(37,99,235,0.18); }
+}
+.story-highlight {
+  border-radius: 12px;
+  animation: story-pulse 1.8s ease-in-out infinite;
+  scroll-margin: 120px;
+  position: relative;
+  z-index: 5;
+}

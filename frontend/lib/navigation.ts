@@ -85,6 +85,15 @@ export const navigationItems: NavigationItem[] = [
     status: "new"
   },
   {
+    id: "story-mode",
+    label: "Guided Story Mode",
+    description: "One real end-to-end journey: detect a risk, explain it, act on it, and watch the measured impact propagate and the system learn.",
+    href: "/story",
+    iconName: "PlayCircle",
+    group: "AI",
+    status: "new"
+  },
+  {
     id: "opportunities-recommendations",
     label: "Opportunities & Recommendations",
     description: "Opportunity ranking, recommendation queue, evidence, compliance and action workflow.",

@@ -105,6 +105,7 @@ export function RevenueAnalyticsWorkspace() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div data-story-target="revenue-kpi-total">
         <KpiStatCard
           label="Total Revenue"
           value={k ? formatCurrency(k.total_revenue, { compact: true }) : "—"}
@@ -113,6 +114,7 @@ export function RevenueAnalyticsWorkspace() {
           changePct={cmp?.change_pct ?? undefined}
           deltaSuffix={cmp?.change_pct != null ? "vs prior yr" : undefined}
         />
+        </div>
         <KpiStatCard label="Transactions" value={k ? k.transaction_count.toLocaleString() : "—"} icon={Activity} iconColor={colors.aiAccent} />
         <KpiStatCard label="Avg / Advisor" value={k ? formatCurrency(k.avg_revenue_per_advisor, { compact: true }) : "—"} icon={Users} iconColor={colors.positive} />
         <KpiStatCard label="Top Business Line" value={k?.top_business_line ?? "—"} icon={Layers} iconColor={colors.warning} />

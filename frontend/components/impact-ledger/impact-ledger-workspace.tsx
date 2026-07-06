@@ -99,7 +99,7 @@ export function ImpactLedgerWorkspace() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
+      <div data-story-target="ledger-table" className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
             <thead>

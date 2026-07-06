@@ -175,6 +175,7 @@ export function ExecutiveDashboard() {
       {/* KPI grid — headline revenue is period-windowed; its delta respects Compare-To (12.1) */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiStatCard label="Advisors In Scope" value={String(t?.advisor_count ?? "—")} icon={Users} iconColor="#2563EB" />
+        <div data-story-target="exec-kpi-revenue">
         <KpiStatCard
           label={`Revenue (${data?.period ?? shell.period})`}
           value={head ? compactUsd(head.revenue) : "—"}
@@ -182,6 +183,7 @@ export function ExecutiveDashboard() {
           changePct={head?.delta_pct ?? undefined}
           deltaSuffix={`vs ${head?.compare_to ?? shell.compareTo}`}
         />
+        </div>
         <KpiStatCard label="AUM" value={t ? compactUsd(t.aum_total) : "—"} icon={Wallet} iconColor="#14B8A6" />
         <KpiStatCard label="NNM (Annualized)" value={t ? compactUsd(t.nnm_annualized) : "—"} icon={PiggyBank} iconColor="#14B8A6" />
         <KpiStatCard label="Managed Revenue" value={t ? compactUsd(t.managed_revenue) : "—"} icon={Layers} iconColor="#4F46E5" />
