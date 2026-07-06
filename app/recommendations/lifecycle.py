@@ -345,6 +345,59 @@ class RecommendationLifecycleService:
                    "created_ts": r[4] or "", "impact_amount": r[5], "source_transaction_id": r[6]} for r in recs]
         return {"events": events, "total_impact": float(total or 0.0), "ledger_ids": ledger_ids}
 
+    # ---- ledger reads (for the Impact Ledger page) ------------------------
+    def _advisor_name(self, advisor_id: str) -> str:
+        v = get_graph_client().store.vertex("phx_dm_advisor", advisor_id) or {}
+        return str(v.get("advisor_name") or advisor_id)
+
+    def _rec_title(self, recommendation_id: str) -> str:
+        v = get_graph_client().store.vertex("phx_dm_recommendation", recommendation_id) or {}
+        if v.get("title"):
+            return str(v["title"])
+        with self.db.connect() as conn:
+            row = conn.execute("SELECT title FROM phx_dm_local_recommendation WHERE recommendation_id=?",
+                               (recommendation_id,)).fetchone()
+        return (row[0] if row and row[0] else recommendation_id)
+
+    def ledger_entries(self, advisor_id: str | None = None) -> list[dict]:
+        sql = ("SELECT ledger_id, recommendation_id, advisor_id, opportunity_id, action_family, "
+               "impact_amount, impact_type, source_transaction_id, note, created_ts "
+               "FROM phx_dm_local_impact_ledger")
+        params: list = []
+        if advisor_id:
+            sql += " WHERE advisor_id=?"
+            params.append(advisor_id)
+        sql += " ORDER BY created_ts DESC"
+        cols = ["ledger_id", "recommendation_id", "advisor_id", "opportunity_id", "action_family",
+                "impact_amount", "impact_type", "source_transaction_id", "note", "created_ts"]
+        with self.db.connect() as conn:
+            rows = conn.execute(sql, params).fetchall()
+        out = []
+        for r in rows:
+            e = dict(zip(cols, r))
+            e["advisor_name"] = self._advisor_name(e["advisor_id"])
+            e["recommendation_title"] = self._rec_title(e["recommendation_id"])
+            out.append(e)
+        return out
+
+    def ledger_totals(self, entries: list[dict]) -> dict:
+        by_family: dict[str, float] = {}
+        by_advisor: dict[str, float] = {}
+        for e in entries:
+            by_family[e["action_family"] or "OTHER"] = by_family.get(e["action_family"] or "OTHER", 0.0) + e["impact_amount"]
+            by_advisor[e["advisor_id"]] = by_advisor.get(e["advisor_id"], 0.0) + e["impact_amount"]
+        return {
+            "total_impact": round(sum(e["impact_amount"] for e in entries), 2),
+            "completed_count": len(entries),
+            "advisors_affected": len(by_advisor),
+            "latest": entries[0] if entries else None,
+            "by_family": {k: round(v, 2) for k, v in sorted(by_family.items(), key=lambda x: -x[1])},
+            "by_advisor": sorted(({"advisor_id": k, "advisor_name": self._advisor_name(k), "impact": round(v, 2)}
+                                  for k, v in by_advisor.items()), key=lambda x: -x["impact"]),
+        }
+
+    _last_replay: dict = {"ledger_entries_replayed": 0, "statuses_reapplied": 0}
+
     # ---- boot replay -------------------------------------------------------
     def replay_on_boot(self) -> dict:
         graph = get_graph_client()
@@ -366,4 +419,6 @@ class RecommendationLifecycleService:
                 replayed += 1
             except Exception:
                 pass
-        return {"ledger_entries_replayed": replayed, "statuses_reapplied": 0}
+        report = {"ledger_entries_replayed": replayed, "statuses_reapplied": 0}
+        RecommendationLifecycleService._last_replay = report
+        return report

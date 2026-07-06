@@ -1,4 +1,6 @@
 from __future__ import annotations
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.middleware.error_handlers import register_exception_handlers
@@ -17,6 +19,7 @@ from app.api.routers.ai_chat import router as ai_chat_router
 from app.api.routers.insights_coaching import router as insights_coaching_router
 from app.api.routers.feedback_learning import router as feedback_learning_router
 from app.api.routers.recommendations import router as recommendations_router
+from app.api.routers.impact_ledger import router as impact_ledger_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.predictions import router as predictions_router
 from app.api.routers.graph_insights import router as graph_insights_router
@@ -44,7 +47,22 @@ from app.api.routers.coaching import router as coaching_router
 from app.api.routers.client360 import router as client360_router
 from app.api.routers.tigergraph_foundation import router as tigergraph_foundation_router
 configure_logging(); settings=get_settings()
-app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching')
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Section 13.2: replay the impact ledger into the (in-memory) graph store on boot,
+    # so completed recommendations' injected transactions survive a restart.
+    try:
+        from app.recommendations.lifecycle import RecommendationLifecycleService
+        report = RecommendationLifecycleService().replay_on_boot()
+        logging.getLogger("app").info("Section-13 lifecycle boot replay: %s", report)
+    except Exception as exc:  # never block startup on replay
+        logging.getLogger("app").warning("lifecycle boot replay skipped: %s", exc)
+    yield
+
+
+app=FastAPI(title=settings.app_name, version=settings.app_version, description='Local enterprise demo API for iPerform Insights & Coaching', lifespan=lifespan)
 register_exception_handlers(app)
 @app.get('/health', response_model=HealthResponse)
 def health() -> HealthResponse:
@@ -90,6 +108,7 @@ app.include_router(mcp_tools_router)
 app.include_router(opportunities_router)
 
 app.include_router(recommendations_router)
+app.include_router(impact_ledger_router)
 
 app.include_router(feedback_learning_router)
 
