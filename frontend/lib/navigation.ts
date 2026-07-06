@@ -129,8 +129,8 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "ai-assistant",
-    label: "AI Assistant",
-    description: "Separate context-aware advisor chat with evidence, tool calls and agent steps.",
+    label: "iPerform Coach Q&A Assistant",
+    description: "The reactive AI system — context-aware advisor Q&A with evidence, tool calls and agent steps.",
     href: "/ai-assistant",
     iconName: "Bot",
     group: "AI"
