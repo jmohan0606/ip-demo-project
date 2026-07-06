@@ -822,7 +822,7 @@
         "feedback_id"
       ],
       "dependencies": [],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 41,
@@ -842,7 +842,7 @@
         "outcome_id"
       ],
       "dependencies": [],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 42,
@@ -862,7 +862,7 @@
         "learning_signal_id"
       ],
       "dependencies": [],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 43,
@@ -3432,7 +3432,7 @@
         "vertices/phx_dm_feedback_event.csv",
         "vertices/phx_dm_recommendation.csv"
       ],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 155,
@@ -3455,7 +3455,7 @@
         "vertices/phx_dm_outcome_event.csv",
         "vertices/phx_dm_feedback_event.csv"
       ],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 156,
@@ -3478,7 +3478,7 @@
         "vertices/phx_dm_learning_signal.csv",
         "vertices/phx_dm_outcome_event.csv"
       ],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 157,
@@ -3501,7 +3501,7 @@
         "vertices/phx_dm_learning_signal.csv",
         "vertices/phx_dm_recommendation.csv"
       ],
-      "expected_rows": 36
+      "expected_rows": 180
     },
     {
       "order": 158,

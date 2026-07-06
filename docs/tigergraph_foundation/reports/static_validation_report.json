@@ -28,8 +28,8 @@
     },
     {
       "code": "CSV_VALIDATION",
-      "message": "Validated 185 CSV files and 154946 data rows",
-      "count": 154946
+      "message": "Validated 185 CSV files and 155954 data rows",
+      "count": 155954
     },
     {
       "code": "QUERY_COUNT",
@@ -49,7 +49,7 @@
     "edges": 128,
     "reverse_edges": 128,
     "manifest_files": 185,
-    "data_rows": 154946,
+    "data_rows": 155954,
     "queries": 43
   }
 }
