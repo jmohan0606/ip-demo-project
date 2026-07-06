@@ -70,6 +70,7 @@ export function Advisor360Workspace() {
   const [referral, setReferral] = useState<{ available: boolean; tier?: string; percentile?: number; degree?: number; summary?: string } | null>(null);
   const [review, setReview] = useState<{ available: boolean; disclaimer?: string; false_positive_note?: string; flagged?: Array<{ household_id: string; review_reason: string; top_signals: Array<{ signal: string; value: number }> }> } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [bookTab, setBookTab] = useState<"households" | "accounts" | "activities">("households");
 
   useEffect(() => {
     apiClient
@@ -328,70 +329,185 @@ export function Advisor360Workspace() {
         </div>
       ) : null}
 
-      {/* Referral Network Position (Section 11.1 §6 · PageRank) */}
-      {referral?.available ? (
-        <div className="rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
-          <div className="flex items-center justify-between">
-            <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Referral Network Position</h2>
-            <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
-              style={{ color: colors.aiAccent, background: "#EEF2FF", borderColor: "#C7D2FE" }}>
-              PageRank · top {Math.round(100 - (referral.percentile ?? 0))}%
-            </span>
+      {/* Referral Network Position (Section 11.1 §6 · PageRank) — with plain-language
+          interpretation of what the score means and why it matters (12.4). */}
+      {referral?.available ? (() => {
+        const topPct = Math.round(100 - (referral.percentile ?? 0));
+        const strong = topPct <= 15;
+        const mid = topPct <= 40;
+        const interp = strong
+          ? `A top-${topPct}% referral connector — a strong mentor candidate. Highly central advisors move referrals across the firm's book, so they anchor AGP mentor/mentee pairing.`
+          : mid
+          ? `An above-average referral hub (top ${topPct}%). Well positioned to receive and pass referrals; a solid candidate for cross-market introductions.`
+          : `Modest referral reach (top ${topPct}%). A growth opportunity — deepening ties with high-connector advisors would raise referral flow into this book.`;
+        return (
+          <div className="rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
+            <div className="flex items-center justify-between">
+              <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Referral Network Position</h2>
+              <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+                style={{ color: strong ? colors.positive : colors.aiAccent, background: strong ? "#F0FDFA" : "#EEF2FF", borderColor: strong ? "#CCFBF1" : "#C7D2FE" }}>
+                PageRank · top {topPct}%
+              </span>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <div>
+                <div className={type.label} style={{ color: colors.text.muted }}>Connections</div>
+                <div className="text-[18px] font-bold" style={{ color: colors.text.primary }}>{referral.degree ?? "—"}</div>
+              </div>
+              <div>
+                <div className={type.label} style={{ color: colors.text.muted }}>Firm Percentile</div>
+                <div className="text-[18px] font-bold" style={{ color: colors.text.primary }}>{Math.round(referral.percentile ?? 0)}th</div>
+              </div>
+              <div className="min-w-[220px] flex-1">
+                <p className={type.body} style={{ color: colors.text.secondary }}>{interp}</p>
+              </div>
+            </div>
+            <p className="mt-2 text-[10px]" style={{ color: colors.text.muted }}>
+              PageRank centrality over the real referral/book graph (advisor↔household↔referral edges). Higher = more central to how referrals flow.
+            </p>
           </div>
-          <p className={`mt-1 ${type.body}`} style={{ color: colors.text.secondary }}>{referral.summary}</p>
-        </div>
-      ) : null}
+        );
+      })() : null}
 
       {/* Households table */}
       <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
         <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: colors.surface.border }}>
-          <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>
-            Households ({counts.households}) · Accounts ({counts.accounts}) · Activities ({counts.activities})
-          </h2>
+          <div className="flex items-center gap-1">
+            {([["households", `Households (${counts.households})`], ["accounts", `Accounts (${counts.accounts})`], ["activities", `Activities (${counts.activities})`]] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setBookTab(key)}
+                className="rounded-lg px-2.5 py-1 text-[12px] font-semibold transition"
+                style={bookTab === key
+                  ? { color: colors.primary, background: "#EFF6FF", border: `1px solid ${colors.primary}` }
+                  : { color: colors.text.muted, border: "1px solid transparent" }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <a href="/memory-explainability" className="inline-flex items-center gap-1 text-[11px] font-semibold" style={{ color: colors.primary }}>
             View AI lineage <ExternalLink className="h-3 w-3" />
           </a>
         </div>
-        {churn?.available && churn.quality_gate !== "passed" ? (
-          <p className="border-b px-4 py-1.5 text-[11px]" style={{ borderColor: colors.surface.border, color: colors.text.muted, background: "#FFFBEB" }}>
-            Churn Risk column: {churn.caveat}
-          </p>
-        ) : null}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-left" style={{ borderColor: colors.surface.border }}>
-                {["Household", "Name", "Segment", "AUM", "Status", "Churn Risk"].map((header) => (
-                  <th key={header} className={`px-3 py-2 ${type.label}`} style={{ color: colors.text.muted }}>{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(data?.graph.households ?? []).slice(0, 12).map((household) => {
-                const c = churnByHousehold.get(household.v_id);
-                const tone = c ? churnTone(c.band) : null;
-                return (
-                <tr key={household.v_id} className="border-b last:border-0" style={{ borderColor: colors.surface.border }}>
-                  <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.primary }}>{household.v_id}</td>
-                  <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.household_name ?? "—")}</td>
-                  <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.segment ?? household.attributes.tier ?? "—")}</td>
-                  <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.secondary }}>{money(household.attributes.total_aum)}</td>
-                  <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.status ?? "—")}</td>
-                  <td className={`px-3 py-1.5 ${type.data}`}>
-                    {c && tone ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
-                        style={{ color: tone.fg, background: tone.bg, borderColor: tone.border }}
-                        title={`P(severe attrition)=${c.propensity}`}>
-                        {c.band} · {(c.propensity * 100).toFixed(1)}%
-                      </span>
-                    ) : <span style={{ color: colors.text.muted }}>—</span>}
-                  </td>
+
+        {/* Households tab */}
+        {bookTab === "households" && (
+          <>
+            {churn?.available && churn.quality_gate !== "passed" ? (
+              <p className="border-b px-4 py-1.5 text-[11px]" style={{ borderColor: colors.surface.border, color: colors.text.muted, background: "#FFFBEB" }}>
+                Churn Risk column: {churn.caveat}
+              </p>
+            ) : null}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b text-left" style={{ borderColor: colors.surface.border }}>
+                    {["Household", "Name", "Segment", "AUM", "Status", "Churn Risk"].map((header) => (
+                      <th key={header} className={`px-3 py-2 ${type.label}`} style={{ color: colors.text.muted }}>{header}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(data?.graph.households ?? []).slice(0, 12).map((household) => {
+                    const c = churnByHousehold.get(household.v_id);
+                    const tone = c ? churnTone(c.band) : null;
+                    return (
+                    <tr key={household.v_id} className="border-b last:border-0" style={{ borderColor: colors.surface.border }}>
+                      <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.primary }}>{household.v_id}</td>
+                      <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.household_name ?? "—")}</td>
+                      <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.segment ?? household.attributes.tier ?? "—")}</td>
+                      <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.secondary }}>{money(household.attributes.total_aum)}</td>
+                      <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.status ?? "—")}</td>
+                      <td className={`px-3 py-1.5 ${type.data}`}>
+                        {c && tone ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+                            style={{ color: tone.fg, background: tone.bg, borderColor: tone.border }}
+                            title={`P(severe attrition)=${c.propensity}`}>
+                            {c.band} · {(c.propensity * 100).toFixed(1)}%
+                          </span>
+                        ) : <span style={{ color: colors.text.muted }}>—</span>}
+                      </td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* Accounts tab — the real per-account split (name, type, status, value) */}
+        {bookTab === "accounts" && (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left" style={{ borderColor: colors.surface.border }}>
+                  {["Account", "Name", "Type", "Status", "Value"].map((header) => (
+                    <th key={header} className={`px-3 py-2 ${type.label}`} style={{ color: colors.text.muted }}>{header}</th>
+                  ))}
                 </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {(data?.graph.accounts ?? []).slice(0, 20).map((acct) => (
+                  <tr key={acct.v_id} className="border-b last:border-0" style={{ borderColor: colors.surface.border }}>
+                    <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.primary }}>{acct.v_id}</td>
+                    <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(acct.attributes.account_name ?? "—")}</td>
+                    <td className={`px-3 py-1.5 ${type.data}`}>
+                      <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ color: colors.primary, background: "#EFF6FF", borderColor: "#BFDBFE" }}>
+                        {String(acct.attributes.account_type ?? "—")}
+                      </span>
+                    </td>
+                    <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(acct.attributes.status ?? "—")}</td>
+                    <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.secondary }}>{money(acct.attributes.current_value)}</td>
+                  </tr>
+                ))}
+                {!(data?.graph.accounts ?? []).length && (
+                  <tr><td colSpan={5} className={`px-3 py-4 text-center ${type.data}`} style={{ color: colors.text.muted }}>No accounts.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Activities tab — real CRM activities (date, type, subject, status, next action) */}
+        {bookTab === "activities" && (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left" style={{ borderColor: colors.surface.border }}>
+                  {["Date", "Type", "Subject", "Status", "Next Action", "Sentiment"].map((header) => (
+                    <th key={header} className={`px-3 py-2 ${type.label}`} style={{ color: colors.text.muted }}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(data?.graph.crm_activities ?? []).slice(0, 20).map((act) => {
+                  const s = String(act.attributes.sentiment ?? "");
+                  const sTone = s === "POSITIVE" ? colors.positive : s === "NEGATIVE" ? colors.negative : colors.text.muted;
+                  return (
+                  <tr key={act.v_id} className="border-b last:border-0" style={{ borderColor: colors.surface.border }}>
+                    <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.secondary }}>{String(act.attributes.activity_date ?? "—")}</td>
+                    <td className={`px-3 py-1.5 ${type.data}`}>
+                      <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ color: colors.text.secondary, background: colors.surface.canvas, borderColor: colors.surface.border }}>
+                        {String(act.attributes.activity_type ?? "—")}
+                      </span>
+                    </td>
+                    <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.primary }}>{String(act.attributes.subject ?? "—")}</td>
+                    <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(act.attributes.status ?? "—")}</td>
+                    <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(act.attributes.next_action ?? "—")}</td>
+                    <td className={`px-3 py-1.5 ${type.data} font-semibold`} style={{ color: sTone }}>{s || "—"}</td>
+                  </tr>
+                  );
+                })}
+                {!(data?.graph.crm_activities ?? []).length && (
+                  <tr><td colSpan={6} className={`px-3 py-4 text-center ${type.data}`} style={{ color: colors.text.muted }}>No activities.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
         {busy ? <p className={`px-4 py-2 ${type.data}`} style={{ color: colors.text.muted }}>Loading…</p> : null}
       </div>
     </div>

@@ -1842,3 +1842,17 @@ runtime fetch), FIPS→USPS join to the real by-branch-state revenue, sequential
 tooltip, legend gradient, ranked list beside. Client-directed "not some boxes with state names" met.
 Added deps: d3-geo, topojson-client, us-atlas (+ @types). Evidence: s12-3-revenue-real-map.png (0 errors),
 s12-3-revenue-charts-fixed.png.
+
+### 12.4 Advisor 360 — DONE
+- Referral Network Position (centrality) clarity: was a bare "connected — 12 entities (top 50%)" line.
+  Now shows Connections + Firm-Percentile stats AND a plain-language interpretation tiered by percentile
+  (top-15% → "strong mentor candidate, anchors AGP pairing"; ≤40% → "above-average hub"; else "growth
+  opportunity"), plus a footnote on what PageRank centrality means and why it matters. (Diagnosis: original
+  never-closed gap — the §11.1 purpose existed in plan but never reached UI copy.)
+- "Households · Accounts · Activities" section was a households-only table. Converted to a real tabbed
+  section: Households (existing table + churn), Accounts (real per-account split: name, color-coded type
+  badge IRA/MANAGED/TRUST/BROKERAGE, status, value — 12 accounts), Activities (real CRM activities: date,
+  type, subject, status, next action, sentiment). Book-by-Account-Type donut + Households-by-Segment
+  breakdown already existed and stay. Evidence: s12-4-advisor360-after.png, s12-4-advisor360-accounts-tab.png.
+- Note: the two "empty AI boxes" seen pre-fix were just skeleton/load-timing (the /advisor/360/{id}/ai
+  endpoint returns 200 in 0.5s); with an adequate wait both AI Insight + Coaching cards render fully.
