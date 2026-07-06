@@ -68,7 +68,12 @@ Everything else in 12/13/13B stays an extension of an existing page (pipeline-tr
 Explainability, state-machine UI extends Opportunities, etc.). Rule: new surface when cramming would
 compromise either page; extension when it genuinely belongs with existing content.
 
-## SECTION 12 COMPLETE ✅ · SECTION 13 COMPLETE ✅ (both pushed) — now on SECTION 13B (guided story mode)
+## §12 ✅ · §13 ✅ · §13B ✅ (all pushed) — now on §10 (remaining) → §14
+- §13B: pipeline-trace bar (Explainability), Guided Story Mode overlay (/story, verified live: proof chip
+  "+$52,111 = exactly the impact"), Business Impact & ROI page (/business-impact). 13B.3 division journey
+  deferred (additive follow-up, engine supports it). verify_section13B_story.py ALL PASSED.
+- Remaining: §10 (re-check each vs what §11-13B built; do only genuinely-unbuilt bounded items) → §14
+  (flip to real graph + real LLM for handover; blocked on client's ANTHROPIC_API_KEY + TigerGraph — document).
 - §13: full stateful lifecycle verified (state machine, impact ledger, exact +impact propagation on 3
   screens, AI-awareness plumbing, regeneration exclusion, new Impact Ledger page). 13.8 trace ALL PASSED.
   Only the real-Claude 13.4 answer-text check is blocked on the missing ANTHROPIC_API_KEY (documented).

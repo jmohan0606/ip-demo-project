@@ -19,6 +19,7 @@ from app.api.routers.ai_chat import router as ai_chat_router
 from app.api.routers.insights_coaching import router as insights_coaching_router
 from app.api.routers.feedback_learning import router as feedback_learning_router
 from app.api.routers.recommendations import router as recommendations_router
+from app.api.routers.search_notifications import router as search_notifications_router
 from app.api.routers.impact_ledger import router as impact_ledger_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.predictions import router as predictions_router
@@ -108,6 +109,7 @@ app.include_router(mcp_tools_router)
 app.include_router(opportunities_router)
 
 app.include_router(recommendations_router)
+app.include_router(search_notifications_router)
 app.include_router(impact_ledger_router)
 
 app.include_router(feedback_learning_router)
