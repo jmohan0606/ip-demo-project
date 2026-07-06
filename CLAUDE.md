@@ -1152,9 +1152,13 @@ anywhere — everything reads as one undifferentiated "AI Assistant." Making thi
 low-effort, high-payoff change for a client evaluating whether the demo matches their own
 architecture vision:
 
-- Label proactive surfaces (Insight Summary, Coaching Card, Predictions, Recommendations) with
-  **"iPerform Insights and Coaching"** in their card headers/badges; label the Q&A/chat surface,
-  including the AI Assistant page itself, as **"iPerform Coach Q&A Assistant."**
+- **Correction (client-directed, overrides the original wording below): the individual "✦ AI
+  Generated" chip on cards stays exactly "AI Generated" — do not replace it with a product name.**
+  Apply "iPerform Insights and Coaching" (proactive) / "iPerform Coach Q&A Assistant" (reactive)
+  at the nav/page/section level only — e.g. a small persistent label in the page header or nav
+  grouping indicating which of the two systems that page belongs to — never on the per-card AI
+  chip itself, which is a different, smaller piece of UI serving a different purpose (marking
+  content as AI-generated, not branding which system produced it).
   Small UI change, large "this matches exactly what we designed" recognition effect.
 - Every poster has a **"Model Strategy (Per Function)"** table naming which model handles which
   job. Add a real equivalent to the Admin/Observability page: for the current session, which
@@ -1172,3 +1176,280 @@ architecture vision:
 Bounded, mechanical, high-recognition-value — good candidate for early in Section 11 or even
 folded into Section 9's remaining page work if time allows, since none of it depends on the new
 ML/GNN work landing first.
+
+## 12. Regression Audit & Critical Fixes (client review after Section 11)
+
+**MASTER EXECUTION ORDER for this unattended run — follow exactly, do not reorder:**
+**Section 12 → Section 13 → Section 13B → Section 10 (remaining items only) → Section 14.**
+Rationale: fix the broken foundation (12) before building the stateful loop (13) before building
+the narration over that loop (13B) before the remaining enhancements (10) before flipping to
+real-mode for handover (14). Commit after every numbered sub-item. Update PROGRESS.md
+continuously. Push to origin at every section boundary at minimum. Do NOT stop for routine
+check-ins or approval between items or sections — only pause for a genuine blocker with no
+reasonable default (document it in PROGRESS.md, move to the next non-blocked item) or an
+approaching usage limit (finish and commit the current item cleanly, then stop). If a whole
+section's well-defined work completes, continue straight into the next section per this order
+without waiting. This is a long run intended to complete unattended overnight; expect it to span
+the full session.
+
+**Standing evidence rule (unchanged, restated because it is the thing that prevents wasted
+work): every "done" claim needs real evidence — real before/after values, real screenshots, real
+command output — never a status assertion alone. Every AI-behavior check uses real Claude
+(`LLM_CLIENT_MODE=claude`), never mock. Diagnose root cause before fixing; state for each item
+whether it was a Section 11 regression, an original never-closed gap, or a clarification.**
+
+**Context, stated plainly so the reason for this section is understood, not just its task list:**
+several things previously built and verified working in Section 9 (filters, scope-following,
+specific dashboard components) are now reported broken or missing after Section 11's substantial
+backend changes (model tier promotion, GNN, MCP layer, reranking). Some items were never fully
+built despite being specified. **Diagnose each item's actual root cause — genuine Section 11
+regression vs. an original gap that was never closed vs. a clarification needed — don't assume;
+state which one it is for each fix, with real before/after evidence, same bar as every other
+verification in this build.**
+
+### 12.1 Executive Dashboard
+- Filter bar: hierarchy drill-down (division/region/market) intermittently not appearing; Period
+  and Compare-To controls not functioning — diagnose whether Compare-To ever had real backend
+  logic behind it or was UI-only. Add an explicit **"Reset filters"** control that returns to the
+  default scope/period cleanly.
+- Add the still-missing components from the Hackathon mockup, specifically: Revenue Trend chart,
+  Revenue by Product Category, Revenue Drivers (vs Prior Year), Benchmarking (vs Peers), Top/
+  Bottom Markets. Add the AI Insight Summary card (grounded in the currently filtered scope/
+  period's actual retrieved values, not static) and the AI Coaching Card (Advisor persona only —
+  do not show it when scope is Firm/Division/Region/Market).
+- Remove the Business Outcomes section entirely (client-directed).
+- Add a real **Bottom Advisors** table alongside Top Advisors (not just "Needs Attention" under
+  a different framing — an explicit bottom-by-revenue list), and add more real detail to both
+  (not just a name and a number — the specific reason, and at least one supporting figure).
+
+### 12.2 Filter bars generally
+Audit every page's filter bar, not just Revenue Analytics (reported as having none at all) —
+this needs a page-by-page pass, since Section 11's changes may have broken the shared filter
+components on some pages while leaving others intact. Fix each with real before/after evidence
+(same filter, different scope/period selection, visibly different data).
+
+### 12.3 Revenue Analytics
+- "Revenue by scope" empty, Revenue Trend graph broken — diagnose against the filter-bar audit
+  above; likely the same root cause, not two separate bugs.
+- **Replace the tile-grid state cartogram with an actual geographic map** — real US state shapes
+  (e.g. `react-simple-maps` or an equivalent real US TopoJSON/GeoJSON), not an abstract tile grid.
+  The client's feedback is explicit: "not some boxes with state names" — take this as a hard
+  requirement, not a style preference to weigh.
+
+### 12.4 Advisor 360 / Client 360
+- **Fix the "Referral Network Position" (centrality) section's clarity** — it currently shows a
+  score with no clear meaning attached. This is exactly the failure mode Section 11.1 was
+  explicitly written to avoid ("no algorithm without a screen it serves") — the purpose exists in
+  the plan but didn't survive into the actual UI copy. Add plain-language interpretation directly
+  in the card (what the number means, why it matters, e.g. "this advisor is a top-15% referral
+  connector — a strong mentor candidate"), not just a labeled number.
+- The "Households (N) · Accounts (N) · Activities (N)" section still shows only a households
+  table — add the accounts split and segment breakdown that was specified back in Section 9.5
+  and evidently never actually built. Verify it's real after building, don't just claim it.
+
+### 12.5 CRM Activities
+Redesign the Pipeline by Stage visualization to a more standard, polished funnel treatment —
+the current CSS-band approach functions correctly (verified in Section 9) but doesn't meet the
+visual bar. This is a design pass, not a logic fix.
+
+### 12.6 Advisor-selector dropdown — add directly on these pages, don't rely solely on the
+breadcrumb (belt-and-suspenders fix for a repeatedly-raised concern)
+Predictions & Forecasting, Opportunities & Recommendations, Feature Engineering Lab, and
+Explainability Explorer were verified scope-following in Section 9 (real Playwright evidence,
+different advisors, different data). If they now read as "flat, A001-only" — diagnose whether
+this is a genuine Section 11 regression to the shared scope hook, or a discoverability problem
+(the hierarchy breadcrumb doesn't read as an advisor selector to someone testing quickly). Fix
+the root cause AND, regardless of which it is, **add an explicit, visible advisor-selector
+dropdown directly on each of these four pages** — removing any ambiguity going forward, even if
+the breadcrumb technically already works.
+
+### 12.7 Feature Engineering Lab — re-verify against Section 11's changes specifically
+Confirm every component still reflects real values after the Section 11 model/GNN/feature
+pipeline changes — don't assume Section 9's verification still holds after that much underlying
+change. Re-run the same kind of live cross-check used throughout this build (real feature values,
+real lineage, real similarity) against the current, post-Section-11 pipeline specifically.
+
+### 12.8 Opportunities & Recommendations — button actions need a visible consequence, not just
+an internal learning-signal update (real gap, directly sets up Section 13 below)
+Clicking Accept/Complete/Modify/Ignore/Reject currently only updates an internal learning signal
+with no visible change — the client cannot tell anything happened. At minimum for this section:
+the recommendation's status must visibly update, the accepted/completed/rejected counts must
+visibly change, and a "what changed" note must appear. **Full state-machine behavior (disabling
+buttons post-terminal-status, generating a real impact, cross-screen propagation) is Section 13,
+not here** — this subsection is the minimum visible-feedback fix; Section 13 is the full loop.
+
+### 12.9 Admin — Health / Observability tabs
+Two Next.js errors reported — reproduce and fix with real error output, not a guess.
+
+### 12.10 Navigation / branding
+- Clarify or redesign the bottom-left "Advisor, Firm, YTD" element — if it's the persona/scope/
+  period summary, label it clearly as such; if its purpose can't be stated plainly, redesign it.
+- **Rename the firm entity to "Chase Wealth Management"** — update the actual seed-data Firm
+  vertex's name, not just a UI label, so it's consistent everywhere it's referenced (hierarchy
+  breadcrumb, Executive Dashboard, any firm-scoped text).
+
+## 13. End-to-End Stateful Recommendation Lifecycle (genuine new architecture — delegate the
+design to `fable-architect`; this is not a bug fix, treat it with the same rigor as Section 11)
+
+**What this section exists to solve, in the client's own words:** the system needs to
+demonstrably work end-to-end as a live cycle, not a set of static pages that each independently
+look correct. Select an advisor → see real recommendations → accept one → see a clear, visible
+record of what changed and why → mark it completed → a real simulated consequence occurs (e.g. a
+transaction/impact tied to that specific action) → the recommendation's buttons disable
+appropriately for its new terminal status → the change is visible across OTHER screens (Advisor
+360, Revenue Analytics, Executive Dashboard) → asking the AI Assistant about this advisor
+afterward reflects the new state ("you completed X, here's the measured impact") → new
+recommendations can be regenerated → the cycle continues. This is the single most important
+remaining piece of this build — it's what turns a demo into evidence that the *system*, not just
+its pages, actually works.
+
+### 13.1 Recommendation state machine (real, not cosmetic)
+Formal states: `OPEN → ACCEPTED → IN_PROGRESS → COMPLETED` (terminal) or `OPEN → REJECTED`/
+`IGNORED` (terminal) or `ACCEPTED → MODIFIED → (re-enters OPEN or ACCEPTED)`. Persist status
+transitions with a timestamp and an actor (advisor or "system/agent"). Once a recommendation
+reaches a terminal status, its action buttons must disable in the UI — verify this concretely,
+not just claim it status-checks correctly.
+
+### 13.2 Real simulated impact on completion
+When a recommendation is marked COMPLETED (by the advisor or, per the client's suggestion, by an
+agent that can also complete it and leave a note): generate a real, persisted consequence tied
+to that specific recommendation — e.g. a new transaction record reflecting the recommendation's
+projected impact (using the recommendation's own real estimated-impact figure as the basis, not
+an arbitrary number), linked by a real edge back to the recommendation that caused it. This is a
+genuine "impact ledger" entry, not a UI-only status change. Log a clear, human-readable "what
+changed" note on the recommendation itself (e.g. "Completed 2026-07-06: managed-account review
+conducted, +$X,XXX revenue impact recorded").
+
+### 13.3 Cross-screen propagation — the change must actually be visible elsewhere
+After a completion event, the SAME advisor's data on Advisor 360, Revenue Analytics, and the
+Executive Dashboard's rollup must reflect the new transaction/impact — not require a full data
+regeneration to show up. Verify concretely: complete a recommendation, then load each of those
+three pages fresh, and show the real before/after numbers differing by exactly the recorded
+impact amount.
+
+### 13.4 AI Assistant awareness of the new state
+After a completion event, ask the AI Assistant about this advisor. The real answer must
+reference the completed recommendation and its measured impact — this depends on the context
+assembler picking up the new transaction/impact record and the recommendation's updated status,
+not just the original static feature snapshot. Verify with a real Claude call and the real
+before/after answer text, same as every other AI-behavior check in this build.
+
+### 13.5 Regeneration cycle
+After a completion event, allow regenerating recommendations for that advisor — verify the newly
+generated set reflects the changed state where relevant (e.g. if the completed action addressed
+a specific opportunity, that opportunity should no longer generate the same recommendation
+again, or should be marked addressed).
+
+### 13.6 Explainability, still required for every recommendation in this loop
+Every recommendation, at generation time, must have a clear "how we arrived at this" section
+with real evidence (features, predictions, opportunities, playbook) — this already exists
+elsewhere in the build (Section 9's rebuilt Explainability/lineage work); make sure it's
+genuinely present for recommendations moving through this new lifecycle too, not lost in the
+new state-machine wiring.
+
+### 13.7 Model routing
+Delegate the overall design (state machine shape, impact-generation logic, propagation strategy,
+context-assembler integration) to `fable-architect` (via the proven general-purpose-subagent-
+with-`model:"fable"`-override workaround) — this is genuine system design, not a mechanical
+extension of an existing pattern. Main thread (Opus) does the wiring, UI, and page integration
+once the design is set.
+
+### 13.8 Verification bar
+This section is not done until the full cycle has been demonstrated with real evidence in one
+continuous trace: select advisor → real recommendations shown → accept+complete one → real
+impact recorded → buttons disabled → three other pages show the change → AI Assistant reflects
+it → regenerate → new recommendations shown. Screenshot or log every step. This is the headline
+proof of the whole build — treat the verification with matching seriousness.
+
+## 13B. Guided End-to-End Story Mode (the deep-think answer — industry-standard demo narrative,
+NOT just the button-click loop of Section 13; delegate design to `fable-architect`)
+
+**Why this exists — reasoned from what enterprise wealth-tech demos actually need to win, not
+just from the literal request:** Section 13 makes the recommendation loop genuinely stateful.
+But a buyer evaluating a platform doesn't experience "state" — they experience a *story they can
+follow*. The single most common failure of a feature-complete demo is that every screen works in
+isolation and no one can narrate how they connect. Award-caliber demos solve this with a guided,
+observable journey: one triggering event, followed visibly through every layer, ending on a
+measurable business outcome the buyer cares about. This section builds that narration layer on
+top of the real system — it does not fake anything; it makes the real end-to-end flow *legible*.
+
+### 13B.1 A "How It Works" / pipeline-trace view for any AI output
+For any insight, prediction, recommendation, or answer, the user can open a step-by-step trace
+showing the real journey that produced it, as a horizontal flow a non-technical person can read:
+**Data (which graph entities/facts) → Feature Engineering (which features, real values) → Model
+(which model/algorithm, real score + confidence) → Opportunity/Recommendation (what was derived)
+→ Context & Compliance (what was retrieved, what was checked) → Delivered Output.** Each stage
+shows the real artifact from that stage (real feature values, real SHAP contributions, real
+retrieved chunks, real compliance verdict), with real per-stage timing (the Hackathon mockup's
+"SYSTEM TRACE" bar is the visual target). This turns the architecture posters' pipeline diagram
+into something the client can watch execute on real data. Extend the Explainability Explorer and
+the 11.6 context-trace work — do not build a disconnected new page; this is the same lineage
+data, presented as a legible left-to-right story.
+
+### 13B.2 A guided scenario walkthrough (the headline demo artifact)
+Build one flagship, replayable, end-to-end scenario a presenter (or the client alone) can step
+through, each step landing on the REAL screen with the REAL data — not a slideshow, the actual
+app driven through a scripted path:
+1. **Trigger**: an advisor's revenue decline is detected (real prediction on real data).
+2. **Diagnosis**: the AI Insight explains *why*, grounded in real drivers (real feature values).
+3. **Prediction & risk**: the real model score, contributions, confidence.
+4. **Opportunity & recommendation**: the real next-best-actions derived from it, with real
+   estimated impact and the real explainability chain.
+5. **Compliance**: the real compliance check on the recommendation.
+6. **Action**: accept + complete the recommendation (the real Section 13 state machine).
+7. **Impact**: the real simulated consequence recorded (Section 13.2 impact ledger).
+8. **Propagation**: the same advisor's Advisor 360 / Revenue / Executive rollup now reflect it
+   (real Section 13.3 cross-screen change).
+9. **Learning**: the feedback loop / GNN update reflects the outcome (real Section 11.2/11.3).
+10. **Closure**: ask the AI Assistant about the advisor — it references the completed action and
+    measured impact (real Section 13.4).
+Implement as a guided overlay/checklist that navigates the real app and highlights what to look
+at on each real screen — every step must show real data from the real backend, never a canned
+illustration. This is the single artifact most likely to make the demo land as "we saw the whole
+system actually work, end to end."
+
+### 13B.3 Persona-journey coverage (industry standard: show it works for every buyer in the room)
+The guided scenario above is advisor-centric. Add at least one rollup-persona equivalent so a
+DDW/MDW evaluator sees their own journey: a division-leader story — detect an underperforming
+segment across the division (real cross-advisor rollup reasoning, Section 11.6) → drill into
+contributing advisors (real data) → a coaching/AGP action at the division level → visible impact
+on the division rollup. Reuses the same real pipeline; different entry scope. Confirms the "any
+persona can ask about their scope" capability is real, not advisor-only.
+
+### 13B.4 A business-impact / ROI summary view (industry standard: close on the money)
+A view that aggregates, from real recorded outcomes (Section 13.2 impact ledger + the existing
+feedback data), the cumulative business impact the platform has "driven": total recommendations
+acted on, cumulative revenue/NCF/AUM impact recorded, acceptance and completion rates, and the
+trend over time. This is the slide every buyer actually remembers — but built from real recorded
+data in the app, not a static graphic. Ties every technical capability back to the business
+outcomes the architecture posters lead with.
+
+### 13B.5 Verification bar
+Same discipline as Section 13: the guided scenario (13B.2) must be demonstrable as one
+continuous, real-data trace end to end, evidenced step by step. 13B.1's pipeline trace must show
+real artifacts at every stage for a real example. Delegate the narrative/scenario design to
+`fable-architect`; main thread does the wiring and UI.
+
+## 10-RESOLUTION. Where Section 10 now sits (it has NOT executed yet — reconciled here)
+
+Section 10 (industry-standard enhancements) was deferred and never run. After Sections 12, 13,
+and 13B, much of it is either already delivered or reduced to small extensions:
+- Household churn/next-best-product/concentration/review-cadence → simple extensions of Section
+  11.1's model tier; build after 13B if time allows.
+- AGP cohort (community detection) + mentor pairing (GNN similarity) + AGP ROI → the graph
+  algorithms and embeddings now exist (Section 11); these become real, not speculative.
+- Anomaly/vulnerable-client detection → already moved into Section 11.1.
+- Real search/notification icons, AUM net-flows waterfall, PDF/PPT export → still valid, still
+  Opus-level mechanical work.
+**Sequencing: run Section 10's remaining items LAST, after 12 → 13 → 13B, and only the ones not
+already satisfied by those sections — re-check each against what's actually been built before
+building it, don't duplicate.** `fable-architect` only for the AGP-ROI methodology and mentor-
+matching algorithm, per Section 10's own routing note; everything else Opus.
+
+## 14. Final directive — once Sections 12, 13, 13B, and 10 are complete and verified
+
+Switch the running configuration to **real graph mode and real LLM mode as the default** for the
+client's own hands-on testing — no mock anywhere: `GRAPH_CLIENT_MODE=real` (or `local_real` if
+the live TigerGraph container is the intended target) and `LLM_CLIENT_MODE=claude`. Confirm the
+backend actually boots and serves correctly in this configuration before handing it over — this
+is a real environment change, verify it like one, not just flip the env var and assume it works.
