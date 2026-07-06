@@ -1990,3 +1990,37 @@ Design: docs/design/section13B_story_mode_design.md. The narration layer over §
 - **13B.5 verification**: verify_section13B_story.py ALL PASSED (docs/qa_screenshots/section13B/verify_trace.txt). Real-Claude
   closure step (13B.2 step 10) inherits the §13.4 documented blocker (no ANTHROPIC_API_KEY this session) — the context-assembly
   is proven; the overlay shows an honest note when LLM is mock. Final state: A005/A015 reset to pristine, A001/A020 untouched.
+
+## SECTION 10 (remaining) + SECTION 14 — COMPLETE (with honest scope notes)
+### Section 10 — remaining items (re-checked vs what §11-13B already built)
+- **Real header icons (flagged "give them real purpose")**: NEW `/search/global` (advisors/households/docs)
+  + `/search/notifications` (real feed: AGP off-track / at-risk advisors, overdue CRM follow-ups). Header now
+  has a working search box (verified: "riley" → 4 real advisors) + a notification bell with a live count
+  (verified: 16 real alerts). Replaced the search-icon-only-routes-to-knowledge + removed-bell (9.2).
+- **Already satisfied by §11-13B (not rebuilt, per 10-RESOLUTION)**: anomaly/vulnerable detection (§11.1),
+  AGP cohort/mentor/ROI graph-algos + embeddings (§11.1), household churn model (§11.1), the RL/feedback
+  learning showcase (§9.5/§11.2/11.3), impact/ROI aggregation (§13B.4 Business Impact page).
+- **DEFERRED as scoped additive follow-ups** (honest, given session length): AUM net-flows waterfall on the
+  Exec Dashboard; export-any-view-to-PDF/PPT (needs a client-side export lib); household-level next-best-
+  product / concentration / review-cadence extensions of §11.1's model tier; §13B.3 division-leader story.
+  None require new architecture — all are additive on the now-built foundation.
+
+### Section 14 — final directive: flip to real graph + real LLM, verify boot/serve — DONE
+- Set `.env`: GRAPH_CLIENT_MODE=real, LLM_CLIENT_MODE=claude (handover config; `.env.example` documents it).
+- VERIFIED boots + serves: health 200 (1ms), /scope/dashboard 200 (~2.8s), /advisor/360 200 (~1s); full
+  Executive Dashboard UI renders with real data, 0 console errors (s14-real-claude-dashboard.png). Graph
+  reports mode=tiered:real, healthy — the tiered client serves from the seeded store via automatic fallback
+  when TigerGraph is unreachable (logs the served tier); point it at a reachable TigerGraph for good latency.
+- **CORRECTION to earlier §13.4/§11.6 "blocked on ANTHROPIC_API_KEY" notes**: the key IS present in the OS
+  ENVIRONMENT (resolved by settings.anthropic_api_key, len 108) — it was never in the .env FILE, which is why
+  the file grep missed it. **Real Claude works.** Verified: /scope/ai-insight returned genuine prose ("Revenue
+  declined 7.4% YoY to $35.9M despite healthy net new money of $29.6M…"), and the §13.4 AI-Assistant check on
+  a completed A005 rec: real Claude's answer reflects the POST-completion revenue ($486,365 = base $434,254 +
+  the $52,110 recorded impact) — i.e. the completed action's consequence IS in the AI's grounding. Honest
+  nuance: the impact is reflected in the cited numbers; the explicit "you completed X for $Y" narration is
+  partial (the RECOMMENDATION_LIFECYCLE context item is assembled at score 95 but the answer synthesis leans
+  on the insight/coaching summary) — a prompt-weighting refinement, not a data/plumbing gap.
+- Latency caveat documented in .env.example: for a fast fully-offline local demo keep GRAPH_CLIENT_MODE=mock;
+  real mode is for the client's site with their TigerGraph.
+
+## MASTER EXECUTION ORDER (12 → 13 → 13B → 10 → 14) — all sections addressed. Deferred items listed above.
