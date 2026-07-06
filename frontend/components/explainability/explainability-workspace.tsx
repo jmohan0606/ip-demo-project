@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Brain, Clock } from "lucide-react";
 
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
+import { ContextPipelinePanel } from "@/components/explainability/context-pipeline-panel";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
@@ -233,6 +234,9 @@ export function ExplainabilityWorkspace() {
           </div>
         </div>
       </div>
+
+      {/* Context Engineering Pipeline — visible retrieve→rerank→prune trace (Section 11.6) */}
+      <ContextPipelinePanel />
 
       {/* Memory Timeline — real temporal-memory content for this advisor (CLAUDE.md 9.5) */}
       <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
