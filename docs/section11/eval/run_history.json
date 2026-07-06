@@ -1,0 +1,26 @@
+[
+  {
+    "run_id": "run_20260706T022515Z",
+    "timestamp_utc": "2026-07-06T02:25:15.125550+00:00",
+    "golden_version": 1,
+    "model": "claude-haiku-4-5-20251001",
+    "groundedness_pct": 85.0,
+    "citation_coverage_pct": 100.0,
+    "refusal_correctness_pct": 100.0,
+    "pass_rate_pct": 80.0,
+    "pass_count": 20,
+    "total": 25
+  },
+  {
+    "run_id": "run_20260706T022831Z",
+    "timestamp_utc": "2026-07-06T02:28:31.599435+00:00",
+    "golden_version": 2,
+    "model": "claude-haiku-4-5-20251001",
+    "groundedness_pct": 85.0,
+    "citation_coverage_pct": 100.0,
+    "refusal_correctness_pct": 100.0,
+    "pass_rate_pct": 88.0,
+    "pass_count": 22,
+    "total": 25
+  }
+]
