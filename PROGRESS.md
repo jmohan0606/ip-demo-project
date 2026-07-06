@@ -1924,3 +1924,42 @@ mcp.families ?? {}`. Evidence: qa-admin-diag output (all clean), s12-9-admin-*.p
    s12-10-branding.png (0 errors).
 
 ## SECTION 12 COMPLETE (12.1–12.10). Pushing at section boundary.
+
+## SECTION 13 — End-to-End Stateful Recommendation Lifecycle — COMPLETE (fable-designed, Opus-implemented)
+Design: docs/design/section13_lifecycle_design.md. Implemented in 11 commits.
+- **13.1 State machine**: new `app/recommendations/lifecycle.py` (SQLite = durable status authority since
+  the live generate path re-upserts vertices with a transient status). Enum += IN_PROGRESS/MODIFIED.
+  OPEN→ACCEPTED→IN_PROGRESS→COMPLETED / REJECTED / IGNORED / MODIFIED. Transitions persisted with
+  timestamp+actor (phx_dm_local_rec_status_transition). Terminal ⇒ allowed_actions=[] ⇒ buttons disabled.
+- **13.2 Impact ledger**: phx_dm_local_impact_ledger; on COMPLETED, injects a real
+  phx_dm_revenue_transaction (dated 2026-06-30 = last-complete-month-end, so it lands in BOTH the snapshot
+  revenue_ltm window AND revenue-analytics trailing-12) linked by NEW edge
+  phx_dm_transaction_from_recommendation (schema delta added + structurally validated). Amount = the rec's
+  OWN estimated_revenue_impact (structurally enforced, never a parameter). "What changed" note on the rec.
+- **13.3 Propagation**: injection (transaction-based screens: Revenue Analytics, Advisor360 trend, rollup
+  _comparison) + one-advisor snapshot recompute (snapshot-based: Advisor360 KPIs, Exec rollup totals). NO
+  read-time overlay. VERIFIED exact +impact on ALL 3 screens (A005: +$52,110.55 on advisor rev-analytics,
+  advisor snapshot revenue_ltm, AND firm rollup — to the cent).
+- **13.4 AI awareness**: ChatContextSource.RECOMMENDATION_LIFECYCLE (score 95) + InsightDataCollector
+  lifecycle key + memory write on terminal. Context-assembly plumbing VERIFIED (assembled context carries
+  "COMPLETED ... +$59,204 impact (transaction TXIMP_...)"). BLOCKER (documented, honest): the real-Claude
+  answer-TEXT check needs ANTHROPIC_API_KEY, ABSENT in this session's .env — cannot fabricate a key. The
+  data-correctness plumbing is proven in mock; the real-Claude text check runs once the key is added (same
+  standing rule as prior sections; the key is gitignored and was present in earlier sessions).
+- **13.5 Regeneration**: completed opp excluded from re-issue, surfaced in addressed_opportunities. VERIFIED.
+- **13.6 Explainability**: reasoning_trace_id REASON_{rec_id} carried through lifecycle_for + ledger rows.
+- **13.2-view / new surfaces (user clarification)**: NEW Impact Ledger page (/impact-ledger, nav "AI" group,
+  Receipt icon) — KPI cards + ledger table (rec/family/+impact/tx/note) + expandable lifecycle timeline +
+  evidence. Recommendations workspace now fully server-driven (status badge, terminal button-disable, Start
+  button, real lifecycle_counts, impact note + "View in Impact Ledger", Addressed section).
+- **Learning loop (§11.2/11.3) INTACT**: feedback service still moves the bandit weight in step with every
+  status change (verified: accept → weight 1.5); 409 on terminal also stops weight-farming by re-clicking.
+- **13.8 verification**: scripts/verify_section13_lifecycle.py — 9 assertion groups, ALL PASSED
+  (docs/qa_screenshots/section13/verify_trace.txt). Restart-durability separately verified (replay-report=1,
+  ledger + revenue persist across restart). Screenshots: s13-9-recs-complete.png, s13-10-impact-ledger.png.
+- **Anchored-figure guardrail honored**: verification ran on NON-ANCHORED A005; A001/A020 untouched. After
+  the UI test that completed an A001 rec, A001 was reverted to its anchored 387293.22 (snapshot recompute
+  post-restart). Final state: A005 base 406375.14, ledger empty, A001 anchored 387293.22 — pristine; the
+  guided scenario (13B) will populate the ledger live.
+- **Ops note**: backend must be launched detached (`python3 -m uvicorn ...` as a tracked bg process); plain
+  nohup/setsid inside a compound bash command gets SIGHUP'd on shell exit.
