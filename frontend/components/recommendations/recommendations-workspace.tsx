@@ -7,6 +7,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { ImpactTrendChart, type ImpactPoint } from "@/components/charts/impact-trend-chart";
 import LearningStateShowcase from "@/components/recommendations/learning-state-showcase";
+import { OutcomeLearningPanel } from "@/components/recommendations/outcome-learning-panel";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
@@ -302,6 +303,8 @@ export function RecommendationsWorkspace() {
 
       {/* RL feedback-loop showcase — how weights move with feedback over rounds (9.5, Fable-designed) */}
       <LearningStateShowcase />
+
+      <OutcomeLearningPanel />
     </div>
   );
 }
