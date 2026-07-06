@@ -286,6 +286,35 @@
       "training_data": "foundation sample: 15,116 revenue transactions / 360 households, cuts 2024-08\u20262025-11",
       "training_date": "2026-07-05",
       "version": "1.0"
+    },
+    "revenue-forecast-gru": {
+      "algorithm": "GRU (1-layer, hidden 32) \u00b7 shared across advisors",
+      "artifact_path": "models/artifacts/revenue-forecast-gru.pt",
+      "artifact_sha256": "8225cf9d1fb7bf20",
+      "caveats": "60 series \u00d7 36 months \u2014 demo scale; band = empirical validation-residual quantiles.",
+      "features": [
+        "log1p(revenue) z-score",
+        "sin(month)",
+        "cos(month)"
+      ],
+      "label_definition": "next-month revenue (self-supervised next-step); 6-mo autoregressive rollout",
+      "metrics": {
+        "epochs": 113,
+        "gru_smape": 0.081,
+        "ma3_smape": 0.0827,
+        "seasonal_naive_smape": 0.1184
+      },
+      "name": "revenue-forecast-gru",
+      "primary_metric": "gru_smape",
+      "primary_metric_value": 0.081,
+      "quality_floor": 0.1184,
+      "quality_gate": "passed",
+      "served_by": "revenue-forecast-gru",
+      "served_since": "2026-07-06",
+      "split": "train months 0-29, validate 6-month rollout on months 30-35",
+      "training_data": "60 advisor monthly revenue series \u00d7 36 months (2023-08\u20262026-07)",
+      "training_date": "2026-07-06",
+      "version": "1.0"
     }
   },
   "schema_version": 1

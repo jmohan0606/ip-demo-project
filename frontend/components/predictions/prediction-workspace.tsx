@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { RevenueForecastChart } from "@/components/charts/revenue-forecast-chart";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
@@ -98,6 +99,8 @@ export function PredictionWorkspace() {
         />
         <KpiStatCard label="Snapshot" value={predictions[0]?.feature_snapshot_id.slice(0, 14) ?? "—"} />
       </div>
+
+      {advisorId ? <RevenueForecastChart advisorId={advisorId} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {predictions.map((prediction) => (

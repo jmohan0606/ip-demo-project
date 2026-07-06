@@ -200,6 +200,27 @@ def build_household_frame() -> HouseholdFrame:
 
 
 @lru_cache(maxsize=1)
+def monthly_revenue_series() -> tuple[list[str], dict[str, list[float]]]:
+    """Per-advisor monthly revenue over the full 36-month span (2023-08…2026-07).
+    Returns (ordered month labels, {advisor_id: [revenue per month]}). Read-only."""
+    tx = _load_transactions().drop_duplicates(subset=["transaction_id"])
+    serves = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_advisor_serves_household.csv")
+    hh2adv = dict(zip(serves["to_id"], serves["from_id"]))
+    tx = tx.assign(advisor_id=tx["household_id"].map(hh2adv))
+    months = sorted(tx["ym"].dropna().unique().tolist())
+    base = _month_idx(months[0])
+    n = _month_idx(months[-1]) - base + 1
+    labels = [f"{(base + i) // 12:04d}-{(base + i) % 12 + 1:02d}" for i in range(n)]
+    out: dict[str, list[float]] = {}
+    for adv, tx_a in tx.groupby("advisor_id"):
+        if not isinstance(adv, str):
+            continue
+        by_m = tx_a.groupby("midx")["revenue_amount"].sum()
+        out[adv] = [float(by_m.get(base + i, 0.0)) for i in range(n)]
+    return labels, out
+
+
+@lru_cache(maxsize=1)
 def _advisor_household_map() -> dict[str, list[str]]:
     serves = pd.read_csv(SAMPLE_DIR / "edges" / "phx_dm_advisor_serves_household.csv")
     out: dict[str, list[str]] = {}

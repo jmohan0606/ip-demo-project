@@ -1556,3 +1556,18 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   household-churn 6 real per-household propensities, gate=failed/served=false. Frontend tsc PASS; Playwright
   0 console errors; Churn Risk column + caveat render. Screenshot docs/qa_screenshots/s11-churn.png.
 - NOTE: /adapters/status does not yet report the model tier — added in commit 11 (Admin Model Registry tab).
+
+### 11.1 COMMIT 6/11 — GRU revenue forecast with uncertainty band — DONE
+- app/ml/real_forecast.py (torch): GRUForecaster (1-layer, hidden 32, input [z-log1p-rev, sin(m), cos(m)])
+  + forecast_series (6-mo autoregressive rollout, empirical per-horizon residual-quantile band, per-advisor
+  norm stats from artifact). app/ml/training/forecast.py trains shared model over 60 series × 36 mo, validates
+  a 6-mo rollout on months 30-35 vs TWO mandatory baselines. Serves only if it beats seasonal-naive, else
+  the deterministic seasonal-naive baseline serves (registry gate).
+- **Real result: GRU sMAPE 0.0810 BEATS seasonal-naive 0.1184 and ma3 0.0827 → gate passed, served.**
+  Trained in 1.4s / 113 epochs (well under the time-box). Artifact revenue-forecast-gru.pt (gitignored).
+- Endpoint GET /predictions/forecast/{advisor_id}; RealModelClient.forecast_series wired (deterministic mode
+  → seasonal-naive baseline). Frontend: new components/charts/revenue-forecast-chart.tsx (Recharts composed:
+  actual line + dashed GRU p50 + p10-p90 band area + baseline-comparison footer), added to Predictions page.
+- Verified: tsc PASS; Playwright 0 console errors; forecast chart + real XGBoost SHAP prediction cards render
+  (A001 revenue-decline served_by XGBoost 29.2, AGP scorecard fallback 25.8). Screenshot s11-forecast2.png.
+  (Backend must run as a harness-managed bg process — `nohup … &` gets reaped in this env.)
