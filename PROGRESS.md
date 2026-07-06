@@ -1875,3 +1875,25 @@ the breadcrumb doesn't read as an advisor picker. FIX: new reusable `components/
 the chosen advisor so every scope-following page re-fetches). Added to Predictions, Opportunities &
 Recommendations, Feature Engineering Lab, Explainability Explorer headers. Evidence: s12-6-predictions-a/b,
 s12-6-recommendations/featurelab/explainability .png (all 0 errors).
+
+### 12.7 Feature Engineering Lab re-verify (post-§11) — DONE (verification, no code change)
+Live cross-check of the rendered page vs. direct backend calls for A001: revenue_ltm 387293.22,
+aum_total 10018200, managed_revenue_ratio 0.1123, household_count 6, account_count 12,
+revenue_growth_3m_pct 23.3, agp_risk_score 19.1, advisor_degree_centrality 0.39, snapshot
+FS_A001_20260703_v2.0 — ALL match the page exactly. Similar advisors real
+(deterministic-feature-projection, honestly labeled "not a trained GNN"): A004 0.8575→page 0.858,
+A007 0.8444→page 0.844, with real reason_features. Visual lineage diagram (FeatureLineageDiagram)
+wired (feature rows clickable → source→feature flow). Point-in-time snapshot compare works
+(2025-01-31 vs today, both computed live). No regression from §11. Evidence: s12-6-featurelab.png.
+
+### 12.8 Opportunities & Recommendations — minimum visible feedback — DONE
+Diagnosis: clicking a feedback button posted to /feedback-learning/submit (real reward + weight update)
+but produced NO visible change — the rec's status didn't update, and the summary counts came from
+/feedback-learning/impact-trend whose totals are STATIC (seeded history, don't increment on submit).
+FIX (minimum per 12.8; full state machine is §13): (1) optimistic per-rec status via `actedStatus` map →
+a colored ● ACCEPTED/COMPLETED/IN PROGRESS/IGNORED/REJECTED badge on the card; (2) overlay the session's
+actions onto the summary counts so Accepted/Completed/In-Progress/Rejected visibly increment on click;
+(3) richer "WHAT CHANGED" note naming the rec + new status + the learning effect; re-fetch queue + impact
+on submit. Verified live: clicked ACCEPT on "Accelerate the stalled CRM pipeline" → card shows ●ACCEPTED,
+Accepted count 14→15, note "You accepted … → status ACCEPTED. Future CRM_EXECUTION … weight 1.44 (was
+1.39)." Buttons NOT disabled yet (deferred to §13 by design). Evidence: s12-8-recs-after-accept.png.

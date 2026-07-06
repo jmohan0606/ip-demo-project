@@ -1,0 +1,26 @@
+import { chromium } from "playwright";
+import path from "path";
+import fs from "fs";
+const LOCAL_API = "http://127.0.0.1:8000";
+const outDir = path.resolve(process.cwd(), "../docs/qa_screenshots");
+fs.mkdirSync(outDir, { recursive: true });
+const b = await chromium.launch();
+const p = await (await b.newContext({ viewport: { width: 1440, height: 2400 } })).newPage();
+const errors = [];
+p.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+await p.route("**/*", async (r) => {
+  const u = r.request().url();
+  const m = u.match(/^https?:\/\/[^/]*app\.github\.dev(\/.*)$/);
+  if (!m) return r.continue();
+  const rq = r.request();
+  const rs = await fetch(LOCAL_API + m[1], { method: rq.method(), headers: { ...rq.headers(), host: "127.0.0.1:8000", origin: LOCAL_API }, body: ["GET", "HEAD"].includes(rq.method()) ? undefined : rq.postData() ?? undefined });
+  return r.fulfill({ status: rs.status, headers: { "content-type": rs.headers.get("content-type") || "application/json", "access-control-allow-origin": "*" }, body: Buffer.from(await rs.arrayBuffer()) });
+});
+await p.goto("http://127.0.0.1:3000/features-embeddings", { waitUntil: "networkidle", timeout: 45000 });
+await p.waitForTimeout(4000);
+await p.getByText("revenue_ltm", { exact: true }).first().click().catch((e) => errors.push("click " + e.message));
+await p.waitForTimeout(2500);
+await p.screenshot({ path: path.join(outDir, "s12-7-featurelab-lineage.png"), fullPage: true });
+console.log("ERRORS", errors.length);
+errors.slice(0, 5).forEach((e) => console.log(" x", e));
+await b.close();

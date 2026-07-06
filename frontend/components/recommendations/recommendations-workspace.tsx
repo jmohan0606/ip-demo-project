@@ -76,6 +76,9 @@ export function RecommendationsWorkspace() {
   const [busy, setBusy] = useState(false);
   const [lastEffect, setLastEffect] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Optimistic per-recommendation status after a feedback click (12.8 minimum
+  // visible-feedback fix; §13 replaces this with the persisted state machine).
+  const [actedStatus, setActedStatus] = useState<Record<string, string>>({});
 
   const generate = useCallback(async () => {
     if (!advisorId) return;
@@ -94,12 +97,21 @@ export function RecommendationsWorkspace() {
     void generate();
   }, [generate]);
 
-  useEffect(() => {
-    apiClient
+  const loadImpact = useCallback(async () => {
+    await apiClient
       .get<ImpactTrend>("/feedback-learning/impact-trend")
       .then(setImpact)
       .catch(() => setImpact(null));
   }, []);
+
+  useEffect(() => {
+    void loadImpact();
+  }, [loadImpact]);
+
+  // Map a feedback action to the terminal status label it produces (12.8 visible status).
+  const STATUS_FOR_ACTION: Record<string, string> = {
+    ACCEPT: "ACCEPTED", COMPLETE: "COMPLETED", MODIFY: "IN PROGRESS", IGNORE: "IGNORED", REJECT: "REJECTED",
+  };
 
   const submitFeedback = async (rec: Recommendation, action: string) => {
     setBusy(true);
@@ -109,8 +121,13 @@ export function RecommendationsWorkspace() {
         action,
         action_family: rec.action_family,
       });
-      setLastEffect(result.effect);
-      await generate(); // re-rank immediately so the learning effect is visible
+      // Optimistically mark this recommendation's new status so the card visibly changes.
+      setActedStatus((prev) => ({ ...prev, [rec.recommendation_id]: STATUS_FOR_ACTION[action] ?? action }));
+      // A concrete "what changed" note naming the rec + action + the learning effect.
+      setLastEffect(`You ${action.toLowerCase()}ed "${rec.title}" → status ${STATUS_FOR_ACTION[action] ?? action}. ${result.effect}`);
+      // Re-fetch BOTH the recommendation queue (re-ranked) AND the impact totals so the
+      // Accepted/Completed/Rejected summary counts visibly increment.
+      await Promise.all([generate(), loadImpact()]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Feedback failed");
     } finally {
@@ -156,13 +173,25 @@ export function RecommendationsWorkspace() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {(() => {
           const t = impact?.totals;
-          const total = t ? t.accepted + t.implemented + t.rejected + (t as { modified?: number }).modified! + (t as { ignored?: number }).ignored! : 0;
+          // Overlay THIS session's feedback actions onto the base totals so the counts
+          // visibly change the moment a button is clicked (12.8). §13 persists these.
+          const sess = Object.values(actedStatus).reduce(
+            (acc, s) => { const k = s === "ACCEPTED" ? "accepted" : s === "COMPLETED" ? "implemented" : s === "IN PROGRESS" ? "modified" : s === "REJECTED" ? "rejected" : "ignored"; acc[k] = (acc[k] ?? 0) + 1; return acc; },
+            {} as Record<string, number>,
+          );
+          const val = (base: number | undefined, key: string) => (base ?? 0) + (sess[key] ?? 0);
+          const accepted = val(t?.accepted, "accepted");
+          const implemented = val(t?.implemented, "implemented");
+          const modified = val((t as { modified?: number } | undefined)?.modified, "modified");
+          const rejected = val(t?.rejected, "rejected");
+          const ignored = val((t as { ignored?: number } | undefined)?.ignored, "ignored");
+          const total = accepted + implemented + rejected + modified + ignored;
           const pct = (n: number) => (total ? `${Math.round((n / total) * 100)}%` : "—");
           const cards = [
-            { label: "Accepted", n: t?.accepted ?? 0, color: colors.positive, bg: "#F0FDFA", icon: CheckCircle2 },
-            { label: "Completed", n: t?.implemented ?? 0, color: "#059669", bg: "#ECFDF5", icon: CircleCheck },
-            { label: "In Progress", n: (t as { modified?: number } | undefined)?.modified ?? 0, color: colors.warning, bg: "#FFFBEB", icon: PencilLine },
-            { label: "Rejected", n: t?.rejected ?? 0, color: colors.negative, bg: "#FEF2F2", icon: XCircle },
+            { label: "Accepted", n: accepted, color: colors.positive, bg: "#F0FDFA", icon: CheckCircle2 },
+            { label: "Completed", n: implemented, color: "#059669", bg: "#ECFDF5", icon: CircleCheck },
+            { label: "In Progress", n: modified, color: colors.warning, bg: "#FFFBEB", icon: PencilLine },
+            { label: "Rejected", n: rejected, color: colors.negative, bg: "#FEF2F2", icon: XCircle },
           ];
           return cards.map((c) => (
             <div key={c.label} className="flex items-center gap-3 rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
@@ -236,7 +265,7 @@ export function RecommendationsWorkspace() {
           className="rounded-lg border px-3 py-2 text-[12px]"
           style={{ borderColor: "#C7D2FE", backgroundColor: "#EEF2FF", color: colors.aiAccent }}
         >
-          Learning signal applied: {lastEffect}
+          <span className="font-bold uppercase tracking-wide">What changed · </span>{lastEffect}
         </div>
       ) : null}
       {error ? (
@@ -280,12 +309,24 @@ export function RecommendationsWorkspace() {
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="mb-1.5 flex items-center gap-1.5">
+                <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                   {(() => { const m = familyMeta(rec.action_family); const Icon = m.icon; return (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]" style={{ color: m.color, backgroundColor: `${m.color}14` }}>
                       <Icon style={{ width: 12, height: 12 }} /> {m.label}
                     </span>
                   ); })()}
+                  {(() => {
+                    const st = actedStatus[rec.recommendation_id];
+                    if (!st) return null;
+                    const done = st === "ACCEPTED" || st === "COMPLETED";
+                    const bad = st === "REJECTED" || st === "IGNORED";
+                    const c = done ? colors.positive : bad ? colors.negative : colors.warning;
+                    return (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]" style={{ color: c, backgroundColor: `${c}18`, border: `1px solid ${c}55` }}>
+                        ● {st}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p className={type.body} style={{ color: colors.text.primary }}>{rec.action_text}</p>
                 <p className={`mt-1 ${type.data}`} style={{ color: colors.text.muted }}>
