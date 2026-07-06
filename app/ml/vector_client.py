@@ -31,9 +31,9 @@ class VectorClient(Protocol):
                           vectors: dict[str, list[float]]) -> dict: ...
 
     def search(self, entity_type: str, vector: list[float], top_k: int = 5,
-               exclude_id: str | None = None) -> list[dict]: ...
+               exclude_id: str | None = None, model_name: str | None = None) -> list[dict]: ...
 
-    def get(self, entity_type: str, entity_id: str) -> list[float] | None: ...
+    def get(self, entity_type: str, entity_id: str, model_name: str | None = None) -> list[float] | None: ...
 
     def describe(self) -> dict: ...
 
@@ -76,12 +76,20 @@ class LocalVectorClient:
                      json.dumps([round(float(v), 5) for v in vec]), now))
         return {"upserted": len(vectors), "entity_type": entity_type, "model_name": model_name}
 
-    def _rows(self, entity_type: str) -> list[tuple[str, list[float]]]:
+    def _resolve_model(self, model_name: str | None) -> str:
+        if model_name:
+            return model_name
+        from app.ml import registry
+
+        return registry.active_embedding_model()
+
+    def _rows(self, entity_type: str, model_name: str | None = None) -> list[tuple[str, list[float]]]:
+        mdl = self._resolve_model(model_name)
         with sqlite3.connect(self.db_path) as conn:
             try:
                 rows = conn.execute(
                     "SELECT entity_id, vector_json FROM gnn_embeddings WHERE entity_type=? "
-                    "AND model_name='graphsage-v1'", (entity_type.upper(),)).fetchall()
+                    "AND model_name=?", (entity_type.upper(), mdl)).fetchall()
             except sqlite3.OperationalError:
                 return []
         out = []
@@ -92,16 +100,16 @@ class LocalVectorClient:
                 continue
         return out
 
-    def get(self, entity_type, entity_id) -> list[float] | None:
-        for eid, vec in self._rows(entity_type):
+    def get(self, entity_type, entity_id, model_name: str | None = None) -> list[float] | None:
+        for eid, vec in self._rows(entity_type, model_name):
             if eid == entity_id:
                 return vec
         return None
 
-    def search(self, entity_type, vector, top_k=5, exclude_id=None) -> list[dict]:
+    def search(self, entity_type, vector, top_k=5, exclude_id=None, model_name: str | None = None) -> list[dict]:
         scored = [
             {"entity_id": eid, "score": round(_cosine(vector, vec), 4)}
-            for eid, vec in self._rows(entity_type) if eid != exclude_id
+            for eid, vec in self._rows(entity_type, model_name) if eid != exclude_id
         ]
         scored.sort(key=lambda r: -r["score"])
         return scored[:top_k]

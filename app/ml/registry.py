@@ -70,6 +70,16 @@ def upsert_entry(entry: dict[str, Any]) -> None:
             os.unlink(tmp)
 
 
+def active_embedding_model() -> str:
+    """The GNN embedding model that read paths (similarity, Louvain) should use by default:
+    the outcome-fine-tuned 'graphsage-v1-ft' iff it exists AND passed its retention gate
+    (Section 11.3), else the base 'graphsage-v1'. Keeps before/after comparable."""
+    ft = get_entry("graphsage-v1-ft")
+    if ft and ft.get("quality_gate") == "passed":
+        return "graphsage-v1-ft"
+    return "graphsage-v1"
+
+
 def serves(name: str) -> bool:
     """True iff this model's registry entry passes its quality gate and has an artifact.
 

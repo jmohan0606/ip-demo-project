@@ -73,12 +73,15 @@ def _all_advisor_embeddings() -> tuple[dict[str, list[float]], str]:
     if not Path(path).exists():
         return {}, "none"
     out: dict[str, list[float]] = {}
+    from app.ml import registry as _reg
+
+    active = _reg.active_embedding_model()  # graphsage-v1-ft when outcome-fine-tuned (§11.3)
     with sqlite3.connect(path) as conn:
         try:
             rows = conn.execute(
                 "SELECT entity_id, vector_json FROM gnn_embeddings WHERE entity_type='ADVISOR' "
-                "AND model_name='graphsage-v1'").fetchall()
-            source = "graphsage-v1"
+                "AND model_name=?", (active,)).fetchall()
+            source = active
         except sqlite3.OperationalError:
             rows = []
             source = "none"

@@ -204,6 +204,14 @@ def train_gnn() -> dict:
         vc.upsert_embeddings(t, GNN_MODEL, "1.0", vectors)
     now = _dt.datetime.now().strftime("%Y-%m-%d")
 
+    # persist the trained weights so 11.3 outcome-driven fine-tuning can resume from them
+    # (§4.2 step 1 — previously only embeddings + a JSON marker were saved).
+    from app.ml import registry as _reg
+
+    state_path = _reg.artifact_dir() / f"{GNN_MODEL}.pt"
+    torch.save({"state_dict": model.state_dict(), "nodes": nodes, "hidden": hidden,
+                "in_dim": int(x.size(1)), "out_dim": OUT_DIM}, state_path)
+
     counts: dict[str, int] = {}
     for t, _ in nodes:
         counts[t] = counts.get(t, 0) + 1
