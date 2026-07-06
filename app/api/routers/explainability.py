@@ -23,6 +23,15 @@ def recommendation_chain(recommendation_id: str):
     return ok(data=_merged("get_recommendation_detail", {"recommendation_id": recommendation_id}))
 
 
+@router.get("/pipeline-trace/{recommendation_id}")
+def pipeline_trace(recommendation_id: str):
+    """Section 13B.1 — the 6-stage 'How It Works' SYSTEM TRACE for a recommendation:
+    Data → Feature Engineering → Model → Opportunity/Recommendation → Context & Compliance
+    → Delivered Output, each with the real artifact + real per-stage timing."""
+    from app.services.pipeline_trace_service import PipelineTraceService
+    return ok(data=PipelineTraceService().trace(recommendation_id))
+
+
 @router.get("/memory-timeline/{subject_type}/{subject_id}")
 def memory_timeline(subject_type: str, subject_id: str):
     return ok(data=_merged("get_memory_timeline", {"subject_type": subject_type.upper(), "subject_id": subject_id}))
