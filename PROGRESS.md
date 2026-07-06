@@ -1897,3 +1897,15 @@ actions onto the summary counts so Accepted/Completed/In-Progress/Rejected visib
 on submit. Verified live: clicked ACCEPT on "Accelerate the stalled CRM pipeline" → card shows ●ACCEPTED,
 Accepted count 14→15, note "You accepted … → status ACCEPTED. Future CRM_EXECUTION … weight 1.44 (was
 1.39)." Buttons NOT disabled yet (deferred to §13 by design). Evidence: s12-8-recs-after-accept.png.
+
+### 12.9 Admin Health/Observability Next.js errors — DIAGNOSED (not reproducible) + hardened
+Real evidence: drove /admin through ALL 6 tabs (System Health, Model Registry, Model Strategy, AI
+Protections, Evaluation & Trust, Observability) via Playwright capturing every console message, pageerror,
+requestfailed, and ≥400 response, plus checked the nextjs-portal dialog. Result: 0 console errors, 0 failed
+app requests, empty error portal. All admin endpoints return 200 (/adapters/status, /observability/*,
+/architecture/model-strategy, /admin/models, /evaluation/runs/latest). The two reported errors DO NOT
+reproduce in the current build — most likely already resolved by the §11.11 CWD-independence fix (which
+cured the recurring wrong-CWD/empty-store issue that surfaced as render errors). Defensively hardened 3
+latent render-throw hazards matching the reported class (would throw only on an unexpected endpoint shape):
+`lr?.row_count_mismatches?.length`, `status.graph.load_report?.vertex_types/edge_types`, `mcp.tools?.length /
+mcp.families ?? {}`. Evidence: qa-admin-diag output (all clean), s12-9-admin-*.png.

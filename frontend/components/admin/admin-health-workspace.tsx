@@ -112,7 +112,7 @@ function ModelStrategyTab() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between p-3">
             <CardTitle className="flex items-center gap-2 text-[13px]"><Network className="h-4 w-4 text-primary" /> MCP Tool Registry (Section 11.8)</CardTitle>
-            <span className="text-[10px] text-muted-foreground">{mcp.tools.length} tools · {Object.keys(mcp.families).length} families</span>
+            <span className="text-[10px] text-muted-foreground">{mcp.tools?.length ?? 0} tools · {Object.keys(mcp.families ?? {}).length} families</span>
           </CardHeader>
           <CardContent className="p-3">
             {mcp.tools.map((t) => (
@@ -360,7 +360,7 @@ export function AdminHealthWorkspace() {
   }, []);
 
   const lr = status?.graph.load_report;
-  const mismatches = lr?.row_count_mismatches.length ?? 0;
+  const mismatches = lr?.row_count_mismatches?.length ?? 0;
   const model = (status as unknown as { model?: { mode?: string; serving?: string[]; registered?: number }; model_client_mode?: string }) ?? {};
 
   return (
@@ -404,8 +404,8 @@ export function AdminHealthWorkspace() {
               ["Graph", status.graph.graph],
               ["Mode", status.graph.mode],
               ["Healthy", status.graph.healthy ? "yes" : "no"],
-              ["Vertex types", String(status.graph.load_report.vertex_types)],
-              ["Edge types", String(status.graph.load_report.edge_types)],
+              ["Vertex types", String(status.graph.load_report?.vertex_types ?? "—")],
+              ["Edge types", String(status.graph.load_report?.edge_types ?? "—")],
             ]}
           />
           <AdapterCard
