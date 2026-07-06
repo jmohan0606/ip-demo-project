@@ -143,7 +143,7 @@ export function RevenueAnalyticsWorkspace() {
                 <XAxis dataKey="month" tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={{ stroke: colors.surface.border }} minTickGap={24} />
                 <YAxis tickFormatter={fmtC} tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={false} width={48} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number) => [fmtC(v), "Revenue"]} />
-                <Area type="monotone" dataKey="revenue" stroke={colors.primary} strokeWidth={2.5} fill="url(#revGrad)" />
+                <Area type="monotone" dataKey="revenue" stroke={colors.primary} strokeWidth={2.5} fill="url(#revGrad)" isAnimationActive={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -184,7 +184,7 @@ export function RevenueAnalyticsWorkspace() {
                   <XAxis type="number" tickFormatter={fmtC} tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={{ stroke: colors.surface.border }} />
                   <YAxis type="category" dataKey="channel" tick={{ fontSize: 11, fill: colors.text.secondary }} tickLine={false} axisLine={false} width={92} />
                   <Tooltip cursor={{ fill: colors.surface.border, fillOpacity: 0.25 }} contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number) => [fmtC(v), "Revenue"]} />
-                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={26}>
+                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={26} isAnimationActive={false}>
                     {(data?.by_channel ?? []).map((c) => <Cell key={c.channel} fill={colors.primary} />)}
                   </Bar>
                 </BarChart>
@@ -226,7 +226,7 @@ export function RevenueAnalyticsWorkspace() {
                   <XAxis dataKey="label" tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={{ stroke: colors.surface.border }} interval={0} angle={data.by_child.length > 6 ? -20 : 0} textAnchor={data.by_child.length > 6 ? "end" : "middle"} height={data.by_child.length > 6 ? 48 : 24} />
                   <YAxis tickFormatter={fmtC} tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={false} width={48} />
                   <Tooltip cursor={{ fill: colors.surface.border, fillOpacity: 0.25 }} contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number) => [fmtC(v), "Revenue"]} />
-                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]} maxBarSize={64} cursor="pointer" onClick={(bar: unknown) => { const c = (bar as { payload?: RevenueAnalytics["by_child"][number] }).payload; if (c) shell.setScope(c.scope_type as ScopeType, c.scope_id, c.label); }}>
+                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]} maxBarSize={64} isAnimationActive={false} cursor="pointer" onClick={(bar: unknown) => { const c = (bar as { payload?: RevenueAnalytics["by_child"][number] }).payload; if (c) shell.setScope(c.scope_type as ScopeType, c.scope_id, c.label); }}>
                     {data.by_child.map((c) => <Cell key={c.scope_id} fill={colors.primary} />)}
                   </Bar>
                 </BarChart>

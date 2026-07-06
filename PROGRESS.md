@@ -1822,3 +1822,23 @@ Year), 24 advisors, division-specific categories/markets/regions, benchmark high
 errors both. Screenshots s12-1-dashboard-firm.png, s12-1-dashboard-division-qtd.png.
 QA tooling: added `frontend/scripts/qa-shot.mjs` (proxies browser API calls to local backend so in-container
 Playwright renders real data without the public-URL CORS/auth issue).
+
+### 12.2 Filter bars (audit) + 12.3 Revenue Analytics — DONE
+Audit: the filter bar is global (AppShell TopHeader → PersonaScopeSelector), so it renders on EVERY
+page; `admin`/`knowledge` legitimately don't scope-follow (system/search pages), all other data pages
+consume `useShellContext`/`useScopedAdvisor`. So "Revenue Analytics has no filter bar" was a
+misperception — the global bar is present and this page consumes scope + period.
+ROOT CAUSE of the real breakage (not a filter issue): several ResponsiveContainer charts hit the known
+Recharts "blank measure race" — animation plays at width 0 then never replays after the container
+resizes, leaving axes but no marks. This was NOT a §11 regression per se but a latent flaky-render bug
+surfaced by page weight. FIX: added `isAnimationActive={false}` to every chart mark across
+revenue-analytics-workspace (trend Area, channel Bar, division Bar), revenue-trend-explorer, and the
+shared chart components (product-mix, kpi-target-actual, revenue-trend-chart, scope-child-bars,
+whatif-impact-bars, agp-cohort-bars, peer-radar, roi reward Area + weight Bar). Verified: Revenue Trend,
+Revenue by Division ("Revenue by scope"), and Revenue Trend Explorer all render marks now (were blank).
+12.3 real US map: replaced the tile-grid `RevenueStateMap` cartogram with a REAL US choropleth —
+`d3-geo` geoAlbersUsa + `topojson-client` + locally-bundled `us-atlas/states-10m.json` (offline, no
+runtime fetch), FIPS→USPS join to the real by-branch-state revenue, sequential blue fill, hover
+tooltip, legend gradient, ranked list beside. Client-directed "not some boxes with state names" met.
+Added deps: d3-geo, topojson-client, us-atlas (+ @types). Evidence: s12-3-revenue-real-map.png (0 errors),
+s12-3-revenue-charts-fixed.png.

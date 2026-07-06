@@ -127,7 +127,7 @@ export function RecommendationROIWorkspace() {
                       return pt ? `Round ${l} · ${pt.action} · ${pt.action_family}` : `Round ${l}`;
                     }}
                   />
-                  <Area type="monotone" dataKey="cumulative_reward" stroke={colors.aiAccent} strokeWidth={2.5} fill="url(#rewardGrad)" />
+                  <Area isAnimationActive={false} type="monotone" dataKey="cumulative_reward" stroke={colors.aiAccent} strokeWidth={2.5} fill="url(#rewardGrad)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -149,7 +149,7 @@ export function RecommendationROIWorkspace() {
                   <YAxis type="category" dataKey="family" tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={false} width={104} tickFormatter={(s: string) => s.replace("_", " ")} />
                   <ReferenceLine x={1} stroke={colors.text.muted} strokeDasharray="3 3" label={{ value: "baseline", fontSize: 9, fill: colors.text.muted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number, _n, p) => [`weight ${v} · ${(p.payload as { events: number }).events} events`, "Learned"]} />
-                  <Bar dataKey="weight" radius={[0, 6, 6, 0]} barSize={22}>
+                  <Bar isAnimationActive={false} dataKey="weight" radius={[0, 6, 6, 0]} barSize={22}>
                     {(trend?.final_weights ?? []).map((w) => (
                       <Cell key={w.family} fill={w.weight >= 1 ? colors.positive : colors.warning} />
                     ))}

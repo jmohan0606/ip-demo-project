@@ -19,7 +19,7 @@ export function RevenueTrendChart({ data }: { data: PerformancePoint[] }) {
           <XAxis dataKey="period" tickLine={false} axisLine={false} />
           <YAxis tickFormatter={(value) => formatCurrency(Number(value))} tickLine={false} axisLine={false} width={78} />
           <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-          <Area type="monotone" dataKey="revenue" stroke="#2563EB" strokeWidth={3} fill="url(#revenueGradient)" />
+          <Area isAnimationActive={false} type="monotone" dataKey="revenue" stroke="#2563EB" strokeWidth={3} fill="url(#revenueGradient)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

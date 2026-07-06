@@ -13,7 +13,7 @@ export function ProductMixChart({ data }: { data: ProductMixPoint[] }) {
           <XAxis dataKey="category" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
           <YAxis tickFormatter={(value) => formatCurrency(Number(value))} tickLine={false} axisLine={false} width={78} />
           <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-          <Bar dataKey="revenue" fill="#4F46E5" radius={[10, 10, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey="revenue" fill="#4F46E5" radius={[10, 10, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

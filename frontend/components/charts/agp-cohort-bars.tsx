@@ -39,7 +39,7 @@ export function AgpCohortBars({ data }: { data: AgpCohortSummary["milestone_summ
               "Milestones",
             ]}
           />
-          <Bar dataKey="progress_count" radius={[6, 6, 0, 0]} maxBarSize={72}>
+          <Bar isAnimationActive={false} dataKey="progress_count" radius={[6, 6, 0, 0]} maxBarSize={72}>
             {rows.map((r) => (
               <Cell key={r.milestone_status} fill={STATUS_COLOR[r.milestone_status] ?? colors.primary} />
             ))}

@@ -53,7 +53,7 @@ export function WhatIfImpactBars({ data }: { data: ImpactBar[] }) {
             formatter={(v: number) => [`${v > 0 ? "+" : ""}${v.toFixed(2)}%`, "Projected change"]}
             contentStyle={{ fontSize: 12, borderRadius: 12, border: `1px solid ${colors.surface.border}` }}
           />
-          <Bar dataKey="pct" radius={[0, 6, 6, 0]} barSize={20}>
+          <Bar isAnimationActive={false} dataKey="pct" radius={[0, 6, 6, 0]} barSize={20}>
             {rows.map((r) => (
               <Cell key={r.metric} fill={r.pct >= 0 ? colors.positive : colors.negative} />
             ))}

@@ -215,6 +215,7 @@ export default function RevenueTrendExplorer() {
                   {data.slices.map((label, i) => (
                     <Bar
                       key={label}
+                      isAnimationActive={false}
                       dataKey={label}
                       stackId="revenue"
                       fill={sliceColor(label, i)}

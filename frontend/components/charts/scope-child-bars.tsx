@@ -61,6 +61,7 @@ export function ScopeChildBars({
             }}
           />
           <Bar
+            isAnimationActive={false}
             dataKey="revenue_ltm"
             radius={[6, 6, 0, 0]}
             maxBarSize={64}

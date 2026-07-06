@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useMemo, useState } from "react";
+import { geoAlbersUsa, geoPath } from "d3-geo";
+import { scaleLinear } from "d3-scale";
+import { feature } from "topojson-client";
+import type { Feature, Geometry } from "geojson";
+import usAtlas from "us-atlas/states-10m.json";
 
 import { colors, type } from "@/styles/tokens";
 import { formatCurrency } from "@/lib/utils";
@@ -11,111 +16,109 @@ export interface StateRevenue {
   advisor_count: number;
 }
 
-/**
- * US state tile-grid cartogram (statebin) — a real geographic map of revenue by
- * branch state (advisor_in_branch -> branch.state). Each state sits in its
- * approximate US position; fill intensity encodes revenue on a sequential blue
- * scale. Zero-revenue states render as faint context tiles. No map library /
- * external asset needed — CSS-grid positioned, theme-safe, presentation quality.
- *
- * The tile layout is the widely-used 8-row x 12-col US grid.
- */
-const GRID: Record<string, [number, number]> = {
-  AK: [0, 0], ME: [0, 11],
-  VT: [1, 10], NH: [1, 11],
-  WA: [2, 1], ID: [2, 2], MT: [2, 3], ND: [2, 4], MN: [2, 5], IL: [2, 6], WI: [2, 7], MI: [2, 8], NY: [2, 9], RI: [2, 10], MA: [2, 11],
-  OR: [3, 1], NV: [3, 2], WY: [3, 3], SD: [3, 4], IA: [3, 5], IN: [3, 6], OH: [3, 7], PA: [3, 8], NJ: [3, 9], CT: [3, 10],
-  CA: [4, 1], UT: [4, 2], CO: [4, 3], NE: [4, 4], MO: [4, 5], KY: [4, 6], WV: [4, 7], VA: [4, 8], MD: [4, 9], DE: [4, 10],
-  AZ: [5, 1], NM: [5, 2], KS: [5, 3], AR: [5, 4], TN: [5, 5], NC: [5, 6], SC: [5, 7], DC: [5, 8],
-  OK: [6, 3], LA: [6, 4], MS: [6, 5], AL: [6, 6], GA: [6, 7],
-  HI: [7, 0], TX: [7, 3], FL: [7, 8],
+// FIPS (us-atlas feature id) -> USPS 2-letter code, so we can join the topojson
+// geometry to the by-branch-state revenue rows (which use 2-letter codes).
+const FIPS_TO_USPS: Record<string, string> = {
+  "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA", "08": "CO", "09": "CT",
+  "10": "DE", "11": "DC", "12": "FL", "13": "GA", "15": "HI", "16": "ID", "17": "IL",
+  "18": "IN", "19": "IA", "20": "KS", "21": "KY", "22": "LA", "23": "ME", "24": "MD",
+  "25": "MA", "26": "MI", "27": "MN", "28": "MS", "29": "MO", "30": "MT", "31": "NE",
+  "32": "NV", "33": "NH", "34": "NJ", "35": "NM", "36": "NY", "37": "NC", "38": "ND",
+  "39": "OH", "40": "OK", "41": "OR", "42": "PA", "44": "RI", "45": "SC", "46": "SD",
+  "47": "TN", "48": "TX", "49": "UT", "50": "VT", "51": "VA", "53": "WA", "54": "WV",
+  "55": "WI", "56": "WY",
 };
 
-const ROWS = 8;
-const COLS = 12;
+const WIDTH = 975;
+const HEIGHT = 610;
 
-// Sequential fill: light slate -> primary blue by revenue intensity (0..1).
-function hexLerp(a: string, b: string, t: number): string {
-  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
-  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
-  const mix = pa.map((v, i) => Math.round(v + (pb[i] - v) * t));
-  return `#${mix.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
-}
-
+/**
+ * Real US choropleth of revenue by branch state (advisor_in_branch -> branch.state).
+ * Actual state geometry from the us-atlas TopoJSON projected with geoAlbersUsa —
+ * NOT a tile grid of labelled boxes (CLAUDE.md 12.3, client-directed). Fill
+ * intensity encodes revenue on a sequential blue scale; states with no revenue
+ * render as faint context. Fully bundled/offline (no runtime map fetch). Hover a
+ * state for its revenue + advisor count; a legend gradient carries the scale.
+ */
 export function RevenueStateMap({ data }: { data: StateRevenue[] }) {
-  const [hover, setHover] = useState<string | null>(null);
-  const byState = useMemo(() => Object.fromEntries(data.map((d) => [d.state, d])), [data]);
-  const max = useMemo(() => Math.max(1, ...data.map((d) => d.revenue)), [data]);
+  const [hover, setHover] = useState<{ code: string; name: string; x: number; y: number } | null>(null);
+
+  const { paths, revByCode, maxRev } = useMemo(() => {
+    const topo = usAtlas as unknown as { objects: { states: unknown } };
+    const fc = feature(topo as never, topo.objects.states as never) as unknown as {
+      features: Array<Feature<Geometry, { name: string }>>;
+    };
+    const projection = geoAlbersUsa().fitSize([WIDTH, HEIGHT], fc as never);
+    const pathGen = geoPath(projection);
+    const revMap: Record<string, StateRevenue> = {};
+    for (const d of data) revMap[d.state.toUpperCase()] = d;
+    const max = Math.max(1, ...data.map((d) => d.revenue));
+    const built = fc.features.map((f) => {
+      const fips = String(f.id).padStart(2, "0");
+      const code = FIPS_TO_USPS[fips] ?? "";
+      return { code, name: f.properties.name, d: pathGen(f) ?? "" };
+    });
+    return { paths: built, revByCode: revMap, maxRev: max };
+  }, [data]);
+
+  const fillScale = useMemo(
+    () => scaleLinear<string>().domain([0, maxRev]).range(["#DBEAFE", colors.primary]).clamp(true),
+    [maxRev],
+  );
+
+  const ranked = useMemo(() => [...data].sort((a, b) => b.revenue - a.revenue), [data]);
   const total = useMemo(() => data.reduce((s, d) => s + d.revenue, 0) || 1, [data]);
 
-  const cells: ReactElement[] = [];
-  for (const [st, [r, c]] of Object.entries(GRID)) {
-    const rec = byState[st];
-    const t = rec ? 0.18 + 0.82 * (rec.revenue / max) : 0; // floor so smallest present state stays visible
-    const fill = rec ? hexLerp("#DBEAFE", colors.primary, t) : "transparent";
-    const active = rec != null;
-    const isHover = hover === st;
-    cells.push(
-      <div
-        key={st}
-        style={{
-          gridColumn: c + 1,
-          gridRow: r + 1,
-          backgroundColor: fill,
-          borderColor: active ? (isHover ? colors.text.primary : "transparent") : colors.surface.border,
-          color: active && t > 0.55 ? "#fff" : active ? colors.text.primary : colors.text.muted,
-        }}
-        className={`flex aspect-square items-center justify-center rounded-md border text-[10px] font-semibold transition-transform ${
-          active ? "cursor-default" : "opacity-40"
-        } ${isHover ? "scale-110 shadow-md" : ""}`}
-        onMouseEnter={() => active && setHover(st)}
-        onMouseLeave={() => setHover(null)}
-        title={rec ? `${st} · ${formatCurrency(rec.revenue, { compact: true })} · ${rec.advisor_count} advisors` : st}
-      >
-        {st}
-      </div>,
-    );
-  }
-
-  const hoverRec = hover ? byState[hover] : null;
-  const top = [...data].sort((a, b) => b.revenue - a.revenue).slice(0, 6);
-
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
-      <div className="min-w-0 flex-1">
-        <div
-          className="grid gap-1"
-          style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${ROWS}, auto)` }}
-        >
-          {cells}
-        </div>
-        <div className="mt-3 flex items-center gap-2">
-          <span className={type.label} style={{ color: colors.text.muted }}>Lower</span>
+    <div className="flex flex-col gap-3 lg:flex-row">
+      <div className="relative min-w-0 flex-1">
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="h-auto w-full" role="img" aria-label="US revenue choropleth">
+          {paths.map((p) => {
+            const rev = revByCode[p.code];
+            return (
+              <path
+                key={p.name}
+                d={p.d}
+                fill={rev ? fillScale(rev.revenue) : "#F1F5F9"}
+                stroke={colors.surface.card}
+                strokeWidth={0.75}
+                onMouseEnter={(e) => setHover({ code: p.code, name: p.name, x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY })}
+                onMouseMove={(e) => setHover((h) => (h ? { ...h, x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY } : h))}
+                onMouseLeave={() => setHover(null)}
+                style={{ cursor: rev ? "pointer" : "default", transition: "fill 120ms" }}
+              />
+            );
+          })}
+        </svg>
+        {hover && (
           <div
-            className="h-2 flex-1 rounded-full"
-            style={{ background: `linear-gradient(90deg, ${hexLerp("#DBEAFE", colors.primary, 0.18)}, ${colors.primary})` }}
-          />
+            className="pointer-events-none absolute z-10 rounded-lg border bg-white px-2.5 py-1.5 shadow-md"
+            style={{ left: Math.min(hover.x + 10, WIDTH - 140), top: hover.y + 10, borderColor: colors.surface.border }}
+          >
+            <div className="text-[12px] font-semibold" style={{ color: colors.text.primary }}>{hover.name}</div>
+            {revByCode[hover.code] ? (
+              <div className={type.data} style={{ color: colors.text.secondary }}>
+                {formatCurrency(revByCode[hover.code].revenue, { compact: true })} · {revByCode[hover.code].advisor_count} advisors
+              </div>
+            ) : (
+              <div className={type.data} style={{ color: colors.text.muted }}>no revenue</div>
+            )}
+          </div>
+        )}
+        <div className="mt-1 flex items-center gap-2 px-1">
+          <span className={type.label} style={{ color: colors.text.muted }}>Lower</span>
+          <div className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, #DBEAFE, ${colors.primary})` }} />
           <span className={type.label} style={{ color: colors.text.muted }}>Higher</span>
-          <span className="ml-2 text-[11px] font-medium" style={{ color: colors.text.secondary }}>
-            {hoverRec ? `${hoverRec.state}: ${formatCurrency(hoverRec.revenue, { compact: true })}` : `${data.length} states`}
-          </span>
+          <span className={`ml-2 ${type.label}`} style={{ color: colors.text.muted }}>{data.length} states</span>
         </div>
       </div>
-      <ul className="w-full shrink-0 space-y-1.5 lg:w-56">
-        {top.map((d) => (
+
+      <ul className="w-full shrink-0 space-y-1 lg:w-52">
+        {ranked.slice(0, 8).map((d) => (
           <li key={d.state} className="flex items-center gap-2">
-            <span
-              className="flex h-5 w-6 shrink-0 items-center justify-center rounded text-[9px] font-bold text-white"
-              style={{ backgroundColor: hexLerp("#DBEAFE", colors.primary, 0.18 + 0.82 * (d.revenue / max)) }}
-            >
-              {d.state}
-            </span>
-            <span className={`flex-1 font-mono ${type.data}`} style={{ color: colors.text.primary }}>
-              {formatCurrency(d.revenue, { compact: true })}
-            </span>
-            <span className={`w-9 text-right font-mono ${type.data}`} style={{ color: colors.text.muted }}>
-              {((d.revenue / total) * 100).toFixed(0)}%
-            </span>
+            <span className="inline-flex h-5 w-7 items-center justify-center rounded text-[10px] font-bold text-white" style={{ backgroundColor: fillScale(d.revenue) }}>{d.state}</span>
+            <span className={`flex-1 font-mono ${type.data}`} style={{ color: colors.text.primary }}>{formatCurrency(d.revenue, { compact: true })}</span>
+            <span className={`w-9 text-right font-mono ${type.data}`} style={{ color: colors.text.muted }}>{((d.revenue / total) * 100).toFixed(0)}%</span>
           </li>
         ))}
       </ul>

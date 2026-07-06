@@ -24,8 +24,8 @@ export function KpiTargetActual({ data, unit }: { data: KpiHistoryPoint[]; unit?
           <YAxis tickFormatter={fmt} tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={false} width={44} />
           <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number, n: string) => [fmt(v), n]} />
           <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" iconSize={8} />
-          <Bar dataKey="target" name="Target" fill={colors.surface.border} radius={[4, 4, 0, 0]} maxBarSize={22} />
-          <Bar dataKey="actual" name="Actual" fill={colors.primary} radius={[4, 4, 0, 0]} maxBarSize={22} />
+          <Bar isAnimationActive={false} dataKey="target" name="Target" fill={colors.surface.border} radius={[4, 4, 0, 0]} maxBarSize={22} />
+          <Bar isAnimationActive={false} dataKey="actual" name="Actual" fill={colors.primary} radius={[4, 4, 0, 0]} maxBarSize={22} />
         </BarChart>
       </ResponsiveContainer>
     </div>
