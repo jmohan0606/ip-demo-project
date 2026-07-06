@@ -12,8 +12,9 @@ export function AiContentCard({ title, children, footer }: { title: string; chil
         <span
           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]"
           style={{ color: colors.aiAccent, backgroundColor: "#EEF2FF", border: `1px solid #C7D2FE` }}
+          title="iPerform Insights and Coaching — the proactive AI system"
         >
-          ✦ AI Generated
+          ✦ iPerform Insights and Coaching
         </span>
       </div>
       <div className="px-4 py-3">{children}</div>

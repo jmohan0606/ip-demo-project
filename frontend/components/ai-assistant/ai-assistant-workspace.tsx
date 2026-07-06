@@ -59,10 +59,12 @@ export function AiAssistantWorkspace() {
     <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>AI Assistant</h1>
+          <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>iPerform Coach Q&amp;A Assistant</h1>
           <p className={type.body} style={{ color: colors.text.secondary }}>
-            Context-aware advisor Q&amp;A for {advisorId}. Chat answers ground in memory, knowledge and
-            insights; agentic mode exposes the multi-agent reasoning path, evidence and confidence.
+            The reactive AI system — user-initiated advisor Q&amp;A for {advisorId}. Chat answers ground in
+            memory, knowledge and insights; agentic mode exposes the multi-agent reasoning path, evidence
+            and confidence. (Proactive insights &amp; recommendations are the <b>iPerform Insights and
+            Coaching</b> system.)
           </p>
         </div>
         <div className="flex overflow-hidden rounded-lg border" style={{ borderColor: colors.surface.border }}>

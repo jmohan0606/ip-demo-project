@@ -121,6 +121,15 @@ export function ExecutiveDashboard() {
         <KpiStatCard label="At-Risk Advisors" value={t ? String(atRisk) : "—"} icon={AlertTriangle} iconColor="#DC2626" />
       </div>
 
+      {/* Section 11.11 — business-outcome mapping (poster "Business Outcomes") */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-[11px]" style={{ borderColor: "#C7D2FE", background: "#EEF2FF", color: "#3730A3" }}>
+        <span className="font-semibold uppercase tracking-wide">Business Outcomes:</span>
+        {[["Revenue (LTM)", "Increase Revenue"], ["AUM", "Increase AUM"], ["NNM", "Increase NCF"],
+          ["Goal Attainment", "Improve Goal Attainment"], ["At-Risk / Coaching", "Increase Advisor Productivity"]].map(([kpi, outcome]) => (
+          <span key={kpi} className="rounded-full border bg-white px-2 py-0.5" style={{ borderColor: "#C7D2FE" }}>{kpi} → <b>{outcome}</b></span>
+        ))}
+      </div>
+
       {/* AGP Program Status (9.5) */}
       {t && !isAdvisor && (
         <Card>

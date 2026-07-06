@@ -21,6 +21,7 @@ from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.predictions import router as predictions_router
 from app.api.routers.graph_insights import router as graph_insights_router
 from app.api.routers.models import router as models_router
+from app.api.routers.architecture import router as architecture_router
 from app.api.routers.embeddings import router as embeddings_router
 from app.api.routers.features import router as features_router
 from app.api.routers.memory import router as memory_router
@@ -78,6 +79,7 @@ app.include_router(embeddings_router)
 app.include_router(predictions_router)
 app.include_router(graph_insights_router)
 app.include_router(models_router)
+app.include_router(architecture_router)
 
 app.include_router(opportunities_router)
 

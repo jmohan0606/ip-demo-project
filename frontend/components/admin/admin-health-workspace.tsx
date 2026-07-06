@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api/client";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { colors } from "@/styles/tokens";
 
 const compact = (v: number) => Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v);
 
@@ -14,6 +15,82 @@ interface ModelEntry {
   primary_metric?: string; primary_metric_value?: number; quality_gate?: string; quality_floor?: number | null;
   features?: string[]; caveats?: string; label_definition?: string; split?: string; served_by?: string;
   metrics?: Record<string, unknown>;
+}
+
+interface StrategyRow { function: string; system: string; served_by: string; kind: string }
+function ModelStrategyTab() {
+  const [rows, setRows] = useState<StrategyRow[]>([]);
+  const [systems, setSystems] = useState<Record<string, { label: string; description: string }> | null>(null);
+  useEffect(() => {
+    apiClient.get<{ model_strategy: StrategyRow[]; systems: Record<string, { label: string; description: string }> }>("/architecture/model-strategy")
+      .then((r) => { setRows(r.model_strategy ?? []); setSystems(r.systems); }).catch(() => setRows([]));
+  }, []);
+  const sysColor = (s: string) => s.includes("Coach Q&A") ? "#0F766E" : s === "Both" ? colors.text.muted : colors.aiAccent;
+  return (
+    <div className="space-y-3">
+      {systems ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {Object.values(systems).map((s) => (
+            <div key={s.label} className="rounded-lg border p-3" style={{ borderColor: colors.surface.border }}>
+              <div className="text-[13px] font-bold" style={{ color: sysColor(s.label) }}>{s.label}</div>
+              <div className="text-[11px] text-muted-foreground">{s.description}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <Card>
+        <CardHeader className="p-3"><CardTitle className="flex items-center gap-2 text-[13px]"><Cpu className="h-4 w-4 text-primary" /> Model Strategy (Per Function) — actually serving now</CardTitle></CardHeader>
+        <CardContent className="p-3">
+          <table className="w-full text-[12px]">
+            <thead><tr className="border-b text-left text-[11px] uppercase text-muted-foreground">{["Function", "System", "Served by", "Kind"].map((h) => <th key={h} className="px-2 py-1.5">{h}</th>)}</tr></thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.function} className="border-b last:border-0">
+                  <td className="px-2 py-1.5 font-semibold">{r.function}</td>
+                  <td className="px-2 py-1.5" style={{ color: sysColor(r.system) }}>{r.system}</td>
+                  <td className="px-2 py-1.5 font-mono">{r.served_by}</td>
+                  <td className="px-2 py-1.5"><Badge variant="glass">{r.kind}</Badge></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+interface Protection { protection: string; status: string; detail: string }
+function AiProtectionsTab() {
+  const [items, setItems] = useState<Protection[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    apiClient.get<{ protections: Protection[]; counts: Record<string, number> }>("/architecture/ai-protections")
+      .then((r) => { setItems(r.protections ?? []); setCounts(r.counts ?? {}); }).catch(() => setItems([]));
+  }, []);
+  const tone = (s: string) => s === "implemented" ? { fg: "#0F766E", bg: "#F0FDFA" } : s === "partial" ? { fg: "#B45309", bg: "#FFFBEB" } : { fg: "#B91C1C", bg: "#FEF2F2" };
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between p-3">
+        <CardTitle className="flex items-center gap-2 text-[13px]"><CheckCircle2 className="h-4 w-4 text-primary" /> Top-10 AI Protections</CardTitle>
+        <span className="text-[10px] text-muted-foreground">{counts.implemented ?? 0} implemented · {counts.partial ?? 0} partial</span>
+      </CardHeader>
+      <CardContent className="space-y-1.5 p-3">
+        {items.map((p) => {
+          const t = tone(p.status);
+          return (
+            <div key={p.protection} className="rounded-lg border p-2.5" style={{ borderColor: colors.surface.border }}>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-semibold">{p.protection}</span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase" style={{ color: t.fg, background: t.bg }}>{p.status.replace("_", " ")}</span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{p.detail}</p>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
 }
 
 function ModelRegistryTab() {
@@ -117,7 +194,7 @@ function AdapterCard({
 export function AdminHealthWorkspace() {
   const [status, setStatus] = useState<AdapterStatus | null>(null);
   const [entityCount, setEntityCount] = useState<number>(0);
-  const [tab, setTab] = useState<"health" | "models">("health");
+  const [tab, setTab] = useState<"health" | "models" | "strategy" | "protections">("health");
 
   useEffect(() => {
     fetchAdapterStatus().then(setStatus).catch(() => setStatus(null));
@@ -139,16 +216,16 @@ export function AdminHealthWorkspace() {
         </p>
       </div>
 
-      <div className="flex gap-1 border-b">
-        {(["health", "models"] as const).map((t) => (
+      <div className="flex flex-wrap gap-1 border-b">
+        {([["health", "System Health"], ["models", "Model Registry"], ["strategy", "Model Strategy"], ["protections", "AI Protections"]] as const).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-3 py-1.5 text-[12px] font-semibold ${tab === t ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}>
-            {t === "health" ? "System Health" : "Model Registry"}
+            {label}
           </button>
         ))}
       </div>
 
-      {tab === "models" ? <ModelRegistryTab /> : (
+      {tab === "models" ? <ModelRegistryTab /> : tab === "strategy" ? <ModelStrategyTab /> : tab === "protections" ? <AiProtectionsTab /> : (
       <div className="space-y-3">
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
