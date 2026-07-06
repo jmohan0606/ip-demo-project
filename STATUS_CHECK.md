@@ -68,7 +68,26 @@ Everything else in 12/13/13B stays an extension of an existing page (pipeline-tr
 Explainability, state-machine UI extends Opportunities, etc.). Rule: new surface when cramming would
 compromise either page; extension when it genuinely belongs with existing content.
 
-## §12 ✅ · §13 ✅ · §13B ✅ (all pushed) — now on §10 (remaining) → §14
+## ALL SECTIONS ADDRESSED ✅ — §12 → §13 → §13B → §10 → §14 (master order complete)
+Final state (all pushed):
+- **§12** Regression fixes — 10/10 done (dashboard, filters/charts, real US map, centrality, funnel, advisor
+  selectors, feature-lab re-verify, visible feedback, admin, Chase Wealth Management rename).
+- **§13** Stateful lifecycle — state machine + impact ledger + exact +impact propagation on 3 screens +
+  AI-awareness + regeneration + Impact Ledger page. verify_section13_lifecycle.py ALL PASSED.
+- **§13B** Story mode — pipeline-trace bar, Guided Story Mode overlay (live proof "+$52,111 = exactly the
+  impact"), Business Impact & ROI page. verify_section13B_story.py ALL PASSED. (13B.3 division journey deferred.)
+- **§10** Real header search + notifications done; rest satisfied by §11-13B or deferred (AUM waterfall,
+  PDF/PPT export, household/AGP model extensions) — all additive, no new architecture.
+- **§14** real+claude handover config verified boots+serves; **real Claude works** (key is in the OS env, not
+  the .env file — earlier "blocked" notes corrected). Running config = GRAPH_CLIENT_MODE=real, LLM_CLIENT_MODE=claude.
+
+Deferred (next session, all additive): §13B.3 division story · AUM net-flows waterfall · PDF/PPT export ·
+household next-best-product/concentration/review-cadence · strengthen the AI-Assistant explicit
+completion-narration (prompt weighting for the RECOMMENDATION_LIFECYCLE context item).
+
+---
+
+## §12 ✅ · §13 ✅ · §13B ✅ (all pushed) — §10 (remaining) → §14 detail below
 - §13B: pipeline-trace bar (Explainability), Guided Story Mode overlay (/story, verified live: proof chip
   "+$52,111 = exactly the impact"), Business Impact & ROI page (/business-impact). 13B.3 division journey
   deferred (additive follow-up, engine supports it). verify_section13B_story.py ALL PASSED.
