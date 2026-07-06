@@ -168,6 +168,53 @@
       "training_date": "2026-07-06",
       "version": "1.0"
     },
+    "graphsage-v1-ft": {
+      "algorithm": "GraphSAGE + outcome-contrastive fine-tune (feedback loop) \u00b7 L_linkpred + 0.5\u00b7margin",
+      "artifact_path": "models/artifacts/graphsage-v1-ft.pt",
+      "artifact_sha256": "a374b557dd7f2862",
+      "caveats": "Demo-scale: fine-tuned on recorded outcome history; effect sizes are directional evidence the loop works, not production learning curves. MANAGED_MIX/RETENTION recs target few households -> thin advisor-level pairs; CRM + relationship pairs carry the signal.",
+      "events_used": 180,
+      "features": [
+        "graphsage-v1 embeddings (fine-tuned)"
+      ],
+      "gnn_tier_ran": "tier2-local-pyg-ft",
+      "label_definition": "positive = ACCEPT/COMPLETE with outcome_value>=0; negative = REJECT/IGNORE or COMPLETE with outcome_value<0. Pull same-family positives together; push positive-vs-negative apart; relationship pull/push per outcome polarity.",
+      "metrics": {
+        "epochs": 4,
+        "link_pred_auc_after": 0.9533,
+        "link_pred_auc_before": 0.969,
+        "pairs_holdout": 267,
+        "pairs_train": 1080,
+        "per_family_separation": {
+          "CRM_EXECUTION": {
+            "after": -0.0053,
+            "before": -0.0076
+          },
+          "MANAGED_MIX": {
+            "after": null,
+            "before": null
+          },
+          "RETENTION": {
+            "after": 0.0324,
+            "before": 0.0353
+          }
+        },
+        "separation_after": -0.0175,
+        "separation_before": -0.0215
+      },
+      "name": "graphsage-v1-ft",
+      "primary_metric": "separation_after",
+      "primary_metric_value": -0.0175,
+      "quality_floor": 0.939,
+      "quality_gate": "passed",
+      "retention_gate": "AUC after 0.9533 >= before 0.969 - 0.03 \u2192 passed",
+      "served_by": "graphsage-v1-ft v1.0.180",
+      "served_since": "2026-07-06",
+      "split": "reproduced base 90/10 link-pred edge split (seed 42) + 20% pair holdout",
+      "training_data": "180 recorded outcome events (seeded history + live feedback); 1080 train / 267 holdout contrastive pairs",
+      "training_date": "2026-07-06",
+      "version": "1.0.180"
+    },
     "household-churn-xgb": {
       "algorithm": "XGBoost (XGBClassifier, hist, class-weighted)",
       "artifact_path": "models/artifacts/household-churn-xgb.joblib",
