@@ -1,159 +1,56 @@
-# STATUS_CHECK — Section 11 kickoff (fresh-session state confirmation)
+# STATUS_CHECK — Section 11 COMPLETE
 
-_Date 2026-07-05. Traced from PROGRESS.md, `git log`, and the filesystem — not memory._
+_Date 2026-07-06. Traced from PROGRESS.md, `git log`, and live verification — not memory._
 
-## Real state verified
+## Headline
 
-- **Architecture posters:** all **12** present in `docs/spec/architecture/` (High Level, PACE AI,
-  Prediction & Recommendation Engine, Temporal Knowledge Graph, Agent Orchestration, Context
-  Engineering, Coach Q&A, Data & Knowledge Ingestion, Evaluation & Trust, MCP Layer, Observability,
-  Security & Governance). ✅ — safe to proceed with Section 11.
-- **Section 9: COMPLETE** (Phases 0–7, Sessions 7–8). All 14 Phase-4 page rebuilds, Revenue Trend
-  Explorer, RAG multi-format corpus, `.env.example`, closing verification. `git log` matches
-  PROGRESS.md — tip `5d32cb4`, 72 commits on origin. 90 documented API paths, tsc clean, no purple.
-- **Standing caveats** (unchanged, hardware-bound): mock graph upserts are in-memory (reset on
-  `--reload`); live TigerGraph query INSTALL unverified on this 2-core box (C++ compile limit);
-  mock-LLM output carries a deterministic tag that `FormattedAnswer` strips.
+**All buildable subsections of Section 11 are complete** (11.1–11.8 + 11.11; 11.9/11.10 were
+model-routing guidance / poster placement, satisfied). Every subsection shipped with real metrics,
+honest quality gates, and real-Claude verification wherever AI *behavior* is claimed.
 
-## Section 11 scope (understanding) — real ML/DL/GNN/RL/FL, "make the dots connect"
+- **29 Section-11 commits this session**, all pushed. `origin/main` == `HEAD` == **120 commits**, 0 unpushed.
+- Backend imports clean (**42 routes**); frontend `tsc --noEmit` exit 0; no binaries tracked (artifacts gitignored).
+- **7 models registered, 5 serving** (2 correctly gated to fallback).
+- **Section 10 remains deferred** — not started, per standing instruction.
 
-Strictly **after** Section 9 (done). **Section 10 stays deferred.** Order per 11.1→11.11:
+## What shipped (real results)
 
-1. **11.1 — `ModelClient` adapter** (`MODEL_CLIENT_MODE=real|deterministic`, deterministic scorers
-   kept as fallback). Promote the **already-written-but-dormant** sklearn RandomForest
-   (`prediction_engine.py`) to the live path for the first time — *not* retraining a serving model
-   (the live `/predictions` path is today the additive weighted scorecard; RF exists but no
-   endpoint/agent/context path invokes it). Plus: TigerGraph GDS classical algos each with a named
-   UI purpose (PageRank→referral hub, Louvain→AGP cohorts, similarity→GNN upgrade); GNN in 3
-   preference tiers (`pyTigerGraph[gds]` → local PyG GraphSAGE → deterministic projection); vector
-   storage split (**Chroma untouched for RAG docs**, TigerGraph-native/`TigerGraphVectorClient` for
-   ML/GNN vectors, verified empirically on CE 4.2.3); XGBoost/SHAP retrain on real feedback labels;
-   GRU/LSTM revenue forecast; Isolation Forest anomaly detection; model registry + model cards
-   **as tabs within the existing Admin page**.
-2. **11.2 — RL formalization** — document existing weight loop as a contextual bandit +
-   weight-trajectory replay viz (extends, doesn't rebuild).
-3. **11.3 — "FL" = Feedback Loop, NOT Federated Learning** — outcome-driven GNN embedding
-   fine-tuning layered on top of (not replacing) the verified bandit; live "Run Feedback-Driven
-   Retraining" before/after control; needs real outcome *variety* in data.
-4. **11.4** temporal KG showcase (as-of selector) · **11.5** Evaluation & Trust layer (golden set +
-   eval harness + results page) · **11.6** context engineering (6-memory-type audit, `RerankClient`
-   adapter, scope-rollup-aware AI reasoning, visible pipeline trace) · **11.7** observability depth ·
-   **11.8** MCP layer completion · **11.11** "Two AI Systems" labeling (**iPerform Insights and
-   Coaching** proactive vs **iPerform Coach Q&A Assistant** reactive), Model Strategy table, Top-10
-   AI Protections checklist, Business Outcomes annotations.
+| § | Deliverable | Real result |
+|---|---|---|
+| 11.1 | Real model tier (`ModelClient` adapter) | XGBoost revenue-decline promoted to the LIVE /predictions path with real TreeSHAP (ROC-AUC 0.7755); GRU forecast (sMAPE 0.081, beats seasonal-naive); GraphSAGE GNN (link-pred AUC 0.92); Isolation Forest anomaly (care-framed); model registry in Admin. Dormant synthetic-label RF retired. **2 of 6 models honestly gated → fallback** (agp-off-track 0.63, household-churn PR-AUC 0.012). |
+| 11.2 | RL formalization | Verified feedback loop documented as a contextual bandit (state/action/reward/policy/update), surfaced above the weight-trajectory replay. |
+| 11.3 | FL = Feedback Loop (NOT Federated Learning) | +144 outcome-variety rows (real success/failure mix incl. negative outcomes); contrastive GNN fine-tune (`graphsage-v1-ft`, AUC-retention-gated 0.969→0.953); live before/after retraining control with honest "small on demo-scale" note. |
+| 11.4 | Temporal knowledge graph | Point-in-time feature snapshots (as-of date; A001 AUM $9.06M→$10.02M across dates); as-of graph traversal (19→13 nodes, AI artifacts hidden pre-2026); Memory Timeline temporal link. |
+| 11.5 | Evaluation & Trust | Golden 25-Q set (20 grounded + 5 refusal); real-Claude harness (fails loudly in mock); **groundedness 85% / citation 100% / refusal 100% / 22-25 pass** (3 honest FAILs where Claude declined). Admin "Evaluation & Trust" tab. |
+| 11.6 | Context engineering | RerankClient (local/cohere); scope-aware aggregate reasoning (real-Claude DDW division answer names 24 advisors, $14.7M, top + needs-attention — not one advisor); all 6 poster memory types populated; visible retrieve→rerank→prune trace on Explainability. |
+| 11.7 | Observability | Per-LLM-call token/cost/latency (real from Claude response.usage; estimated for mock, flagged); Admin "Observability" tab. |
+| 11.8 | MCP layer | feature_store + model_serving MCP tool families (6 tools); GET /mcp/tools + POST /mcp/invoke (verified live: model.similar_advisors → real GNN result). |
+| 11.11 | Two AI Systems visible | "iPerform Insights and Coaching" (proactive) vs "iPerform Coach Q&A Assistant" (reactive) labeling; Model Strategy + AI Protections Admin tabs; business-outcome KPI mapping on Exec Dashboard. |
+| 11.9 / 11.10 | Model routing / posters | Fable-designed items (11.1, 11.3, 11.5) delegated via general-purpose subagent with `model:"fable"`; 12 architecture posters already committed. |
 
-**Honest small-data rule:** train at household/transaction level (hundreds–thousands of samples),
-aggregate up; state small-data caveats in every model card; never claim production accuracy from
-demo data; never fake a metric. Same hardware time-box discipline as Phases 2/3.
+## Honesty held throughout
 
-## Two operating rules
+- Deterministic / scorecard / graphsage-v1 / bandit fallbacks are never deleted — real mode falls
+  back per-type via registry quality gates, so it can never regress the shipped behavior.
+- No gate was tuned to pass: 2 XGBoost models + churn correctly do NOT serve; the eval shows 3
+  genuine FAILs where Claude honestly declined partial answers (the hallucination guard working).
+- Anchored advisor figures (A001 387,293.22 / A020 / firm F001 38,365,750.01) asserted intact on
+  every training run and after the data expansion.
+- Small effects (FL embedding separation, eval score) are shown truthfully with amber caveats, not massaged.
 
-- **fable-architect delegation workaround:** the named `fable-architect` agent type is **not
-  registered** in the running registry. Per the proven Section-9 approach (Phases 2, 3, RL showcase,
-  Revenue Trend), delegate the Fable-designated items — **11.1 model design/training approach, 11.3
-  FL design, 11.5 eval-harness design** — via a **`general-purpose` subagent with `model: "fable"`
-  override** and the architect guidance embedded. Main thread stays Opus 4.8 for all wiring, pages,
-  registry plumbing, 11.4/11.6/11.7/11.8.
-- **Real-Claude verification standing rule (11.6):** any verification of AI *behavior* — grounding,
-  continuity, structured formatting, reranking effectiveness, RAG quality, scope-level reasoning —
-  **must use `LLM_CLIENT_MODE=claude` (real API calls), never mock.** Mock is fine only for
-  pipeline-wiring / data-correctness checks where the LLM's actual prose isn't what's being tested.
+## Artifacts
 
-## Execution rules acknowledged
+- Full narrative: `PROGRESS.md` (Session 9 entries).
+- Fable design docs: `docs/section11/11_1_model_design.md`, `11_3_fl_design.md`, `11_5_eval_design.md`.
+- Eval runs (committed): `docs/section11/eval/` (golden set + real Claude runs + trend).
+- QA screenshots: `docs/qa_screenshots/s11-*.png`.
+- Trained artifacts: `models/artifacts/` (gitignored) + committed `models/registry.json`.
 
-Commit per item, update PROGRESS.md continuously, push at natural pauses, don't stop for routine
-check-ins, only pause for a genuine blocker or approaching usage limit.
+## Ops note (carry forward)
 
-## First check when starting 11.1
-
-Inspect current feedback/outcome volume and variety in the data — 11.1's real-label training and
-11.3's fine-tuning both depend on it. If it's too thin or uniformly-positive, expanding outcome
-variety (per the 11.3 data requirement) becomes the real first step rather than jumping straight
-to training.
+Run the backend CWD-independent to avoid the recurring empty-graph-store issue:
+`env PYTHONPATH=/workspaces/ip-demo-project FOUNDATION_DIR=/workspaces/ip-demo-project/docs/tigergraph_foundation SQLITE_DB_PATH=/workspaces/ip-demo-project/data/feature_store/iperform_features.db uvicorn app.api.main:app --host 127.0.0.1 --port 8000`.
+Set `LLM_CLIENT_MODE=claude` for any AI-behavior demo/verification; `MODEL_CLIENT_MODE=real` to serve the trained models.
 
 ---
-
-## Git sync verification (2026-07-05, real command output)
-
-**Before push — 1 local commit was NOT on origin:**
-
-```
-$ git status
-On branch main
-Your branch is ahead of 'origin/main' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-	modified:   STATUS_CHECK.md
-
-$ git log origin/main..HEAD --oneline
-5d32cb4 Add Sections 10-11 + architecture posters, ready for fresh-session kickoff
-
-$ git rev-list --count origin/main
-89
-$ git rev-list --count HEAD
-90
-```
-
-**Push:**
-
-```
-$ git push origin main
-To https://github.com/jmohan0606/ip-demo-project
-   049d950..5d32cb4  main -> main
-=== EXIT 0 ===
-```
-
-**After push — in sync, counts match:**
-
-```
-$ git log origin/main..HEAD --oneline
-(empty — nothing unpushed)
-
-$ git rev-list --count origin/main
-90
-$ git rev-list --count HEAD
-90
-
-$ git status
-On branch main
-Your branch is up to date with 'origin/main'.
-
-Changes not staged for commit:
-	modified:   STATUS_CHECK.md
-```
-
-**Result:** origin/main and HEAD both at **90 commits**, tip `5d32cb4`. All committed work is on
-origin. The only uncommitted change is this `STATUS_CHECK.md` working-tree edit (not yet committed).
-
----
-
-## 11.1 FIRST CHECK — feedback/outcome data variety (real command output) — DONE
-
-Inspected `docs/tigergraph_foundation/data/sample/vertices/` (the on-disk labeled data a fresh-boot
-training run would consume). Real distributions:
-
-```
-feedback ACTION:   ACCEPT 8 · COMPLETE 7 · DEFER 7 · NOT_RELEVANT 7 · REJECT 7   (36 total, good variety)
-feedback reason:   RELEVANT 8 · ACTION_COMPLETED 7 · ALREADY_DISCUSSED 7 · CLIENT_NOT_ELIGIBLE 7 · TIMING 7
-learning reward:   +1.0 ×24 · -0.5 ×12                                           (36 total)
-learning FAMILY:   CRM_EXECUTION ×36   ← SINGLE FAMILY (the real gap)
-learning action:   ACCEPT ×24 · REJECT ×12   (collapsed; 5 feedback actions → 2 in signal_json)
-outcome TYPE:      REVENUE_IMPACT ×36
-outcome VALUE:     zero ×24 · positive ×12   ← NO NEGATIVE-IMPACT OUTCOMES
-recommendations:   NEXT_BEST_ACTION ×120; action_text 3 latent families (CRM×60 / concentration×30 / growth×30)
-RandomForest:      app/prediction/prediction_engine.py trains on SYNTHETIC rank-heuristic target, not real labels
-```
-
-**Verdict:** ACTION variety is fine; **FAMILY and OUTCOME variety are inadequate** for cross-family
-learning and for 11.3's success/failure fine-tuning (all one family; no negative outcomes).
-
-**Routing (respects 11.x order):**
-1. RandomForest risk labels (revenue-decline, AGP-off-track, household churn) derive from data that
-   **already exists** — 36-month revenue series + 960 AGP KPI measurements — so **11.1 training is not
-   blocked**. Train at household/transaction level per the honest small-data rule.
-2. The family-varied / negative-impact outcome expansion is a **11.3 (FL) prerequisite**, done under
-   11.3, guardrail: never mutate anchored advisor figures.
-
----
-_Status: 11.1 first check DONE. Proceeding: delegate 11.1 model/training-approach design to Fable._
+_Status: SECTION 11 COMPLETE — all subsections done, committed, and pushed to origin/main. Section 10 deferred._
