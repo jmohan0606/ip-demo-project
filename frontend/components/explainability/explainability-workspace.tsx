@@ -6,6 +6,7 @@ import { Brain, Clock } from "lucide-react";
 
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { ContextPipelinePanel } from "@/components/explainability/context-pipeline-panel";
+import { PipelineTraceBar } from "@/components/explainability/pipeline-trace-bar";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
@@ -148,6 +149,10 @@ export function ExplainabilityWorkspace() {
           </button>
         ))}
       </div>
+
+      {/* Section 13B.1: the "How It Works" pipeline trace (narrative/timing view) above
+          the artifact-graph lineage chain — same selected recommendation. */}
+      {selectedRec && <PipelineTraceBar recommendationId={selectedRec} />}
 
       {/* Chain visualization */}
       <div className="rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>
