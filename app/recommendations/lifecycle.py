@@ -398,6 +398,51 @@ class RecommendationLifecycleService:
 
     _last_replay: dict = {"ledger_entries_replayed": 0, "statuses_reapplied": 0}
 
+    # ---- Story-Mode reset (13B.2) — same-process replayability -------------
+    def reset_advisor(self, advisor_id: str) -> dict:
+        """Reset an advisor's lifecycle to pristine (for replayable Story Mode): delete
+        lifecycle/transition/ledger rows + lifecycle memories, remove the injected TXIMP_
+        transactions from the in-memory store (no restart needed), un-address opportunities,
+        and recompute the base snapshot. REFUSES anchored advisors (A001/A020)."""
+        ANCHORED = {"A001", "A020"}
+        if advisor_id in ANCHORED:
+            raise LifecycleError(f"{advisor_id} is an anchored verification advisor — refusing to reset (Section 13 guardrail).")
+        graph = get_graph_client()
+        # read ledger rows first (need the tx ids + opportunity ids before deleting)
+        with self.db.connect() as conn:
+            rows = conn.execute("SELECT source_transaction_id, opportunity_id FROM phx_dm_local_impact_ledger WHERE advisor_id=?", (advisor_id,)).fetchall()
+        tx_removed = 0
+        for tx_id, opp_id in rows:
+            if tx_id and str(tx_id).startswith("TXIMP_"):
+                assert str(tx_id).startswith("TXIMP_")  # structural safety: never seed data
+                if graph.store.remove_vertex("phx_dm_revenue_transaction", tx_id):
+                    tx_removed += 1
+            if opp_id:  # un-address so regeneration re-issues the rec
+                try:
+                    upsert_vertex(graph, "phx_dm_opportunity", "opportunity_id",
+                                  {"opportunity_id": opp_id, "status": "OPEN", "addressed_by_recommendation_id": ""})
+                except Exception:
+                    pass
+        with self.db.connect() as conn:
+            n_led = conn.execute("SELECT COUNT(*) FROM phx_dm_local_impact_ledger WHERE advisor_id=?", (advisor_id,)).fetchone()[0]
+            for t in ["phx_dm_local_recommendation", "phx_dm_local_rec_status_transition", "phx_dm_local_impact_ledger"]:
+                conn.execute(f"DELETE FROM {t} WHERE advisor_id=?", (advisor_id,))
+            conn.execute("DELETE FROM phx_dm_local_context_memory WHERE scope_id=? AND source='recommendation_lifecycle'", (advisor_id,))
+            conn.commit()
+        # recompute base snapshot (store no longer has the injected tx)
+        base_rev = None
+        try:
+            from app.features.engineering import FeatureEngineeringService
+            from app.features.snapshot_store import SnapshotStore
+            snap = FeatureEngineeringService().compute_advisor_snapshot(advisor_id)
+            SnapshotStore().save(snap)
+            base_rev = snap.values().get("revenue_ltm")
+        except Exception:
+            pass
+        return {"advisor_id": advisor_id, "ledger_entries_removed": n_led,
+                "transactions_removed": tx_removed, "snapshot_revenue_ltm": base_rev,
+                "note": "Learning history (bandit weights / GNN) is intentionally NOT rewound — it is cumulative."}
+
     # ---- boot replay -------------------------------------------------------
     def replay_on_boot(self) -> dict:
         graph = get_graph_client()

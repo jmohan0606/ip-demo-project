@@ -101,6 +101,25 @@ class FoundationGraphStore:
     def vertex(self, vertex_type: str, vertex_id: str) -> dict[str, Any] | None:
         return self.vertices.get(vertex_type, {}).get(str(vertex_id))
 
+    def remove_vertex(self, vertex_type: str, vertex_id: str) -> bool:
+        """Section 13B.2 — remove a runtime vertex + all its edge-index entries (both
+        directions) from the in-memory store. Used ONLY for TXIMP_ impact transactions
+        to make Story-Mode reset work without a backend restart. Returns True if removed."""
+        vid = str(vertex_id)
+        removed = self.vertices.get(vertex_type, {}).pop(vid, None) is not None
+        for edge_name in list(self.edges.keys()):
+            self.edges[edge_name] = [e for e in self.edges[edge_name] if e.get("from_id") != vid and e.get("to_id") != vid]
+            if vid in self.out_index.get(edge_name, {}):
+                self.out_index[edge_name].pop(vid, None)
+            if vid in self.in_index.get(edge_name, {}):
+                self.in_index[edge_name].pop(vid, None)
+            # also strip vid from other nodes' adjacency lists
+            for src, lst in self.out_index.get(edge_name, {}).items():
+                self.out_index[edge_name][src] = [(t, a) for (t, a) in lst if t != vid]
+            for dst, lst in self.in_index.get(edge_name, {}).items():
+                self.in_index[edge_name][dst] = [(f, a) for (f, a) in lst if f != vid]
+        return removed
+
     def all_vertices(self, vertex_type: str) -> dict[str, dict[str, Any]]:
         return self.vertices.get(vertex_type, {})
 

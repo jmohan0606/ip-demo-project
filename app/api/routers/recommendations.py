@@ -58,3 +58,13 @@ def transition(recommendation_id: str, request: TransitionRequest):
 def lifecycle(recommendation_id: str):
     """Full lifecycle audit for the explainability panel + ledger row expansion."""
     return ok(data=RecommendationLifecycleService().lifecycle_for(recommendation_id))
+
+
+@router.post("/lifecycle/reset/{advisor_id}")
+def reset_advisor(advisor_id: str):
+    """Section 13B.2 — reset an advisor's lifecycle to pristine for replayable Story Mode
+    (same process, no restart). Refuses anchored advisors A001/A020 with 403."""
+    try:
+        return ok(data=RecommendationLifecycleService().reset_advisor(advisor_id))
+    except LifecycleError as exc:
+        raise HTTPException(status_code=403, detail=str(exc))
