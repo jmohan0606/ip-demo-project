@@ -7,6 +7,7 @@ import { Brain, Clock } from "lucide-react";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { ContextPipelinePanel } from "@/components/explainability/context-pipeline-panel";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
@@ -120,12 +121,15 @@ export function ExplainabilityWorkspace() {
 
   return (
     <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
-      <div>
-        <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Explainability Explorer</h1>
-        <p className={type.body} style={{ color: colors.text.secondary }}>
-          Full artifact chain for advisor {advisorId}: every AI output traces back to the features,
-          reasoning steps and evidence that produced it — and forward to feedback and learning.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Explainability Explorer</h1>
+          <p className={type.body} style={{ color: colors.text.secondary }}>
+            Full artifact chain for advisor {advisorId}: every AI output traces back to the features,
+            reasoning steps and evidence that produced it — and forward to feedback and learning.
+          </p>
+        </div>
+        <AdvisorSelector />
       </div>
 
       <div className="flex flex-wrap gap-2">

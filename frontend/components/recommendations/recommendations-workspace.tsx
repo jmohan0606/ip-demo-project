@@ -12,6 +12,7 @@ import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
@@ -131,14 +132,17 @@ export function RecommendationsWorkspace() {
             AI next-best-actions for advisor {advisorId} — ranked by severity-composed priority × learned family weight.
           </p>
         </div>
-        <button
-          onClick={() => void generate()}
-          disabled={busy}
-          className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
-          style={{ backgroundColor: colors.primary }}
-        >
-          {busy ? "Working…" : "Regenerate"}
-        </button>
+        <div className="flex items-center gap-3">
+          <AdvisorSelector />
+          <button
+            onClick={() => void generate()}
+            disabled={busy}
+            className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
+            style={{ backgroundColor: colors.primary }}
+          >
+            {busy ? "Working…" : "Regenerate"}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

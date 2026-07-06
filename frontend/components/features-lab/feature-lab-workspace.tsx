@@ -6,6 +6,7 @@ import { EmbeddingScatter, type ProjectionPoint } from "@/components/charts/embe
 import { FeatureLineageDiagram } from "@/components/features-lab/feature-lineage-diagram";
 import { PointInTimePanel } from "@/components/features-lab/point-in-time-panel";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
@@ -87,14 +88,17 @@ export function FeatureLabWorkspace() {
             and evidence that produced each value.
           </p>
         </div>
-        <button
-          onClick={() => void compute()}
-          disabled={busy}
-          className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
-          style={{ backgroundColor: colors.primary }}
-        >
-          {busy ? "Working…" : "Recompute snapshot"}
-        </button>
+        <div className="flex items-center gap-3">
+          <AdvisorSelector />
+          <button
+            onClick={() => void compute()}
+            disabled={busy}
+            className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
+            style={{ backgroundColor: colors.primary }}
+          >
+            {busy ? "Working…" : "Recompute snapshot"}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

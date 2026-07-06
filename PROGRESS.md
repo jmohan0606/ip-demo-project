@@ -1864,3 +1864,14 @@ blue ramp (dark→light), real per-stage count + $ amount inside each band, stag
 on the right, Won/Lost outcome chips below. Width ∝ open opportunity count (floor keeps empty stages
 readable); honest to sparse per-advisor data. SVG so it never hits the measure-race. Evidence:
 s12-5-crm-funnel-after.png (0 errors).
+
+### 12.6 Explicit advisor-selector on 4 pipeline pages — DONE
+Diagnosis: scope-following is NOT regressed — all 4 pages use `useScopedAdvisor` and re-fetch correctly
+(verified live: Predictions A001→A020 via the new selector changed Highest Risk 29.2→56.8, Rev-Decline
+29.2→48.1, AGP 25.8→56.8, snapshot FS_A001→FS_A020, feature contributions, forecast, AND the hierarchy
+breadcrumb synced to Western Division › Phoenix Metro › Riley Adams). The complaint was discoverability —
+the breadcrumb doesn't read as an advisor picker. FIX: new reusable `components/status/advisor-selector.tsx`
+(fetches /advisor/list, shows the currently-resolved advisor even under a rollup scope, sets shell scope to
+the chosen advisor so every scope-following page re-fetches). Added to Predictions, Opportunities &
+Recommendations, Feature Engineering Lab, Explainability Explorer headers. Evidence: s12-6-predictions-a/b,
+s12-6-recommendations/featurelab/explainability .png (all 0 errors).

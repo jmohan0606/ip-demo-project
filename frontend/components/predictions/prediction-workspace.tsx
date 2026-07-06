@@ -7,6 +7,7 @@ import { RevenueForecastChart } from "@/components/charts/revenue-forecast-chart
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { colors, type } from "@/styles/tokens";
@@ -73,7 +74,9 @@ export function PredictionWorkspace() {
             named feature and persisted with a reasoning trace.
           </p>
         </div>
-        <button
+        <div className="flex items-center gap-3">
+          <AdvisorSelector />
+          <button
           onClick={() => void run()}
           disabled={busy}
           className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50"
@@ -81,6 +84,7 @@ export function PredictionWorkspace() {
         >
           {busy ? "Scoring…" : "Re-run predictions"}
         </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
