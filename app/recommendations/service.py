@@ -152,8 +152,22 @@ class RecommendationService:
     def generate_for_advisor(self, advisor_id: str, persist: bool = True) -> dict:
         detection = self.opportunities.detect_for_advisor(advisor_id, persist=persist)
         affinities = self._outcome_affinities(advisor_id)
+        # Section 13.5: opportunities already addressed by a COMPLETED recommendation are
+        # not re-issued — they surface as an "Addressed" list instead.
+        addressed = self.lifecycle.addressed_opportunity_ids(advisor_id)
+        addressed_out = []
         recommendations = []
         for opp in detection["opportunities"]:
+            if opp["opportunity_id"] in addressed:
+                entry = self.lifecycle.ledger_for_opportunity(opp["opportunity_id"])
+                addressed_out.append({
+                    "opportunity_id": opp["opportunity_id"], "category": opp["category"],
+                    "severity": opp.get("severity"),
+                    "addressed_by": (entry or {}).get("recommendation_id"),
+                    "completed_ts": (entry or {}).get("created_ts"),
+                    "note": (entry or {}).get("note"),
+                })
+                continue
             mapping = ACTION_FAMILIES.get(opp["category"])
             if mapping is None:
                 continue
@@ -207,6 +221,7 @@ class RecommendationService:
             "learning_weights": self.learning.all_weights(),
             "feature_snapshot_id": detection["feature_snapshot_id"],
             "lifecycle_counts": self.lifecycle.counts_for_advisor(advisor_id) if persist else {},
+            "addressed_opportunities": addressed_out,
         }
 
     def list_for_advisor(self, advisor_id: str) -> dict:
