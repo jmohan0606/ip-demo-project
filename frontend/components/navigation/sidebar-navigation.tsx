@@ -39,7 +39,27 @@ export function SidebarNavigation({ collapsed, onToggle }: { collapsed?: boolean
           </div>
         ))}
       </nav>
-      {!collapsed && <div className="m-2 rounded-xl border border-white/10 bg-white/5 p-3 text-[11px]"><div className="font-bold">{context.persona}</div><div className="text-slate-300">{context.scopeType} · {context.period}</div></div>}
+      {!collapsed && (
+        <div className="m-2 rounded-xl border border-white/10 bg-white/5 p-3 text-[11px]">
+          <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Active View</div>
+          <dl className="space-y-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="text-slate-400">Persona</dt>
+              <dd className="font-semibold text-white">{context.persona}</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="text-slate-400">Scope</dt>
+              <dd className="truncate font-semibold text-white" title={`${context.scopeLabel} (${context.scopeType})`}>
+                {context.scopeLabel || context.scopeId} <span className="text-slate-400">· {context.scopeType}</span>
+              </dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="text-slate-400">Period</dt>
+              <dd className="font-semibold text-white">{context.period}</dd>
+            </div>
+          </dl>
+        </div>
+      )}
     </aside>
   );
 }

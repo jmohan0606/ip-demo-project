@@ -1,62 +1,62 @@
 product_id,product_name,product_code,risk_level,managed_flag,status
-P001,Northstar SMA Core Equity,PRD001,MEDIUM,True,ACTIVE
-P002,Northstar UMA Balanced Portfolio,PRD002,HIGH,True,ACTIVE
+P001,Chase SMA Core Equity,PRD001,MEDIUM,True,ACTIVE
+P002,Chase UMA Balanced Portfolio,PRD002,HIGH,True,ACTIVE
 P003,Premier Brokerage Account,PRD003,LOW,False,ACTIVE
 P004,Advisor-Directed Portfolio,PRD004,MEDIUM,False,ACTIVE
 P005,National Muni Bond Ladder,PRD005,HIGH,False,ACTIVE
 P006,Investment-Grade Corporate Ladder,PRD006,LOW,False,ACTIVE
 P007,US Large Cap Core,PRD007,MEDIUM,False,ACTIVE
 P008,Developed Markets Equity,PRD008,HIGH,False,ACTIVE
-P009,Northstar Growth Fund,PRD009,LOW,False,ACTIVE
-P010,Northstar Balanced Fund,PRD010,MEDIUM,False,ACTIVE
+P009,Chase Growth Fund,PRD009,LOW,False,ACTIVE
+P010,Chase Balanced Fund,PRD010,MEDIUM,False,ACTIVE
 P011,Private Equity Access Fund,PRD011,HIGH,False,ACTIVE
 P012,Multi-Strategy Hedge Portfolio,PRD012,LOW,False,ACTIVE
 P013,Premium Money Market,PRD013,MEDIUM,False,ACTIVE
 P014,Portfolio Line of Credit,PRD014,HIGH,False,ACTIVE
 P015,Fixed Index Annuity,PRD015,LOW,False,ACTIVE
 P016,Whole Life Policy,PRD016,MEDIUM,False,ACTIVE
-P017,Northstar SMA Dividend Growth,PRD017,HIGH,True,ACTIVE
-P018,Northstar UMA Growth Portfolio,PRD018,LOW,True,ACTIVE
+P017,Chase SMA Dividend Growth,PRD017,HIGH,True,ACTIVE
+P018,Chase UMA Growth Portfolio,PRD018,LOW,True,ACTIVE
 P019,Select Brokerage Account,PRD019,MEDIUM,False,ACTIVE
 P020,Client-Directed Portfolio,PRD020,HIGH,False,ACTIVE
 P021,State-Preference Muni Portfolio,PRD021,LOW,False,ACTIVE
 P022,US Treasury Ladder,PRD022,MEDIUM,False,ACTIVE
 P023,US Mid Cap Growth,PRD023,HIGH,False,ACTIVE
 P024,Emerging Markets Equity,PRD024,LOW,False,ACTIVE
-P025,Northstar Value Fund,PRD025,MEDIUM,False,ACTIVE
-P026,Northstar Income Fund,PRD026,HIGH,False,ACTIVE
+P025,Chase Value Fund,PRD025,MEDIUM,False,ACTIVE
+P026,Chase Income Fund,PRD026,HIGH,False,ACTIVE
 P027,Private Credit Fund,PRD027,LOW,False,ACTIVE
 P028,Long/Short Equity Strategy,PRD028,MEDIUM,False,ACTIVE
 P029,Insured Cash Sweep,PRD029,HIGH,False,ACTIVE
 P030,Express Credit Line,PRD030,LOW,False,ACTIVE
 P031,Variable Annuity with Income Rider,PRD031,MEDIUM,False,ACTIVE
 P032,Universal Life Policy,PRD032,HIGH,False,ACTIVE
-P033,Northstar SMA Tax-Managed Value,PRD033,LOW,True,ACTIVE
-P034,Northstar UMA Income Portfolio,PRD034,MEDIUM,True,ACTIVE
+P033,Chase SMA Tax-Managed Value,PRD033,LOW,True,ACTIVE
+P034,Chase UMA Income Portfolio,PRD034,MEDIUM,True,ACTIVE
 P035,Active Trader Brokerage,PRD035,HIGH,False,ACTIVE
 P036,Institutional Directed Account,PRD036,LOW,False,ACTIVE
 P037,High-Grade Muni Income,PRD037,MEDIUM,False,ACTIVE
 P038,Corporate Income Portfolio,PRD038,HIGH,False,ACTIVE
 P039,US Small Cap Value,PRD039,LOW,False,ACTIVE
 P040,Global ex-US Core,PRD040,MEDIUM,False,ACTIVE
-P041,Northstar Index 500 Fund,PRD041,HIGH,False,ACTIVE
-P042,Northstar Conservative Allocation,PRD042,LOW,False,ACTIVE
+P041,Chase Index 500 Fund,PRD041,HIGH,False,ACTIVE
+P042,Chase Conservative Allocation,PRD042,LOW,False,ACTIVE
 P043,Real Estate Opportunities Fund,PRD043,MEDIUM,False,ACTIVE
 P044,Global Macro Strategy,PRD044,HIGH,False,ACTIVE
 P045,Treasury Cash Reserve,PRD045,LOW,False,ACTIVE
 P046,Margin Lending Program,PRD046,MEDIUM,False,ACTIVE
 P047,Immediate Income Annuity,PRD047,HIGH,False,ACTIVE
 P048,Variable Universal Life,PRD048,LOW,False,ACTIVE
-P049,Northstar SMA Small Cap Select,PRD049,MEDIUM,True,ACTIVE
-P050,Northstar UMA ESG Portfolio,PRD050,HIGH,True,ACTIVE
+P049,Chase SMA Small Cap Select,PRD049,MEDIUM,True,ACTIVE
+P050,Chase UMA ESG Portfolio,PRD050,HIGH,True,ACTIVE
 P051,Retirement Brokerage Account,PRD051,LOW,False,ACTIVE
 P052,Legacy Directed Account,PRD052,MEDIUM,False,ACTIVE
 P053,Short-Duration Muni Fund,PRD053,HIGH,False,ACTIVE
 P054,Inflation-Protected Bond Strategy,PRD054,LOW,False,ACTIVE
 P055,US Dividend Aristocrats,PRD055,MEDIUM,False,ACTIVE
 P056,International Dividend Strategy,PRD056,HIGH,False,ACTIVE
-P057,Northstar Technology Fund,PRD057,LOW,False,ACTIVE
-P058,Northstar Target Retirement Series,PRD058,MEDIUM,False,ACTIVE
+P057,Chase Technology Fund,PRD057,LOW,False,ACTIVE
+P058,Chase Target Retirement Series,PRD058,MEDIUM,False,ACTIVE
 P059,Infrastructure Partners Fund,PRD059,HIGH,False,ACTIVE
 P060,Managed Futures Strategy,PRD060,LOW,False,ACTIVE
 P061,Certificates of Deposit Program,PRD061,MEDIUM,False,ACTIVE

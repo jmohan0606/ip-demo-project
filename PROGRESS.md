@@ -1909,3 +1909,18 @@ cured the recurring wrong-CWD/empty-store issue that surfaced as render errors).
 latent render-throw hazards matching the reported class (would throw only on an unexpected endpoint shape):
 `lr?.row_count_mismatches?.length`, `status.graph.load_report?.vertex_types/edge_types`, `mcp.tools?.length /
 mcp.families ?? {}`. Evidence: qa-admin-diag output (all clean), s12-9-admin-*.png.
+
+### 12.10 Navigation / branding — DONE
+1. Firm rename: changed the seed Firm vertex name in docs/tigergraph_foundation/data/sample/vertices/
+   phx_dm_firm.csv (F001) "Northstar Wealth Management" → "Chase Wealth Management", and the firm-branded
+   product display names (phx_dm_product.csv, "Northstar X" → "Chase X"; IDs/figures unchanged). Verified
+   after backend reload: /hierarchy/tree firm label = "Chase Wealth Management"; it now flows through the
+   breadcrumb, Exec Dashboard title ("Chase Wealth Management Overview"), AI Insight header, and the nav.
+   0 remaining "Northstar" strings in runtime data/. No anchored numeric figures touched (display strings
+   only). NOTE: backend must be restarted with `setsid python3 -m uvicorn ...` (detached) — a plain
+   nohup in a compound bash command got SIGHUP'd on shell exit.
+2. Bottom-left nav element: redesigned the ambiguous "{persona} / {scopeType}·{period}" block into a
+   clearly-labelled "ACTIVE VIEW" card with Persona / Scope (label · type) / Period rows. Evidence:
+   s12-10-branding.png (0 errors).
+
+## SECTION 12 COMPLETE (12.1–12.10). Pushing at section boundary.
