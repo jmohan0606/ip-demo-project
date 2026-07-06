@@ -22,3 +22,16 @@ def referral_position(advisor_id: str):
 def communities():
     """Detected peer communities (Louvain) with membership + distinguishing features."""
     return ok(data=ga.peer_communities())
+
+
+@router.get("/similar/{entity_type}/{entity_id}")
+def similar(entity_type: str, entity_id: str, top_k: int = 5):
+    """Nearest entities by GNN embedding cosine (Section 11.1 §7/§8, VectorClient)."""
+    from app.ml.vector_client import get_vector_client
+
+    vc = get_vector_client()
+    vec = vc.get(entity_type, entity_id)
+    if vec is None:
+        return ok(data={"available": False, "entity_type": entity_type, "entity_id": entity_id})
+    return ok(data={"available": True, "entity_type": entity_type, "entity_id": entity_id,
+                    "backend": vc.describe(), "matches": vc.search(entity_type, vec, top_k, exclude_id=entity_id)})

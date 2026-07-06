@@ -1606,3 +1606,21 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   Peer Communities card (commit 7) transparently reflects the improved vectors.
 - Tiers per §7: Tier 1 (pyTG[gds]) documented-but-unverified (hardware); Tier 2 (local PyG) RAN and serves;
   Tier 3 (deterministic projection) remains the final fallback.
+- **QUALITY FIX during commit 8/9:** first GNN pass gave advisor embeddings that collapsed (all cosine≈1.0)
+  because advisor nodes had only generic structural features. Per §7 (advisor nodes carry their real
+  Feature_Catalog values) enriched node features with 4 z-scored per-type discriminative slots
+  (advisor: revenue_ltm/aum_total/nnm_3m/peer_gap). Result: link-pred ROC-AUC 0.685→**0.9234**, and advisor
+  similarity now differentiates (A001→A002 0.96/A008 0.92; A020→A019 0.98/A013 0.93 — distinct neighbours).
+
+### 11.1 COMMIT 9/11 — VectorClient adapter (graph-entity vectors) — DONE
+- app/ml/vector_client.py: VectorClient Protocol (upsert_embeddings/search/get/describe), LocalVectorClient
+  (SQLite gnn_embeddings + brute-force cosine — the deterministic default, correct at 1.1K vectors),
+  TigerGraphVectorClient (native EMBEDDING/HNSW/vectorSearch; delegates to local until support is verified),
+  VECTOR_CLIENT_MODE=local|tigergraph. Chroma (RAG docs) untouched/out of scope.
+- gnn.py refactored to persist through get_vector_client().upsert_embeddings (adapter discipline).
+- GET /graph-insights/similar/{entity_type}/{entity_id} — nearest entities by GNN embedding cosine.
+- scripts/check_tg_vector_support.sh: empirical, 20-min-time-boxed TigerVector EMBEDDING-support probe;
+  honest UNVERIFIED outcome on this box (same live-TG limit) → local stays the working default, cutover
+  env-only on adequate hardware. NOT run live (container Exited; hardware limit already established Phase 2/3).
+- Verified LIVE: GET /graph-insights/similar/ADVISOR/A020 → A019 0.98/A013 0.93/A026 0.93/A027 0.90 via
+  VectorClient (backend=local). 1140 vectors dim 32. Backend imports clean (37 routes).

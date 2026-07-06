@@ -73,26 +73,54 @@ def _build_graph():
         if u in idx and v in idx:
             edges.append((idx[u], idx[v]))
 
-    # node features: [is_advisor, is_household, is_account, log1p(size)/scale, degree_norm]
     deg = [0] * len(nodes)
     for a, b in edges:
         deg[a] += 1
         deg[b] += 1
     maxdeg = max(deg) or 1
+
+    # Per-type discriminative numeric signals (§7 wants advisor nodes to carry their real
+    # Feature_Catalog values so embeddings differentiate — 4 shared, z-scored slots).
+    from app.features.snapshot_store import SnapshotStore
+
+    store2 = SnapshotStore()
+    ADV_FEATS = ["revenue_ltm", "aum_total", "nnm_3m", "peer_revenue_gap_pct"]
+    adv_vals: dict[str, list[float]] = {}
+    for a in advisors:
+        snap = store2.latest_for_entity("ADVISOR", a)
+        f = snap.get("features", {}) if isinstance(snap, dict) else {}
+        adv_vals[a] = [float(f.get(k, 0) or 0) for k in ADV_FEATS]
+
+    def _zcols(rows: list[list[float]]) -> list[list[float]]:
+        if not rows:
+            return rows
+        import numpy as np
+
+        M = np.asarray(rows, dtype=float)
+        mu, sd = M.mean(0), M.std(0)
+        sd[sd == 0] = 1.0
+        return ((M - mu) / sd).tolist()
+
+    adv_z = dict(zip(advisors, _zcols([adv_vals[a] for a in advisors]))) if advisors else {}
+    hh_aum = _zcols([[float(households[h].get("total_aum", 0) or 0)] for h in hh_ids])
+    ac_val = _zcols([[float(accounts[a].get("current_value", 0) or 0)] for a in ac_ids])
+    hh_z = {h: hh_aum[k] for k, h in enumerate(hh_ids)}
+    ac_z = {a: ac_val[k] for k, a in enumerate(ac_ids)}
+
     feats = []
     for n, (t, i) in enumerate(nodes):
-        if t == "HOUSEHOLD":
-            size = float(households[i].get("total_aum", 0) or 0)
-        elif t == "ACCOUNT":
-            size = float(accounts[i].get("current_value", 0) or 0)
+        if t == "ADVISOR":
+            slots = adv_z.get(i, [0.0, 0.0, 0.0, 0.0])
+        elif t == "HOUSEHOLD":
+            slots = [hh_z.get(i, [0.0])[0], 0.0, 0.0, 0.0]
         else:
-            size = 0.0  # advisor size derived from structure/degree
+            slots = [ac_z.get(i, [0.0])[0], 0.0, 0.0, 0.0]
         feats.append([
             1.0 if t == "ADVISOR" else 0.0,
             1.0 if t == "HOUSEHOLD" else 0.0,
             1.0 if t == "ACCOUNT" else 0.0,
-            math.log1p(max(size, 0.0)) / 20.0,
             deg[n] / maxdeg,
+            *slots,
         ])
     return nodes, feats, edges
 
@@ -165,15 +193,16 @@ def train_gnn() -> dict:
         auc = float(roc_auc_score(y, s))
         emb = z.numpy()
 
-    # persist embeddings to the dedicated gnn table
-    init_gnn_table()
+    # persist embeddings through the VectorClient adapter (§8), grouped by entity type
+    from app.ml.vector_client import get_vector_client
+
+    vc = get_vector_client()
+    by_type: dict[str, dict[str, list[float]]] = {}
+    for n, (t, i) in enumerate(nodes):
+        by_type.setdefault(t, {})[i] = [float(v) for v in emb[n]]
+    for t, vectors in by_type.items():
+        vc.upsert_embeddings(t, GNN_MODEL, "1.0", vectors)
     now = _dt.datetime.now().strftime("%Y-%m-%d")
-    with sqlite3.connect(_db()) as conn:
-        conn.execute("DELETE FROM gnn_embeddings WHERE model_name=?", (GNN_MODEL,))
-        for n, (t, i) in enumerate(nodes):
-            conn.execute("REPLACE INTO gnn_embeddings VALUES (?,?,?,?,?,?,?)",
-                         (t, i, GNN_MODEL, "1.0", OUT_DIM,
-                          json.dumps([round(float(v), 5) for v in emb[n]]), now))
 
     counts: dict[str, int] = {}
     for t, _ in nodes:

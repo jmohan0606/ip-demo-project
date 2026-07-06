@@ -112,7 +112,7 @@
     "graphsage-v1": {
       "algorithm": "GraphSAGE (2-layer SAGEConv, hidden 64\u2192out 32) \u00b7 Tier 2 local PyTorch-Geometric \u00b7 homogeneous with node-type features \u00b7 self-supervised link prediction",
       "artifact_path": "models/artifacts/graphsage-v1.json",
-      "artifact_sha256": "5a06be08e92d9151",
+      "artifact_sha256": "4f947d9e48ef51c0",
       "caveats": "Tier 2 (local PyG) actually ran; Tier 1 (pyTigerGraph[gds] neighborLoader) not verified on this 2-core box (live edge load stalls). 32-dim output embeddings.",
       "features": [
         "node-type one-hot",
@@ -123,11 +123,11 @@
       "label_definition": "self-supervised link prediction (serves + owns edges, 10% held out) with negative sampling",
       "metrics": {
         "epochs": 50,
-        "link_pred_roc_auc": 0.685
+        "link_pred_roc_auc": 0.9234
       },
       "name": "graphsage-v1",
       "primary_metric": "link_pred_roc_auc",
-      "primary_metric_value": 0.685,
+      "primary_metric_value": 0.9234,
       "quality_floor": 0.6,
       "quality_gate": "passed",
       "served_by": "graphsage-v1 (tier2-local-pyg)",
