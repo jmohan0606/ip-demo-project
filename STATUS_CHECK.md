@@ -4,6 +4,67 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Pre-migration data audit — is every change in the committed CSVs? (2026-07-06)
+
+**Ask:** the client rebuilds their entire TigerGraph from the committed
+`docs/tigergraph_foundation/data/sample/*.csv` + `manifest.json` — nothing else. Verify every
+data change across all sessions is materialized in those CSVs, not runtime-only. Definitive test:
+would a from-CSV-only rebuild reproduce what the app shows?
+
+### VERDICT: YES — a CSV-only rebuild reproduces current app state. No gaps to export.
+
+**Definitive empirical test (not a claim):** moved the two gitignored runtime SQLite DBs
+(`data/feature_store/iperform_features.db`, `data/sqlite/iperform.db`) aside to simulate a fresh
+client clone (CSVs only, empty SQLite), booted the app in mock mode (graph loaded purely from the
+foundation CSVs), and probed every key page. All reproduced real data from the CSV-seeded graph:
+- `/scope/dashboard FIRM` → $35.9M rollup · `/revenue/analytics FIRM` → $109.3M, 15,116 txns, 60 advisors
+- `/advisor/360/A001` → "Avery Diaz" · `/recommendations/advisor/A001` → REC_A001
+- `/predictions/revenue-decline/A001` → real prediction · `/coaching/advisor/A001` → real sessions
+- `/feedback-learning/outcome-learning` → **events_used: 180** (matches the 180 feedback CSV rows)
+Then restored both DBs (verified back to 8.8 MB / 4.3 MB).
+
+### Item-by-item (each confirmed present in CSV + manifest)
+| Item | Result |
+|---|---|
+| **Firm = "Chase Wealth Management"** | ✅ `phx_dm_firm.csv`: `F001,Chase Wealth Management,NWM,ACTIVE` — in the data, not just a UI label |
+| **Expanded date range** | ✅ `phx_dm_revenue_transaction.csv` spans **2023-08 → 2026-07** (15,116 rows, 1,038 distinct dates); 36 time periods; monthly AUM/NCF/NNM series present |
+| **Real-world entity names** | ✅ households "The Whitfield Family"…, divisions "Eastern/Central/Western", regions, markets "Boston Metro"…, branches "Back Bay Office"…, advisors "Avery Diaz"… — zero "Household 1" placeholders |
+| **Outcome variety (feedback loop)** | ✅ `phx_dm_feedback_event.csv` 180 rows mixed (ACCEPT 36 / REJECT 39 / COMPLETE 73 / IGNORE 14 / DEFER 7 / NOT_RELEVANT 7 / MODIFY 4); `phx_dm_outcome_event.csv` 180 (REVENUE_IMPACT 134 / ACTION_TAKEN 46); `phx_dm_recommendation.csv` 120 across all 5 statuses |
+| **New `coaching_task` vertex + edges** | ✅ `phx_dm_coaching_task.csv` (90 rows, real manager-assigned tasks) + edges `coaching_task_for_advisor`, `coaching_task_assigned_by` — all in manifest. Schema grew 56→**57 vertices**, 126→**128 edges** vs the original baseline; also notification/guardrail/evaluation types present |
+| **Recommendation / feedback data** | ✅ recommendation, feedback_event, outcome_event, learning_signal, opportunity, prediction_result, feature_snapshot, embedding, similarity_match all seeded as CSV vertices |
+
+### Structural integrity
+- **Manifest ↔ CSV: perfectly consistent** — 185 entries, 0 missing CSVs, 0 row-count mismatches,
+  0 CSVs-on-disk-not-in-manifest.
+- **Foundation validator: STATUS PASS** — 57 vertices / 128 edges / 128 reverse edges / 185 files
+  / 155,954 data rows / 43 queries; every edge FROM/TO resolves.
+- **Working tree == committed** — no uncommitted CSV/manifest changes; nothing regenerated-but-unpushed.
+
+### Runtime-only stores — checked, nothing lost
+- The two SQLite DBs are **gitignored** (`data/*/*.db`) — they never travel to the client; only
+  the CSVs do. The reproduction test above proves the app doesn't need them: graph-data pages read
+  from the graph and derive/regenerate into a fresh SQLite on demand.
+- **Section-13 lifecycle** (`phx_dm_local_impact_ledger`, `phx_dm_local_rec_status_transition`) are
+  SQLite-only types with **no CSV/vertex** — but both hold **0 rows** right now, so there is
+  nothing to export. (These are per-session demo state; on the rebuilt graph the app regenerates a
+  completion's impact fresh when a recommendation is completed — `replay_on_boot` reinjects from
+  the ledger, which is currently empty.) **If** the client wants a pre-completed lifecycle demo to
+  survive migration, that would need exporting then — there is none to export today.
+
+### Honest caveat (not a CSV/graph gap)
+- Trained ML artifacts (`models/artifacts/*.joblib`, `*.pt`: GraphSAGE, XGBoost churn/AGP,
+  IsolationForest) are **gitignored by design** — only `models/registry.json` (metrics/metadata)
+  is committed. A fresh clone regenerates them via `scripts/train/*` or falls back to
+  `MODEL_CLIENT_MODE=deterministic`. This is model state, not graph data — out of the CSV-migration
+  scope — but flagged so the client knows to run training (or accept deterministic scoring) after
+  the graph rebuild.
+
+**Bottom line:** nothing was found living only in runtime SQLite/mock/in-memory that needs
+exporting. The committed CSVs + manifest are a complete, self-consistent source of truth; a
+from-CSV graph rebuild reproduces the current app state, proven empirically.
+
+---
+
 ## Real-remote TigerGraph: step logging + token(getToken)/SSL + .env (2026-07-06)
 
 **Ask:** make the ingestion screen's real-remote path fully diagnosable from `logs/app.log` on
