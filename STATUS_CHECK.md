@@ -4,6 +4,61 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Real-remote TigerGraph: step logging + token(getToken)/SSL + .env (2026-07-06)
+
+**Ask:** make the ingestion screen's real-remote path fully diagnosable from `logs/app.log` on
+its first run against the client's real remote (AWS) TigerGraph, and confirm it handles a
+token-secured + SSL connection with all properties configurable in `.env`.
+
+### Structured step-logging added (logger `app.graph.tigergraph`, uses the new logging system)
+Both real tiers now emit a clear step trace to `logs/app.log`:
+- **Tier 2 pyTigerGraph** (`app/graph/tiered_client.py`): `connecting` (host, graph, ports,
+  use_ssl, verify_ssl, auth mode, masked secret) → `token acquired via getToken(secret)` →
+  `connection established (echo ok)` → `vertex/edge batch upserted` (type, requested, accepted)
+  → on any failure, `connection FAILED`/`upsert PARTIAL` with the **full stack trace**.
+- **Tier 3 RESTPP** (`app/graph/client.py` `RealGraphClient`): `client initialized` →
+  `token acquired via requesttoken(secret)` → `connection established (echo ok)` →
+  `%s batch upserted` (kind, target, requested, accepted) → `upsert rejected/PARTIAL` +
+  token-acquisition failure, all with full error.
+Secrets/tokens are always masked in logs (`<set:N chars, …last4>`) — never printed in plaintext.
+
+### Token (getToken) + SSL — now actually wired (was a real gap)
+- **Before:** `tigergraph_secret` existed in settings but was **never used**; no getToken flow
+  anywhere. A secured instance with only a secret would have failed to authenticate.
+- **Now:** auth precedence **JWT → static API token → getToken(secret) → user/pass**.
+  - Tier 2 calls `conn.getToken(secret[, lifetime])`.
+  - Tier 3 (httpx RESTPP) requests a token via `GET /restpp/requesttoken?secret=…` and sets it
+    as `Authorization: Bearer …` on subsequent calls.
+  - SSL: `TG_USE_SSL=true` forces the `https://` scheme (Tier 2 + Tier 3); `TG_VERIFY_SSL`
+    honored (Tier 2 sets pyTigerGraph verify flags when false for self-signed; Tier 3 passes
+    `verify=` to httpx). `TG_SSL_PORT` passed to pyTigerGraph.
+
+### `.env` completeness — added the missing/dead keys
+`.env.example` documented `TG_SECRET`/`TG_JWT_TOKEN`/`TG_SSL_PORT` but **settings.py never loaded
+them** (dead vars). Added real fields: `TG_SECRET`, `TG_JWT_TOKEN`, `TG_SSL_PORT`, `TG_USE_SSL`,
+`TG_VERIFY_SSL`, `TG_TOKEN_LIFETIME_SECONDS` (all `TG_*` aliased). RESTPP tier reuses
+`TIGERGRAPH_SECRET`/`TIGERGRAPH_TOKEN`/`TIGERGRAPH_VERIFY_SSL` (already present). `.env.example`
+updated with an AWS-remote how-to comment block.
+
+### Verified (real evidence, stub servers)
+- **RESTPP token flow:** secret set, no static token → client made `GET /restpp/requesttoken?
+  secret=…` then `POST /restpp/graph/g1` with `Authorization: Bearer TOKEN_…`; logs showed
+  `initialized (auth=secret->requesttoken)` → `token acquired (…3XYZ)` → `vertex batch upserted
+  accepted=1/requested=1`. Secret masked.
+- **pyTigerGraph SSL + getToken + failure:** `TG_USE_SSL=true` rewrote bare host to
+  `https://…` (ssl_port 443, verify_ssl honored); logs showed `connecting (auth=secret->getToken,
+  use_ssl=true, secret=<set:14…-xyz>)` → `connection FAILED: ConnectionError` **with full trace**
+  (the exact first-run diagnosability the client needs).
+- **No regression:** app imports (45 routes); new settings load; mock ingestion still persists
+  (60→61, `A_REG_1` present).
+
+### To point at the client's real remote
+`GRAPH_CLIENT_MODE=real`, `TG_HOST=https://<aws-host>`, `TG_USE_SSL=true`, `TG_GRAPHNAME=…`, and
+one of `TG_JWT_TOKEN` / `TG_API_TOKEN` / `TG_SECRET`. First run's every step (and any failure)
+lands in `logs/app.log`.
+
+---
+
 ## Data Ingestion end-to-end trace + real-remote RESTPP fix (2026-07-06)
 
 **Ask:** verify the Data Ingestion screen (the client's ONLY path to load CSVs into a remote

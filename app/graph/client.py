@@ -10,6 +10,16 @@ from app.config.settings import get_settings
 from app.graph.foundation_store import FoundationGraphStore, get_foundation_store
 from app.graph.tier_log import get_tier_log
 from app.shared.adapter_logging import logged_adapter_call
+from app.shared.logging import get_logger
+
+_tg_log = get_logger("app.graph.tigergraph")
+
+
+def _mask(value: str | None) -> str:
+    """Log-safe fingerprint of a secret/token — never the value itself."""
+    if not value:
+        return "<none>"
+    return f"<set:{len(value)} chars, …{value[-4:]}>" if len(value) >= 4 else "<set>"
 
 
 def _record_direct(tier: int, operation: str, target: str, start: float, ok: bool, error: str | None = None) -> None:
@@ -65,26 +75,76 @@ class RealGraphClient:
         self.graph_name = settings.tigergraph_graph
         self.verify_ssl = settings.tigergraph_verify_ssl
         self.timeout = settings.tigergraph_timeout_seconds
+        self.use_ssl = self.base.startswith("https://")
+        self.token = settings.tigergraph_token or ""
+        self.secret = settings.tigergraph_secret or ""
+        self.token_lifetime = getattr(settings, "tg_token_lifetime_seconds", 0)
         self.headers = {"Content-Type": "application/json", "Accept": "application/json"}
-        if settings.tigergraph_token:
-            self.headers["Authorization"] = f"Bearer {settings.tigergraph_token}"
+        if self.token:
+            self.headers["Authorization"] = f"Bearer {self.token}"
+        self._auth_ready = bool(self.token) or not self.secret  # only need getToken if a secret & no token
+        _tg_log.info(
+            "TigerGraph(RESTPP) client initialized",
+            extra={"restpp_url": self.base, "graph": self.graph_name, "use_ssl": self.use_ssl,
+                   "verify_ssl": self.verify_ssl,
+                   "auth": ("token" if self.token else "secret->requesttoken" if self.secret else "none"),
+                   "secret": _mask(self.secret), "token": _mask(self.token)},
+        )
 
     def _client(self) -> httpx.Client:
         return httpx.Client(verify=self.verify_ssl, timeout=self.timeout)
 
+    def _ensure_auth(self) -> None:
+        """Acquire a REST++ token from the secret when no static token was provided
+        (getToken equivalent for the httpx RESTPP path). Runs once, logs the outcome."""
+        if self._auth_ready:
+            return
+        params = {"secret": self.secret}
+        if self.token_lifetime:
+            params["lifetime"] = str(self.token_lifetime)
+        try:
+            with self._client() as client:
+                response = client.get(f"{self.base}/requesttoken", params=params)
+                response.raise_for_status()
+                data = response.json()
+            token = data.get("token") or (data.get("results") or {}).get("token")
+            if not token:
+                raise GraphClientError(f"requesttoken returned no token: {data}")
+            self.token = token
+            self.headers["Authorization"] = f"Bearer {token}"
+            self._auth_ready = True
+            _tg_log.info(
+                "TigerGraph(RESTPP) token acquired via requesttoken(secret)",
+                extra={"token": _mask(token), "expires": str(data.get("expiration", "server-default")),
+                       "graph": self.graph_name},
+            )
+        except Exception as exc:  # noqa: BLE001
+            _tg_log.error(
+                "TigerGraph(RESTPP) token acquisition FAILED: %s: %s",
+                type(exc).__name__, exc, exc_info=True,
+                extra={"restpp_url": self.base, "graph": self.graph_name, "secret": _mask(self.secret)},
+            )
+            raise
+
     def health(self) -> dict:
         try:
+            self._ensure_auth()
             with self._client() as client:
                 response = client.get(f"{self.base}/echo", headers=self.headers)
                 response.raise_for_status()
+            _tg_log.info("TigerGraph(RESTPP) connection established (echo ok)",
+                         extra={"restpp_url": self.base, "graph": self.graph_name})
             return {"healthy": True, "mode": "real", "graph": self.graph_name, "restpp_url": self.base}
         except Exception as exc:
+            _tg_log.error("TigerGraph(RESTPP) health/echo FAILED: %s: %s", type(exc).__name__, exc,
+                          exc_info=True, extra={"restpp_url": self.base, "graph": self.graph_name})
             return {"healthy": False, "mode": "real", "graph": self.graph_name, "restpp_url": self.base, "error": str(exc)}
 
     @logged_adapter_call("graph")
     def run_query(self, query_name: str, params: dict | None = None) -> dict:
         start = time.perf_counter()
         try:
+            self._ensure_auth()
             with self._client() as client:
                 response = client.get(
                     f"{self.base}/query/{self.graph_name}/{query_name}",
@@ -169,6 +229,7 @@ class RealGraphClient:
         return result
 
     def _upsert(self, entry: dict, records: list[dict]) -> dict:
+        self._ensure_auth()
         payload = self.build_payload(entry, records)
         params = {"vertex_must_exist": "true"} if entry["kind"] == "edge" else None
         with self._client() as client:
@@ -181,9 +242,26 @@ class RealGraphClient:
             response.raise_for_status()
             data = response.json()
         if data.get("error"):
+            _tg_log.error(
+                "TigerGraph(RESTPP) upsert rejected for %s: %s",
+                entry.get("target"), data.get("message"),
+                extra={"kind": entry.get("kind"), "target": entry.get("target"), "requested": len(records)},
+            )
             raise GraphClientError(data.get("message") or f"TigerGraph upsert failed for {entry['target']}")
         accepted = self._accepted_count(data, entry["kind"])
+        _tg_log.info(
+            "TigerGraph(RESTPP) %s batch upserted",
+            entry["kind"],
+            extra={"kind": entry["kind"], "target": entry["target"],
+                   "requested": len(records), "accepted": accepted, "graph": self.graph_name},
+        )
         if accepted != len(records):
+            _tg_log.error(
+                "TigerGraph(RESTPP) upsert PARTIAL: %s of %s for %s",
+                accepted, len(records), entry["target"],
+                extra={"kind": entry["kind"], "target": entry["target"],
+                       "requested": len(records), "accepted": accepted},
+            )
             raise PartialUpsertError(
                 f"TigerGraph accepted {accepted} of {len(records)} requested {entry['kind']} records for {entry['target']}",
                 data,

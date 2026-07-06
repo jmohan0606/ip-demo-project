@@ -98,8 +98,18 @@ class Settings(BaseSettings):
     tg_username: str = Field(default="tigergraph", alias="TG_USERNAME")
     tg_password: str = Field(default="tigergraph", alias="TG_PASSWORD")
     tg_api_token: str | None = Field(default=None, alias="TG_API_TOKEN")
+    # Auth for a secured remote (e.g. the client's AWS instance). Precedence at connect
+    # time: JWT token → static API token → getToken(secret) → username/password only.
+    tg_jwt_token: str | None = Field(default=None, alias="TG_JWT_TOKEN")
+    tg_secret: str | None = Field(default=None, alias="TG_SECRET")  # → conn.getToken(secret)
+    tg_token_lifetime_seconds: int = Field(default=0, alias="TG_TOKEN_LIFETIME_SECONDS")  # 0 = server default
     tg_restpp_port: int = Field(default=9000, alias="TG_RESTPP_PORT")
     tg_gs_port: int = Field(default=14240, alias="TG_GS_PORT")
+    tg_ssl_port: int = Field(default=443, alias="TG_SSL_PORT")
+    # SSL/TLS for the remote. When the host is https:// this is honored by both the
+    # pyTigerGraph tier and the RESTPP tier. Set false only for self-signed dev certs.
+    tg_use_ssl: bool = Field(default=False, alias="TG_USE_SSL")
+    tg_verify_ssl: bool = Field(default=True, alias="TG_VERIFY_SSL")
     # Tier-1 MCP server subprocess (stdio); see TIGERGRAPH_MCP_COMMAND/ARGS in
     # tigergraph_mcp_stdio_client.py (read via os.getenv for subprocess spawning).
     graph_tier_cooldown_seconds: int = Field(default=60, alias="GRAPH_TIER_COOLDOWN_SECONDS")

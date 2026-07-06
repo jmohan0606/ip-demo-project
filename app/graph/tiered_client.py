@@ -34,6 +34,20 @@ from app.graph.client import (
     _coerce,
 )
 from app.graph.tier_log import TIER_NAMES, get_tier_log
+from app.shared.logging import get_logger
+
+# Dedicated logger for the live TigerGraph connection path. Every step (connect,
+# auth/token, per-batch upsert with row counts, failure-with-full-error) lands in
+# logs/app.log so a first run against the client's real remote instance is
+# diagnosable without attaching a debugger.
+_tg_log = get_logger("app.graph.tigergraph")
+
+
+def _mask(value: str | None) -> str:
+    """Log-safe fingerprint of a secret/token — never the value itself."""
+    if not value:
+        return "<none>"
+    return f"<set:{len(value)} chars, …{value[-4:]}>" if len(value) >= 4 else "<set>"
 
 
 def _entry_attributes(entry: dict, row: dict, excluded: set[str]) -> dict[str, Any]:
@@ -209,30 +223,88 @@ class PyTigerGraphClient:
     def __init__(self) -> None:
         settings = get_settings()
         self.host = (settings.tg_host or settings.tigergraph_host or "http://127.0.0.1").rstrip("/")
+        # Honor the SSL toggle: force https when TG_USE_SSL=true, else keep an explicit
+        # scheme, else default to http for bare hosts.
         if "://" not in self.host:
-            self.host = "http://" + self.host
+            self.host = ("https://" if settings.tg_use_ssl else "http://") + self.host
+        elif settings.tg_use_ssl and self.host.startswith("http://"):
+            self.host = "https://" + self.host[len("http://"):]
+        self.use_ssl = self.host.startswith("https://")
+        self.verify_ssl = settings.tg_verify_ssl
         self.graph_name = settings.tg_graphname or settings.tigergraph_graph
         self.username = settings.tg_username
         self.password = settings.tg_password
+        # Auth precedence: JWT → static API token → getToken(secret) → user/pass only.
+        self.jwt_token = settings.tg_jwt_token or ""
         self.api_token = settings.tg_api_token or settings.tigergraph_token or ""
+        self.secret = settings.tg_secret or settings.tigergraph_secret or ""
+        self.token_lifetime = settings.tg_token_lifetime_seconds
         self.restpp_port = settings.tg_restpp_port
         self.gs_port = settings.tg_gs_port
+        self.ssl_port = settings.tg_ssl_port
         self.timeout = settings.graph_tier_probe_timeout_seconds
         self._conn = None
 
     def _connection(self):
-        if self._conn is None:
-            from pyTigerGraph import TigerGraphConnection  # lazy — Section 2 rule
+        if self._conn is not None:
+            return self._conn
+        from pyTigerGraph import TigerGraphConnection  # lazy — Section 2 rule
 
-            self._conn = TigerGraphConnection(
+        _tg_log.info(
+            "TigerGraph(pyTigerGraph) connecting",
+            extra={
+                "host": self.host, "graph": self.graph_name, "username": self.username,
+                "restpp_port": self.restpp_port, "gs_port": self.gs_port, "ssl_port": self.ssl_port,
+                "use_ssl": self.use_ssl, "verify_ssl": self.verify_ssl,
+                "auth": ("jwt" if self.jwt_token else "api_token" if self.api_token
+                         else "secret->getToken" if self.secret else "user_pass"),
+                "secret": _mask(self.secret), "api_token": _mask(self.api_token),
+            },
+        )
+        try:
+            conn = TigerGraphConnection(
                 host=self.host,
                 graphname=self.graph_name,
                 username=self.username,
                 password=self.password,
                 restppPort=str(self.restpp_port),
                 gsPort=str(self.gs_port),
-                apiToken=self.api_token,
+                sslPort=str(self.ssl_port),
+                apiToken=(self.jwt_token or self.api_token) or None,
             )
+            # Some pyTigerGraph versions expose TLS verification toggles for self-signed certs.
+            if self.use_ssl and not self.verify_ssl:
+                for attr in ("sslVerify", "certVerify"):
+                    if hasattr(conn, attr):
+                        setattr(conn, attr, False)
+
+            # If only a secret is configured, acquire a REST++ token now (getToken) — this
+            # is the path a secured instance with no pre-issued JWT needs.
+            if not self.jwt_token and not self.api_token and self.secret:
+                lifetime = self.token_lifetime or None
+                result = conn.getToken(self.secret, lifetime=lifetime) if lifetime else conn.getToken(self.secret)
+                token = result[0] if isinstance(result, (list, tuple)) else result
+                expiry = result[1] if isinstance(result, (list, tuple)) and len(result) > 1 else "server-default"
+                _tg_log.info(
+                    "TigerGraph token acquired via getToken(secret)",
+                    extra={"token": _mask(str(token)), "expires": str(expiry), "graph": self.graph_name},
+                )
+
+            echo = conn.echo()
+            _tg_log.info(
+                "TigerGraph(pyTigerGraph) connection established",
+                extra={"host": self.host, "graph": self.graph_name, "echo": str(echo)[:120]},
+            )
+            self._conn = conn
+        except Exception as exc:  # noqa: BLE001 — surface the full reason for a first live run
+            _tg_log.error(
+                "TigerGraph(pyTigerGraph) connection FAILED: %s: %s",
+                type(exc).__name__, exc,
+                exc_info=True,
+                extra={"host": self.host, "graph": self.graph_name, "use_ssl": self.use_ssl,
+                       "auth": ("secret" if self.secret else "token" if (self.jwt_token or self.api_token) else "user_pass")},
+            )
+            raise
         return self._conn
 
     def health(self) -> dict:
@@ -261,7 +333,17 @@ class PyTigerGraphClient:
                     raise GraphClientError(f"Blank vertex id in {entry.get('file', entry['target'])}")
                 payload.append((vertex_id, _entry_attributes(entry, row, {id_col})))
             accepted = conn.upsertVertices(entry["target"], payload)
+            _tg_log.info(
+                "TigerGraph vertex batch upserted",
+                extra={"vertex_type": entry["target"], "requested": len(records),
+                       "accepted": accepted, "graph": self.graph_name},
+            )
             if accepted != len(records):
+                _tg_log.error(
+                    "TigerGraph vertex upsert PARTIAL: %s of %s for %s",
+                    accepted, len(records), entry["target"],
+                    extra={"vertex_type": entry["target"], "requested": len(records), "accepted": accepted},
+                )
                 raise PartialUpsertError(
                     f"pyTigerGraph accepted {accepted} of {len(records)} vertex records for {entry['target']}",
                     {"accepted_vertices": accepted},
@@ -277,7 +359,18 @@ class PyTigerGraphClient:
                 raise GraphClientError(f"Blank edge endpoint in {entry.get('file', entry['target'])}")
             payload.append((from_id, to_id, _entry_attributes(entry, row, {from_col, to_col})))
         accepted = conn.upsertEdges(entry["from_type"], entry["target"], entry["to_type"], payload)
+        _tg_log.info(
+            "TigerGraph edge batch upserted",
+            extra={"edge_type": entry["target"], "from_type": entry["from_type"],
+                   "to_type": entry["to_type"], "requested": len(records),
+                   "accepted": accepted, "graph": self.graph_name},
+        )
         if accepted != len(records):
+            _tg_log.error(
+                "TigerGraph edge upsert PARTIAL: %s of %s for %s",
+                accepted, len(records), entry["target"],
+                extra={"edge_type": entry["target"], "requested": len(records), "accepted": accepted},
+            )
             raise PartialUpsertError(
                 f"pyTigerGraph accepted {accepted} of {len(records)} edge records for {entry['target']}",
                 {"accepted_edges": accepted},
