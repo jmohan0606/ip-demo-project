@@ -15,11 +15,13 @@ class RecommendationType(StrEnum):
 
 
 class RecommendationStatus(StrEnum):
-    GENERATED = "generated"
+    GENERATED = "generated"        # legacy synonym of OPEN (old SQLite rows)
     ACCEPTED = "accepted"
     REJECTED = "rejected"
     IGNORED = "ignored"
     COMPLETED = "completed"
+    IN_PROGRESS = "in_progress"    # NEW (Section 13.1)
+    MODIFIED = "modified"          # NEW (Section 13.1)
 
 
 class ComplianceStatus(StrEnum):

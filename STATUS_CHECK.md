@@ -68,6 +68,8 @@ Everything else in 12/13/13B stays an extension of an existing page (pipeline-tr
 Explainability, state-machine UI extends Opportunities, etc.). Rule: new surface when cramming would
 compromise either page; extension when it genuinely belongs with existing content.
 
+## SECTION 12 COMPLETE ✅ (pushed) — now on SECTION 13 (stateful lifecycle, fable-designed)
+
 ## Progress — Section 12
 - [x] 12.1 Executive Dashboard — DONE. New `/scope/dashboard` + `/scope/ai-insight` (period + Compare-To
   aware). Added Revenue Trend, Revenue by Product Category (donut), Revenue Drivers vs Prior Year (YoY bars),
