@@ -63,3 +63,7 @@ docs/qa_screenshots/
 # committed source of truth is models/registry.json (metrics + metadata only).
 models/artifacts/*
 !models/artifacts/.gitkeep
+
+# Stray runtime DBs written when a tool runs from the frontend/ CWD (belongs at repo-root data/)
+frontend/data/
+**/data/feature_store/*.db
