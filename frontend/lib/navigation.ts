@@ -19,6 +19,15 @@ export const navigationItems: NavigationItem[] = [
     group: "Executive"
   },
   {
+    id: "business-impact",
+    label: "Business Impact & ROI",
+    description: "Cumulative, recorded platform impact: revenue driven, recommendations acted on, acceptance and completion rates — from the real impact ledger.",
+    href: "/business-impact",
+    iconName: "BadgeDollarSign",
+    group: "Executive",
+    status: "new"
+  },
+  {
     id: "advisor-360",
     label: "Advisor 360 / Client 360",
     description: "Advisor, household, account, transaction, CRM, AUM, NNM and NCF detail.",

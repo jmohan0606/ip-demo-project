@@ -380,6 +380,15 @@ class RecommendationLifecycleService:
             out.append(e)
         return out
 
+    def lifecycle_totals(self) -> dict:
+        """Per-status recommendation counts across ALL advisors — for real
+        acceptance/completion rates on the Business Impact page (13B.4)."""
+        counts = {k: 0 for k in ["open", "accepted", "in_progress", "completed", "rejected", "ignored", "modified"]}
+        with self.db.connect() as conn:
+            for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation GROUP BY status"):
+                counts[canonical(status).lower()] = counts.get(canonical(status).lower(), 0) + n
+        return counts
+
     def ledger_totals(self, entries: list[dict]) -> dict:
         by_family: dict[str, float] = {}
         by_advisor: dict[str, float] = {}
@@ -394,6 +403,7 @@ class RecommendationLifecycleService:
             "by_family": {k: round(v, 2) for k, v in sorted(by_family.items(), key=lambda x: -x[1])},
             "by_advisor": sorted(({"advisor_id": k, "advisor_name": self._advisor_name(k), "impact": round(v, 2)}
                                   for k, v in by_advisor.items()), key=lambda x: -x["impact"]),
+            "lifecycle_totals": self.lifecycle_totals(),
         }
 
     _last_replay: dict = {"ledger_entries_replayed": 0, "statuses_reapplied": 0}
