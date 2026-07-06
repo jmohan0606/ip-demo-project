@@ -107,6 +107,8 @@ class RecommendationService:
         self.as_of = as_of or date(2026, 7, 3)
         self.opportunities = OpportunityDetectionService(self.graph, as_of=self.as_of)
         self.learning = LearningWeightStore()
+        from app.recommendations.lifecycle import RecommendationLifecycleService
+        self.lifecycle = RecommendationLifecycleService()
 
     def _playbook_for(self, category: str) -> dict | None:
         merged: dict = {}
@@ -192,11 +194,19 @@ class RecommendationService:
         if persist:
             for rec in recommendations:
                 self._persist(rec, advisor_id, detection["feature_snapshot_id"])
+                # Section 13.1: register in the durable lifecycle mirror (status-preserving)
+                # and merge the authoritative status / allowed_actions onto the response.
+                lc = self.lifecycle.register_generated(rec, advisor_id)
+                rec["status"] = lc["status"]
+                rec["status_note"] = lc["status_note"]
+                rec["allowed_actions"] = lc["allowed_actions"]
+                rec["terminal"] = lc["terminal"]
         return {
             "advisor_id": advisor_id,
             "recommendations": recommendations,
             "learning_weights": self.learning.all_weights(),
             "feature_snapshot_id": detection["feature_snapshot_id"],
+            "lifecycle_counts": self.lifecycle.counts_for_advisor(advisor_id) if persist else {},
         }
 
     def list_for_advisor(self, advisor_id: str) -> dict:
