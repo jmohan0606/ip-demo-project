@@ -41,6 +41,10 @@ const MILESTONE_BUCKET: Record<string, { label: string; color: string }> = {
 };
 
 interface MilestoneRow { milestone_progress_id: string; due_date: string | null; status: string | null; attainment_pct: number | null; days_remaining: number | null }
+interface PeerCommunities {
+  available: boolean;
+  communities: Array<{ community_id: number; size: number; members: string[]; distinguishing_features: Array<{ feature: string; z: number; direction: string }> }>;
+}
 
 function fmtKpi(v: number | null, unit: string | null): string {
   if (v === null || v === undefined) return "—";
@@ -60,6 +64,7 @@ export function AgpWorkspace() {
   const [kpis, setKpis] = useState<AgpKpiRow[]>([]);
   const [milestones, setMilestones] = useState<MilestoneRow[]>([]);
   const [ai, setAi] = useState<AiInsightData | null>(null);
+  const [communities, setCommunities] = useState<PeerCommunities | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
 
   useEffect(() => {
@@ -98,6 +103,8 @@ export function AgpWorkspace() {
     } else setMilestones([]);
     // AI KPI insights (reuse the grounded advisor insight engine)
     apiClient.get<{ insight: AiInsightData }>(`/advisor/360/${advisorId}/ai`).then((r) => setAi(r.insight)).catch(() => setAi(null));
+    // Peer Communities (Section 11.1 §6 — Louvain over advisor embeddings)
+    apiClient.get<PeerCommunities>(`/graph-insights/communities`).then(setCommunities).catch(() => setCommunities(null));
   }, [advisorId, shell.scopeType, shell.scopeId, shell.refreshNonce]);
 
   useEffect(() => { void load(); }, [load]);
@@ -312,6 +319,42 @@ export function AgpWorkspace() {
 
         {ai ? <AiInsightSummary data={ai} title="AI KPI Insights" /> : <div className="h-[320px] animate-pulse rounded-xl bg-slate-100" />}
       </div>
+
+      {/* Peer Communities (Section 11.1 §6 · Louvain over advisor embeddings) */}
+      {communities?.available && communities.communities.length > 0 ? (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]"><Users className="h-4 w-4 text-primary" /> Peer Communities</CardTitle>
+            <span className="text-[10px] text-muted-foreground">{communities.communities.length} discovered cohorts · Louvain community detection</span>
+          </CardHeader>
+          <CardContent className="grid gap-2 p-3 md:grid-cols-2 xl:grid-cols-3">
+            {communities.communities.map((c) => {
+              const mine = c.members.includes(advisorId);
+              return (
+                <div key={c.community_id} className="rounded-xl border p-3 text-[12px]"
+                  style={{ borderColor: mine ? colors.primary : colors.surface.border, background: mine ? "#EFF6FF" : "transparent" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold" style={{ color: colors.text.primary }}>
+                      Community {c.community_id + 1}{mine ? " · this advisor" : ""}
+                    </span>
+                    <span className="font-mono text-[11px] text-muted-foreground">{c.size} advisors</span>
+                  </div>
+                  <div className="mt-1.5 space-y-0.5">
+                    {c.distinguishing_features.map((f) => (
+                      <div key={f.feature} className="flex items-center justify-between">
+                        <span className="text-muted-foreground">{f.feature}</span>
+                        <span className="font-semibold" style={{ color: f.direction === "higher" ? "#0F766E" : "#B45309" }}>
+                          {f.direction} ({f.z > 0 ? "+" : ""}{f.z}σ)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="p-3"><CardTitle className="flex items-center gap-2 text-[13px]"><GraduationCap className="h-4 w-4 text-primary" /> Coaching Sessions</CardTitle></CardHeader>

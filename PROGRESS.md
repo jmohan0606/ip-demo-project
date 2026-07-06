@@ -1571,3 +1571,21 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
 - Verified: tsc PASS; Playwright 0 console errors; forecast chart + real XGBoost SHAP prediction cards render
   (A001 revenue-decline served_by XGBoost 29.2, AGP scorecard fallback 25.8). Screenshot s11-forecast2.png.
   (Backend must run as a harness-managed bg process — `nohup … &` gets reaped in this env.)
+
+### 11.1 COMMIT 7/11 — classical GDS algorithms (PageRank + Louvain) — DONE
+- app/ml/graph_algorithms.py (networkx over FoundationGraphStore — NO live-TG INSTALL needed):
+  PageRank over the referral/book graph (advisor↔household↔referral↔opportunity↔product edges, 844
+  nodes / 1140 edges — products/opps act as shared hubs so advisors are connected) → "Referral Network
+  Position" (percentile + tier); Louvain over an advisor kNN graph (k=5 cosine over embeddings) → "Peer
+  Communities" with per-cohort distinguishing features (top-3 by |z| vs firm mean). Persists to a new
+  graph_metrics SQLite table. Each algorithm serves ONE named screen (no algorithm without a purpose).
+- Endpoints: POST /graph-insights/recompute, GET /graph-insights/referral/{id}, /communities (new router).
+- **Real results:** A020 "strong referral hub" p86.7 vs A001 "connected" p50 (degree 12 each); 7 discovered
+  peer communities (sizes 6-13) with interpretable distinguishing features.
+- UI: Referral Network Position card on Advisor 360; Peer Communities card on AGP (current advisor's
+  community highlighted). Verified: tsc PASS; Playwright 0 console errors; screenshots s11-referral.png,
+  s11-communities.png. NOTE: graph_metrics is runtime SQLite state — POST /graph-insights/recompute
+  populates it (cards hide gracefully until then). TG-native GDS (Featurizer.installAlgorithm) documented
+  as the bigger-box fallback, same honest pattern as every adapter.
+- Ops note: run the backend from the repo root (CWD-relative data paths); `--app-dir` fixes imports but
+  not CWD, so relative foundation-data paths fail → empty graph.

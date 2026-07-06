@@ -67,6 +67,7 @@ export function Advisor360Workspace() {
   const [data, setData] = useState<Advisor360Response | null>(null);
   const [ai, setAi] = useState<AiResponse | null>(null);
   const [churn, setChurn] = useState<ChurnResponse | null>(null);
+  const [referral, setReferral] = useState<{ available: boolean; tier?: string; percentile?: number; degree?: number; summary?: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -96,6 +97,8 @@ export function Advisor360Workspace() {
       apiClient.get<AiResponse>(`/advisor/360/${advisorId}/ai`).then(setAi).catch(() => setAi(null));
       // Household churn (Section 11.1) — real per-household model output when MODEL_CLIENT_MODE=real.
       apiClient.get<ChurnResponse>(`/predictions/household-churn/${advisorId}`).then(setChurn).catch(() => setChurn(null));
+      // Referral Network Position (Section 11.1 §6 — PageRank over the real referral/book graph).
+      apiClient.get<typeof referral>(`/graph-insights/referral/${advisorId}`).then(setReferral).catch(() => setReferral(null));
     } finally {
       setBusy(false);
     }
@@ -295,6 +298,20 @@ export function Advisor360Workspace() {
           );
         })}
       </div>
+
+      {/* Referral Network Position (Section 11.1 §6 · PageRank) */}
+      {referral?.available ? (
+        <div className="rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
+          <div className="flex items-center justify-between">
+            <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Referral Network Position</h2>
+            <span className="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+              style={{ color: colors.aiAccent, background: "#EEF2FF", borderColor: "#C7D2FE" }}>
+              PageRank · top {Math.round(100 - (referral.percentile ?? 0))}%
+            </span>
+          </div>
+          <p className={`mt-1 ${type.body}`} style={{ color: colors.text.secondary }}>{referral.summary}</p>
+        </div>
+      ) : null}
 
       {/* Households table */}
       <div className="rounded-xl border bg-white shadow-sm" style={{ borderColor: colors.surface.border }}>
