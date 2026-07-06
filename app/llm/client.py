@@ -10,6 +10,27 @@ class LLMClientError(RuntimeError):
     pass
 
 
+def _record_llm(mode: str, model: str, prompt_text: str, out_text: str, latency_ms: float, estimated: bool = True) -> None:
+    """Record an LLM call to the observability recorder (Section 11.7). Never raises."""
+    try:
+        from app.observability.recorder import estimate_tokens, record_llm_call
+        record_llm_call(mode, model, estimate_tokens(prompt_text), estimate_tokens(out_text),
+                        latency_ms, estimated=estimated)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _record_llm_tokens(mode: str, model: str, in_tok, out_tok, prompt_text: str, out_text: str, latency_ms: float) -> None:
+    try:
+        from app.observability.recorder import estimate_tokens, record_llm_call
+        record_llm_call(mode, model,
+                        in_tok if in_tok is not None else estimate_tokens(prompt_text),
+                        out_tok if out_tok is not None else estimate_tokens(out_text),
+                        latency_ms, estimated=(in_tok is None))
+    except Exception:  # noqa: BLE001
+        pass
+
+
 class LLMClient(Protocol):
     """Adapter interface for all LLM text generation (Section 2 of the rebuild brief).
 
@@ -50,16 +71,21 @@ class MockLLMClient:
     """
 
     def generate(self, prompt: str, context: dict | None = None) -> str:
+        import time as _t
+        _start = _t.perf_counter()
         system_prompt, user_content = _render_messages(prompt, context)
         context = context or {}
         digest = hashlib.sha256(user_content.encode("utf-8")).hexdigest()[:8]
         signal_keys = [k for k in context if k != "system_prompt"][:6]
         signals = ", ".join(f"{k}={context[k]}" for k in signal_keys) if signal_keys else "no structured signals"
-        return (
+        out = (
             f"[mock-llm {digest}] {prompt.strip().splitlines()[0][:160]} — "
             f"Deterministic draft based on: {signals}. "
             "Switch LLM_CLIENT_MODE=claude to spot-check real model output with identical inputs."
         )
+        _record_llm("mock", "deterministic-template", user_content, out,
+                    (_t.perf_counter() - _start) * 1000, estimated=True)
+        return out
 
     def describe(self) -> dict:
         return {"mode": "mock", "model": "deterministic-template"}
@@ -82,6 +108,8 @@ class ClaudeLLMClient:
         self.model = settings.anthropic_model
 
     def generate(self, prompt: str, context: dict | None = None) -> str:
+        import time as _t
+        _start = _t.perf_counter()
         system_prompt, user_content = _render_messages(prompt, context)
         response = self._client.messages.create(
             model=self.model,
@@ -89,7 +117,12 @@ class ClaudeLLMClient:
             system=system_prompt,
             messages=[{"role": "user", "content": user_content}],
         )
-        return "".join(block.text for block in response.content if block.type == "text")
+        text = "".join(block.text for block in response.content if block.type == "text")
+        usage = getattr(response, "usage", None)
+        _record_llm_tokens("claude", self.model,
+                           getattr(usage, "input_tokens", None), getattr(usage, "output_tokens", None),
+                           user_content, text, (_t.perf_counter() - _start) * 1000)
+        return text
 
     def describe(self) -> dict:
         return {"mode": "claude", "model": self.model}
@@ -115,6 +148,8 @@ class RealLLMClient:
         self.deployment = settings.azure_openai_deployment
 
     def generate(self, prompt: str, context: dict | None = None) -> str:
+        import time as _t
+        _start = _t.perf_counter()
         system_prompt, user_content = _render_messages(prompt, context)
         response = self._client.chat.completions.create(
             model=self.deployment,
@@ -124,7 +159,12 @@ class RealLLMClient:
                 {"role": "user", "content": user_content},
             ],
         )
-        return response.choices[0].message.content or ""
+        text = response.choices[0].message.content or ""
+        usage = getattr(response, "usage", None)
+        _record_llm_tokens("real", f"azure:{self.deployment}",
+                           getattr(usage, "prompt_tokens", None), getattr(usage, "completion_tokens", None),
+                           user_content, text, (_t.perf_counter() - _start) * 1000)
+        return text
 
     def describe(self) -> dict:
         return {"mode": "real", "model": f"azure:{self.deployment}"}

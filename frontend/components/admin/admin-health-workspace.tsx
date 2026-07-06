@@ -18,6 +18,54 @@ interface ModelEntry {
   metrics?: Record<string, unknown>;
 }
 
+interface LlmCall { seq: number; mode: string; model: string; input_tokens: number; output_tokens: number; total_tokens: number; latency_ms: number; cost_usd: number; estimated: boolean }
+function ObservabilityTab() {
+  const [calls, setCalls] = useState<LlmCall[]>([]);
+  const [sum, setSum] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    apiClient.get<{ calls: LlmCall[]; summary: Record<string, number> }>("/observability/llm-calls?limit=40")
+      .then((r) => { setCalls(r.calls ?? []); setSum(r.summary); }).catch(() => setCalls([]));
+  }, []);
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {([["LLM Calls", "llm_call_count", ""], ["Total Tokens", "total_tokens", ""], ["Est. Cost", "total_cost_usd", "$"], ["Avg Latency", "avg_latency_ms", "ms"]] as const).map(([label, key, unit]) => (
+          <div key={key} className="rounded-xl border bg-white p-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
+            <div className="text-[11px] uppercase text-muted-foreground">{label}</div>
+            <div className="text-[20px] font-black" style={{ color: colors.text.primary }}>{unit === "$" ? "$" : ""}{sum?.[key] ?? "—"}{unit === "ms" ? " ms" : ""}</div>
+          </div>
+        ))}
+      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between p-3">
+          <CardTitle className="flex items-center gap-2 text-[13px]"><Cpu className="h-4 w-4 text-primary" /> LLM Calls (per-call token / cost / latency)</CardTitle>
+          <span className="text-[10px] text-muted-foreground">real counts from the Claude adapter · estimated for mock · resets per process</span>
+        </CardHeader>
+        <CardContent className="p-3">
+          {calls.length === 0 ? <p className="text-[12px] text-muted-foreground">No LLM calls recorded yet this session — ask the AI Assistant or run a coaching insight.</p> : (
+            <table className="w-full text-[12px]">
+              <thead><tr className="border-b text-left text-[11px] uppercase text-muted-foreground">{["#", "Mode", "Model", "In", "Out", "Latency", "Cost"].map((h) => <th key={h} className="px-2 py-1">{h}</th>)}</tr></thead>
+              <tbody>
+                {calls.map((c) => (
+                  <tr key={c.seq} className="border-b last:border-0">
+                    <td className="px-2 py-1 font-mono">{c.seq}</td>
+                    <td className="px-2 py-1"><Badge variant={c.estimated ? "glass" : "success"}>{c.mode}</Badge></td>
+                    <td className="px-2 py-1 font-mono text-[11px]">{c.model}</td>
+                    <td className="px-2 py-1 font-mono">{c.input_tokens}</td>
+                    <td className="px-2 py-1 font-mono">{c.output_tokens}</td>
+                    <td className="px-2 py-1 font-mono">{c.latency_ms} ms</td>
+                    <td className="px-2 py-1 font-mono">${c.cost_usd}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 interface StrategyRow { function: string; system: string; served_by: string; kind: string }
 function ModelStrategyTab() {
   const [rows, setRows] = useState<StrategyRow[]>([]);
@@ -283,7 +331,7 @@ function AdapterCard({
 export function AdminHealthWorkspace() {
   const [status, setStatus] = useState<AdapterStatus | null>(null);
   const [entityCount, setEntityCount] = useState<number>(0);
-  const [tab, setTab] = useState<"health" | "models" | "strategy" | "protections" | "eval">("health");
+  const [tab, setTab] = useState<"health" | "models" | "strategy" | "protections" | "eval" | "obs">("health");
 
   useEffect(() => {
     fetchAdapterStatus().then(setStatus).catch(() => setStatus(null));
@@ -306,7 +354,7 @@ export function AdminHealthWorkspace() {
       </div>
 
       <div className="flex flex-wrap gap-1 border-b">
-        {([["health", "System Health"], ["models", "Model Registry"], ["strategy", "Model Strategy"], ["protections", "AI Protections"], ["eval", "Evaluation & Trust"]] as const).map(([t, label]) => (
+        {([["health", "System Health"], ["models", "Model Registry"], ["strategy", "Model Strategy"], ["protections", "AI Protections"], ["eval", "Evaluation & Trust"], ["obs", "Observability"]] as const).map(([t, label]) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-3 py-1.5 text-[12px] font-semibold ${tab === t ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}>
             {label}
@@ -314,7 +362,7 @@ export function AdminHealthWorkspace() {
         ))}
       </div>
 
-      {tab === "models" ? <ModelRegistryTab /> : tab === "strategy" ? <ModelStrategyTab /> : tab === "protections" ? <AiProtectionsTab /> : tab === "eval" ? <EvaluationTrustTab /> : (
+      {tab === "models" ? <ModelRegistryTab /> : tab === "strategy" ? <ModelStrategyTab /> : tab === "protections" ? <AiProtectionsTab /> : tab === "eval" ? <EvaluationTrustTab /> : tab === "obs" ? <ObservabilityTab /> : (
       <div className="space-y-3">
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
