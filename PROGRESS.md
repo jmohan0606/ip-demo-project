@@ -1856,3 +1856,11 @@ s12-3-revenue-charts-fixed.png.
   breakdown already existed and stay. Evidence: s12-4-advisor360-after.png, s12-4-advisor360-accounts-tab.png.
 - Note: the two "empty AI boxes" seen pre-fix were just skeleton/load-timing (the /advisor/360/{id}/ai
   endpoint returns 200 in 0.5s); with an adequate wait both AI Insight + Coaching cards render fully.
+
+### 12.5 CRM Activities funnel — DONE (design pass, logic unchanged)
+Redesigned `components/charts/crm-stage-funnel.tsx` from flat centered rectangular bands to a proper
+tapering SVG funnel: connected trapezoid segments (each band's top edge meets the previous), sequential
+blue ramp (dark→light), real per-stage count + $ amount inside each band, stage-to-stage conversion %
+on the right, Won/Lost outcome chips below. Width ∝ open opportunity count (floor keeps empty stages
+readable); honest to sparse per-advisor data. SVG so it never hits the measure-race. Evidence:
+s12-5-crm-funnel-after.png (0 errors).
