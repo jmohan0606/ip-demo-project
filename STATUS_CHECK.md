@@ -68,7 +68,10 @@ Everything else in 12/13/13B stays an extension of an existing page (pipeline-tr
 Explainability, state-machine UI extends Opportunities, etc.). Rule: new surface when cramming would
 compromise either page; extension when it genuinely belongs with existing content.
 
-## SECTION 12 COMPLETE ✅ (pushed) — now on SECTION 13 (stateful lifecycle, fable-designed)
+## SECTION 12 COMPLETE ✅ · SECTION 13 COMPLETE ✅ (both pushed) — now on SECTION 13B (guided story mode)
+- §13: full stateful lifecycle verified (state machine, impact ledger, exact +impact propagation on 3
+  screens, AI-awareness plumbing, regeneration exclusion, new Impact Ledger page). 13.8 trace ALL PASSED.
+  Only the real-Claude 13.4 answer-text check is blocked on the missing ANTHROPIC_API_KEY (documented).
 
 ## Progress — Section 12
 - [x] 12.1 Executive Dashboard — DONE. New `/scope/dashboard` + `/scope/ai-insight` (period + Compare-To

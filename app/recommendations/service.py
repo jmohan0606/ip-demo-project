@@ -109,6 +109,8 @@ class RecommendationService:
         self.learning = LearningWeightStore()
         from app.recommendations.lifecycle import RecommendationLifecycleService
         self.lifecycle = RecommendationLifecycleService()
+        from app.recommendations.compliance_validator import RecommendationComplianceValidator
+        self._compliance = RecommendationComplianceValidator()
 
     def _playbook_for(self, category: str) -> dict | None:
         merged: dict = {}
@@ -150,7 +152,14 @@ class RecommendationService:
         }
 
     def generate_for_advisor(self, advisor_id: str, persist: bool = True) -> dict:
-        detection = self.opportunities.detect_for_advisor(advisor_id, persist=persist)
+        # Section 13B.1: time the real pipeline stages so the SYSTEM TRACE bar shows genuine
+        # per-stage execution timing (this is the first real producer of observability stage spans).
+        from app.observability import recorder as _rec
+        _spans: list[dict] = []
+        with _rec.stage_timer("Feature + Prediction + Opportunity detection", _spans):
+            detection = self.opportunities.detect_for_advisor(advisor_id, persist=persist)
+        _map_timer = _rec.stage_timer("Recommendation mapping (opportunity → next-best-action)", _spans)
+        _map_timer.__enter__()
         affinities = self._outcome_affinities(advisor_id)
         # Section 13.5: opportunities already addressed by a COMPLETED recommendation are
         # not re-issued — they surface as an "Addressed" list instead.
@@ -202,10 +211,19 @@ class RecommendationService:
                 "outcome_affinity": outcome_affinity,
                 "status": "PRESENTED",
             }
+            # Section 13B.1: run the real compliance validator on the live path so the
+            # rec carries a real verdict (Context & Compliance stage of the pipeline trace).
+            c_status, c_warnings = self._compliance.validate(
+                mapping["action_text"], opp.get("rationale", ""),
+                [opp["opportunity_id"], recommendation["playbook_id"] or "", recommendation["prediction_id"] or ""],
+            )
+            recommendation["compliance"] = {"status": c_status.value.upper(), "warnings": c_warnings}
             recommendations.append(recommendation)
 
         recommendations.sort(key=lambda r: -r["priority_score"])
+        _map_timer.__exit__()
         if persist:
+          with _rec.stage_timer("Persist + lifecycle register + explainability trace", _spans):
             for rec in recommendations:
                 self._persist(rec, advisor_id, detection["feature_snapshot_id"])
                 # Section 13.1: register in the durable lifecycle mirror (status-preserving)
@@ -215,6 +233,7 @@ class RecommendationService:
                 rec["status_note"] = lc["status_note"]
                 rec["allowed_actions"] = lc["allowed_actions"]
                 rec["terminal"] = lc["terminal"]
+        _rec.record_stage(f"recommendation-pipeline {advisor_id}", _spans)
         return {
             "advisor_id": advisor_id,
             "recommendations": recommendations,
