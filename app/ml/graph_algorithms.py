@@ -65,26 +65,37 @@ def _advisor_ids(store) -> list[str]:
     return sorted(store.all_vertices("phx_dm_advisor").keys())
 
 
-def _all_advisor_embeddings() -> dict[str, list[float]]:
-    """Latest ADVISOR embedding vectors from the existing embeddings table (for the
-    Louvain kNN graph). Upgrades automatically to GNN vectors once §7 registers them."""
+def _all_advisor_embeddings() -> tuple[dict[str, list[float]], str]:
+    """ADVISOR embedding vectors for the Louvain kNN graph. Prefers the GNN embeddings
+    (gnn_embeddings table, §7) when present — so Peer Communities upgrade to GraphSAGE
+    vectors automatically — else falls back to the deterministic-projection table."""
     path = _db()
     if not Path(path).exists():
-        return {}
+        return {}, "none"
     out: dict[str, list[float]] = {}
     with sqlite3.connect(path) as conn:
         try:
             rows = conn.execute(
-                "SELECT entity_id, vector_json FROM embeddings WHERE entity_type='ADVISOR' "
-                "ORDER BY generated_at").fetchall()
+                "SELECT entity_id, vector_json FROM gnn_embeddings WHERE entity_type='ADVISOR' "
+                "AND model_name='graphsage-v1'").fetchall()
+            source = "graphsage-v1"
         except sqlite3.OperationalError:
-            return {}
+            rows = []
+            source = "none"
+        if not rows:
+            try:
+                rows = conn.execute(
+                    "SELECT entity_id, vector_json FROM embeddings WHERE entity_type='ADVISOR' "
+                    "ORDER BY generated_at").fetchall()
+                source = "deterministic-projection"
+            except sqlite3.OperationalError:
+                return {}, "none"
     for eid, vj in rows:
         try:
             out[eid] = [float(x) for x in json.loads(vj)]
         except (json.JSONDecodeError, TypeError, ValueError):
             continue
-    return out
+    return out, source
 
 
 def compute() -> dict:
@@ -107,7 +118,7 @@ def compute() -> dict:
         return round(100.0 * sum(1 for x in ranked if x <= v) / n, 1)
 
     # Louvain over advisor kNN graph (k=5, cosine over embeddings)
-    emb = _all_advisor_embeddings()
+    emb, emb_source = _all_advisor_embeddings()
     communities: dict[str, int] = {}
     community_members: dict[int, list[str]] = {}
     if len(emb) >= 5:
@@ -154,6 +165,7 @@ def compute() -> dict:
         "graph_nodes": g.number_of_nodes(),
         "graph_edges": g.number_of_edges(),
         "communities": len(community_members),
+        "community_embedding_source": emb_source,
         "community_sizes": {str(c): len(m) for c, m in community_members.items()},
         "top_referral_hubs": sorted(
             [{"advisor_id": a, "pagerank": round(adv_pr[a], 5), "percentile": pctile(adv_pr[a])}

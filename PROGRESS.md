@@ -1589,3 +1589,20 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   as the bigger-box fallback, same honest pattern as every adapter.
 - Ops note: run the backend from the repo root (CWD-relative data paths); `--app-dir` fixes imports but
   not CWD, so relative foundation-data paths fail → empty graph.
+
+### 11.1 COMMIT 8/11 — GraphSAGE embeddings (real GNN, Tier 2) — DONE
+- app/ml/gnn.py (torch_geometric): homogeneous GraphSAGE (2-layer SAGEConv 5→64→32, node-type as
+  feature) trained SELF-SUPERVISED via link prediction (serves+owns edges, 10% held out, negative
+  sampling) over the real FoundationGraphStore graph (1140 nodes: 60 advisor / 360 household / 720
+  account; 1080 train edges). scripts/train/train_graphsage_embeddings.py.
+- **Real result: held-out link-prediction ROC-AUC 0.6850 ≥ 0.6 gate → passed. Trained 0.9s / 50 epochs**
+  (far under the time-box). 32-dim output embeddings persisted to a dedicated gnn_embeddings SQLite table
+  (isolated from the existing dim-8 deterministic pipeline so nothing breaks). Registry entry records
+  gnn_tier_ran=tier2-local-pyg + the honest Tier-1 caveat (pyTigerGraph[gds] neighborLoader unverified on
+  this 2-core box — live edge load stalls).
+- **Louvain Peer Communities upgraded automatically to GNN vectors** (graph_algorithms._all_advisor_embeddings
+  now prefers gnn_embeddings): community_embedding_source=graphsage-v1, 6 detected communities (was 7 on
+  deterministic vectors). Verified. Backend imports clean (37 routes). No frontend change needed — the
+  Peer Communities card (commit 7) transparently reflects the improved vectors.
+- Tiers per §7: Tier 1 (pyTG[gds]) documented-but-unverified (hardware); Tier 2 (local PyG) RAN and serves;
+  Tier 3 (deterministic projection) remains the final fallback.
