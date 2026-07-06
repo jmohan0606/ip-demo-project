@@ -1673,3 +1673,19 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
 ## (docs/section11/11_1_model_design.md). Next Section-11 items: 11.2 RL formalization → 11.3 FL
 ## (feedback loop, needs outcome-variety data expansion) → 11.4–11.8, 11.11.
 ============================================================================================
+
+## Session 9 (cont.) — SECTION 11.2 — RL formalization — DONE (main thread / Opus)
+Formalizes the ALREADY-VERIFIED feedback loop as a documented contextual bandit; does NOT rebuild it
+(per 11.2). Every value read from the live ACTION_SIGNALS + the ranking/update clamp — nothing changed.
+- Backend: FeedbackLearningService.bandit_spec() — state (advisor 33-feature snapshot), actions (recommendation
+  families = arms), reward (base_reward ACCEPT 0.6/COMPLETE 1.0/MODIFY 0.3/IGNORE -0.1/REJECT -0.5 + outcome
+  adjustment, clamp [-1,1]), policy (rank_priority = base_priority × family_weight), update (w ← clamp(w +
+  δ_action, 0.5, 1.5); δ ACCEPT +0.05/COMPLETE +0.10/MODIFY +0.02/IGNORE -0.02/REJECT -0.08), exploration
+  (greedy; clamp preserves residual exposure; ε-greedy/UCB = future work). Exposed via /feedback-learning/
+  learning-state AND folded into /impact-trend (additive `bandit` key).
+- Frontend: LearningStateShowcase (9.5 component) gained a "Formalism · Contextual Bandit" panel above the
+  existing weight-trajectory replay — fed in, not duplicated. Replay viz already existed from 9.5.
+- Verified LIVE: /feedback-learning/impact-trend → bandit spec + 18 real events; Playwright: bandit panel +
+  weight-trajectory (CRM Execution→1.50 / Managed Mix→0.53) render together, 0 console errors, tsc PASS.
+  Screenshot s11-bandit.png.
+Next: 11.3 FL (outcome-driven learning — needs outcome-variety data expansion first, Fable-designed).

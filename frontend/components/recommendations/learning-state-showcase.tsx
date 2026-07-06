@@ -60,6 +60,18 @@ interface ImpactTrendResponse {
   baseline_vs_learned: BaselineVsLearned[];
   action_signals: Record<string, ActionSignal>;
   totals: { cumulative_reward: number; captured_impact: number };
+  bandit?: BanditSpec;
+  note: string;
+}
+
+interface BanditSpec {
+  formalism: string;
+  state: { description: string; source: string };
+  actions: { description: string; arms: string };
+  reward: { description: string; base_reward_by_action: Record<string, number>; outcome_adjustment: Record<string, number>; clamp: string };
+  policy: { description: string; formula: string };
+  update_rule: { description: string; formula: string; neutral_weight: number; delta_by_action: Record<string, number> };
+  exploration: string;
   note: string;
 }
 
@@ -190,6 +202,37 @@ export default function LearningStateShowcase() {
         </p>
       </CardHeader>
       <CardContent className="space-y-5">
+        {/* (0) Formal contextual-bandit framing of the loop (Section 11.2) */}
+        {data.bandit ? (
+          <div className="rounded-lg border p-3" style={{ borderColor: colors.surface.border, background: "#F8FAFC" }}>
+            <div className={type.label} style={{ color: colors.text.secondary }}>
+              Formalism · {data.bandit.formalism}
+            </div>
+            <div className="mt-2 grid gap-2 text-[12px] sm:grid-cols-2 xl:grid-cols-4">
+              <div>
+                <div className="font-semibold" style={{ color: colors.text.primary }}>State (context)</div>
+                <div style={{ color: colors.text.muted }}>{data.bandit.state.source}</div>
+              </div>
+              <div>
+                <div className="font-semibold" style={{ color: colors.text.primary }}>Action (arm)</div>
+                <div style={{ color: colors.text.muted }}>{data.bandit.actions.arms}</div>
+              </div>
+              <div>
+                <div className="font-semibold" style={{ color: colors.text.primary }}>Policy</div>
+                <div className="font-mono text-[11px]" style={{ color: colors.text.muted }}>{data.bandit.policy.formula}</div>
+              </div>
+              <div>
+                <div className="font-semibold" style={{ color: colors.text.primary }}>Update rule</div>
+                <div className="font-mono text-[11px]" style={{ color: colors.text.muted }}>{data.bandit.update_rule.formula}</div>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px]" style={{ color: colors.text.muted }}>
+              Reward clamp {data.bandit.reward.clamp} · neutral weight {data.bandit.update_rule.neutral_weight} ·{" "}
+              {data.bandit.exploration}
+            </p>
+          </div>
+        ) : null}
+
         {/* (a) What feedback does — the five real signals */}
         <div>
           <div className={type.label} style={{ color: colors.text.secondary }}>

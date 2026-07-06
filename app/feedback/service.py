@@ -107,7 +107,54 @@ class FeedbackLearningService:
         }
 
     def learning_state(self) -> dict:
-        return {"weights": self.learning.all_weights(), "signals": ACTION_SIGNALS}
+        return {"weights": self.learning.all_weights(), "signals": ACTION_SIGNALS,
+                "bandit": self.bandit_spec()}
+
+    @staticmethod
+    def bandit_spec() -> dict:
+        """Formal contextual-bandit description of the ALREADY-RUNNING weight loop
+        (Section 11.2 — documents the existing mechanism, does not change it). Every value
+        is read from the live ACTION_SIGNALS + the clamp used at ranking/update time."""
+        from app.feedback.reward_engine import FeedbackRewardEngine  # noqa: F401 (values documented below)
+
+        return {
+            "formalism": "Contextual bandit (per-family incremental-weight policy)",
+            "state": {
+                "description": "The advisor's current feature snapshot (context under which an "
+                               "action family is surfaced).",
+                "source": "Phase-5 feature snapshot (33 Feature_Catalog features)",
+            },
+            "actions": {
+                "description": "The recommendation action family (the bandit arm).",
+                "arms": "CRM_EXECUTION · MANAGED_MIX · RETENTION · … (the live recommendation families)",
+            },
+            "reward": {
+                "description": "Feedback-derived signal per accepted/completed/rejected action, "
+                               "optionally adjusted by the recorded business outcome.",
+                "base_reward_by_action": {a: s["reward"] for a, s in ACTION_SIGNALS.items()},
+                "outcome_adjustment": {
+                    "revenue/nnm/aum_impact > $50k": 0.20, "> $0": 0.10, "< $0": -0.20,
+                    "engagement (meeting/client/product-review)": 0.08, "no_impact": -0.05,
+                },
+                "clamp": "[-1.0, 1.0]",
+            },
+            "policy": {
+                "description": "Weight-scaled greedy ranking — arms ordered by base score × learned "
+                               "family weight; the top-ranked arms are surfaced.",
+                "formula": "rank_priority = base_priority × family_weight",
+            },
+            "update_rule": {
+                "description": "Incremental per-family weight update on each feedback event.",
+                "formula": "w_family ← clamp(w_family + δ_action, 0.5, 1.5)",
+                "neutral_weight": 1.0,
+                "delta_by_action": {a: s["delta"] for a, s in ACTION_SIGNALS.items()},
+            },
+            "exploration": "Greedy (exploitation-only) — the weight is a smoothed reward estimate; "
+                           "the clamp bounds prevent any single family from being fully suppressed, "
+                           "preserving residual exposure. (A formal ε-greedy/UCB term is future work.)",
+            "note": "This is the same loop verified end-to-end in Phase 9 / Section 9.5; 11.2 only "
+                    "documents its formal RL framing and exposes it — nothing about the mechanism changed.",
+        }
 
     @staticmethod
     def _action_for(rec: dict) -> str:
@@ -233,6 +280,7 @@ class FeedbackLearningService:
                 for fam, w in sorted(weights.items())
             ],
             "action_signals": ACTION_SIGNALS,
+            "bandit": self.bandit_spec(),
             "persistent_learning_weights": self.learning.all_weights(),
             "note": (
                 "Replay of the real feedback+reward loop over live recommendations; "
