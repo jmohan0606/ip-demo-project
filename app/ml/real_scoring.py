@@ -139,6 +139,47 @@ def _score_revenue_decline(entity_id: str, model_name: str) -> dict:
     }
 
 
+def household_churn(advisor_id: str) -> dict:
+    """Per-household severe-attrition propensity for an advisor (Section 11.1 §3.5).
+
+    Churn is a rare-positive proxy whose held-out PR-AUC is below the quality gate, so it is
+    surfaced as INDICATIVE (never a served production number). The response carries the real
+    gate status + caveat so the UI badges it honestly. Returns [] if the artifact is absent."""
+    entry = registry.get_entry("household-churn-xgb")
+    if not entry:
+        return {"available": False, "households": []}
+    model, feature_cols, _ = _load("household-churn-xgb")
+    X, weights = ds.build_current_household_features(advisor_id)
+    if X.empty:
+        return {"available": False, "households": []}
+    X = X[feature_cols]
+    proba = model.predict_proba(X.to_numpy(float))[:, 1]
+
+    def _band(p: float) -> str:
+        return "elevated" if p >= 0.5 else ("watch" if p >= 0.2 else "stable")
+
+    households = [
+        {"household_id": hid, "propensity": round(float(p), 4), "band": _band(float(p))}
+        for hid, p in zip(X.index, proba)
+    ]
+    households.sort(key=lambda h: h["propensity"], reverse=True)
+    gate = entry.get("quality_gate", "failed")
+    m = entry.get("metrics", {}).get("test", {})
+    return {
+        "available": True,
+        "quality_gate": gate,
+        "served": gate == "passed",
+        "model": "household-churn-xgb",
+        "label_definition": entry.get("label_definition"),
+        "caveat": (
+            "Indicative only — severe-revenue-attrition proxy (no true churn events exist in "
+            f"this demo data); held-out PR-AUC {m.get('pr_auc')} is below the serving gate "
+            f"({entry.get('quality_floor')}). Directional signal, not a production score."
+        ) if gate != "passed" else entry.get("caveats"),
+        "households": households,
+    }
+
+
 def score_risk(model_name: str, prediction_type: str, entity_type: str, entity_id: str,
                features: dict) -> dict:
     if prediction_type == "REVENUE_DECLINE_RISK":

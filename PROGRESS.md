@@ -1541,3 +1541,18 @@ transient — re-verified installed; numpy 2.5→2.4.6 downgrade (shap→numba) 
   captured once before deletion (degrades gracefully after). Live predict_advisor(A020) real mode:
   REVENUE_DECLINE served_by=revenue-decline-xgb v1.0 (48.1); AGP served_by=scorecard (56.8, matches anchor).
   Backend boots 36 routes; ChatContextAssembler imports clean.
+
+### 11.1 COMMIT 5/11 — household churn surface (honest, gate-aware) — DONE
+- real_scoring.household_churn(advisor_id): loads the churn XGB artifact, scores each of the advisor's
+  households, returns per-household propensity+band + the model's real quality_gate/caveat. ModelClient
+  gained household_churn() (deterministic → not-available note; real → real per-household scores).
+  New route GET /predictions/household-churn/{advisor_id}.
+- Advisor 360 households table: new "Churn Risk" column (elevated=red/watch=amber/stable=teal badge with
+  propensity %). Because the churn model is BELOW its serving gate, the column shows an explicit
+  "Indicative only … PR-AUC 0.0117 below the gate 0.0208 … not a production score" caveat banner — honest
+  by construction, never presented as a served number. .env set MODEL_CLIENT_MODE=real (gitignored) so the
+  app serves the trained models locally.
+- Verified live (real mode): A020 revenue-decline served_by=revenue-decline-xgb v1.0 (48.1); A001
+  household-churn 6 real per-household propensities, gate=failed/served=false. Frontend tsc PASS; Playwright
+  0 console errors; Churn Risk column + caveat render. Screenshot docs/qa_screenshots/s11-churn.png.
+- NOTE: /adapters/status does not yet report the model tier — added in commit 11 (Admin Model Registry tab).

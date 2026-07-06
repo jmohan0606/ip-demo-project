@@ -58,6 +58,8 @@ class ModelClient(Protocol):
 
     def entity_embedding(self, entity_type: str, entity_id: str) -> list[float] | None: ...
 
+    def household_churn(self, advisor_id: str) -> dict: ...
+
     def describe(self) -> dict: ...
 
 
@@ -164,6 +166,10 @@ class DeterministicModelClient:
     def entity_embedding(self, entity_type, entity_id) -> list[float] | None:
         return _read_latest_embedding(entity_type, entity_id)
 
+    def household_churn(self, advisor_id) -> dict:
+        return {"available": False, "households": [],
+                "note": "household churn model requires MODEL_CLIENT_MODE=real"}
+
     def describe(self) -> dict:
         return {"mode": "deterministic", "tier": "verified-scorers", "serves_risk": False}
 
@@ -217,6 +223,11 @@ class RealModelClient:
         # In real mode, prefer registered GNN embeddings when present (§7/§8); otherwise
         # fall back to the existing deterministic-projection vectors.
         return _read_latest_embedding(entity_type, entity_id)
+
+    def household_churn(self, advisor_id) -> dict:
+        from app.ml.real_scoring import household_churn as _hc
+
+        return _hc(advisor_id)
 
     def describe(self) -> dict:
         from app.ml import registry

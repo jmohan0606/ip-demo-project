@@ -36,6 +36,17 @@ interface Advisor360Response {
   similar: { households: SimilarBlock | null; accounts: SimilarBlock | null };
 }
 interface AiResponse { insight: AiInsightData; coaching: AiCoachingData }
+interface ChurnResponse {
+  available: boolean; served?: boolean; quality_gate?: string; caveat?: string;
+  households?: Array<{ household_id: string; propensity: number; band: string }>;
+}
+
+// Household churn band → color (Section 11.1 §3.5): elevated=red, watch=amber, stable=teal.
+function churnTone(band: string): { fg: string; bg: string; border: string } {
+  if (band === "elevated") return { fg: "#B91C1C", bg: "#FEF2F2", border: "#FECACA" };
+  if (band === "watch") return { fg: "#B45309", bg: "#FFFBEB", border: "#FDE68A" };
+  return { fg: "#0F766E", bg: "#F0FDFA", border: "#99F6E4" };
+}
 
 const money = (v: unknown) => (v === null || v === undefined ? "—" : formatCurrency(Number(v), { compact: true }));
 
@@ -55,6 +66,7 @@ export function Advisor360Workspace() {
   const [advisorId, setAdvisorId] = useState("A001");
   const [data, setData] = useState<Advisor360Response | null>(null);
   const [ai, setAi] = useState<AiResponse | null>(null);
+  const [churn, setChurn] = useState<ChurnResponse | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -77,10 +89,13 @@ export function Advisor360Workspace() {
   const load = useCallback(async () => {
     setBusy(true);
     setAi(null);
+    setChurn(null);
     try {
       setData(await apiClient.get<Advisor360Response>(`/advisor/360/${advisorId}`));
       // AI card loads independently so the page paints without waiting on generation.
       apiClient.get<AiResponse>(`/advisor/360/${advisorId}/ai`).then(setAi).catch(() => setAi(null));
+      // Household churn (Section 11.1) — real per-household model output when MODEL_CLIENT_MODE=real.
+      apiClient.get<ChurnResponse>(`/predictions/household-churn/${advisorId}`).then(setChurn).catch(() => setChurn(null));
     } finally {
       setBusy(false);
     }
@@ -90,6 +105,7 @@ export function Advisor360Workspace() {
 
   const advisor = data?.graph.advisor?.[0];
   const features = data?.feature_snapshot?.features ?? {};
+  const churnByHousehold = new Map((churn?.households ?? []).map((h) => [h.household_id, h]));
   const counts = {
     households: data?.graph.households?.length ?? 0,
     accounts: data?.graph.accounts?.length ?? 0,
@@ -290,25 +306,43 @@ export function Advisor360Workspace() {
             View AI lineage <ExternalLink className="h-3 w-3" />
           </a>
         </div>
+        {churn?.available && churn.quality_gate !== "passed" ? (
+          <p className="border-b px-4 py-1.5 text-[11px]" style={{ borderColor: colors.surface.border, color: colors.text.muted, background: "#FFFBEB" }}>
+            Churn Risk column: {churn.caveat}
+          </p>
+        ) : null}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b text-left" style={{ borderColor: colors.surface.border }}>
-                {["Household", "Name", "Segment", "AUM", "Status"].map((header) => (
+                {["Household", "Name", "Segment", "AUM", "Status", "Churn Risk"].map((header) => (
                   <th key={header} className={`px-3 py-2 ${type.label}`} style={{ color: colors.text.muted }}>{header}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {(data?.graph.households ?? []).slice(0, 12).map((household) => (
+              {(data?.graph.households ?? []).slice(0, 12).map((household) => {
+                const c = churnByHousehold.get(household.v_id);
+                const tone = c ? churnTone(c.band) : null;
+                return (
                 <tr key={household.v_id} className="border-b last:border-0" style={{ borderColor: colors.surface.border }}>
                   <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.primary }}>{household.v_id}</td>
                   <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.household_name ?? "—")}</td>
                   <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.segment ?? household.attributes.tier ?? "—")}</td>
                   <td className={`px-3 py-1.5 font-mono ${type.data}`} style={{ color: colors.text.secondary }}>{money(household.attributes.total_aum)}</td>
                   <td className={`px-3 py-1.5 ${type.data}`} style={{ color: colors.text.secondary }}>{String(household.attributes.status ?? "—")}</td>
+                  <td className={`px-3 py-1.5 ${type.data}`}>
+                    {c && tone ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+                        style={{ color: tone.fg, background: tone.bg, borderColor: tone.border }}
+                        title={`P(severe attrition)=${c.propensity}`}>
+                        {c.band} · {(c.propensity * 100).toFixed(1)}%
+                      </span>
+                    ) : <span style={{ color: colors.text.muted }}>—</span>}
+                  </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
