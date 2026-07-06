@@ -1765,3 +1765,28 @@ Surfaces the temporal capability that existed only in fragments. Real point-in-t
 - Read-only /evaluation/runs{,/latest}; Admin "Evaluation & Trust" tab (guard banner, KPI cards, per-question
   expandable point-level evidence, trend chart). tsc PASS; Playwright 0 errors; screenshots.
 Next: 11.6 context engineering (RerankClient + memory audit + scope-aware AI, real Claude) → 11.7 → 11.8.
+
+## Session 9 (cont.) — SECTIONS 11.6, 11.7, 11.8 — DONE (main thread)
+### 11.6 Context engineering — DONE (real-Claude verified)
+- RerankClient adapter (app/llm/rerank_client.py): LocalRerankClient (embedding-cosine proxy, free) +
+  CohereRerankClient; RERANK_CLIENT_MODE=local|cohere — the poster's "Context Ranking" step. Context
+  assembler retrieves broadly then reranks + prunes to top-K.
+- Scope-aware reasoning (real gap closed): non-Advisor scopes consult ScopeRollupService for a REAL
+  aggregate; verified REAL CLAUDE — Division D01 "why is revenue lagging?" reasons across 24 advisors
+  ($14.7M/$797.5M), names Top (Morgan Hill/Riley Kim) + Needs-attention (Avery Diaz/Jordan Garcia), NOT
+  one advisor. Advisor 2-turn continuity: follow-up builds on turn-1 context.
+- All 6 poster memory types populated (added SEMANTIC/EPISODIC/PROCEDURAL/PREFERENCE to the enum;
+  memory_seeder grounds them in real data; /memory/audit → A001 6/6).
+- Visible pipeline: GET /ai-chat/context-trace + ContextPipelinePanel on Explainability (resolved scope →
+  retrieved items w/ rerank scores → kept/pruned). tsc PASS; Playwright 0 errors; screenshots.
+### 11.7 Observability — DONE
+- app/observability/recorder.py: in-process per-LLM-call token/cost/latency (real from Claude/Azure
+  response.usage; estimated for mock, flagged) + stage-span traces. LLM clients instrumented.
+  GET /observability/{summary,llm-calls,stage-spans}; Admin "Observability" tab. Verified 6 calls / 5349
+  tokens / $0.0075 est.
+### 11.8 MCP layer — DONE
+- app/mcp/tool_registry.py: MCP tool registry (poster shape) with two new families — feature_store
+  (get_snapshot/list_features) + model_serving (predict_risk/forecast_revenue/similar_advisors/
+  household_churn), 6 tools. GET /mcp/tools + POST /mcp/invoke; MCP Tools card on the Admin Model
+  Strategy tab. Verified live: model.similar_advisors A020 → real GNN result (graphsage-v1-ft, A019 0.98).
+  (Graph access remains the 9.4 4-tier GraphClient MCP adapter.)

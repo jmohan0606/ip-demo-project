@@ -67,12 +67,15 @@ function ObservabilityTab() {
 }
 
 interface StrategyRow { function: string; system: string; served_by: string; kind: string }
+interface McpTool { name: string; family: string; description: string }
 function ModelStrategyTab() {
   const [rows, setRows] = useState<StrategyRow[]>([]);
   const [systems, setSystems] = useState<Record<string, { label: string; description: string }> | null>(null);
+  const [mcp, setMcp] = useState<{ families: Record<string, string[]>; tools: McpTool[]; note?: string } | null>(null);
   useEffect(() => {
     apiClient.get<{ model_strategy: StrategyRow[]; systems: Record<string, { label: string; description: string }> }>("/architecture/model-strategy")
       .then((r) => { setRows(r.model_strategy ?? []); setSystems(r.systems); }).catch(() => setRows([]));
+    apiClient.get<{ families: Record<string, string[]>; tools: McpTool[]; note?: string }>("/mcp/tools").then(setMcp).catch(() => setMcp(null));
   }, []);
   const sysColor = (s: string) => s.includes("Coach Q&A") ? "#0F766E" : s === "Both" ? colors.text.muted : colors.aiAccent;
   return (
@@ -105,6 +108,24 @@ function ModelStrategyTab() {
           </table>
         </CardContent>
       </Card>
+      {mcp ? (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]"><Network className="h-4 w-4 text-primary" /> MCP Tool Registry (Section 11.8)</CardTitle>
+            <span className="text-[10px] text-muted-foreground">{mcp.tools.length} tools · {Object.keys(mcp.families).length} families</span>
+          </CardHeader>
+          <CardContent className="p-3">
+            {mcp.tools.map((t) => (
+              <div key={t.name} className="flex items-baseline gap-3 border-b py-1 text-[12px] last:border-0" style={{ borderColor: colors.surface.border }}>
+                <span className="w-52 font-mono font-semibold" style={{ color: colors.text.primary }}>{t.name}</span>
+                <Badge variant="glass">{t.family}</Badge>
+                <span className="text-muted-foreground">{t.description}</span>
+              </div>
+            ))}
+            {mcp.note ? <p className="mt-2 text-[11px] text-muted-foreground">{mcp.note}</p> : null}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
