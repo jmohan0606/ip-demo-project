@@ -241,6 +241,12 @@ export function ExplainabilityWorkspace() {
           <h2 className={type.cardTitle} style={{ color: colors.text.primary }}>Memory Timeline</h2>
           <span className="text-[11px]" style={{ color: colors.text.muted }}>· temporal context the system remembers about {advisorId}</span>
         </div>
+        <p className="mt-1.5 rounded-lg border px-3 py-1.5 text-[11px]" style={{ borderColor: "#C7D2FE", background: "#EEF2FF", color: "#3730A3" }}>
+          Part of the temporal knowledge graph (Section 11.4): this timeline is the episodic/conversation
+          record over time, alongside point-in-time <a href="/features-embeddings" className="underline">feature snapshots</a> and
+          the <a href="/graph-explorer" className="underline">as-of graph traversal</a> — the same entity&apos;s
+          state and relationships as they were on any chosen date.
+        </p>
         {memories.length === 0 ? (
           <p className={`mt-2 ${type.data}`} style={{ color: colors.text.muted }}>
             No memories recorded yet. Ask the AI Assistant about this advisor, or run a coaching insight, to write to memory.

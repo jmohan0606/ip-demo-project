@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { EmbeddingScatter, type ProjectionPoint } from "@/components/charts/embedding-scatter";
 import { FeatureLineageDiagram } from "@/components/features-lab/feature-lineage-diagram";
+import { PointInTimePanel } from "@/components/features-lab/point-in-time-panel";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
@@ -102,6 +103,8 @@ export function FeatureLabWorkspace() {
         <KpiStatCard label="Version" value={snapshot?.feature_version ?? "—"} />
         <KpiStatCard label="As of" value={snapshot?.snapshot_time ?? "—"} />
       </div>
+
+      {advisorId ? <PointInTimePanel advisorId={advisorId} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border bg-white p-4 shadow-sm" style={{ borderColor: colors.surface.border }}>

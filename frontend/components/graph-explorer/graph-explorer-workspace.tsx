@@ -81,6 +81,7 @@ export function GraphExplorerWorkspace() {
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
   const [data, setData] = useState<GraphNeighborhood | null>(null);
   const [selected, setSelected] = useState<GraphVizNode | null>(null);
+  const [asOf, setAsOf] = useState("");  // "" = now (Section 11.4 temporal traversal)
 
   useEffect(() => {
     apiClient
@@ -96,8 +97,8 @@ export function GraphExplorerWorkspace() {
 
   const load = useCallback(async () => {
     setSelected(null);
-    setData(await fetchNeighborhood(advisorId));
-  }, [advisorId]);
+    setData(await fetchNeighborhood(advisorId, asOf || null));
+  }, [advisorId, asOf]);
 
   useEffect(() => {
     void load();
@@ -131,19 +132,41 @@ export function GraphExplorerWorkspace() {
             pipeline artifacts (prediction → opportunity → recommendation) around this advisor.
           </p>
         </div>
-        <select
-          className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
-          value={advisorId}
-          onChange={(e) => setAdvisorId(e.target.value)}
-        >
-          {advisors.length === 0 && <option value={advisorId}>{advisorId}</option>}
-          {advisors.map((a) => (
-            <option key={a.advisor_id} value={a.advisor_id}>
-              {a.advisor_name ?? a.advisor_id}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-end gap-2">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Point in time</span>
+            <select
+              className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
+              value={asOf}
+              onChange={(e) => setAsOf(e.target.value)}
+            >
+              <option value="">Now (2026-07)</option>
+              <option value="2024-06-01">As of 2024-06</option>
+              <option value="2025-01-01">As of 2025-01</option>
+              <option value="2025-06-01">As of 2025-06</option>
+              <option value="2026-01-01">As of 2026-01</option>
+            </select>
+          </div>
+          <select
+            className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
+            value={advisorId}
+            onChange={(e) => setAdvisorId(e.target.value)}
+          >
+            {advisors.length === 0 && <option value={advisorId}>{advisorId}</option>}
+            {advisors.map((a) => (
+              <option key={a.advisor_id} value={a.advisor_id}>
+                {a.advisor_name ?? a.advisor_id}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+      {asOf && data?.counts.hidden_by_as_of ? (
+        <p className="rounded-lg border px-3 py-1.5 text-[11px]" style={{ borderColor: "#C7D2FE", background: "#EEF2FF", color: "#3730A3" }}>
+          Temporal traversal as of {asOf}: {data.counts.hidden_by_as_of} entities hidden (not yet created on that
+          date) — the AI pipeline artifacts and later CRM records appear only once they exist.
+        </p>
+      ) : null}
 
       <div className="grid gap-3 xl:grid-cols-[1.3fr_.7fr]">
         <Card>

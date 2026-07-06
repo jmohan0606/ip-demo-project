@@ -44,8 +44,23 @@ def _label(attrs: dict, vid: str) -> str:
     return vid
 
 
-def advisor_neighborhood(advisor_id: str) -> dict:
-    """Real one-hop subgraph around an advisor for the graph explorer canvas."""
+# Creation-date attribute per vertex type — for the temporal "as-of" traversal (Section 11.4).
+# A node is hidden when its creation date is AFTER the as-of date (it didn't exist yet). Nodes
+# with no creation date are structural and always shown.
+_DATE_KEYS = {
+    "phx_dm_crm_lead": "created_date",
+    "phx_dm_crm_referral": "created_at",
+    "phx_dm_agp_enrollment": "start_date",
+    "phx_dm_recommendation": "generated_at",
+    "phx_dm_prediction_result": "generated_at",
+    "phx_dm_opportunity": "generated_at",
+}
+
+
+def advisor_neighborhood(advisor_id: str, as_of: str | None = None) -> dict:
+    """Real one-hop subgraph around an advisor for the graph explorer canvas. With `as_of`
+    (YYYY-MM-DD), only entities that existed on that date are included — a temporal traversal
+    showing how the advisor's graph (esp. the AI pipeline artifacts) grew over time."""
     store = get_graph_client().store
     adv_attrs = store.vertex("phx_dm_advisor", advisor_id) or {}
     focal_label = str(adv_attrs.get("advisor_name") or advisor_id)
@@ -59,6 +74,7 @@ def advisor_neighborhood(advisor_id: str) -> dict:
     }]
     edges = []
     seen = {advisor_id}
+    hidden = 0
 
     for edge, direction, cap, group, vtype in _SPEC:
         neighbor_ids = (
@@ -66,6 +82,12 @@ def advisor_neighborhood(advisor_id: str) -> dict:
         )
         for vid in list(neighbor_ids)[:cap]:
             attrs = store.vertex(vtype, vid) or {}
+            if as_of:
+                date_key = _DATE_KEYS.get(vtype)
+                created = str(attrs.get(date_key, "")) if date_key else ""
+                if created and created[:10] > as_of:
+                    hidden += 1
+                    continue
             if vid not in seen:
                 nodes.append({
                     "id": vid,
@@ -80,11 +102,13 @@ def advisor_neighborhood(advisor_id: str) -> dict:
 
     return {
         "focal_advisor": {"id": advisor_id, "label": focal_label},
+        "as_of": as_of,
         "nodes": nodes,
         "edges": edges,
-        "counts": {"nodes": len(nodes), "edges": len(edges)},
+        "counts": {"nodes": len(nodes), "edges": len(edges), "hidden_by_as_of": hidden},
         "evidence": {
-            "source": "foundation graph one-hop traversal from phx_dm_advisor",
+            "source": "foundation graph one-hop traversal from phx_dm_advisor"
+                      + (f" · point-in-time as of {as_of}" if as_of else ""),
             "edges_traversed": [s[0] for s in _SPEC],
         },
     }

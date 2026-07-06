@@ -1725,3 +1725,22 @@ Known standing caveats: mock graph upserts in-memory (reset on --reload); run th
 (or with absolute FOUNDATION_DIR/SQLITE_DB_PATH) — relative data paths fail under a wrong CWD.
 Next Section-11 items: 11.4 temporal KG showcase → 11.5 Eval & Trust (Fable-designed) → 11.6 context
 engineering → 11.7 observability → 11.8 MCP layer → 11.11 two-AI-systems labeling.
+
+## Session 9 (cont.) — SECTION 11.4 — Temporal knowledge graph showcase — DONE (main thread)
+Surfaces the temporal capability that existed only in fragments. Real point-in-time, no fabrication.
+- **Feature Lab point-in-time (part 1):** GET /features/as-of/{id}?as_of=YYYY-MM-DD recomputes the
+  advisor's features AS OF a chosen date from the real time-windowed graph facts (persisted as versioned
+  FS_<id>_<date>_v2.0). New PointInTimePanel compares an as-of date vs today across 8 tracked features with
+  color-coded deltas. VERIFIED real movement: A001 2025-01→2026-07 aum_total $9.06M→$10.02M, managed ratio
+  5.6%→11.2%, nnm_3m −$1.6K→$102.1K, revenue_growth 8.91→23.3. Both snapshots computed live.
+- **Graph Explorer temporal traversal (part 2):** advisor_neighborhood(as_of) hides entities created after
+  the date (creation-date map per vertex type; AI pipeline artifacts generated_at, crm_lead created_date,
+  agp_enrollment start_date). GET /graph-viz/neighborhood?as_of=; new "Point in time" selector on the
+  Graph Explorer + an indigo "N entities hidden (not yet created)" note. VERIFIED: A001 now 19 nodes →
+  2025-06 13 nodes (6 AI-pipeline artifacts hidden — the pipeline "hadn't run yet").
+- **Memory Timeline connection (part 3):** explicit temporal-KG framing strip on the Explainability Memory
+  Timeline cross-linking to the point-in-time feature snapshots + as-of graph traversal (the episodic record
+  over time as one leg of the temporal story).
+- Verified: tsc PASS; Playwright 0 console errors on both pages; screenshots s11-pit-features.png,
+  s11-temporal-graph.png. Honest caveat: some features are current-state (crm_pipeline) not time-windowed,
+  so they don't move across dates — the revenue/AUM/NNM/managed features do.
