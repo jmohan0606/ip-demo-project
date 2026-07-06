@@ -17,6 +17,12 @@ class MemoryType(StrEnum):
     COACHING = "Coaching Memory"
     CONVERSATION = "Conversation Memory"
     REASONING = "Reasoning Memory"
+    # Section 11.6 — the Temporal Knowledge Graph poster's 6 memory types per persona.
+    # Conversation + Reasoning were already active; these four were schema-absent until now.
+    SEMANTIC = "Semantic Memory"
+    EPISODIC = "Episodic Memory"
+    PROCEDURAL = "Procedural Memory"
+    PREFERENCE = "Preference Memory"
 
 class MemoryScopeType(StrEnum):
     FIRM = "Firm"
