@@ -4,6 +4,75 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Data Ingestion end-to-end trace + real-remote RESTPP fix (2026-07-06)
+
+**Ask:** verify the Data Ingestion screen (the client's ONLY path to load CSVs into a remote
+TigerGraph, since they can't use GraphStudio file-path loading) works end-to-end, and confirm it
+uses a REST/upsert path needing NO server-side file. Plus: auto-create `logs/` on startup.
+
+### How ingestion actually loads data (traced)
+UI (`data-ingestion-workspace.tsx`) → pick an entity → **Run Ingestion** → `POST /ingestion/run`
+→ `IngestionService.run_entity_ingestion` reads the bundled foundation CSV
+(`docs/tigergraph_foundation/data/sample/vertices/<file>`) → header + per-row validation →
+delta-detect (hash) → **per-row vertex upsert** via `TigerGraphUpsertClient`. (The screen loads
+vertices only; it does not upload a user file — it ingests the bundled verified dataset by name.)
+
+### Two real defects found (diagnosed, both = original never-closed gaps, not Section-11 regressions)
+1. **Real-remote REST path was broken.** `TigerGraphUpsertClient` routed through a *second,
+   parallel* `GraphAccessClient` whose REST upsert did `POST graph/{graph}/vertices/{type}` with
+   body `{vertex_type, primary_key, attributes}` — **not a valid RESTPP endpoint or payload**.
+   Against a real remote TigerGraph it would 404/400. (The correct RESTPP upsert already existed
+   in the canonical `RealGraphClient` but ingestion wasn't using it — the classic two-parallel-
+   implementations trap.)
+2. **Mock upsert was a silent no-op.** The fallback `MockGraphDataService.upsert_vertex` just
+   returned `{"success": true}` and persisted nothing. **Proven:** store held 60 advisors before
+   AND after upserting `A_TEST_999`; the row never appeared — yet the UI reported success. So in
+   the current default (`GRAPH_CLIENT_MODE=real`, no reachable engine) every "created/updated"
+   count was fictional.
+
+### Fix
+Rerouted `TigerGraphUpsertClient` (vertex + edge) through the canonical `get_graph_client()`
+adapter, building the proper manifest-driven `entry` (schema `id_column`, edge
+`from_type`/`to_type` from `docs/tigergraph_foundation/data/manifest.json`). One path now serves
+every mode:
+- `real`/`local_real` → TieredGraphClient: pyTigerGraph `upsertVertices`/`upsertEdges` (Tier 2)
+  or RESTPP `POST /graph/{graph}` JSON upsert (Tier 3) — **schema-driven, no server-side file**.
+- `mock` / Tier-4 fallback → MockGraphClient, which **persists into the same FoundationGraphStore
+  the read queries traverse**, so rows are immediately visible to the app.
+Primary key is carried as the vertex id and excluded from attributes (matching the verified
+foundation loader). Also benefits the two other callers (opportunity + feedback linkers).
+
+### Verified (real evidence)
+- **Rows now land (mock):** store 60 → **61** advisors after upserting `A_TEST_999`; queryable
+  with correct attrs `{advisor_name, status}` (PK correctly not an attribute). `accepted_vertices=1`.
+- **Real-remote RESTPP is correct:** pointed `RealGraphClient` at a local stub and captured the
+  actual request → `POST /restpp/graph/iperform_demo` body
+  `{"vertices":{"phx_dm_advisor":{"A_REMOTE_1":{"advisor_name":{"value":"Remote Advisor"},"status":{"value":"active"}}}}}`
+  — file-less RESTPP JSON upsert, PK as the vertex key. ✅
+- **HTTP path works:** `POST /ingestion/run {account}` → 200, 5 processed, 0 failed. The one
+  logged ERROR is the *expected* Tier-3 `Connection refused` (no live engine here), after which
+  it fell back to the persisting mock — designed behavior (and it validates the new adapter
+  logging too).
+- **Linker edges/vertices resolve** from the manifest (e.g. `phx_dm_opportunity_for_advisor →
+  phx_dm_opportunity → phx_dm_advisor`).
+
+### Honest status for the client
+- Against **mock / no-engine**: works and genuinely persists (queryable) — no more fake counts.
+- Against a **real remote TigerGraph**: now uses the correct file-less RESTPP/pyTigerGraph
+  upsert. Not executed against a live remote from here (none reachable), but the exact outbound
+  request was captured and confirmed valid. Set `GRAPH_CLIENT_MODE=real` + `TIGERGRAPH_RESTPP_URL`
+  (+ token) to the remote instance and it will POST straight to `/graph/{graph}`.
+- **Not built (flagged, out of current scope):** the screen still ingests bundled CSVs by name;
+  there is no arbitrary user-file *upload* control. If the client needs to upload their own CSVs
+  (not just the shipped dataset), that upload endpoint + UI control is a follow-up.
+
+### logs/ auto-create (item 1)
+Added `self.log_dir` to `Settings.ensure_local_directories()` (runs at `get_settings()`), on top
+of the existing lazy `mkdir` in the file handler. Verified: deleted `logs/`, loaded settings →
+`logs/` recreated. A fresh environment can't error writing the first log line.
+
+---
+
 ## Structured logging & error handling — CloudWatch-ready backend (2026-07-06)
 
 Added production-grade, ECS/CloudWatch-ready observability to the FastAPI backend. Replaced the

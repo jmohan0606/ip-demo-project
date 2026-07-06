@@ -159,6 +159,9 @@ class Settings(BaseSettings):
             self.checkpoints_path,
             self.exports_path,
             self.documents_path,
+            # Log directory — created at startup so a fresh environment never errors
+            # writing the first log line to a missing folder (LOG_SINK=file default).
+            self.log_dir,
         ]:
             candidate = Path(path)
             if candidate.suffix:

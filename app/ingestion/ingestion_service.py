@@ -107,7 +107,9 @@ class IngestionService:
                         message = "Unchanged"
                     else:
                         if not request.dry_run:
-                            self.upsert.upsert_vertex(config.tigergraph_vertex, primary_key, record)
+                            self.upsert.upsert_vertex(
+                                config.tigergraph_vertex, primary_key, record, id_column=config.primary_key
+                            )
                             self.checkpoints.upsert_hash(config.entity_name, primary_key, row_hash)
 
                         if action == DeltaAction.CREATE:
