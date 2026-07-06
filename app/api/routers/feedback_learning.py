@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.feedback.service import FeedbackLearningService
+from app.recommendations.lifecycle import LifecycleError
 from app.shared.responses import ok
 
 router = APIRouter(prefix="/feedback-learning", tags=["Feedback Learning"])
@@ -18,14 +19,18 @@ class FeedbackRequest(BaseModel):
 
 @router.post("/submit")
 def submit(request: FeedbackRequest):
-    return ok(data=FeedbackLearningService().submit(
-        recommendation_id=request.recommendation_id,
-        action=request.action,
-        action_family=request.action_family,
-        user_id=request.user_id,
-        reason_text=request.reason_text,
-        outcome_value=request.outcome_value,
-    ))
+    try:
+        return ok(data=FeedbackLearningService().submit(
+            recommendation_id=request.recommendation_id,
+            action=request.action,
+            action_family=request.action_family,
+            user_id=request.user_id,
+            reason_text=request.reason_text,
+            outcome_value=request.outcome_value,
+        ))
+    except LifecycleError as exc:
+        # Section 13.1: a feedback action on a terminal recommendation is rejected.
+        raise HTTPException(status_code=409, detail=str(exc))
 
 
 @router.get("/state")

@@ -43,6 +43,15 @@ class FeedbackLearningService:
         if signal is None:
             raise ValueError(f"Unknown feedback action '{action}' (expected {sorted(ACTION_SIGNALS)})")
 
+        # Section 13.1: drive the durable state machine FIRST. An illegal move on a
+        # terminal recommendation raises LifecycleError → 409, and NO learning signal is
+        # written (also stops weight-farming by re-clicking Complete). On COMPLETED this
+        # generates the impact ledger entry + injected transaction + snapshot recompute.
+        from app.recommendations.lifecycle import RecommendationLifecycleService
+        lifecycle = RecommendationLifecycleService().apply_action(
+            recommendation_id, action.lower(), actor_type="advisor", actor_id=user_id,
+            note=reason_text or None)
+
         suffix = uuid4().hex[:8].upper()
         feedback_id = f"FB_{suffix}"
         upsert_vertex(self.graph, "phx_dm_feedback_event", "feedback_id", {
@@ -104,6 +113,7 @@ class FeedbackLearningService:
                 f"Future '{action_family}' recommendations rank with weight {new_weight} "
                 f"(was {round(new_weight - signal['delta'], 4)})."
             ),
+            "lifecycle": lifecycle,  # Section 13.1: {to_status, allowed_actions, terminal, impact, ...}
         }
 
     def learning_state(self) -> dict:
