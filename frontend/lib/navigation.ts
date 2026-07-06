@@ -93,6 +93,15 @@ export const navigationItems: NavigationItem[] = [
     group: "AI"
   },
   {
+    id: "impact-ledger",
+    label: "Impact Ledger",
+    description: "Every completed recommendation's recorded consequence: the transaction it generated, linked back to its evidence chain.",
+    href: "/impact-ledger",
+    iconName: "Receipt",
+    group: "AI",
+    status: "new"
+  },
+  {
     id: "recommendation-roi",
     label: "Recommendation Impact / ROI",
     description: "Accepted/rejected recommendations, business impact, outcomes and learning signals.",
