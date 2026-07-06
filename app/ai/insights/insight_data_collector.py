@@ -46,6 +46,15 @@ class InsightDataCollector:
                 MemoryRetrievalRequest(scope_type=memory_scope, scope_id=scope_id, query=question, limit=10)
             )
 
+        # Section 13.4: completed-recommendation lifecycle + recorded impact for Advisor scope.
+        lifecycle = None
+        if scope_type == "Advisor":
+            try:
+                from app.recommendations.lifecycle import RecommendationLifecycleService
+                lifecycle = RecommendationLifecycleService().recent_activity_for_advisor(scope_id, limit=5)
+            except Exception:
+                lifecycle = None
+
         return {
             "scope_type": scope_type,
             "scope_id": scope_id,
@@ -54,4 +63,5 @@ class InsightDataCollector:
             "opportunities": opps,
             "recommendations": recs,
             "context_package": context_package.model_dump() if context_package else None,
+            "lifecycle": lifecycle,
         }

@@ -126,6 +126,33 @@ class ChatContextAssembler:
             except Exception:
                 pass
 
+            # Section 13.4: what this advisor has recently DONE with their recommendations
+            # + the recorded impact — so "what did I complete and what was the impact?" is
+            # answerable from real state, not just the static feature snapshot. High score
+            # keeps it prominent through the reranker for lifecycle questions.
+            try:
+                from app.recommendations.lifecycle import RecommendationLifecycleService
+                hist = RecommendationLifecycleService().recent_activity_for_advisor(entity_id, limit=5)
+                if hist["events"]:
+                    lines = []
+                    for e in hist["events"]:
+                        line = f"- {e['status']} {(e['created_ts'] or '')[:10]}: {e['title']}"
+                        if e.get("note"):
+                            line += f" — {e['note']}"
+                        elif e.get("impact_amount"):
+                            line += f" (recorded impact +${e['impact_amount']:,.0f}, transaction {e['source_transaction_id']})"
+                        lines.append(line)
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.RECOMMENDATION_LIFECYCLE,
+                        title="Recommendation Actions & Recorded Impact",
+                        content=(f"Recent recommendation lifecycle for {entity_id}:\n" + "\n".join(lines)
+                                 + f"\nCumulative recorded impact: ${hist['total_impact']:,.0f}."),
+                        score=95.0,
+                        metadata={"ledger_ids": hist["ledger_ids"], "lifecycle": True},
+                    ))
+            except Exception:
+                pass
+
         if request.include_insights:
             try:
                 payload = self.insight_service.generate_dashboard_payload(
