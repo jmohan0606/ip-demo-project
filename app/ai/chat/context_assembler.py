@@ -24,7 +24,41 @@ class ChatContextAssembler:
         self.coaching_service = CoachingReviewService()
 
     def assemble(self, request: ChatRequest) -> list[ChatContextItem]:
+        items, _ = self.assemble_with_trace(request)
+        return items
+
+    def assemble_with_trace(self, request: ChatRequest) -> tuple[list[ChatContextItem], dict]:
+        """Assemble broadly, then rerank by the question and keep the top-K most relevant
+        (Section 11.6). Returns the pruned items + a visible pipeline trace."""
+        items = self._assemble_raw(request)
+        return self._rerank_and_prune(request, items)
+
+    def _assemble_raw(self, request: ChatRequest) -> list[ChatContextItem]:
         items: list[ChatContextItem] = []
+
+        # Section 11.6: scope-aware reasoning — rollup scopes (DDW/MDW asking about a division/
+        # firm) get REAL aggregate context, not one resolved advisor's story.
+        if request.scope_type.value != "Advisor":
+            try:
+                from app.scope.rollup import ScopeRollupService
+
+                roll = ScopeRollupService().summary(request.scope_type.value.upper(), request.scope_id)
+                t = roll.get("totals", {})
+                tops = roll.get("top_advisors", [])[:3]
+                bottoms = roll.get("bottom_advisors", roll.get("needs_attention", []))[:3]
+                summary = (
+                    f"Scope {request.scope_type.value} {request.scope_id}: {t.get('advisor_count')} advisors, "
+                    f"revenue ${t.get('revenue_ltm', 0):,.0f}, AUM ${t.get('aum_total', 0):,.0f}, "
+                    f"avg goal attainment {t.get('avg_goal_attainment', '?')}%. "
+                    f"Top advisors: {', '.join(a.get('advisor_name', a.get('advisor_id','')) for a in tops)}. "
+                    f"Needs attention: {', '.join(a.get('advisor_name', a.get('advisor_id','')) for a in bottoms)}."
+                )
+                items.append(ChatContextItem(
+                    source=ChatContextSource.INSIGHTS, title="Scope Rollup (aggregate)",
+                    content=summary, score=100.0, metadata={"rollup": roll.get("totals", {}), "scope_aware": True}))
+            except Exception as exc:  # noqa: BLE001
+                items.append(ChatContextItem(source=ChatContextSource.INSIGHTS,
+                             title="Scope Rollup Unavailable", content=str(exc), score=0))
 
         if request.include_memory:
             try:
@@ -168,3 +202,53 @@ class ChatContextAssembler:
                 pass
 
         return items
+
+    def _rerank_and_prune(self, request: ChatRequest, items: list[ChatContextItem]) -> tuple[list[ChatContextItem], dict]:
+        """Rank the assembled items by relevance to the question (RerankClient) and keep the
+        top-K — 'retrieve broadly, then keep only what's relevant'. Always keeps the scope
+        rollup item for rollup scopes. Returns (pruned_items, trace)."""
+        from app.config.settings import get_settings
+        from app.llm.rerank_client import get_rerank_client
+
+        settings = get_settings()
+        top_k = settings.context_rerank_top_k
+        if not items:
+            return items, {"resolved_scope": f"{request.scope_type.value}:{request.scope_id}",
+                           "retrieved": [], "kept": 0, "pruned": 0, "reranker": None}
+
+        docs = [f"{it.title}. {it.content}"[:1000] for it in items]
+        reranker = get_rerank_client()
+        try:
+            ranked = reranker.rerank(request.question, docs)
+        except Exception:  # noqa: BLE001 — never let ranking break assembly
+            ranked = [{"index": i, "score": it.score or 0.0} for i, it in enumerate(items)]
+        order = {r["index"]: r["score"] for r in ranked}
+        # sort by rerank score; force-keep the scope-rollup item (aggregate answer basis)
+        def _keep_rank(i: int) -> float:
+            if items[i].metadata and items[i].metadata.get("scope_aware"):
+                return 2.0  # always top
+            return order.get(i, 0.0)
+
+        idx_sorted = sorted(range(len(items)), key=lambda i: -_keep_rank(i))
+        kept_idx = idx_sorted[:top_k]
+        retrieved_trace = [
+            {"source": items[i].source.value, "title": items[i].title,
+             "rank_score": round(order.get(i, 0.0), 4), "kept": i in kept_idx}
+            for i in idx_sorted
+        ]
+        pruned = []
+        for i in kept_idx:
+            it = items[i]
+            meta = dict(it.metadata or {})
+            meta["rank_score"] = round(order.get(i, 0.0), 4)
+            pruned.append(ChatContextItem(source=it.source, title=it.title, content=it.content,
+                                          score=it.score, metadata=meta))
+        trace = {
+            "resolved_scope": f"{request.scope_type.value}:{request.scope_id}",
+            "scope_aware": request.scope_type.value != "Advisor",
+            "reranker": reranker.describe(),
+            "retrieved": retrieved_trace,
+            "retrieved_count": len(items), "kept": len(pruned), "pruned": len(items) - len(pruned),
+            "top_k": top_k,
+        }
+        return pruned, trace

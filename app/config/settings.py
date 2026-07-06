@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     # stays owned by the bandit weight alone.
     fl_affinity_in_confidence: bool = Field(default=True, alias="FL_AFFINITY_IN_CONFIDENCE")
 
+    # Section 11.6: context ranking (rerank) + scope-aware assembly.
+    rerank_client_mode: str = Field(default="local", alias="RERANK_CLIENT_MODE")  # local | cohere
+    cohere_api_key: str | None = Field(default=None, alias="COHERE_API_KEY")
+    cohere_rerank_model: str = Field(default="rerank-english-v3.0", alias="COHERE_RERANK_MODEL")
+    context_rerank_top_k: int = Field(default=8, alias="CONTEXT_RERANK_TOP_K")
+
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
     openai_embedding_model: str = Field(default="text-embedding-3-small", alias="OPENAI_EMBEDDING_MODEL")
