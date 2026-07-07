@@ -114,6 +114,48 @@ def get_insight_coaching_context(store: FoundationGraphStore, params: dict) -> l
     ]
 
 
+_MEMORY_SCOPE_EDGE = {
+    "FIRM": "phx_dm_memory_for_firm",
+    "DIVISION": "phx_dm_memory_for_division",
+    "REGION": "phx_dm_memory_for_region",
+    "MARKET": "phx_dm_memory_for_market",
+    "ADVISOR": "phx_dm_memory_for_advisor",
+    "HOUSEHOLD": "phx_dm_memory_for_household",
+}
+
+
+@mock_query("get_context_memory_by_scope")
+def get_context_memory_by_scope(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """Retrieve an entity's context-memory vertices by GRAPH TRAVERSAL of the
+    phx_dm_memory_for_<scope> edges — the graph-native read path that replaces the
+    SQLite SELECT (StateRepository, TigerGraph tier). Optional memory_type filter +
+    limit; newest first by created_ts. Returns raw memory-vertex attribute dicts."""
+    scope_type = str(params.get("scope_type") or "").upper()
+    scope_id = str(params.get("scope_id") or "")
+    types = params.get("memory_types") or []
+    if isinstance(types, str):
+        types = [t for t in types.split(",") if t]
+    type_set = {str(t) for t in types}
+    include_expired = bool(params.get("include_expired"))
+    limit = int(params.get("result_limit") or params.get("limit") or 10)
+
+    edge = _MEMORY_SCOPE_EDGE.get(scope_type)
+    if not edge:
+        return []
+    rows: list[dict] = []
+    for memory_id in store.in_ids(edge, scope_id):
+        attrs = store.vertex("phx_dm_context_memory", memory_id)
+        if not attrs:
+            continue
+        if type_set and str(attrs.get("memory_type")) not in type_set:
+            continue
+        if not include_expired and str(attrs.get("status", "Active")) != "Active":
+            continue
+        rows.append({"memory_id": memory_id, **attrs})
+    rows.sort(key=lambda r: str(r.get("created_ts") or ""), reverse=True)
+    return rows[:limit]
+
+
 @mock_query("get_memory_timeline")
 def get_memory_timeline(store: FoundationGraphStore, params: dict) -> list[dict]:
     subject_type = (params.get("subject_type") or "").upper()

@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     # Defaults keep the verified deterministic scorers/vectors as the working path; `real`/
     # `tigergraph` are opt-in and always fall back to deterministic when no artifact/engine.
     model_client_mode: str = Field(default="deterministic", alias="MODEL_CLIENT_MODE")  # deterministic | real
+    # Durable state persistence (memory, feedback/learning, impact ledger, rec status).
+    # tigergraph = graph is the source of truth (writes/reads via GraphClient), with an
+    # automatic SQLite fallback on any graph failure; sqlite = SQLite only (legacy).
+    state_store_mode: str = Field(default="tigergraph", alias="STATE_STORE_MODE")  # tigergraph | sqlite
     vector_client_mode: str = Field(default="local", alias="VECTOR_CLIENT_MODE")  # local | tigergraph
     ml_artifacts_dir: str = Field(default="models/artifacts", alias="ML_ARTIFACTS_DIR")
     ml_time_box_minutes: int = Field(default=10, alias="ML_TIME_BOX_MINUTES")

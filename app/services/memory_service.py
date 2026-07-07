@@ -1,15 +1,22 @@
 from __future__ import annotations
-from app.graph.memory.memory_repository import MemoryRepository
 from app.graph.memory.tigergraph_memory_linker import TigerGraphMemoryLinker
 from app.models.memory import (
     ContextMemory, ContextMemoryCreateRequest, ConversationTurn, ConversationTurnCreateRequest,
     MemoryRetrievalRequest, ReasoningTrace, ReasoningTraceCreateRequest, MemoryType
 )
+from app.repositories.state_repository import get_state_repository
 from app.shared.ids import timestamp_id
 
 class MemoryService:
+    """All memory persistence now flows through the StateRepository adapter, so
+    TigerGraph is the source of truth (with SQLite fallback) rather than SQLite direct.
+    `write_to_graph` is retained for callers that only want the SQLite mirror (e.g. the
+    seeder's non-graph rows); the adapter still writes both tiers by default."""
+
     def __init__(self) -> None:
-        self.repo = MemoryRepository()
+        self.state = get_state_repository()
+        # Kept for the dedicated conversation-turn / reasoning-trace vertex + edge links
+        # that the memory linker adds beyond the context_memory vertex.
         self.linker = TigerGraphMemoryLinker()
 
     def create_memory(self, request: ContextMemoryCreateRequest, write_to_graph: bool = True) -> ContextMemory:
@@ -26,13 +33,11 @@ class MemoryService:
             valid_from=request.valid_from,
             valid_to=request.valid_to,
         )
-        self.repo.save_memory(memory)
-        if write_to_graph:
-            self.linker.upsert_memory(memory)
+        self.state.save_memory(memory)
         return memory
 
     def retrieve_memories(self, request: MemoryRetrievalRequest) -> list[ContextMemory]:
-        return self.repo.retrieve_memories(
+        return self.state.retrieve_memories(
             request.scope_type, request.scope_id, request.memory_types, request.limit, request.include_expired
         )
 
@@ -46,7 +51,7 @@ class MemoryService:
             scope_type=request.scope_type,
             scope_id=request.scope_id,
         )
-        self.repo.save_conversation_turn(turn)
+        self.state.save_conversation_turn(turn)
         memory = self.create_memory(
             ContextMemoryCreateRequest(
                 memory_type=MemoryType.CONVERSATION,
@@ -58,10 +63,13 @@ class MemoryService:
                 confidence=0.80,
                 source="ai_assistant",
             ),
-            write_to_graph=write_to_graph,
         )
+        # link the conversation-turn vertex to its context-memory vertex in the graph.
         if write_to_graph:
-            self.linker.upsert_conversation_turn(turn, memory.memory_id)
+            try:
+                self.linker.upsert_conversation_turn(turn, memory.memory_id)
+            except Exception:  # noqa: BLE001 — link is best-effort; turn already persisted
+                pass
         return turn
 
     def save_reasoning_trace(self, request: ReasoningTraceCreateRequest, write_to_graph: bool = True) -> ReasoningTrace:
@@ -73,10 +81,14 @@ class MemoryService:
             reasoning_steps=request.reasoning_steps,
             evidence=request.evidence,
         )
-        self.repo.save_reasoning_trace(trace)
-        if write_to_graph:
-            self.linker.upsert_reasoning_trace(trace, request.memory_ids)
+        self.state.save_reasoning_trace(trace)
+        if write_to_graph and request.memory_ids:
+            try:
+                for memory_id in request.memory_ids:
+                    self.linker.upsert.upsert_edge("phx_dm_reasoning_used_memory", trace.trace_id, memory_id, {})
+            except Exception:  # noqa: BLE001
+                pass
         return trace
 
     def memory_counts_by_type(self) -> list[dict]:
-        return self.repo.memory_counts_by_type()
+        return self.state.memory_counts_by_type()

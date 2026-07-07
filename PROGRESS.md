@@ -2123,3 +2123,26 @@ Real Claude available (LLM_CLIENT_MODE=claude). Commit per item.
   item4_header_hierarchy.png. tsc PASS throughout.
 
 Commits: 002a13f(item1) · efaf11d(item2) · f8137f4(item3) · 736bc61(item4).
+
+## Session 13 — 2026-07-07 — TigerGraph as source of truth for durable state (large refactor)
+Building the StateRepository adapter (graph primary + SQLite fallback) per DATABASES.md. Commit
+per logical step; real Claude for AI-behavior checks. This is multi-step; status tracked here.
+
+### STEP 1 — StateRepository adapter foundation + MEMORY domain end-to-end — DONE
+- `app/repositories/state_repository.py`: StateRepository Protocol + SqliteStateRepository
+  (delegates to existing SQLite logic, retained as fallback) + TigerGraphStateRepository (writes
+  via TigerGraphMemoryLinker → graph vertices/edges; reads via graph TRAVERSAL) +
+  FallbackStateRepository (primary→fallback, logged, never crashes) + get_state_repository().
+  Config STATE_STORE_MODE=tigergraph(default)|sqlite. Filled the empty BaseRepository stub.
+- New GQ mock query `get_context_memory_by_scope` (app/graph/queries/context_memory.py): reads an
+  entity's context-memory by traversing phx_dm_memory_for_<scope> edges — the graph-native read
+  replacing the SQLite SELECT.
+- Repointed MemoryService through the adapter (no direct MemoryRepository/SQLite in the service).
+- VERIFIED (real, mock graph): wrote a conversation turn → it landed as a phx_dm_context_memory
+  GRAPH VERTEX (mem_...d2f988e3) + memory_for_advisor edge → retrieved via graph traversal through
+  the adapter. Fallback proven: broke the graph primary → 5 memories returned from SQLite, NO
+  crash, logged with full trace. STATE_STORE_MODE=sqlite legacy mode still works. Backend imports.
+- REMAINING (next steps): repoint feedback/learning weights, impact ledger, recommendation status
+  onto the adapter (currently still SQLite-direct); add impact_ledger + rec_status_transition
+  vertex/edge schema; populate procedural memory organically; export current SQLite state → CSV +
+  manifest so a graph-from-CSV rebuild reproduces history.
