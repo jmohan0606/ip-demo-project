@@ -120,7 +120,8 @@ class LocalVectorClient:
                 n = conn.execute("SELECT COUNT(*) FROM gnn_embeddings").fetchone()[0]
             except sqlite3.OperationalError:
                 n = 0
-        return {"mode": "local", "backend": "sqlite+cosine", "vectors": n, "vector_backend_verified": True}
+        return {"mode": "local", "backend": "sqlite+cosine", "vectors": n, "vector_backend_verified": True,
+                "configured_embedding_dim": int(get_settings().embedding_dim)}
 
 
 class TigerGraphVectorClient:
@@ -146,8 +147,10 @@ class TigerGraphVectorClient:
     def describe(self) -> dict:
         return {"mode": "tigergraph", "backend": "delegating-to-local",
                 "vector_backend_verified": self._verified,
+                "configured_embedding_dim": int(get_settings().embedding_dim),
                 "note": "TigerVector EMBEDDING/HNSW support unconfirmed on this box; see "
-                        "scripts/check_tg_vector_support.sh. Local cosine serves in the meantime."}
+                        "scripts/check_tg_vector_support.sh. The live EMBEDDING attribute DDL must "
+                        "use EMBEDDING(DIMENSION=EMBEDDING_DIM). Local cosine serves in the meantime."}
 
 
 _vector_client: VectorClient | None = None

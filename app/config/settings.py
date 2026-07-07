@@ -78,6 +78,33 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
     anthropic_model: str = Field(default="claude-haiku-4-5-20251001", alias="ANTHROPIC_MODEL")
 
+    # --- SmartSDK / Fusion (client env: LLM_CLIENT_MODE=azure, EMBEDDING_CLIENT_MODE=azure) ---
+    # These back AzureOpenAILLMClient / AzureOpenAIEmbeddingClient, which route through JPMC's
+    # SmartSDK (smart_sdk.models.Model → _to_langgraph_model). smart_sdk is only in the client
+    # artifactory — it is imported ONLY when the azure mode is selected (guarded import), so the
+    # app still boots in mock/claude mode without it. See SMARTSDK_REFERENCE.md sections 1-3.
+    azure_auth_method: str = Field(default="key", alias="AZURE_AUTH_METHOD")  # key | certificate
+    azure_model_name: str = Field(default="gpt-4o-2024-08-06", alias="AZURE_MODEL_NAME")
+    azure_deployment_name: str = Field(default="gpt-4o-2024-08-06", alias="AZURE_DEPLOYMENT_NAME")
+    azure_api_key: str | None = Field(default=None, alias="AZURE_API_KEY")
+    azure_api_version: str = Field(default="2024-02-01", alias="AZURE_API_VERSION")
+    azure_endpoint: str | None = Field(default=None, alias="AZURE_ENDPOINT")
+    # Fusion multitenancy gateway (key/fusion auth — SMARTSDK_REFERENCE.md section 1)
+    fusion_base_url: str | None = Field(default=None, alias="FUSION_BASE_URL")
+    fusion_workspace_id: str | None = Field(default=None, alias="FUSION_WORKSPACE_ID")
+    fusion_env: str = Field(default="prod", alias="FUSION_ENV")
+    # Certificate auth (alternate — SMARTSDK_REFERENCE.md section 2)
+    azure_certificate_path: str | None = Field(default=None, alias="AZURE_CERTIFICATE_PATH")
+    azure_tenant_id: str | None = Field(default=None, alias="AZURE_TENANT_ID")
+    azure_client_id: str | None = Field(default=None, alias="AZURE_CLIENT_ID")
+    # Embedding deployment (SmartSDK Model, same construction as the LLM)
+    azure_embedding_model_name: str = Field(default="text-embedding-3-small", alias="AZURE_EMBEDDING_MODEL_NAME")
+    azure_embedding_deployment_name: str = Field(default="text-embedding-3-small", alias="AZURE_EMBEDDING_DEPLOYMENT_NAME")
+    # Embedding vector dimension — Azure text-embedding-3-small=1536 vs sentence-transformers=384.
+    # The TigerGraph EMBEDDING attribute DDL and the Chroma collection must use THIS value so the
+    # store matches whatever embedding adapter is active. Keep it in sync with the active mode.
+    embedding_dim: int = Field(default=384, alias="EMBEDDING_DIM")
+
     tigergraph_host: str | None = Field(default=None, alias="TIGERGRAPH_HOST")
     tigergraph_username: str | None = Field(default=None, alias="TIGERGRAPH_USERNAME")
     tigergraph_password: str | None = Field(default=None, alias="TIGERGRAPH_PASSWORD")

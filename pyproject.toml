@@ -40,6 +40,21 @@ dev = ["pytest>=8.2.0", "pytest-asyncio>=0.23.0", "ruff>=0.5.0"]
 # LOG_SINK=cloudwatch (direct push). Not needed for LOG_SINK=stdout on Fargate,
 # where the awslogs/FireLens driver ships stdout to CloudWatch without an SDK.
 aws = ["watchtower>=3.2.0", "boto3>=1.34.0"]
+# Real ML/DL/GNN tier (Section 11). These are imported ONLY via guarded imports in app/ml/*
+# (torch/torch_geometric/xgboost/shap) and fall back to deterministic scorers when absent — so
+# they are optional, not core. Declared here so the client install is reproducible from one
+# index (see uv.toml). All Python 3.12-compatible.
+ml = [
+    "torch>=2.2.0",
+    "torch-geometric>=2.5.0",
+    "xgboost>=2.0.0",
+    "shap>=0.45.0",
+]
+# TigerGraph GDS extra for pyTigerGraph[gds] (GraphSAGE loaders, Featurizer). Optional — base
+# pyTigerGraph connects without it; GNN falls back to the local PyG path.
+gds = ["pyTigerGraph[gds]>=1.8.0"]
+# smart_sdk (JPMC SmartSDK/Fusion) is CLIENT-ARTIFACTORY ONLY and not on public PyPI, so it is
+# intentionally NOT declared here — install it explicitly in the client env (see CLIENT_ENV_SETUP.md).
 
 [build-system]
 requires = ["setuptools>=68"]

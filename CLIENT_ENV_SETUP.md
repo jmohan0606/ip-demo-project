@@ -1,0 +1,188 @@
+# Client (JPMC) Environment Setup
+
+How to bring this app up on the client machine, where the real TigerGraph, Azure OpenAI (via
+SmartSDK/Fusion), and the internal PyPI artifactory are reachable — none of which are reachable
+from the build box. Everything sensitive loads from `.env` (gitignored); this repo never commits
+a real key, secret, token, or certificate.
+
+Source of truth for the confirmed values: `SMARTSDK_REFERENCE.md` (verbatim client config).
+
+---
+
+## 0. The five environment swaps (adapter pattern, Section 2)
+
+Nothing about the business/prompt/query logic changes between the build box and the client — only
+these env selectors. All service code depends on the adapter *interfaces*, never the SDKs.
+
+| Selector | Build box (here) | Client (JPMC) |
+|----------|------------------|---------------|
+| `GRAPH_CLIENT_MODE` | `mock` | `real` (live TigerGraph via pyTigerGraph/getToken) |
+| `LLM_CLIENT_MODE` | `mock` / `claude` | `azure` (SmartSDK/Fusion) |
+| `EMBEDDING_CLIENT_MODE` | `local` (sentence-transformers) | `azure` (SmartSDK) |
+| `MODEL_CLIENT_MODE` | `deterministic` | `real` (if the ML deps + data are present) |
+| `VECTOR_CLIENT_MODE` | `local` | `local` or `tigergraph` (once TigerVector confirmed) |
+
+---
+
+## 1. `.env` variables (copy `.env.example` → `.env`, fill the blanks)
+
+Placeholders below are the confirmed client values; `<...>` are secrets to paste locally and
+NEVER commit.
+
+### Modes
+```
+GRAPH_CLIENT_MODE=real
+LLM_CLIENT_MODE=azure
+EMBEDDING_CLIENT_MODE=azure
+MODEL_CLIENT_MODE=real          # optional; falls back to deterministic if ML deps absent
+```
+
+### SmartSDK / Fusion — Azure OpenAI LLM + Embeddings (`smart_sdk`)
+```
+AZURE_AUTH_METHOD=key           # key (primary, confirmed) | certificate (alternate)
+AZURE_MODEL_NAME=gpt-4o-2024-08-06
+AZURE_DEPLOYMENT_NAME=gpt-4o-2024-08-06
+AZURE_API_KEY=<Azure/OpenAI tenant key from the client console>
+AZURE_API_VERSION=2024-02-01
+AZURE_ENDPOINT=https://llm-multitenancy-exp.jpmchase.net/ver2   # remove /ver2 in prod per console
+FUSION_BASE_URL=https://llm-multitenancy-exp.jpmchase.net
+FUSION_WORKSPACE_ID=<App Developer workspace id, e.g. 906313>
+FUSION_ENV=prod
+AZURE_EMBEDDING_MODEL_NAME=text-embedding-3-small
+AZURE_EMBEDDING_DEPLOYMENT_NAME=text-embedding-3-small
+EMBEDDING_DIM=1536              # text-embedding-3-small=1536 (-3-large=3072). See §5.
+```
+Certificate auth instead (`AZURE_AUTH_METHOD=certificate`):
+```
+AZURE_CERTIFICATE_PATH=/abs/path/agentbuilder.pem
+AZURE_TENANT_ID=<...>
+AZURE_CLIENT_ID=<...>
+AZURE_API_KEY=<...>
+```
+
+### TigerGraph — real connection (`getToken(secret)`, SSL)
+```
+TG_HOST=https://wh-110ecdf498.svr.us.jpmchase.net
+TG_GRAPHNAME=iperform_insights_coaching_demo
+TG_USERNAME=R757680
+TG_USE_SSL=true
+TG_GS_PORT=14240
+TG_SECRET=<paste the CREATE SECRET output — see §3>
+```
+Auth precedence in the pyTigerGraph tier: `TG_JWT_TOKEN → TG_API_TOKEN → TG_SECRET(getToken) →
+user/pass`. With only `TG_SECRET` set, the client calls `conn.getToken(secret)` automatically —
+this path already exists (`app/graph/tiered_client.py`) and fits the client config as-is.
+
+### Anthropic (only if you also want `LLM_CLIENT_MODE=claude` for spot checks)
+```
+ANTHROPIC_API_KEY=<...>
+ANTHROPIC_MODEL=claude-haiku-4-5-20251001
+```
+
+---
+
+## 2. Artifactory (`uv.toml`)
+
+`uv.toml` is committed and points every dependency — including `smart_sdk`, which is not on public
+PyPI — at the client index:
+```toml
+[[index]]
+url = "https://artifacts-read.gkp.jpmchase.net/artifactory/api/pypi/pypi/simple"
+default = true
+```
+Install:
+```
+uv pip install -e .            # core deps
+uv pip install -e ".[ml,gds]"  # optional: real ML/GNN tier + pyTigerGraph[gds]
+uv pip install smart_sdk       # client-only; not in pyproject by design
+```
+
+### Library fallback table (when the artifactory is the sole index)
+
+| Package | Risk | Fallback |
+|---------|------|----------|
+| `torch` / `torch-geometric` | large native wheels; CPU wheel/tag mismatch | install `torch` first from the artifactory torch channel, then matching `torch-geometric`. App runs without them — `app/ml/*` guard the imports and fall back to deterministic scorers. |
+| `sentence-transformers` | pulls torch + model download | not needed at all when `EMBEDDING_CLIENT_MODE=azure`; otherwise pre-stage the model. |
+| `chromadb` | needs `onnxruntime` for its default embedder (unused — we pass our own vectors) | pin `onnxruntime` if the default build is unavailable. |
+| `pyTigerGraph[gds]` | `[gds]` extra adds torch/pandas GDS helpers | base `pyTigerGraph` still connects; GNN falls back to local PyG or deterministic projection. |
+| `smart_sdk` | client-artifactory only | guarded import — absence never blocks boot in mock/claude/real mode. Required only for `azure` modes. |
+
+---
+
+## 3. TigerGraph secret (`getToken`)
+
+The developer has admin access. In GSQL (SMARTSDK_REFERENCE.md §7):
+```
+CREATE SECRET iperform_insights_coaching_demo
+# → The secret: <SECRET_STRING> has been created for user "R757680".
+```
+Save `<SECRET_STRING>` into `.env` as `TG_SECRET` (TigerGraph cannot restore it). The app converts
+it to a REST++ token via `getToken(secret)` on first connect. SSL is on (`TG_USE_SSL=true`).
+
+---
+
+## 4. SmartSDK LangGraph import remapping
+
+SmartSDK re-exports the LangGraph symbols; graph-construction signatures are unchanged — only
+import paths differ. All native-LangGraph construction is isolated in ONE module:
+**`app/agents/workflows/langgraph_builder.py`** (see its docstring for the full block). The swap:
+
+```python
+# native (this build)                     ->  SmartSDK (client)
+from langgraph.graph import StateGraph, END
+#   becomes:
+from smart_sdk.ext.langgraph.graph.state import StateGraph
+from smart_sdk.ext.langgraph import (ToolNode, InMemorySaver, END, ...)
+from smart_sdk.ext.langgraph.adapter._adapter import LangGraphAgent
+```
+Notes: `ToolNode(core=...)` is deprecated → use `tools=`. Execution can move from
+`.compile().invoke(...)` to `Runner(app_name, session_id).run_async(user_id, new_message)` for
+telemetry/eval (SMARTSDK_REFERENCE.md §5) — optional; the plain invoke path works after the import
+flip alone.
+
+### LLM adapter internals (already built)
+`AzureOpenAILLMClient` / `AzureOpenAIEmbeddingClient` (`app/llm/`) build a `smart_sdk.models.Model`
+and convert via `_to_langgraph_model` (chat). **Embedding conversion:** the reference documents
+`_to_langgraph_model` for chat only; the exact Model→embeddings symbol is not in the reference.
+`AzureOpenAIEmbeddingClient._resolve_embedder` tries the known candidates and raises a precise
+error if none match — if your SmartSDK build names it differently, add it there (the one
+client-side confirmation point). The `Model(...)` construction itself is confirmed and complete.
+
+---
+
+## 5. Embedding dimension consistency
+
+`EMBEDDING_DIM` must match: the active embedding adapter's output, the TigerGraph `EMBEDDING`
+attribute DDL (`EMBEDDING(DIMENSION=EMBEDDING_DIM, METRIC="COSINE")`), and the Chroma collection.
+- Switching `local` (384) ↔ `azure` (1536): set `EMBEDDING_DIM` accordingly **and rebuild the
+  Chroma collection** (a fixed-dim collection cannot accept differently-sized vectors) — re-run
+  `scripts/ingest_sample_knowledge.py`. The embedding client raises loudly on a dim mismatch
+  rather than silently corrupting the vector space.
+
+---
+
+## 6. First-run checklist (client machine)
+
+1. `git clone` the repo; `cp .env.example .env`.
+2. Fill `.env` per §1 (modes + SmartSDK/Fusion + TigerGraph). Paste `TG_SECRET` from §3.
+3. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[ml,gds]"` then
+   `uv pip install smart_sdk`.
+4. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 185 CSVs from
+   `docs/tigergraph_foundation/` (see `CLAUDE.md` §8 / `scripts/install_tigergraph_source_of_truth.sh`).
+5. Boot check (mock first, to isolate app issues from connectivity):
+   `GRAPH_CLIENT_MODE=mock LLM_CLIENT_MODE=mock uvicorn app.api.main:app` → confirm it serves.
+6. Flip to real: set the §1 modes, restart, and open the **Connection & Environment Health**
+   screen (built for exactly this) to confirm TigerGraph auth/SSL/graph/counts, LLM test
+   generation, embedding dimension, and Chroma — each green/red with the real error if red.
+7. If any tier is red, the health screen shows the real error; fix per the fallback table (§2)
+   and re-check. Do not proceed to demo until all green.
+
+---
+
+## 7. Security invariants (do not violate)
+
+- No real key / secret / token / certificate path with a real value is ever committed. `.env` and
+  `.env.*` are gitignored; only `.env.example` (placeholders) is tracked.
+- SDK imports (`smart_sdk`, `openai`, `anthropic`, `pyTigerGraph`) live only inside their adapter
+  classes — never at module top-level elsewhere — so a missing client-only package never blocks
+  boot in another mode.

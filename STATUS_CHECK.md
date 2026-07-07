@@ -614,3 +614,25 @@ completion-narration (prompt weighting for the RECOMMENDATION_LIFECYCLE context 
   Summary (grounded), AI Coaching (Advisor scope only), explicit Bottom Advisors + AUM/Why detail. Removed
   Business Outcomes strip. Added Reset-filters. VERIFIED real re-roll: Firm/YTD $22.2M/−0.8% → Eastern
   Division/QTD $1.3M/+19%, 0 console errors (s12-1-dashboard-firm.png, s12-1-dashboard-division-qtd.png).
+
+## Session 16 — 2026-07-07 — PART A + PART B
+
+### PART A — reasoning-trace consolidation (DONE)
+- One canonical `phx_dm_reasoning_trace` (PK reasoning_id; artifact_type/artifact_id/created_at;
+  edges phx_dm_reasoning_uses_memory + phx_dm_reasoning_for_{advisor,prediction,opportunity,
+  recommendation}) used by BOTH display and reuse. The divergent memory-service write path (rep-2
+  attrs + dead edge phx_dm_reasoning_used_memory, never read) was consolidated onto it.
+- Evidence: get_reasoning_trace (by RECOMMENDATION)=True, get_memory_timeline (via _uses_memory)
+  =True, real Claude (haiku-4-5) reasoning-reuse traversal grounds in real data ($75,230 peer
+  impact, 6 open opps). Legacy tigergraph/schema/ realigned; DATABASES.md documents the single rep.
+- Commit a226193.
+
+### PART B — JPMC client pre-wiring (DONE)
+- AzureOpenAILLMClient (LLM_CLIENT_MODE=azure) + AzureOpenAIEmbeddingClient
+  (EMBEDDING_CLIENT_MODE=azure) via smart_sdk, guarded imports, both auth methods; openai-SDK
+  paths preserved (real / azure_openai). EMBEDDING_DIM config wired. uv.toml (client artifactory);
+  pyproject `ml`/`gds` optional groups. langgraph_builder.py isolates the SmartSDK swap.
+  .env.example + CLIENT_ENV_SETUP.md complete. TG getToken(secret) path confirmed fits.
+- Evidence: app boots in mock mode with smart_sdk ABSENT (46 routes); azure mode w/o smart_sdk →
+  clean guarded LLMClientError (no import crash); langgraph_builder ran a→b→c; NO real secrets
+  committed (scan clean).

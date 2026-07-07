@@ -2244,3 +2244,42 @@ and reuse. Investigation + fix + real-Claude verification.
 - NOTE (unrelated, logged not fixed): seed context_memory vertices use subject_type/subject_id
   while the runtime memory linker's upsert_memory writes scope_type/scope_id — a separate
   memory-attr divergence outside Part A's reasoning-trace scope.
+
+## Session 16 — 2026-07-07 — PART B: pre-wire the JPMC client environment — DONE
+Made the app close to "pull and run" on the client machine. Studied existing adapters first
+(LLMClient/ClaudeLLMClient/MockLLMClient/RealLLMClient, EmbeddingClient impls, 4-tier GraphClient)
+and matched exact interface signatures. HARD RULE honored: no real secrets committed — all
+sensitive values load from gitignored .env; .env.example has placeholders + comments.
+- (1) AzureOpenAILLMClient (app/llm/client.py, LLM_CLIENT_MODE=azure): builds smart_sdk Model →
+  _to_langgraph_model, invokes with the SAME assembled system/user prompt as every other adapter.
+  GUARDED import (smart_sdk imported only in __init__, only for azure mode). Supports BOTH auth
+  methods (key/fusion primary + certificate alternate) via AZURE_AUTH_METHOD. Existing openai-SDK
+  `real` mode untouched.
+- (2) AzureOpenAIEmbeddingClient (app/llm/embedding_client.py, EMBEDDING_CLIENT_MODE=azure): same
+  smart_sdk Model construction for the embedding deployment; guarded import; validates output
+  against EMBEDDING_DIM. Preserved the prior openai-SDK impl as AzureOpenAIDirectEmbeddingClient
+  (mode azure_openai). EMBEDDING_DIM config added + surfaced in vector_client.describe()
+  (configured_embedding_dim) and documented for the TG EMBEDDING DDL + Chroma rebuild.
+  Model→embeddings conversion is the ONE client-confirm point (_resolve_embedder tries known
+  SmartSDK symbols, raises a precise error otherwise) — documented, not faked.
+- (3) TigerGraph real defaults in .env.example: confirmed CLIENT (JPMC) block
+  (TG_HOST=https://wh-110ecdf498..., TG_GRAPHNAME=iperform_insights_coaching_demo,
+  TG_USERNAME=R757680, TG_USE_SSL=true, TG_SECRET=<placeholder>). Fixed the stale
+  TG_GRAPHNAME=iPerformInsights → iperform_insights_coaching_demo. Existing getToken(secret) path
+  (tiered_client.py) confirmed to fit — no code change needed.
+- (4) uv.toml created (sole client artifactory index, default=true). Cross-checked pyproject:
+  torch/torch_geometric/xgboost/shap were UNDECLARED (guarded imports) → added optional groups
+  `ml` + `gds` (pyTigerGraph[gds]); smart_sdk intentionally NOT in pyproject (client-only).
+  Library fallback table for each at-risk dep in uv.toml + CLIENT_ENV_SETUP.md. Python 3.12.
+- (5) SmartSDK LangGraph swap prep: isolated the single native-LangGraph construction into
+  app/agents/workflows/langgraph_builder.py (build_and_run_linear_graph) with the exact
+  langgraph→smart_sdk import remapping documented in-module; advisor_coaching_graph.py now calls
+  it (no langgraph import there). Swap on the client is a localized one-file edit.
+- (6) CLIENT_ENV_SETUP.md: full .env list (confirmed values + secret placeholders), artifactory
+  config + install commands, library fallback table, SmartSDK import remapping, getToken/secret
+  note, EMBEDDING_DIM consistency, and a step-by-step first-run checklist.
+- VERIFIED: app boots in mock mode with smart_sdk ABSENT (app.api.main imports, 46 routes); all
+  new adapter classes import without smart_sdk; LLM_CLIENT_MODE=azure without smart_sdk raises a
+  clean LLMClientError (guarded, not an import crash); langgraph_builder runs a real linear graph
+  (path a→b→c); mock LLM generate regression OK. NO real secret values in any committed file
+  (AZURE_API_KEY/TG_SECRET/FUSION_WORKSPACE_ID all blank/placeholder).

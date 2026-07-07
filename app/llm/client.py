@@ -174,11 +174,126 @@ class RealLLMClient:
         return {"mode": "real", "model": f"azure:{self.deployment}"}
 
 
+class AzureOpenAILLMClient:
+    """Azure OpenAI via JPMC's SmartSDK / Fusion gateway — the client-site LLM path.
+
+    Builds a `smart_sdk.models.Model` and converts it to a LangGraph-usable chat model with
+    `_to_langgraph_model` (SMARTSDK_REFERENCE.md sections 1-3), then invokes it with the exact
+    same assembled system/user prompt every other adapter uses — so switching mock/claude/real/
+    azure changes only the transport, never prompt design.
+
+    `smart_sdk` lives only in the client artifactory, so its import is GUARDED: it is imported
+    ONLY here, inside __init__, and only when LLM_CLIENT_MODE=azure. The app boots normally in
+    mock/claude/real mode on a machine without smart_sdk installed.
+
+    Two auth methods (SMARTSDK_REFERENCE.md 1 & 2), selected by AZURE_AUTH_METHOD:
+      key         → Model(api_key, azure_*, fusion_base_url/workspace_id/env)   [primary]
+      certificate → Model(auth_method=CERTIFICATE, certificate_path, tenant_id, client_id, ...)
+    """
+
+    def __init__(self) -> None:
+        settings = get_settings()
+        # Guarded import — smart_sdk is only present in the client environment.
+        try:
+            from smart_sdk.models import Model, ModelProvider  # type: ignore
+            from smart_sdk.ext.langgraph.models._models import _to_langgraph_model  # type: ignore
+        except ImportError as exc:  # pragma: no cover — depends on client-only package
+            raise LLMClientError(
+                "LLM_CLIENT_MODE=azure requires the client-only 'smart_sdk' package "
+                "(JPMC artifactory). Install it in the client environment, or use "
+                "LLM_CLIENT_MODE=mock|claude|real here. Original error: " + str(exc)
+            ) from exc
+
+        auth_method = (settings.azure_auth_method or "key").lower()
+        if auth_method == "certificate":
+            from smart_sdk.models import AuthMethod  # type: ignore
+            if not settings.azure_certificate_path:
+                raise LLMClientError("AZURE_AUTH_METHOD=certificate requires AZURE_CERTIFICATE_PATH")
+            model = Model(
+                name=settings.azure_model_name,
+                auth_method=AuthMethod.CERTIFICATE,
+                provider=ModelProvider.AZURE_OPENAI,
+                azure_endpoint=settings.azure_endpoint,
+                azure_api_version=settings.azure_api_version,
+                azure_deployment_name=settings.azure_deployment_name,
+                certificate_path=settings.azure_certificate_path,
+                api_key=settings.azure_api_key,
+                tenant_id=settings.azure_tenant_id,
+                client_id=settings.azure_client_id,
+            )
+        else:  # key / fusion (primary, confirmed-working)
+            if not settings.azure_api_key or not settings.fusion_base_url:
+                raise LLMClientError(
+                    "LLM_CLIENT_MODE=azure (key auth) requires AZURE_API_KEY and FUSION_BASE_URL "
+                    "(plus FUSION_WORKSPACE_ID / FUSION_ENV) — see CLIENT_ENV_SETUP.md"
+                )
+            model = Model(
+                name=settings.azure_model_name,
+                provider=ModelProvider.AZURE_OPENAI,
+                azure_deployment_name=settings.azure_deployment_name,
+                api_key=settings.azure_api_key,
+                azure_api_version=settings.azure_api_version,
+                azure_endpoint=settings.azure_endpoint or settings.fusion_base_url,
+                fusion_base_url=settings.fusion_base_url,
+                fusion_workspace_id=settings.fusion_workspace_id,
+                fusion_env=settings.fusion_env,
+            )
+        self._model = model
+        self._llm = _to_langgraph_model(model)
+        self.model = f"azure-smartsdk:{settings.azure_deployment_name}"
+        self._auth_method = auth_method
+
+    @staticmethod
+    def _extract_text(response) -> str:
+        """A LangGraph/LangChain model .invoke() returns an AIMessage-like object with
+        `.content` (str, or a list of content blocks). Normalize to plain text."""
+        content = getattr(response, "content", response)
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            parts = []
+            for block in content:
+                if isinstance(block, str):
+                    parts.append(block)
+                elif isinstance(block, dict):
+                    parts.append(block.get("text", ""))
+                else:
+                    parts.append(getattr(block, "text", ""))
+            return "".join(parts)
+        return str(content)
+
+    @logged_adapter_call("llm")
+    def generate(self, prompt: str, context: dict | None = None) -> str:
+        import time as _t
+        _start = _t.perf_counter()
+        system_prompt, user_content = _render_messages(prompt, context)
+        # Dict-role messages are accepted by LangChain chat models' .invoke(); this avoids a
+        # hard dependency on importing specific message classes here.
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ]
+        response = self._llm.invoke(messages)
+        text = self._extract_text(response)
+        usage = getattr(response, "usage_metadata", None) or {}
+        _record_llm_tokens("azure", self.model,
+                           usage.get("input_tokens") if isinstance(usage, dict) else None,
+                           usage.get("output_tokens") if isinstance(usage, dict) else None,
+                           user_content, text, (_t.perf_counter() - _start) * 1000)
+        return text
+
+    def describe(self) -> dict:
+        return {"mode": "azure", "model": self.model, "auth_method": self._auth_method}
+
+
 _llm_client: LLMClient | None = None
 
 
 def get_llm_client() -> LLMClient:
-    """Select the LLMClient per LLM_CLIENT_MODE (mock | claude | real)."""
+    """Select the LLMClient per LLM_CLIENT_MODE (mock | claude | real | azure).
+
+    `azure` = JPMC SmartSDK/Fusion gateway (client site); `real` = direct Azure OpenAI SDK.
+    """
     global _llm_client
     if _llm_client is None:
         mode = get_settings().llm_client_mode.lower()
@@ -188,8 +303,10 @@ def get_llm_client() -> LLMClient:
             _llm_client = ClaudeLLMClient()
         elif mode == "real":
             _llm_client = RealLLMClient()
+        elif mode == "azure":
+            _llm_client = AzureOpenAILLMClient()
         else:
-            raise LLMClientError(f"Unknown LLM_CLIENT_MODE '{mode}' (expected mock|claude|real)")
+            raise LLMClientError(f"Unknown LLM_CLIENT_MODE '{mode}' (expected mock|claude|real|azure)")
     return _llm_client
 
 
