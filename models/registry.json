@@ -304,6 +304,24 @@
       "training_date": "2026-07-05",
       "version": "1.0"
     },
+    "next-best-product-cf": {
+      "algorithm": "Collaborative propensity (segment peer-adoption 0.70 + overall penetration 0.30) over the real household\u2192account\u2192product\u2192category holdings graph",
+      "caveats": "Collaborative-propensity heuristic, not a supervised adoption-forecast (demo holdings are static, no timestamped adoption events). Directional next-best signal grounded in real holdings.",
+      "family": "recommender-propensity",
+      "features": [
+        "household_segment",
+        "held_category_set",
+        "segment_peer_adoption_rate",
+        "overall_adoption_rate"
+      ],
+      "label_definition": "Next-best category = a product category the household does not yet hold, ranked by segment-peer adoption blended with overall penetration.",
+      "method": "collaborative-propensity",
+      "name": "next-best-product-cf",
+      "quality_gate": "n/a-heuristic",
+      "served": true,
+      "training_data": "360 households \u00b7 2,880 account-product holdings \u00b7 8 product categories (real foundation CSVs)",
+      "training_date": "2026-07-07"
+    },
     "revenue-decline-xgb": {
       "algorithm": "XGBoost (XGBClassifier, hist)",
       "artifact_path": "models/artifacts/revenue-decline-xgb.joblib",

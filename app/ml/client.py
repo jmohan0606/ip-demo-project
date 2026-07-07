@@ -60,6 +60,8 @@ class ModelClient(Protocol):
 
     def household_churn(self, advisor_id: str) -> dict: ...
 
+    def next_best_product(self, advisor_id: str) -> dict: ...
+
     def describe(self) -> dict: ...
 
 
@@ -170,6 +172,13 @@ class DeterministicModelClient:
         return {"available": False, "households": [],
                 "note": "household churn model requires MODEL_CLIENT_MODE=real"}
 
+    def next_best_product(self, advisor_id) -> dict:
+        # Data-driven collaborative propensity over the real holdings graph — no trained
+        # artifact required, so it serves in both tiers.
+        from app.ml.next_best_product import next_best_product as _nbp
+
+        return _nbp(advisor_id)
+
     def describe(self) -> dict:
         return {"mode": "deterministic", "tier": "verified-scorers", "serves_risk": False}
 
@@ -228,6 +237,11 @@ class RealModelClient:
         from app.ml.real_scoring import household_churn as _hc
 
         return _hc(advisor_id)
+
+    def next_best_product(self, advisor_id) -> dict:
+        from app.ml.next_best_product import next_best_product as _nbp
+
+        return _nbp(advisor_id)
 
     def describe(self) -> dict:
         from app.ml import registry

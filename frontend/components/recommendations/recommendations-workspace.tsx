@@ -12,6 +12,7 @@ import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { ProductSystemLabel } from "@/components/patterns/product-system-label";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
@@ -175,6 +176,7 @@ export function RecommendationsWorkspace() {
     <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
       <div className="flex items-center justify-between">
         <div>
+          <ProductSystemLabel />
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>
             Opportunities &amp; Recommendations
           </h1>

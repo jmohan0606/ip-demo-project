@@ -10,6 +10,7 @@ import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-i
 import { useShellContext } from "@/components/layout/shell-context";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { ProductSystemLabel } from "@/components/patterns/product-system-label";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
 import { colors, type } from "@/styles/tokens";
@@ -124,6 +125,7 @@ export function Advisor360Workspace() {
     <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
       <div className="flex items-center justify-between gap-3">
         <div>
+          <ProductSystemLabel />
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>
             Advisor 360 — {String(advisor?.attributes.advisor_name ?? advisorId)}
           </h1>

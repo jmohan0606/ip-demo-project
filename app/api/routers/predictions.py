@@ -29,6 +29,14 @@ def household_churn(advisor_id: str):
     return ok(data=get_model_client().household_churn(advisor_id))
 
 
+@router.get("/next-best-product/{advisor_id}")
+def next_best_product(advisor_id: str):
+    """Per-household next-best product-category propensity (Section 10 / 11.1 household
+    extension). Collaborative propensity over the real holdings graph — segment peer-adoption
+    blended with overall penetration; response carries the method + honest caveat."""
+    return ok(data=get_model_client().next_best_product(advisor_id))
+
+
 @router.get("/activity-review/{advisor_id}")
 def activity_review(advisor_id: str):
     """Care-framed Activity Pattern Review (Section 11.1 §9, Isolation Forest own-history).

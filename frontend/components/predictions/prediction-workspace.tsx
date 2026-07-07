@@ -7,6 +7,7 @@ import { RevenueForecastChart } from "@/components/charts/revenue-forecast-chart
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
+import { ProductSystemLabel } from "@/components/patterns/product-system-label";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
@@ -68,6 +69,7 @@ export function PredictionWorkspace() {
     <div className="space-y-4 p-6" style={{ backgroundColor: colors.surface.canvas, minHeight: "100vh" }}>
       <div className="flex items-center justify-between">
         <div>
+          <ProductSystemLabel />
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Prediction &amp; Forecasting</h1>
           <p className={type.body} style={{ color: colors.text.secondary }}>
             Transparent scoring for advisor {advisorId} — every point of every score is attributed to a

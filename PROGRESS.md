@@ -2024,3 +2024,22 @@ Design: docs/design/section13B_story_mode_design.md. The narration layer over §
   real mode is for the client's site with their TigerGraph.
 
 ## MASTER EXECUTION ORDER (12 → 13 → 13B → 10 → 14) — all sections addressed. Deferred items listed above.
+
+## Session 11 — 2026-07-07 — Remaining deferred items (6-item run, Opus)
+Completing the deferred follow-ups. Real Claude available this session (ANTHROPIC_API_KEY set,
+LLM_CLIENT_MODE=claude verified: `CLAUDE_OK` smoke test passed). Commit per item.
+
+### ITEM 5 — Household model extensions: next-best-product propensity — DONE
+- household churn/attrition ALREADY existed (household-churn-xgb, §11.1) — confirmed registered +
+  served via /predictions/household-churn/{advisor}. Not rebuilt.
+- NEW next-best-product propensity, reusing the model tier (registry + ModelClient + predictions
+  endpoint), NOT a parallel stack:
+  - `app/ml/next_best_product.py` — collaborative propensity over the REAL holdings graph
+    (advisor→household→account→product→subcategory→category, 2,880 holdings, 8 categories):
+    propensity(C) = 0.70·segment_peer_adoption + 0.30·overall_penetration for each not-yet-held
+    category. Deterministic + explainable; honest caveat (static holdings, no adoption events).
+  - Wired: `ModelClient.next_best_product` on BOTH tiers (data-driven, no artifact) + Protocol;
+    `GET /predictions/next-best-product/{advisor_id}`; registry entry `next-best-product-cf`.
+  - Evidence: HTTP 200; A001 → 6 households, H0001(AFFLUENT) holds 6 cats, top next-best
+    Alternatives (0.68, "68% of AFFLUENT households hold Alternatives; this household does not");
+    held vs recommended overlap = ∅; A005 returns different households (real scoping).
