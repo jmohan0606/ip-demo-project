@@ -113,11 +113,99 @@ const ADVISOR_STEPS: StoryStep[] = [
   },
 ];
 
+// ---- Division-Leader (DDW/MDW) Journey: rollup reasoning → drill → act → propagate ----
+// The same real pipeline as the advisor journey, entered at DIVISION scope so a
+// division leader sees THEIR journey (Section 13B.3). {A} is pre-resolved by the
+// launcher to the division's worst-contributing advisor; {D} is the division.
+const DIVISION_STEPS: StoryStep[] = [
+  {
+    id: "div-trigger", chapter: "1 · Trigger", title: "A division is underperforming",
+    narration: "You're a division leader (DDW). The Executive Dashboard, scoped to your division, rolls up every advisor's real data — and it's lagging prior year, with specific advisors dragging the number.",
+    lookAt: "The division Revenue KPI and its delta vs prior year — a live rollup, not a hardcoded total.",
+    route: "/dashboard", scope: { type: "Division", idKey: "division" }, highlight: "exec-kpi-revenue",
+    proof: { path: "/scope/dashboard?scope_type=DIVISION&scope_id={D}&period=LTM&compare_to=Prior%20Year", check: "divisionUnderperformance" },
+  },
+  {
+    id: "div-diagnosis", chapter: "2 · Diagnosis", title: "The AI reasons across your advisors",
+    narration: "The AI Insight Summary reasons across ALL advisors in the division — not one resolved advisor — to explain why the division is lagging (Section 11.6 rollup reasoning).",
+    lookAt: "The AI Insight Summary — Key Drivers aggregated across the division.",
+    route: "/dashboard", scope: { type: "Division", idKey: "division" }, highlight: "ai-insight-card",
+    proof: { path: "/scope/ai-insight?scope_type=DIVISION&scope_id={D}&period=LTM&compare_to=Prior%20Year&persona=DDW", check: "divisionInsight" },
+  },
+  {
+    id: "div-contributors", chapter: "3 · Drill in", title: "Which advisors are dragging it",
+    narration: "The Bottom Advisors table names the real advisors contributing most to the division's gap, each with a stated reason — this is where a leader looks first.",
+    lookAt: "The Bottom Advisors table — real names, real revenue, real reasons.",
+    route: "/dashboard", scope: { type: "Division", idKey: "division" }, highlight: "bottom-advisors",
+    proof: { path: "/scope/dashboard?scope_type=DIVISION&scope_id={D}&period=LTM&compare_to=Prior%20Year", check: "divisionContributors" },
+  },
+  {
+    id: "div-drill", chapter: "4 · One advisor", title: "Open the top contributor",
+    narration: "Drill into that advisor's 360 — the same real book, CRM and AGP data, now viewed as the leader deciding where to intervene.",
+    lookAt: "The advisor's AI Insight & Coaching cards — the leader's evidence to act.",
+    route: "/advisor-360", scope: { type: "Advisor", idKey: "advisor" }, highlight: "ai-insight-card",
+  },
+  {
+    id: "div-coaching", chapter: "5 · Division action", title: "Assign a coaching task",
+    narration: "This button makes a real API call: as the division leader you assign a coaching task to this advisor. It persists to the graph and is retrievable — and becomes context the AI can use.",
+    lookAt: "The manager-assigned coaching tasks list for this advisor.",
+    route: "/coaching-reviews", scope: { type: "Advisor", idKey: "advisor" }, highlight: "coaching-tasks",
+    action: {
+      label: "Assign coaching task (real API)",
+      calls: [{
+        method: "POST", path: "/coaching/tasks",
+        body: { advisor_id: "{A}", title: "Division coaching: revenue recovery", category: "PIPELINE",
+                instruction: "DDW-assigned: work managed-mix and pipeline opportunities to reverse the division-flagged revenue decline.",
+                priority: "HIGH", created_by_user_id: "U_DDW01" },
+      }],
+    },
+    proof: { path: "/coaching/tasks/{A}", check: "coachingTaskAssigned" },
+  },
+  {
+    id: "div-recommendation", chapter: "6 · Recommendation", title: "A next-best-action for the advisor",
+    narration: "The same real pipeline generates a ranked recommendation for this advisor, with a real estimated dollar impact and its explainability chain.",
+    lookAt: "The top recommendation card — estimated impact and priority.",
+    route: "/recommendations", scope: { type: "Advisor", idKey: "advisor" }, highlight: "rec-card-top",
+    proof: { path: "/recommendations/generate/{A}", method: "POST", check: "captureTopRec" },
+  },
+  {
+    id: "div-action", chapter: "7 · Act", title: "Accept and complete it",
+    narration: "Accept then complete the recommendation through the real Section-13 state machine — recording a real impact transaction for the advisor.",
+    lookAt: "The recommendation status flipping to COMPLETED.",
+    route: "/recommendations", scope: { type: "Advisor", idKey: "advisor" }, highlight: "rec-card-top",
+    action: {
+      label: "Accept & Complete (real API)",
+      calls: [
+        { method: "POST", path: "/feedback-learning/submit", body: { action: "accept" } },
+        { method: "POST", path: "/feedback-learning/submit", body: { action: "complete" } },
+      ],
+    },
+  },
+  {
+    id: "div-impact", chapter: "8 · Division impact", title: "The division rollup moved",
+    narration: "Because the division number is a live rollup of its advisors, completing that action moved the DIVISION revenue by exactly the recorded impact. A leader's intervention, visible at their level.",
+    lookAt: "The division Revenue KPI — compare to the baseline captured at the start.",
+    route: "/dashboard", scope: { type: "Division", idKey: "division" }, highlight: "exec-kpi-revenue",
+    proof: { path: "/scope/dashboard?scope_type=DIVISION&scope_id={D}&period=LTM&compare_to=Prior%20Year", check: "divisionPropagated" },
+  },
+  {
+    id: "div-closure", chapter: "9 · Closure", title: "Ask the AI at division scope",
+    narration: "Finally, ask the AI Assistant a division-level question. Because the scope is Division, it reasons across your advisors (Section 11.6) and reflects the action just taken — real Claude when the key is configured.",
+    lookAt: "The chat input — ask which of your advisors need attention now.",
+    route: "/ai-assistant", scope: { type: "Division", idKey: "division" }, highlight: "chat-input",
+  },
+];
+
 export const SCENARIOS: Scenario[] = [
   {
     id: "advisor-journey", label: "Advisor Journey", persona: "Advisor",
     blurb: "Detect a revenue risk → explain it → act on it → watch the measured impact propagate across every screen → and the system learn. One real advisor, real data, end to end.",
     steps: ADVISOR_STEPS,
+  },
+  {
+    id: "division-journey", label: "Division-Leader Journey", persona: "DDW",
+    blurb: "A DDW/MDW view: detect an underperforming division → reason across its advisors → drill into the top contributor → assign a coaching action + complete a recommendation → watch the division rollup move by exactly the impact. Real cross-advisor data, end to end.",
+    steps: DIVISION_STEPS,
   },
 ];
 

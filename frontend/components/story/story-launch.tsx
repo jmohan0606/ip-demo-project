@@ -13,6 +13,24 @@ export function StoryLaunch() {
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
   const [advisor, setAdvisor] = useState("A005");
 
+  // For the division journey, drive the scenario off the division's OWN worst-
+  // contributing advisor (real bottom_advisors from the rollup), not the picker —
+  // so the coaching + recommendation steps target the actual contributor.
+  const launch = async (scenarioId: string) => {
+    const DIVISION = "D01";
+    let scenarioAdvisor = advisor;
+    if (scenarioId === "division-journey") {
+      try {
+        const d = await apiClient.get<{ bottom_advisors?: Array<{ advisor_id: string }> }>(
+          `/scope/dashboard?scope_type=DIVISION&scope_id=${DIVISION}&period=LTM&compare_to=Prior%20Year`);
+        const pick = (d.bottom_advisors ?? []).map((a) => a.advisor_id)
+          .find((id) => id !== "A001" && id !== "A020");
+        if (pick) scenarioAdvisor = pick;
+      } catch { /* fall back to selected advisor */ }
+    }
+    await start(scenarioId, scenarioAdvisor, DIVISION);
+  };
+
   useEffect(() => {
     apiClient.get<{ advisors: Array<{ advisor_id: string; advisor_name: string | null }> }>("/advisor/list")
       .then((r) => setAdvisors(r.advisors.filter((a) => a.advisor_id !== "A001" && a.advisor_id !== "A020")))
@@ -60,7 +78,7 @@ export function StoryLaunch() {
             <p className="mt-1 text-[12px] text-muted-foreground">{sc.blurb}</p>
             <div className="mt-2 text-[11px] text-muted-foreground">{sc.steps.length} steps · persona {sc.persona}</div>
             <button
-              onClick={() => void start(sc.id, advisor, "D01")}
+              onClick={() => void launch(sc.id)}
               disabled={busy || active}
               className="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-[13px] font-bold text-white disabled:opacity-50"
             >

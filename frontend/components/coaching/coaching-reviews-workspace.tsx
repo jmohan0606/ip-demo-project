@@ -118,7 +118,7 @@ export function CoachingReviewsWorkspace() {
       </div>
 
       {/* Manager-assigns-task feature (CLAUDE.md 9.5): assign from catalog, persist, track, feed AI */}
-      <Card>
+      <Card data-story-target="coaching-tasks">
         <CardHeader className="p-3">
           <CardTitle className="flex items-center gap-2 text-[13px]"><UserCog className="h-4 w-4 text-primary" /> Manager · Assign Coaching Task</CardTitle>
         </CardHeader>

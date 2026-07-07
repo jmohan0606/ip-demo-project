@@ -8,7 +8,7 @@ import { apiClient } from "@/lib/api/client";
 import { SCENARIOS, templ, type Scenario, type StoryStep } from "@/components/story/scenarios";
 import { StoryOverlay } from "@/components/story/story-overlay";
 
-interface Baselines { advisorRevenue?: number; firmRevenue?: number; snapshotRevenue?: number; weights?: Record<string, number> }
+interface Baselines { advisorRevenue?: number; firmRevenue?: number; divisionRevenue?: number; snapshotRevenue?: number; weights?: Record<string, number> }
 interface Captured { recId?: string; family?: string; impactEstimate?: number; impactRecorded?: number }
 interface ProofResult { label: string; pass: boolean }
 
@@ -102,6 +102,35 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       const addr = (d?.addressed_opportunities ?? []).length;
       return { label: addr > 0 ? `${addr} opportunity now Addressed — won't be re-issued` : "Not yet addressed", pass: addr > 0 };
     },
+    // ---- Division-leader (DDW/MDW) journey checkers -----------------------
+    divisionUnderperformance: (d) => {
+      const bottom = d?.bottom_advisors ?? [];
+      const delta = d?.headline?.delta_pct;
+      const names = bottom.slice(0, 3).map((a: any) => a.advisor_name).join(", ");
+      return { label: bottom.length ? `Division ${usd(d?.totals?.revenue_ltm)} · ${delta ?? "—"}% vs prior · lagging advisors: ${names}` : "No division data", pass: bottom.length > 0 };
+    },
+    divisionInsight: (d) => {
+      const ins = d?.insight ?? d;
+      const drivers = ins?.key_drivers ?? [];
+      return { label: drivers.length ? `Cross-advisor reasoning: ${drivers.length} key drivers, confidence ${ins?.confidence ?? "—"}` : "No insight", pass: drivers.length > 0 };
+    },
+    divisionContributors: (d) => {
+      const bottom = d?.bottom_advisors ?? [];
+      const worst = bottom[0];
+      return { label: worst ? `Top contributor to the gap: ${worst.advisor_name} (${usd(worst.revenue_ltm)}, ${worst.reason ?? ""})` : "No contributors", pass: bottom.length > 0 };
+    },
+    coachingTaskAssigned: (d) => {
+      const tasks = d?.tasks ?? d ?? [];
+      const arr = Array.isArray(tasks) ? tasks : [];
+      return { label: arr.length ? `${arr.length} coaching task(s) now assigned & persisted for this advisor` : "No task persisted", pass: arr.length > 0 };
+    },
+    divisionPropagated: (d) => {
+      const now = d?.totals?.revenue_ltm;
+      const base = baselines.divisionRevenue;
+      const impact = captured.impactRecorded ?? captured.impactEstimate ?? 0;
+      const ok = base != null && Math.abs(now - base - impact) < 0.02;
+      return { label: `Division ${usd(base)} → ${usd(now)}  (+${usd(now - (base ?? now))})${ok ? " = exactly the impact ✓" : ""}`, pass: ok };
+    },
   };
 
   const goToStep = useCallback(async (idx: number, sc: Scenario) => {
@@ -148,15 +177,17 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       // reset the scenario advisor for a clean replay (backend refuses anchored)
       await apiClient.post(`/recommendations/lifecycle/reset/${advisorId}`, {}).catch(() => null);
       // capture baselines
-      const [rev, adv, firm, state] = await Promise.all([
+      const [rev, adv, firm, divDash, state] = await Promise.all([
         apiClient.get<any>(`/revenue/analytics?scope_type=ADVISOR&scope_id=${advisorId}&period=LTM`).catch(() => null),
         apiClient.get<any>(`/advisor/360/${advisorId}`).catch(() => null),
         apiClient.get<any>(`/scope/dashboard?scope_type=FIRM&scope_id=F001&period=LTM&compare_to=Prior%20Year`).catch(() => null),
+        apiClient.get<any>(`/scope/dashboard?scope_type=DIVISION&scope_id=${div}&period=LTM&compare_to=Prior%20Year`).catch(() => null),
         apiClient.get<any>(`/feedback-learning/state`).catch(() => null),
       ]);
       const weights: Record<string, number> = {};
       (state?.weights ?? []).forEach((w: any) => { weights[w.family] = w.weight; });
       setBaselines({ advisorRevenue: rev?.kpis?.total_revenue, firmRevenue: firm?.totals?.revenue_ltm,
+                     divisionRevenue: divDash?.totals?.revenue_ltm,
                      snapshotRevenue: adv?.feature_snapshot?.features?.revenue_ltm, weights });
       setCaptured({});
       setScenario(sc); setStepIndex(0);
@@ -184,8 +215,14 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
     setBusy(true);
     try {
       for (const call of step.action.calls) {
-        const body = { ...(call.body ?? {}), recommendation_id: captured.recId, action_family: captured.family, user_id: "story-mode" };
-        const res: any = await apiClient.post(call.path, body);
+        // Template any {A}/{D}/{firm} placeholders in the call body against the current ids.
+        const filled = JSON.parse(templ(JSON.stringify(call.body ?? {}), ids));
+        // Feedback-learning calls need the captured recommendation context injected;
+        // other real calls (e.g. coaching task assignment) send their body as-is.
+        const body = call.path.includes("/feedback-learning/")
+          ? { ...filled, recommendation_id: captured.recId, action_family: captured.family, user_id: "story-mode" }
+          : filled;
+        const res: any = await apiClient.post(templ(call.path, ids), body);
         if (res?.lifecycle?.impact?.impact_amount != null) {
           setCaptured((c) => ({ ...c, impactRecorded: res.lifecycle.impact.impact_amount }));
         }

@@ -397,7 +397,9 @@ export function ExecutiveDashboard() {
       {!isAdvisor && (
         <div className="grid gap-3 xl:grid-cols-2">
           <AdvisorTable title="Top Advisors" icon={<TrendingUp className="h-4 w-4 text-teal-600" />} rows={data?.top_advisors ?? []} onSelect={shell.setScope} />
-          <AdvisorTable title="Bottom Advisors" icon={<TrendingDown className="h-4 w-4 text-red-600" />} rows={data?.bottom_advisors ?? []} onSelect={shell.setScope} />
+          <div data-story-target="bottom-advisors">
+            <AdvisorTable title="Bottom Advisors" icon={<TrendingDown className="h-4 w-4 text-red-600" />} rows={data?.bottom_advisors ?? []} onSelect={shell.setScope} />
+          </div>
         </div>
       )}
 
