@@ -106,9 +106,148 @@ class ScopeDashboardService:
         }.get(scope_type.upper())
         return self._name(attr[0], scope_id, attr[1]) if attr else scope_id
 
+    # ---- advisor-scope GNN peer benchmark (REQ-2: the similarity engine IS the
+    # peer group — never "no peer group at this scope") --------------------------
+    def _gnn_peers(self, advisor_id: str, top_k: int = 5) -> tuple[str, list[dict]]:
+        """Nearest advisors by GNN (GraphSAGE) embedding cosine, via the same
+        VectorClient the /graph-insights/similar endpoint serves. Falls back to the
+        deterministic feature-projection similarity engine if no vector exists."""
+        try:
+            from app.ml import registry
+            from app.ml.vector_client import get_vector_client
+            vc = get_vector_client()
+            model = registry.active_embedding_model()
+            vec = vc.get("ADVISOR", advisor_id, model_name=model)
+            if vec is not None:
+                matches = vc.search("ADVISOR", vec, top_k, exclude_id=advisor_id, model_name=model)
+                return model, [{"advisor_id": m["entity_id"], "score": round(float(m["score"]), 4)} for m in matches]
+        except Exception:
+            pass
+        try:  # fallback: deterministic feature-projection similarity (still the real engine)
+            from app.services.embedding_similarity_service import EmbeddingSimilarityService
+            res = EmbeddingSimilarityService().similar(advisor_id, limit=top_k)
+            return "deterministic-feature-projection", [
+                {"advisor_id": m["target_entity_id"], "score": round(float(m["similarity_score"]), 4)}
+                for m in res.get("matches", [])
+            ]
+        except Exception:
+            return "unavailable", []
+
+    def _advisor_benchmark(self, advisor_id: str) -> dict:
+        """Benchmarking (vs Peers) at ADVISOR scope: the peer group is the GNN
+        similarity engine's real nearest advisors; every metric compares the
+        advisor's snapshot against the peer-group mean. You / Peer Avg / vs Peer,
+        exactly the mockup's table."""
+        model, peers = self._gnn_peers(advisor_id)
+        me = (self._snaps.latest_for_entity("ADVISOR", advisor_id) or {}).get("features", {})
+
+        feats_by_peer: dict[str, dict] = {}
+        for p in peers:
+            f = (self._snaps.latest_for_entity("ADVISOR", p["advisor_id"]) or {}).get("features", {})
+            p["advisor_name"] = self._name("phx_dm_advisor", p["advisor_id"], "advisor_name")
+            markets = self._store.out_ids("phx_dm_advisor_in_market", p["advisor_id"])
+            p["market"] = self._name("phx_dm_market", markets[0], "market_name") if markets else None
+            if f:
+                feats_by_peer[p["advisor_id"]] = f
+        peer_feats = list(feats_by_peer.values())
+
+        def avg(key: str, scale: float = 1.0) -> float | None:
+            vals = [float(f[key]) * scale for f in peer_feats if f.get(key) is not None]
+            return round(sum(vals) / len(vals), 2) if vals else None
+
+        def mine(key: str, scale: float = 1.0) -> float | None:
+            v = me.get(key)
+            return round(float(v) * scale, 2) if v is not None else None
+
+        def metric(name: str, key: str, unit: str, scale: float = 1.0,
+                   positive_is_good: bool = True) -> dict:
+            you, peer = mine(key, scale), avg(key, scale)
+            vs = round((you - peer) / peer * 100.0, 1) if (you is not None and peer) else None
+            return {"metric": name, "you": you, "peer_avg": peer, "vs_peer_pct": vs,
+                    "unit": unit, "positive_is_good": positive_is_good}
+
+        metrics = [
+            metric("Revenue (LTM)", "revenue_ltm", "usd"),
+            metric("Managed Revenue %", "managed_revenue_ratio", "pct", scale=100.0),
+            metric("Revenue Growth 3m", "revenue_growth_3m_pct", "pct"),
+            metric("AUM", "aum_total", "usd"),
+            metric("Households", "household_count", "count"),
+            metric("AGP Risk Score", "agp_risk_score", "score", positive_is_good=False),
+        ]
+
+        # percentile of this advisor among the peer set by LTM revenue
+        my_rev = mine("revenue_ltm") or 0.0
+        peer_revs = [float(f["revenue_ltm"]) for f in peer_feats if f.get("revenue_ltm") is not None]
+        percentile = round(sum(1 for v in peer_revs if v < my_rev) / len(peer_revs) * 100) if peer_revs else None
+
+        rows = [{"scope_id": advisor_id, "label": self._name("phx_dm_advisor", advisor_id, "advisor_name"),
+                 "per_advisor": my_rev, "advisor_count": 1, "is_current": True}]
+        for p in peers:
+            f = feats_by_peer.get(p["advisor_id"])
+            if not f:
+                continue
+            rows.append({"scope_id": p["advisor_id"], "label": p["advisor_name"],
+                         "per_advisor": round(float(f.get("revenue_ltm") or 0.0), 2),
+                         "advisor_count": 1, "is_current": False})
+        rows.sort(key=lambda r: r["per_advisor"], reverse=True)
+
+        firm_per, _ = self._per_advisor_rev("FIRM", self._firm_id())
+        return {
+            "peer_type": "Similar Advisor (GNN)",
+            "model": model,
+            "current_per_advisor": my_rev,
+            "current_advisor_count": 1,
+            "firm_per_advisor": firm_per,
+            "vs_firm_pct": round((my_rev - firm_per) / firm_per * 100, 1) if firm_per else None,
+            "percentile": percentile,
+            "rows": rows,
+            "peers": peers,
+            "metrics": metrics,
+            "why": (
+                f"Peer group = the {len(peers)} nearest advisors by {model} embedding cosine "
+                "similarity — learned from the real graph (households, products, CRM, revenue "
+                "patterns), not an arbitrary bucket. Scores shown per peer."
+            ),
+        }
+
+    def _recent_transactions(self, advisor_ids: list[str], limit: int = 8) -> list[dict]:
+        """Recent Transaction Highlights (mockup bottom-left): the latest real
+        revenue transactions in scope, joined to household + product by edge
+        traversal. Leadership scopes surface the largest recent movers."""
+        rows: list[dict] = []
+        for aid in advisor_ids:
+            aname = self._name("phx_dm_advisor", aid, "advisor_name")
+            for txid in self._store.in_ids("phx_dm_transaction_for_advisor", aid):
+                a = self._store.vertex("phx_dm_revenue_transaction", txid)
+                if not a:
+                    continue
+                rows.append({"txid": txid, "advisor_id": aid, "advisor_name": aname, "attrs": a})
+        # newest first; big absolute impact breaks ties (leadership scopes see movers)
+        rows.sort(key=lambda r: (str(r["attrs"].get("transaction_date") or ""),
+                                 abs(float(r["attrs"].get("revenue_amount") or 0.0))), reverse=True)
+        out = []
+        for r in rows[:limit]:
+            a, txid = r["attrs"], r["txid"]
+            hhs = self._store.out_ids("phx_dm_transaction_for_household", txid)
+            prods = self._store.out_ids("phx_dm_transaction_for_product", txid)
+            out.append({
+                "transaction_id": txid,
+                "date": str(a.get("transaction_date") or ""),
+                "household": self._name("phx_dm_household", hhs[0], "household_name") if hhs else None,
+                "household_id": hhs[0] if hhs else None,
+                "product": self._name("phx_dm_product", prods[0], "product_name") if prods else None,
+                "revenue_impact": round(float(a.get("revenue_amount") or 0.0), 2),
+                "type": str(a.get("transaction_type") or "—"),
+                "advisor_name": r["advisor_name"],
+            })
+        return out
+
     def _benchmark(self, scope_type: str, scope_id: str) -> dict:
         """Revenue-per-advisor of the current scope vs its peer scopes + the firm
-        average, with the current scope's percentile. Real values from snapshots."""
+        average, with the current scope's percentile. Real values from snapshots.
+        ADVISOR scope uses the GNN similarity engine as the peer group (REQ-2)."""
+        if scope_type.upper() == "ADVISOR":
+            return self._advisor_benchmark(scope_id)
         peer_type, peer_ids = self._peer_scope_ids(scope_type, scope_id)
         firm_per, _ = self._per_advisor_rev("FIRM", self._firm_id())
         rows = []
@@ -167,19 +306,32 @@ class ScopeDashboardService:
         markets = self._markets(st, scope_id)
         benchmark = self._benchmark(st, scope_id)
         headline = self._headline(st, scope_id, compare_to, revenue, benchmark)
+
+        # Scope-aware tile set (REQ-1): advisor persona sees their book; leaders see rollups.
+        from app.scope.tiles import advisor_tiles, leadership_tiles
+        if st == "ADVISOR":
+            feats = (self._snaps.latest_for_entity("ADVISOR", scope_id) or {}).get("features", {})
+            tiles = advisor_tiles(feats, revenue, headline)
+        else:
+            tiles = leadership_tiles(rollup["totals"], revenue, headline, rollup["comparison"])
+
+        advisor_ids = resolve_scope_advisor_ids(self._store, st, scope_id)
         return {
             "scope_type": st,
             "scope_id": scope_id,
             "period": (period or "LTM").upper(),
             "compare_to": compare_to,
             "headline": headline,
+            "tiles": tiles,
             "totals": rollup["totals"],
             "comparison": rollup["comparison"],
             "top_advisors": rollup["top_advisors"],
             "bottom_advisors": rollup["bottom_advisors"],
             "child_breakdown": rollup["child_breakdown"],
+            "recent_transactions": self._recent_transactions(advisor_ids),
             "revenue": {
                 "monthly_trend": revenue.get("monthly_trend", []),
+                "monthly_trend_prior": revenue.get("monthly_trend_prior", []),
                 "by_business_line": revenue.get("by_business_line", []),
                 "by_channel": revenue.get("by_channel", []),
                 "revenue_drivers": revenue.get("revenue_drivers", []),

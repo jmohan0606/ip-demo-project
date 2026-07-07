@@ -75,12 +75,47 @@ export async function fetchScopeSummary(scopeType: string, scopeId: string): Pro
 export interface RevenueDriver { category: string; revenue: number; prior_revenue: number; change: number; change_pct: number | null }
 export interface MarketRow { scope_type: string; scope_id: string; label: string; revenue_ltm: number; advisor_count: number; rev_per_advisor: number }
 export interface BenchmarkRow { scope_id: string; label: string; per_advisor: number; advisor_count: number; is_current: boolean }
+export interface TileTrace { source: string; computation: string; link?: string | null }
+export interface DashboardTile {
+  id: string;
+  label: string;
+  value: number | null;
+  unit: "usd" | "pct" | "count" | "score";
+  icon: string;
+  delta_pct: number | null;
+  delta_unit: "pct" | "pp";
+  prior: number | null;
+  prior_label: string;
+  positive_is_good: boolean;
+  trace: TileTrace;
+}
+export interface RecentTransaction {
+  transaction_id: string;
+  date: string;
+  household: string | null;
+  household_id: string | null;
+  product: string | null;
+  revenue_impact: number;
+  type: string;
+  advisor_name: string;
+}
+export interface BenchmarkPeer { advisor_id: string; advisor_name: string; score: number; market: string | null }
+export interface BenchmarkMetric {
+  metric: string;
+  you: number | null;
+  peer_avg: number | null;
+  vs_peer_pct: number | null;
+  unit: string;
+  positive_is_good: boolean;
+}
 export interface ScopeDashboard {
   scope_type: string;
   scope_id: string;
   period: string;
   compare_to: string;
   headline: { revenue: number; delta_pct: number | null; prior?: number | null; basis: string; compare_to: string };
+  tiles: DashboardTile[];
+  recent_transactions: RecentTransaction[];
   totals: ScopeTotals;
   comparison: ScopeComparison;
   top_advisors: ScopeTopAdvisor[];
@@ -88,6 +123,7 @@ export interface ScopeDashboard {
   child_breakdown: ScopeChild[];
   revenue: {
     monthly_trend: Array<{ month: string; revenue: number }>;
+    monthly_trend_prior: Array<{ month: string; revenue: number }>;
     by_business_line: Array<{ category: string; revenue: number }>;
     by_channel: Array<{ channel: string; revenue: number }>;
     revenue_drivers: RevenueDriver[];
@@ -98,11 +134,15 @@ export interface ScopeDashboard {
   markets: { top: MarketRow[]; bottom: MarketRow[] };
   benchmark: {
     peer_type: string;
+    model?: string;
     current_per_advisor: number;
     firm_per_advisor: number;
     vs_firm_pct: number | null;
     percentile: number | null;
     rows: BenchmarkRow[];
+    peers?: BenchmarkPeer[];
+    metrics?: BenchmarkMetric[];
+    why?: string;
   };
   evidence: ScopeSummary["evidence"];
 }
@@ -120,6 +160,7 @@ export interface ScopeAiInsight {
   period: string;
   insight: import("@/components/patterns/ai-insight-summary").AiInsightData;
   grounding: string;
+  grounding_sources?: string[];
 }
 
 export async function fetchScopeAiInsight(

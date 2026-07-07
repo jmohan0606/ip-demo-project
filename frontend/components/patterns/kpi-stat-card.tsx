@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { DeltaIndicator } from "@/components/patterns/delta-indicator";
+import { WhyTrace, type TraceInfo } from "@/components/patterns/why-trace";
 import { colors, type } from "@/styles/tokens";
 
 /**
@@ -18,6 +19,8 @@ export function KpiStatCard({
   deltaSuffix,
   icon: Icon,
   iconColor = colors.primary,
+  priorLine,
+  trace,
 }: {
   label: string;
   value: string;
@@ -28,6 +31,10 @@ export function KpiStatCard({
   deltaSuffix?: string;
   icon?: LucideIcon;
   iconColor?: string;
+  /** mockup's "vs PY: $4.28M" absolute prior line — only pass when a REAL prior exists */
+  priorLine?: string;
+  /** REQ-2: the real computation/model that produced this figure */
+  trace?: TraceInfo;
 }) {
   return (
     <div className="flex items-start gap-3 rounded-xl border bg-white px-4 py-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
@@ -39,8 +46,11 @@ export function KpiStatCard({
           <Icon className="h-4.5 w-4.5" style={{ width: 18, height: 18 }} />
         </span>
       ) : null}
-      <div className="min-w-0">
-        <div className={type.label} style={{ color: colors.text.muted }}>{label}</div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-1">
+          <div className={type.label} style={{ color: colors.text.muted }}>{label}</div>
+          {trace && <WhyTrace trace={trace} />}
+        </div>
         <div className="mt-1 flex items-baseline gap-2">
           <span className={type.kpiValue} style={{ color: colors.text.primary }}>{value}</span>
           {changePct !== undefined ? (
@@ -57,6 +67,9 @@ export function KpiStatCard({
             </span>
           ) : null}
         </div>
+        {priorLine && (
+          <div className="mt-0.5 text-[11px]" style={{ color: colors.text.muted }}>{priorLine}</div>
+        )}
       </div>
     </div>
   );

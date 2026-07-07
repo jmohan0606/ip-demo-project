@@ -65,6 +65,11 @@ class RevenueAnalyticsService:
     def _tx_category(self, tx_id: str) -> str:
         for pid in self._store.out_ids("phx_dm_transaction_for_product", tx_id):
             return self._cat_by_product.get(pid, "Unclassified")
+        # §13.2 impact-ledger transactions carry no product edge — they are the measured
+        # consequence of completed recommendations. Label them as what they are.
+        attrs = self._store.vertex("phx_dm_revenue_transaction", tx_id) or {}
+        if str(attrs.get("transaction_type") or "") == "RECOMMENDATION_IMPACT":
+            return "AI-Recommended Actions"
         return "Unclassified"
 
     # ---- period filtering --------------------------------------------------
@@ -125,6 +130,7 @@ class RevenueAnalyticsService:
             return str(a.get("transaction_date"))[:7] in cur_months
 
         by_month: dict[str, float] = defaultdict(float)
+        by_month_prior: dict[str, float] = defaultdict(float)  # prior-year months, keyed by prior month
         by_type: dict[str, float] = defaultdict(float)
         by_line: dict[str, float] = defaultdict(float)
         by_line_prior: dict[str, float] = defaultdict(float)  # same category, prior-year window
@@ -139,6 +145,7 @@ class RevenueAnalyticsService:
                 prior_period_total += rev
             if month in prior_months:
                 prior_total += rev
+                by_month_prior[month] += rev
                 by_line_prior[self._tx_category(tx)] += rev
             if month not in cur_months:
                 continue
@@ -149,6 +156,16 @@ class RevenueAnalyticsService:
             by_line[self._tx_category(tx)] += rev
 
         monthly_trend = [{"month": m, "revenue": round(v, 2)} for m, v in sorted(by_month.items())]
+        # Prior-year comparison line for the trend chart (mockup: solid current + dashed
+        # Prior Year). Each current month is paired with its real month-shifted-−12 value;
+        # only emitted when the prior window is fully covered (same honesty rule as YoY).
+        monthly_trend_prior = (
+            [
+                {"month": m, "revenue": round(by_month_prior.get(_shift_month(m, -12), 0.0), 2)}
+                for m, _ in sorted(by_month.items())
+            ]
+            if prior_fully_covered else []
+        )
         by_channel = sorted(
             ({"channel": t, "revenue": round(v, 2)} for t, v in by_type.items()),
             key=lambda r: r["revenue"], reverse=True,
@@ -254,6 +271,7 @@ class RevenueAnalyticsService:
                 "basis": "immediately preceding equal-length period",
             },
             "monthly_trend": monthly_trend,
+            "monthly_trend_prior": monthly_trend_prior,
             "by_channel": by_channel,
             "by_business_line": by_business_line,
             "revenue_drivers": revenue_drivers,

@@ -2320,3 +2320,17 @@ ARCHITECTURE_OVERVIEW.md (adapter interfaces + pipeline data flow + module map),
   restarted without the loopback override so the bundle uses the public forwarded URL.
 - VERIFIED: public-URL CORS 200 from the :3000 origin + all-green health render via the public backend
   base (s16-fix-env-health-publicbase.png), 0 console errors, no "Failed to fetch". TROUBLESHOOTING §0 added.
+
+## Session 16 — 2026-07-07 (UI intelligence run, Fable 5)
+Completed: REQ-1 Executive Dashboard mockup match — scope-aware tile sets (advisor book tiles vs
+leadership rollups, per-tile delta + vs-PY prior line, REQ-2 why-trace on every tile), AI Insight
+Summary now a real generated HEADLINE + grounded causal narrative (real Claude, GNN-peer +
+category-driver facts), advisor-scope Benchmarking vs Peers now uses the GNN (graphsage-v1-ft)
+similarity peer group with named scored peers + You/PeerAvg/vsPeer table, Recent Transaction
+Highlights (real txn→household/product traversal), dashed prior-year trend line, impact
+transactions categorized "AI-Recommended Actions". Verified: live payloads + real-Claude answers +
+full-page screenshots at firm and advisor scope (docs/qa_screenshots/session16/). AUM net-flows
+waterfall confirmed present/populated at firm scope.
+In progress: REQ-2 evidence walk (3 figures), REQ-3 persona question-set audit with real Claude.
+Next: REQ-3 audit + fixes; remaining-pages sweep; §13B.3 division/market journeys; §10 mentor
+pairing + AGP ROI.

@@ -5,6 +5,7 @@ import { colors, type } from "@/styles/tokens";
 export interface InsightKeyDriver { label: string; value: number | string | null; detail?: string; source?: string }
 export interface InsightWatchOut { title: string; summary: string; severity: string; confidence?: number }
 export interface AiInsightData {
+  headline?: string | null;
   executive_summary?: string;
   confidence?: number;
   key_drivers: InsightKeyDriver[];
@@ -32,6 +33,20 @@ export function AiInsightSummary({ data, title = "AI Insight Summary" }: { data:
       }
     >
       <div className="space-y-3">
+        {(data.headline || data.executive_summary) && (
+          <section className="rounded-lg px-3 py-2.5" style={{ backgroundColor: "#F8FAFC" }}>
+            {data.headline && (
+              <h3 className="text-[15px] font-bold leading-snug" style={{ color: colors.text.primary }}>
+                {data.headline}
+              </h3>
+            )}
+            {data.executive_summary && (
+              <p className="mt-1 text-[12px] leading-relaxed" style={{ color: colors.text.secondary }}>
+                {data.executive_summary}
+              </p>
+            )}
+          </section>
+        )}
         <section>
           <div className={type.label} style={{ color: colors.positive }}>Key Drivers</div>
           <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">

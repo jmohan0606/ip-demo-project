@@ -6,11 +6,14 @@ import {
 import {
   Building2, TrendingUp, TrendingDown, Users, Target, DollarSign, Wallet, PiggyBank,
   Layers, Gauge, ShieldAlert, AlertTriangle, MapPin, BarChart3, Sparkles, FileDown,
+  PieChart, LineChart, Receipt, type LucideIcon,
 } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import {
   fetchScopeDashboard, fetchScopeAiInsight, type ScopeDashboard, type ScopeAiInsight,
+  type DashboardTile,
 } from "@/lib/api/scope";
+import { WhyTrace } from "@/components/patterns/why-trace";
 import { ScopeChildBars } from "@/components/charts/scope-child-bars";
 import { AumNetflowWaterfall, type NetFlowStep } from "@/components/charts/aum-netflow-waterfall";
 import { ScopeStatusDonut } from "@/components/charts/scope-status-donut";
@@ -35,6 +38,63 @@ const compactUsd = (v: number) =>
 const CHILD_LABEL: Record<string, string> = {
   Firm: "Divisions", Division: "Regions", Region: "Markets", Market: "Advisors",
 };
+
+// tile.icon key → lucide icon + brand color (mockup: colored icon in a soft circle)
+const TILE_ICON: Record<string, { icon: LucideIcon; color: string }> = {
+  dollar: { icon: DollarSign, color: "#2563EB" },
+  layers: { icon: Layers, color: "#4F46E5" },
+  pie: { icon: PieChart, color: "#0D9488" },
+  users: { icon: Users, color: "#F59E0B" },
+  chart: { icon: LineChart, color: "#2563EB" },
+  wallet: { icon: Wallet, color: "#14B8A6" },
+  piggy: { icon: PiggyBank, color: "#14B8A6" },
+  shield: { icon: ShieldAlert, color: "#F59E0B" },
+  target: { icon: Target, color: "#0D9488" },
+  gauge: { icon: Gauge, color: "#4F46E5" },
+  alert: { icon: AlertTriangle, color: "#DC2626" },
+};
+
+const fmtTileValue = (t: DashboardTile): string => {
+  if (t.value === null || t.value === undefined) return "—";
+  if (t.unit === "usd") return compactUsd(Number(t.value));
+  if (t.unit === "pct") return `${t.value}%`;
+  return String(t.value);
+};
+
+const fmtPrior = (t: DashboardTile): string | undefined => {
+  if (t.prior === null || t.prior === undefined) return undefined;
+  const v = t.unit === "usd" ? compactUsd(Number(t.prior)) : t.unit === "pct" ? `${t.prior}%` : String(t.prior);
+  return `${t.prior_label}: ${v}`;
+};
+
+/** Scope-aware KPI tiles straight from the payload (REQ-1): advisor persona gets
+ * book-level tiles, leadership gets rollups — never a meaningless tile for the scope.
+ * Each carries its REQ-2 trace (source + computation + drill-down link). */
+function TileGrid({ tiles }: { tiles: DashboardTile[] }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {tiles.map((t) => {
+        const ic = TILE_ICON[t.icon] ?? TILE_ICON.dollar;
+        const inner = (
+          <KpiStatCard
+            label={t.label}
+            value={fmtTileValue(t)}
+            icon={ic.icon}
+            iconColor={ic.color}
+            changePct={t.delta_pct ?? undefined}
+            positiveIsGood={t.positive_is_good}
+            deltaSuffix={t.delta_unit === "pp" ? "pp" : undefined}
+            priorLine={fmtPrior(t)}
+            trace={t.trace}
+          />
+        );
+        return t.id === "total_revenue"
+          ? <div key={t.id} data-story-target="exec-kpi-revenue">{inner}</div>
+          : <div key={t.id}>{inner}</div>;
+      })}
+    </div>
+  );
+}
 const STATUS_STYLE: Record<string, "success" | "warning" | "destructive"> = {
   on_track: "success", attention: "warning", urgent: "warning", critical: "destructive",
 };
@@ -162,8 +222,14 @@ export function ExecutiveDashboard() {
     setCoaching(null);
     try {
       if (isAdvisor) {
-        // Advisor scope: the advisor's own Insight + Coaching (coaching only shows here — 12.1).
-        setCoaching(await apiClient.get(`/advisor/360/${shell.scopeId}/ai`));
+        // Advisor scope: the scope-level insight (narrative headline + GNN-peer-grounded
+        // prose) for the Insight card, plus the advisor's own Coaching card (12.1).
+        const [scopeInsight, advisorAi] = await Promise.all([
+          fetchScopeAiInsight("ADVISOR", shell.scopeId, shell.period, shell.compareTo, shell.persona),
+          apiClient.get<{ insight: AiInsightData; coaching: AiCoachingData }>(`/advisor/360/${shell.scopeId}/ai`),
+        ]);
+        setAi(scopeInsight);
+        setCoaching(advisorAi);
       } else {
         setAi(await fetchScopeAiInsight(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo, shell.persona));
       }
@@ -180,8 +246,7 @@ export function ExecutiveDashboard() {
   const t = data?.totals;
   const head = data?.headline;
   const childHeading = CHILD_LABEL[shell.scopeType] ?? "Breakdown";
-  const atRisk = t ? t.status_distribution.attention + t.status_distribution.urgent + t.status_distribution.critical : 0;
-  const insightData = isAdvisor ? coaching?.insight : ai?.insight;
+  const insightData = ai?.insight ?? (isAdvisor ? coaching?.insight : undefined);
 
   return (
     <div className="space-y-3">
@@ -218,25 +283,9 @@ export function ExecutiveDashboard() {
         }
       />
 
-      {/* KPI grid — headline revenue is period-windowed; its delta respects Compare-To (12.1) */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiStatCard label="Advisors In Scope" value={String(t?.advisor_count ?? "—")} icon={Users} iconColor="#2563EB" />
-        <div data-story-target="exec-kpi-revenue">
-        <KpiStatCard
-          label={`Revenue (${data?.period ?? shell.period})`}
-          value={head ? compactUsd(head.revenue) : "—"}
-          icon={DollarSign} iconColor="#2563EB"
-          changePct={head?.delta_pct ?? undefined}
-          deltaSuffix={`vs ${head?.compare_to ?? shell.compareTo}`}
-        />
-        </div>
-        <KpiStatCard label="AUM" value={t ? compactUsd(t.aum_total) : "—"} icon={Wallet} iconColor="#14B8A6" />
-        <KpiStatCard label="NNM (Annualized)" value={t ? compactUsd(t.nnm_annualized) : "—"} icon={PiggyBank} iconColor="#14B8A6" />
-        <KpiStatCard label="Managed Revenue" value={t ? compactUsd(t.managed_revenue) : "—"} icon={Layers} iconColor="#4F46E5" />
-        <KpiStatCard label="Avg Goal Attainment" value={t ? `${t.avg_goal_attainment}%` : "—"} icon={Gauge} iconColor="#4F46E5" />
-        <KpiStatCard label="Avg AGP Risk Score" value={t ? String(t.avg_agp_risk_score) : "—"} icon={ShieldAlert} iconColor="#F59E0B" positiveIsGood={false} />
-        <KpiStatCard label="At-Risk Advisors" value={t ? String(atRisk) : "—"} icon={AlertTriangle} iconColor="#DC2626" />
-      </div>
+      {/* Scope-aware KPI tiles (REQ-1): the SET adapts to the persona/scope; every tile
+          shows delta + vs-PY prior where a real prior exists, and its REQ-2 why-trace. */}
+      {data?.tiles?.length ? <TileGrid tiles={data.tiles} /> : null}
 
       {/* AI Insight Summary (grounded in this scope+period) + AI Coaching (Advisor scope only) */}
       <div className={`grid gap-3 ${isAdvisor ? "xl:grid-cols-2" : ""}`}>
@@ -275,7 +324,11 @@ export function ExecutiveDashboard() {
           </CardHeader>
           <CardContent className="p-3">
             {data && data.revenue.monthly_trend.length > 0 ? (
-              <RevenueTrendChart data={data.revenue.monthly_trend.map((m) => ({ period: m.month, revenue: m.revenue, aum: 0, nnm: 0, ncf: 0 }))} />
+              <RevenueTrendChart
+                data={data.revenue.monthly_trend.map((m) => ({ period: m.month, revenue: m.revenue, aum: 0, nnm: 0, ncf: 0 }))}
+                prior={data.revenue.monthly_trend_prior?.length === data.revenue.monthly_trend.length
+                  ? data.revenue.monthly_trend_prior.map((m) => m.revenue) : undefined}
+              />
             ) : <div className="p-8 text-center text-[12px] text-muted-foreground">No revenue in this window.</div>}
           </CardContent>
         </Card>
@@ -316,11 +369,75 @@ export function ExecutiveDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between p-3">
-            <CardTitle className="flex items-center gap-2 text-[13px]"><Gauge className="h-4 w-4 text-primary" /> Benchmarking vs Peers</CardTitle>
-            {data?.benchmark.percentile != null && <Badge variant="glass">{data.benchmark.percentile}th pctile</Badge>}
+            <CardTitle className="flex items-center gap-2 text-[13px]">
+              <Gauge className="h-4 w-4 text-primary" /> Benchmarking vs Peers
+              {data?.benchmark.why && (
+                <WhyTrace trace={{
+                  source: data.benchmark.model
+                    ? `GNN similarity engine (${data.benchmark.model}) — embeddings learned over the real graph`
+                    : "sibling scopes under the same parent, revenue-per-advisor from real snapshots",
+                  computation: data.benchmark.why,
+                  link: "/peer-benchmarking",
+                  linkLabel: "Open Peer Benchmarking",
+                }} />
+              )}
+            </CardTitle>
+            <span className="flex items-center gap-2">
+              {data?.benchmark.model && <Badge variant="glass">{data.benchmark.model}</Badge>}
+              {data?.benchmark.percentile != null && <Badge variant="glass">{data.benchmark.percentile}th pctile</Badge>}
+            </span>
           </CardHeader>
           <CardContent className="p-3">
-            {data && data.benchmark.rows.length > 0 ? (
+            {isAdvisor && data?.benchmark.metrics?.length ? (
+              <>
+                {/* GNN peer group: WHO the peers are and WHY (REQ-2) */}
+                <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">GNN peer group</span>
+                  {(data.benchmark.peers ?? []).map((p) => (
+                    <button
+                      key={p.advisor_id}
+                      onClick={() => shell.setScope("Advisor", p.advisor_id, p.advisor_name)}
+                      title={`Embedding cosine similarity ${p.score}${p.market ? ` · ${p.market}` : ""} — click to view`}
+                      className="rounded-full border bg-slate-50 px-2 py-0.5 text-[11px] font-medium hover:bg-slate-100"
+                    >
+                      {p.advisor_name} <span className="font-mono text-teal-700">{p.score.toFixed(2)}</span>
+                    </button>
+                  ))}
+                </div>
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr className="border-b text-left text-[10px] uppercase tracking-wide text-muted-foreground">
+                      <th className="px-2 py-1.5">Metric</th>
+                      <th className="px-2 py-1.5 text-right">You</th>
+                      <th className="px-2 py-1.5 text-right">Peer Avg</th>
+                      <th className="px-2 py-1.5 text-right">vs Peer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.benchmark.metrics.map((m) => {
+                      const good = m.vs_peer_pct != null && (m.positive_is_good ? m.vs_peer_pct >= 0 : m.vs_peer_pct <= 0);
+                      const fmt = (v: number | null) =>
+                        v == null ? "—" : m.unit === "usd" ? compactUsd(v) : m.unit === "pct" ? `${v}%` : String(v);
+                      return (
+                        <tr key={m.metric} className="border-b last:border-0">
+                          <td className="px-2 py-1.5 font-medium">{m.metric}</td>
+                          <td className="px-2 py-1.5 text-right font-mono">{fmt(m.you)}</td>
+                          <td className="px-2 py-1.5 text-right font-mono text-muted-foreground">{fmt(m.peer_avg)}</td>
+                          <td className="px-2 py-1.5 text-right">
+                            {m.vs_peer_pct == null ? "—" : (
+                              <span className={`font-semibold ${good ? "text-teal-600" : "text-red-600"}`}>
+                                {m.vs_peer_pct >= 0 ? "+" : ""}{m.vs_peer_pct}% {good ? "●" : "▲"}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <p className="mt-2 text-[10px] leading-snug text-muted-foreground">{data.benchmark.why}</p>
+              </>
+            ) : data && data.benchmark.rows.length > 0 ? (
               <>
                 <div className="mb-2 text-[11px] text-muted-foreground">
                   Revenue per advisor across {data.benchmark.peer_type.toLowerCase()}s · firm avg{" "}
@@ -344,7 +461,7 @@ export function ExecutiveDashboard() {
                   </ResponsiveContainer>
                 </div>
               </>
-            ) : <div className="p-8 text-center text-[12px] text-muted-foreground">No peer group at this scope.</div>}
+            ) : <div className="p-8 text-center text-[12px] text-muted-foreground">Computing peer group…</div>}
           </CardContent>
         </Card>
       </div>
@@ -407,6 +524,55 @@ export function ExecutiveDashboard() {
             <AdvisorTable title="Bottom Advisors" icon={<TrendingDown className="h-4 w-4 text-red-600" />} rows={data?.bottom_advisors ?? []} onSelect={shell.setScope} />
           </div>
         </div>
+      )}
+
+      {/* Recent Transaction Highlights (mockup bottom-left): the latest REAL revenue
+          transactions in scope, traversed txn→household / txn→product. */}
+      {data && data.recent_transactions?.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]">
+              <Receipt className="h-4 w-4 text-primary" /> Recent Transaction Highlights
+              <WhyTrace trace={{
+                source: "phx_dm_revenue_transaction vertices, joined by transaction_for_household / transaction_for_product edge traversal",
+                computation: "Latest real transactions for the advisors in this scope, newest first (largest movers break ties). These are the same rows every revenue figure on this page is summed from.",
+                link: "/revenue-analytics",
+                linkLabel: "Open Revenue Analytics",
+              }} />
+            </CardTitle>
+            <a href="/revenue-analytics" className="text-[11px] font-semibold text-primary hover:underline">View All →</a>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="border-b text-left text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <th className="px-3 py-2">Date</th>
+                    <th className="px-3 py-2">Household</th>
+                    {!isAdvisor && <th className="px-3 py-2">Advisor</th>}
+                    <th className="px-3 py-2">Product</th>
+                    <th className="px-3 py-2 text-right">Revenue Impact</th>
+                    <th className="px-3 py-2">Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recent_transactions.map((tx) => (
+                    <tr key={tx.transaction_id} className="border-b last:border-0">
+                      <td className="px-3 py-2 text-muted-foreground">{tx.date}</td>
+                      <td className="px-3 py-2 font-medium text-primary">{tx.household ?? "—"}</td>
+                      {!isAdvisor && <td className="px-3 py-2">{tx.advisor_name}</td>}
+                      <td className="px-3 py-2">{tx.product ?? "—"}</td>
+                      <td className={`px-3 py-2 text-right font-mono font-semibold ${tx.revenue_impact >= 0 ? "text-teal-600" : "text-red-600"}`}>
+                        {tx.revenue_impact >= 0 ? "+" : "−"}${Math.abs(tx.revenue_impact).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2"><Badge variant="glass">{tx.type}</Badge></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {data && (
