@@ -49,6 +49,25 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
   (+$2,657,167) vs 2026-Q1" (cross-checks exactly), "Biggest gainer: Central Division
   +$1,259,707 (+43.0%)". Screenshots: `session17/trend_explorer_bullets.png` + `_breakdown.png`.
 
+### ITEM 5 (follow-up request) — Client dependency pre-check tooling ✅
+- `scripts/check_client_deps.py`: every pyproject group (core/dev/aws/ml/gds) + client-only
+  `smart_sdk` checked against a configurable PEP 691/503 index (default = client artifactory,
+  `--index-url` / `CLIENT_PYPI_INDEX`). AVAILABLE (3.12-compatible + pin satisfied) /
+  VERSION-MISMATCH / MISSING per package; at-risk deps print their §2 fallback; exit
+  0 / 1 (required-dep issue) / 2 (index unreachable — graceful message, no traceback).
+- `scripts/check_client_npm.py`: frontend deps+devDeps vs the client npm registry (default
+  `…/artifactory/api/npm/npm/`, `--registry` / `CLIENT_NPM_REGISTRY`); ^ ~ >= exact ranges,
+  prereleases excluded (npm semantics); 401/403 → points at the .npmrc template.
+- `frontend/.npmrc.client-template` committed: registry line + COMMENTED always-auth/_authToken
+  placeholders — **no real token anywhere**; real `frontend/.npmrc` added to .gitignore.
+- CLIENT_ENV_SETUP.md: §2.0 pre-check documented as the FIRST client-machine step (checklist
+  renumbered), §2.0b npmrc auth note; stale "185 CSVs" → 192.
+- **Evidence (real runs):** public PyPI 38/39 AVAILABLE (smart_sdk correctly MISSING with its
+  fallback printed) exit 0; public npm 28/28 AVAILABLE exit 0; client artifactory from this box
+  → both exit 2 with the clear unreachable message. Two real bugs caught and fixed during
+  verification: torch wheel build-tags misparsed (→ packaging.utils parsers, best match now
+  2.12.1) and a playwright prerelease matching `^1.49.0` (→ prereleases excluded, 1.61.1).
+
 ### ITEM 4 — Copilot handoff docs check ✅ (no rebuild needed)
 - All four exist and are current (each last touched 2026-07-07): `COPILOT_CONTEXT.md` (94 ln),
   `ARCHITECTURE_OVERVIEW.md` (131 ln), `TROUBLESHOOTING.md` (194 ln), `CLIENT_ENV_SETUP.md`
