@@ -6,6 +6,7 @@ import { UserRound } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
 import { apiClient } from "@/lib/api/client";
+import { formatEntity } from "@/lib/utils";
 
 /**
  * Explicit, visible advisor-selector dropdown (CLAUDE.md 12.6) for the pipeline
@@ -46,7 +47,7 @@ export function AdvisorSelector({ className = "" }: { className?: string }) {
       >
         {options.map((o) => (
           <option key={o.advisor_id} value={o.advisor_id}>
-            {o.advisor_id}{o.advisor_name ? ` — ${o.advisor_name}` : ""}
+            {formatEntity(o.advisor_id, o.advisor_name)}
           </option>
         ))}
       </select>

@@ -14,7 +14,7 @@ import { ProductSystemLabel } from "@/components/patterns/product-system-label";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
 import { colors, type } from "@/styles/tokens";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatEntity } from "@/lib/utils";
 
 interface Vertex { v_id: string; v_type: string; attributes: Record<string, unknown> }
 interface CrmOpp {
@@ -127,7 +127,7 @@ export function Advisor360Workspace() {
         <div>
           <ProductSystemLabel />
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>
-            Advisor 360 — {String(advisor?.attributes.advisor_name ?? advisorId)}
+            Advisor 360 — {formatEntity(advisorId, advisor?.attributes.advisor_name as string | undefined)}
           </h1>
           <p className={type.body} style={{ color: colors.text.secondary }}>
             Book, CRM execution, AGP status and AI coaching assembled live from the graph (GQ-009). Scope-aware via the breadcrumb.

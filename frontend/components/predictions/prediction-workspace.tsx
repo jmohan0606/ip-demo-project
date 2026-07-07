@@ -11,6 +11,7 @@ import { ProductSystemLabel } from "@/components/patterns/product-system-label";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
+import { useEntityLabel } from "@/lib/hooks/use-entity-label";
 import { colors, type } from "@/styles/tokens";
 
 interface Contribution {
@@ -47,6 +48,7 @@ interface Prediction {
 
 export function PredictionWorkspace() {
   const { advisorId, refreshNonce } = useScopedAdvisor();
+  const { label: entityLabel } = useEntityLabel();
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -72,7 +74,7 @@ export function PredictionWorkspace() {
           <ProductSystemLabel />
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>Prediction &amp; Forecasting</h1>
           <p className={type.body} style={{ color: colors.text.secondary }}>
-            Transparent scoring for advisor {advisorId} — every point of every score is attributed to a
+            Transparent scoring for advisor {entityLabel(advisorId)} — every point of every score is attributed to a
             named feature and persisted with a reasoning trace.
           </p>
         </div>

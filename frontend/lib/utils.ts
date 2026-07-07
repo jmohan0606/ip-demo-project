@@ -28,6 +28,17 @@ export function formatSignedPercent(value: number, decimals = 1): string {
   return `${sign}${value.toFixed(decimals)}%`;
 }
 
+/**
+ * Canonical "ID · Name" entity label (item 3: never show a bare ID like D01/A001).
+ * Returns "D01 · Eastern Division" when a name is known, else the id alone. Pass the
+ * name directly when you already have it, or use the useEntityLabel() hook to resolve.
+ */
+export function formatEntity(id: string | null | undefined, name?: string | null): string {
+  if (!id) return name || "—";
+  if (!name || name === id) return id;
+  return `${id} · ${name}`;
+}
+
 export type DeltaDirection = "up" | "down" | "flat";
 
 export interface DeltaMeta {

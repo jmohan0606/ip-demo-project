@@ -63,6 +63,24 @@ def tree():
     return ok(data={"firms": firms})
 
 
+@router.get("/entity-names")
+def entity_names():
+    """Flat {entity_id: real_name} map across every entity type — the single source the
+    frontend's shared entity-label helper uses to render "ID · Name" everywhere (item 3)."""
+    store = get_graph_client().store
+    names: dict[str, str] = {}
+    for vtype, attr in (
+        (_FIRM, "firm_name"), (_DIVISION, "division_name"), (_REGION, "region_name"),
+        (_MARKET, "market_name"), ("phx_dm_branch", "branch_name"),
+        (_ADVISOR, "advisor_name"), ("phx_dm_household", "household_name"),
+    ):
+        for vid, attrs in store.all_vertices(vtype).items():
+            nm = attrs.get(attr)
+            if nm:
+                names[str(vid)] = str(nm)
+    return ok(data={"names": names, "count": len(names)})
+
+
 @router.get("/resolve")
 def resolve(scope_type: str = "ALL", scope_id: str = ""):
     """Advisor ids under a scope — the aggregation primitive for scope-aware rollups."""

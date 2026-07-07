@@ -23,6 +23,8 @@ import { DeltaIndicator } from "@/components/patterns/delta-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { apiClient, downloadFile } from "@/lib/api/client";
+import { useEntityLabel } from "@/lib/hooks/use-entity-label";
+import { formatEntity } from "@/lib/utils";
 import { colors } from "@/styles/tokens";
 import type { ScopeType } from "@/lib/types/navigation";
 
@@ -63,7 +65,7 @@ function AdvisorTable({
             <tbody>
               {rows.map((a) => (
                 <tr key={a.advisor_id} className="cursor-pointer border-b last:border-0 hover:bg-muted/40" onClick={() => onSelect("Advisor", a.advisor_id, a.advisor_name)}>
-                  <td className="px-3 py-2 font-medium">{a.advisor_name}</td>
+                  <td className="px-3 py-2 font-medium">{formatEntity(a.advisor_id, a.advisor_name)}</td>
                   <td className="px-3 py-2 text-right font-mono">{compactUsd(a.revenue_ltm)}</td>
                   <td className="px-3 py-2 text-right font-mono text-muted-foreground">{compactUsd(a.aum_total)}</td>
                   <td className="px-3 py-2 text-right"><Badge variant={STATUS_STYLE[a.status] ?? "glass"}>{a.agp_risk_score ?? "—"}</Badge></td>
@@ -114,6 +116,7 @@ function MarketTable({ title, rows, tone }: { title: string; rows: import("@/lib
 
 export function ExecutiveDashboard() {
   const shell = useShellContext();
+  const { label: entityLabel } = useEntityLabel();
   const [data, setData] = useState<ScopeDashboard | null>(null);
   const [netFlows, setNetFlows] = useState<{ available: boolean; steps: NetFlowStep[]; window?: { beginning_month: string; ending_month: string }; note?: string } | null>(null);
   const [ai, setAi] = useState<ScopeAiInsight | null>(null);
@@ -184,7 +187,7 @@ export function ExecutiveDashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Command Center · iPerform Insights and Coaching</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{shell.scopeLabel || shell.scopeId} Overview</h2>
+          <h2 className="mt-2 text-[22px] font-black">{entityLabel(shell.scopeId)} Overview</h2>
           <p className="text-[12px] text-muted-foreground">
             {shell.scopeType} scope · {t?.advisor_count ?? "—"} advisors · {data?.period ?? shell.period} ·
             compare {data?.compare_to ?? shell.compareTo}. Every figure aggregated live from real per-advisor
@@ -235,7 +238,7 @@ export function ExecutiveDashboard() {
       {/* AI Insight Summary (grounded in this scope+period) + AI Coaching (Advisor scope only) */}
       <div className={`grid gap-3 ${isAdvisor ? "xl:grid-cols-2" : ""}`}>
         {insightData ? (
-          <AiInsightSummary data={insightData} title={`AI Insight Summary — ${shell.scopeLabel || shell.scopeId}`} />
+          <AiInsightSummary data={insightData} title={`AI Insight Summary — ${entityLabel(shell.scopeId)}`} />
         ) : (
           <div className="flex h-[220px] items-center justify-center rounded-xl border bg-white text-[12px] text-muted-foreground">
             {aiBusy ? "Generating scope insight…" : "AI insight unavailable"}
@@ -406,7 +409,7 @@ export function ExecutiveDashboard() {
       {data && (
         <div className="rounded-xl border bg-good-soft p-3 text-[11px] text-muted-foreground">
           <span className="font-semibold text-foreground">Evidence · </span>
-          {data.evidence.source}. {data.evidence.advisor_ids_resolved} advisors resolved under {data.scope_type} {data.scope_id}
+          {data.evidence.source}. {data.evidence.advisor_ids_resolved} advisors resolved under {data.scope_type} {entityLabel(data.scope_id)}
           {" "}(sample {data.evidence.advisor_ids_sample.slice(0, 5).join(", ")}). ƒ {data.evidence.computation}
         </div>
       )}
