@@ -713,3 +713,40 @@ Three docs for GitHub Copilot / any developer where Claude Code isn't available:
   stall, GSQL/schema edge cases + dead-edge trap, duplicate-implementation trap, smart_sdk guarded
   import, EMBEDDING_DIM/Chroma rebuild, background-process/pkill gotcha, screenshot location, real
   Claude for AI checks, datetime warnings.
+
+## Session 16 — Master-run completeness audit (CLAUDE.md §9–14, post-Parts A/B + Items 1–3)
+Verified by codebase inspection (not status claims). Note: there is no §15 in CLAUDE.md; audited 9–14.
+
+VERIFIED PRESENT (spot-checked in code):
+- §9.0 no purple: 0 occurrences of #7C3AED/violet in frontend styles/components.
+- §9.4 4-tier GraphClient: app/graph/tiered_client.py + tigergraph_mcp_adapter.py.
+- §9.6 Revenue Trend Explorer: frontend/components/revenue/revenue-trend-explorer.tsx.
+- §9.8 RAG multi-format corpus: data has 2 pdf + 2 docx + 2 pptx + 9 txt (scripts/generate_rag_corpus_docs.py).
+- §11.1 ModelClient + registry + GNN: app/ml/{client,registry,gnn}.py; household_churn + next_best_product present.
+- §11.1/§10 graph algorithms: Louvain community detection + PageRank centrality in app/ml/graph_algorithms.py
+  (referral-network / AGP-cohort). Mentor-CANDIDATE copy surfaced in advisor360 via centrality.
+- §11.3 FL feedback finetune: app/ml/fl_finetune.py.
+- §11.5 eval/trust: scripts/eval/run_golden_eval.py + docs/section11/eval/golden_qa.json + /evaluation router.
+- §11.6 rerank: app/llm/rerank_client.py wired into context_assembler.
+- §11.11 two-systems labels present in admin/impact/outcome components.
+- §12 impact ledger + §13 lifecycle: app/api/routers/impact_ledger.py + app/recommendations/lifecycle.py.
+- §13B guided story mode: frontend/components/story/{scenarios,story-launch,story-mode-provider,story-overlay}.
+- §10 partials done: household churn, next-best-product, AUM net-flow waterfall
+  (charts/aum-netflow-waterfall.tsx), PDF/PPT export (routers/export.py), global search + notifications
+  (routers/search_notifications.py).
+- §14 handover config already set in .env: GRAPH_CLIENT_MODE=real, LLM_CLIENT_MODE=claude, MODEL_CLIENT_MODE=real.
+
+GENUINELY REMAINING (consistent with the plan — §10-RESOLUTION says §10 runs LAST, only unmet items;
+both are the fable-architect-routed §10 pieces, NOT regressions):
+- §10 mentor/mentee CONSTRAINED PAIRING algorithm (GNN-similarity + capacity) — not built (0 code hits;
+  only the mentor-candidate description exists via centrality). The real matching algorithm is unbuilt.
+- §10 AGP program ROI methodology (fair peer-baseline production-growth comparison) — not built (0 hits).
+
+KNOWN, PRE-EXISTING, HARDWARE-BLOCKED (documented earlier, not a regression):
+- §5B/§8/§11 TigerGraph LIVE query INSTALL (43 GSQL) + full edge load stall on the 2-core/8GB box
+  (C++ compile). Structurally validated; mock mode is the working path; deferred to a larger machine.
+
+CONCLUSION: All headline master-run deliverables (§9, §11, §12, §13, §13B, §14) are present in code. The
+only genuinely-unbuilt items are the two §10 fable-architect algorithms, which the plan itself sequences
+LAST and as optional-if-time. No evidence of a master-run regression from Parts A/B or Items 1–3.
+(Per instruction: did NOT start the CLAUDE.md consistency update or the size-reduction cleanup.)
