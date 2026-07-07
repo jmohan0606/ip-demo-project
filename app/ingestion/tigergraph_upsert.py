@@ -87,6 +87,60 @@ class TigerGraphUpsertClient:
         self._raise_if_rejected(result, requested=1, kind="vertex", target=vertex_type)
         return result
 
+    def upsert_vertex_rows(
+        self,
+        vertex_type: str,
+        rows: list[dict[str, Any]],
+        id_column: str,
+    ) -> dict[str, Any]:
+        """Bulk vertex upsert — one adapter call for a whole batch of CSV rows.
+
+        This is the write path Run-All uses: against a remote TigerGraph it becomes a
+        single RESTPP/pyTigerGraph upsert payload per batch instead of one HTTP call
+        per row."""
+        if not rows:
+            return {"accepted_vertices": 0}
+        vertices, _ = _manifest_index()
+        manifest_entry = vertices.get(vertex_type) or {}
+        columns = manifest_entry.get("columns") or {k: k for k in rows[0].keys()}
+        entry = {
+            "kind": "vertex",
+            "target": vertex_type,
+            "id_column": id_column,
+            "columns": columns,
+            "file": manifest_entry.get("file", vertex_type),
+        }
+        result = self.graph.upsert(entry, rows)
+        self._raise_if_rejected(result, requested=len(rows), kind="vertex", target=vertex_type)
+        return result
+
+    def upsert_edge_rows(
+        self,
+        edge_type: str,
+        rows: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Bulk edge upsert — one adapter call per batch, schema metadata from the
+        source-of-truth manifest (from/to types and columns)."""
+        if not rows:
+            return {"accepted_edges": 0}
+        _, edges = _manifest_index()
+        manifest_entry = edges.get(edge_type)
+        if manifest_entry is None:
+            raise RuntimeError(f"edge {edge_type} not in the foundation manifest")
+        entry = {
+            "kind": "edge",
+            "target": edge_type,
+            "from_type": manifest_entry["from_type"],
+            "to_type": manifest_entry["to_type"],
+            "from_column": manifest_entry.get("from_column", "from_id"),
+            "to_column": manifest_entry.get("to_column", "to_id"),
+            "columns": manifest_entry.get("columns") or {k: k for k in rows[0].keys()},
+            "file": manifest_entry.get("file", edge_type),
+        }
+        result = self.graph.upsert(entry, rows)
+        self._raise_if_rejected(result, requested=len(rows), kind="edge", target=edge_type)
+        return result
+
     def upsert_edge(
         self,
         edge_type: str,

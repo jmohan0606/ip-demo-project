@@ -2369,3 +2369,20 @@ weights (5 families) + 144 transitions reproduce from CSV alone. No schema diver
 Part A (a226193) had already realigned the legacy mirror toward the canonical foundation shape.
 Known trap documented: root scripts/validate_tigergraph_foundation.py validates the LEGACY package;
 the real gate is docs/tigergraph_foundation/scripts/validate_package.py.
+
+### ITEM 2 — Data Ingestion & Sync: complete graph load — COMPLETE
+Root cause of the 15-entity display: app/ingestion/entity_registry.py was a HAND-WRITTEN 15-vertex
+subset (no edges at all), unrelated to the source-of-truth manifest. Fixed: registry now GENERATED
+from docs/tigergraph_foundation/data/manifest.json — all 192 entities (60 vertices + 132 edges),
+dependency-ordered (vertices by manifest order, then edges), legacy names aliased. Ingestion
+service is now kind-aware (edge upserts key on from->to), reads CSVs from the manifest paths, and
+writes in BULK batches (one adapter call + one hash transaction per batch instead of 3 SQLite
+fsyncs per row — required for 156K rows / remote TigerGraph); failed flushes rewind the checkpoint
+so resume never skips unflushed rows. New: POST /ingestion/run-all (+ /run-all/status) drives a
+background full-dataset load with per-entity progress; "Run All Ingestion" button on the page with
+live progress bar + per-entity results table; single-entity "Run Ingestion" kept. "Foundation
+Capabilities Locked" section removed. Evidence: Run All completed 192/192 entities, 156,247 rows,
+0 failures (in-process AND via HTTP; UI screenshot docs/qa_screenshots/session17/
+ingestion_runall_complete.png shows 60v/132e/192/156,247 KPIs + completed run). tsc PASS.
+Note: port 8000 public visibility had reset after the codespace restart (re-set via gh CLI) —
+that was why the first screenshot showed an empty page, not an app bug.

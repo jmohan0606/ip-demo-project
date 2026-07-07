@@ -146,6 +146,32 @@ class CheckpointRepository:
         )
         return rows[0]["row_hash"] if rows else None
 
+    def get_hashes(self, entity_name: str) -> dict[str, str]:
+        """All known row hashes for an entity in one read — lets a full-file run do
+        delta detection without a SQLite round-trip per row."""
+        rows = self.db.query(
+            "SELECT primary_key, row_hash FROM phx_dm_ingestion_record_hash WHERE entity_name = ?",
+            (entity_name,),
+        )
+        return {row["primary_key"]: row["row_hash"] for row in rows}
+
+    def upsert_hashes(self, entity_name: str, items: list[tuple[str, str]]) -> None:
+        """Bulk hash upsert in one transaction (one fsync for the whole batch)."""
+        if not items:
+            return
+        with self.db.connect() as conn:
+            conn.executemany(
+                '''
+                INSERT INTO phx_dm_ingestion_record_hash (entity_name, primary_key, row_hash, updated_at)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(entity_name, primary_key) DO UPDATE SET
+                    row_hash=excluded.row_hash,
+                    updated_at=CURRENT_TIMESTAMP
+                ''',
+                [(entity_name, pk, h) for pk, h in items],
+            )
+            conn.commit()
+
     def upsert_hash(self, entity_name: str, primary_key: str, row_hash: str) -> None:
         with self.db.connect() as conn:
             conn.execute(
