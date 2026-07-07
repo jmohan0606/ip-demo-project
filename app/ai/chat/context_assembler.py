@@ -135,20 +135,37 @@ class ChatContextAssembler:
                 hist = RecommendationLifecycleService().recent_activity_for_advisor(entity_id, limit=5)
                 if hist["events"]:
                     lines = []
+                    completed = []
                     for e in hist["events"]:
                         line = f"- {e['status']} {(e['created_ts'] or '')[:10]}: {e['title']}"
                         if e.get("note"):
                             line += f" — {e['note']}"
-                        elif e.get("impact_amount"):
-                            line += f" (recorded impact +${e['impact_amount']:,.0f}, transaction {e['source_transaction_id']})"
+                        # Always surface the recorded dollar impact for a completed action
+                        # (independent of the note), so the assistant can narrate the
+                        # measured outcome, not just that something was done.
+                        if e.get("impact_amount"):
+                            line += f" [measured impact +${e['impact_amount']:,.0f}, transaction {e['source_transaction_id']}]"
                         lines.append(line)
+                        if str(e.get("status", "")).upper() == "COMPLETED" and e.get("impact_amount"):
+                            completed.append(e)
+                    # An explicit, plain-language completion summary the LLM can echo directly.
+                    summary = ""
+                    if completed:
+                        top = max(completed, key=lambda x: x.get("impact_amount") or 0)
+                        summary = (
+                            f"\nSummary: {entity_id} has completed {len(completed)} recommendation(s); "
+                            f"most recent notable completion \"{top['title']}\" recorded a measured "
+                            f"revenue impact of +${top['impact_amount']:,.0f}. "
+                            f"Cumulative recorded impact across all completed actions: ${hist['total_impact']:,.0f}."
+                        )
                     items.append(ChatContextItem(
                         source=ChatContextSource.RECOMMENDATION_LIFECYCLE,
                         title="Recommendation Actions & Recorded Impact",
                         content=(f"Recent recommendation lifecycle for {entity_id}:\n" + "\n".join(lines)
-                                 + f"\nCumulative recorded impact: ${hist['total_impact']:,.0f}."),
+                                 + (summary or f"\nCumulative recorded impact: ${hist['total_impact']:,.0f}.")),
                         score=95.0,
-                        metadata={"ledger_ids": hist["ledger_ids"], "lifecycle": True},
+                        metadata={"ledger_ids": hist["ledger_ids"], "lifecycle": True,
+                                  "completed_count": len(completed)},
                     ))
             except Exception:
                 pass
