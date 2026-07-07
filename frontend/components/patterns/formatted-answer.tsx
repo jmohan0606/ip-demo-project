@@ -34,8 +34,36 @@ export function FormattedAnswer({ text }: { text: string }) {
   const blocks: ReactElement[] = [];
   let bullets: string[] = [];
   let numbers: string[] = [];
+  let tableRows: string[][] = [];
+
+  const flushTable = () => {
+    if (!tableRows.length) return;
+    const [head, ...body] = tableRows;
+    blocks.push(
+      <div key={`t-${blocks.length}`} className="overflow-x-auto">
+        <table className="w-full border-collapse text-[12px]">
+          <thead>
+            <tr className="border-b text-left text-[10px] uppercase tracking-wide" style={{ color: colors.text.muted }}>
+              {head.map((c, i) => <th key={i} className="px-2 py-1.5">{inlineBold(c, `th${blocks.length}-${i}`)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {body.map((r, ri) => (
+              <tr key={ri} className="border-b last:border-0">
+                {r.map((c, ci) => (
+                  <td key={ci} className="px-2 py-1.5" style={{ color: colors.text.secondary }}>{inlineBold(c, `td${blocks.length}-${ri}-${ci}`)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>,
+    );
+    tableRows = [];
+  };
 
   const flush = () => {
+    flushTable();
     if (bullets.length) {
       blocks.push(
         <ul key={`ul-${blocks.length}`} className="ml-1 space-y-1">
@@ -67,6 +95,25 @@ export function FormattedAnswer({ text }: { text: string }) {
   for (const raw of lines) {
     const line = raw.trim();
     if (!line) { flush(); continue; }
+    // markdown table rows: "| a | b |" — separator rows (|---|---|) are skipped
+    if (/^\|.*\|$/.test(line)) {
+      if (!/^[|\s:-]+$/.test(line)) {
+        tableRows.push(line.slice(1, -1).split("|").map((c) => c.trim()));
+      }
+      continue;
+    }
+    flushTable();
+    if (/^-{3,}$/.test(line)) { flush(); continue; } // horizontal rule → paragraph break
+    const heading = line.match(/^#{1,4}\s+(.*)$/);
+    if (heading) {
+      flush();
+      blocks.push(
+        <p key={`md-h-${blocks.length}`} className="mt-1.5 text-[13px] font-bold" style={{ color: colors.text.primary }}>
+          {inlineBold(heading[1], `mdh${blocks.length}`)}
+        </p>,
+      );
+      continue;
+    }
     const bullet = line.match(/^[-•*]\s+(.*)$/);
     const number = line.match(/^\d+[.)]\s+(.*)$/);
     const header = line.match(/^([A-Z][A-Za-z0-9 /&-]{2,40}):\s*(.*)$/);

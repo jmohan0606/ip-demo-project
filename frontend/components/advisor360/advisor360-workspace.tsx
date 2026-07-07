@@ -151,10 +151,22 @@ export function Advisor360Workspace() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiStatCard label="Revenue LTM" value={money(features.revenue_ltm)} />
-        <KpiStatCard label="AUM" value={money(features.aum_total)} />
-        <KpiStatCard label="NNM 3M" value={money(features.nnm_3m)} />
-        <KpiStatCard label="Households" value={String(counts.households)} />
+        <KpiStatCard label="Revenue LTM" value={money(features.revenue_ltm)}
+          trace={{ source: "Feature Engineering pipeline (Phase-5 snapshot, versioned + lineage)",
+                   computation: "revenue_ltm feature = Σ transaction revenue_amount over the trailing 12 months, computed from the advisor's real transaction edges",
+                   link: "/features-embeddings" }} />
+        <KpiStatCard label="AUM" value={money(features.aum_total)}
+          trace={{ source: "Feature Engineering pipeline (Phase-5 snapshot)",
+                   computation: "aum_total feature = Σ account AUM across the advisor's households (advisor→household→account traversal)",
+                   link: "/features-embeddings" }} />
+        <KpiStatCard label="NNM 3M" value={money(features.nnm_3m)}
+          trace={{ source: "Feature Engineering pipeline (Phase-5 snapshot)",
+                   computation: "nnm_3m feature = net new money over the trailing 3 months from monthly NNM snapshots",
+                   link: "/features-embeddings" }} />
+        <KpiStatCard label="Households" value={String(counts.households)}
+          trace={{ source: "Graph traversal (GQ-009 advisor 360 assembly)",
+                   computation: "count of advisor_serves_household edges for this advisor — the same set listed in the Households table below",
+                   link: "/graph-explorer" }} />
       </div>
 
       {/* AI Insight Summary + AI Coaching Card (structured, per-advisor) */}

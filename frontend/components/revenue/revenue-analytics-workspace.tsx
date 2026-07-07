@@ -113,11 +113,20 @@ export function RevenueAnalyticsWorkspace() {
           iconColor={colors.primary}
           changePct={cmp?.change_pct ?? undefined}
           deltaSuffix={cmp?.change_pct != null ? "vs prior yr" : undefined}
+          trace={{ source: "phx_dm_revenue_transaction vertices via transaction_for_advisor edge traversal",
+                   computation: "Σ revenue_amount over in-scope advisors in the selected period window; YoY delta vs the real month-shifted −12 window",
+                   link: "/graph-explorer" }}
         />
         </div>
-        <KpiStatCard label="Transactions" value={k ? k.transaction_count.toLocaleString() : "—"} icon={Activity} iconColor={colors.aiAccent} />
-        <KpiStatCard label="Avg / Advisor" value={k ? formatCurrency(k.avg_revenue_per_advisor, { compact: true }) : "—"} icon={Users} iconColor={colors.positive} />
-        <KpiStatCard label="Top Business Line" value={k?.top_business_line ?? "—"} icon={Layers} iconColor={colors.warning} />
+        <KpiStatCard label="Transactions" value={k ? k.transaction_count.toLocaleString() : "—"} icon={Activity} iconColor={colors.aiAccent}
+          trace={{ source: "same transaction traversal as Total Revenue",
+                   computation: "count of real transaction records kept in the selected period window — every chart on this page is summed from these rows" }} />
+        <KpiStatCard label="Avg / Advisor" value={k ? formatCurrency(k.avg_revenue_per_advisor, { compact: true }) : "—"} icon={Users} iconColor={colors.positive}
+          trace={{ source: "transaction traversal + hierarchy scope resolution",
+                   computation: "period revenue ÷ advisors resolved under the selected scope" }} />
+        <KpiStatCard label="Top Business Line" value={k?.top_business_line ?? "—"} icon={Layers} iconColor={colors.warning}
+          trace={{ source: "product→subcategory→category graph mapping",
+                   computation: "business line with the largest Σ revenue in the window (each transaction categorized by its product's real category edge)" }} />
       </div>
 
       <Card>
