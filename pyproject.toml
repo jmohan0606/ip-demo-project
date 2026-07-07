@@ -3,15 +3,24 @@ name = "iperform-insights-coaching"
 version = "11.0.1"
 description = "iPerform Insights & Coaching local enterprise demo platform foundation"
 readme = "README.md"
-requires-python = ">=3.12"
+# Client's supported range (their reference project). NOTE: this app is developed and
+# verified on 3.12; scripts/check_client_deps.py uses tomllib (needs >=3.11).
+requires-python = ">=3.10, <=3.14.2"
 dependencies = [
     "pyTigerGraph>=1.8.0",
     "tigergraph-mcp>=1.0.0",
     "mcp>=1.9.0",
     "langchain-core>=0.3.0",
     "langchain>=0.3.0",
-    "fastapi>=0.115.0",
-    "uvicorn>=0.30.0",
+    # fastapi/uvicorn floors LOWERED to the client reference project's pins (>=0.100.0 /
+    # >=0.23.2, replacing our >=0.115.0 / >=0.30.0) so resolution matches what the client
+    # artifactory actually serves. Verified: the app boots and runs with the currently
+    # installed newer versions, which still satisfy these looser floors.
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.2",
+    # From the client reference project (public packages, safe in core):
+    "google-genai>=1.41.0",
+    "PyYAML>=5.4.1",
     "langgraph>=0.2.0",
     "openai>=1.40.0",
     "anthropic>=0.40.0",
@@ -53,11 +62,18 @@ ml = [
 # TigerGraph GDS extra for pyTigerGraph[gds] (GraphSAGE loaders, Featurizer). Optional — base
 # pyTigerGraph connects without it; GNN falls back to the local PyG path.
 gds = ["pyTigerGraph[gds]>=1.8.0"]
-# cdao SDK (JPMC) — provides `from cdao import openai_azure_client`, the PRIMARY client-site
-# LLM path (LLM_CLIENT_MODE=cdao_openai → CdaoOpenAILLMClient). CLIENT-ARTIFACTORY ONLY (not on
-# public PyPI); guarded import, so the app boots in every other mode without it. Sourced from
-# the "artifacts" uv index — see [tool.uv.sources] below and uv.toml.
-cdao = ["cdaosdk-all[openai]>=10.0.0"]
+# cdao / cdaosmart SDKs (JPMC) — CLIENT-ARTIFACTORY ONLY (not on public PyPI); every import is
+# GUARDED, so the app installs and boots in the codespace WITHOUT this group (mock/claude mode).
+# Kept as an optional group precisely so `pip install -e .` works off the client network; on the
+# client machine install with `uv pip install -e ".[cdao]"`. Sourced from the "artifacts" index
+# — see [tool.uv.sources] below. cdaosdk-all backs CdaoOpenAILLMClient (LLM_CLIENT_MODE=
+# cdao_openai, the PRIMARY client LLM path); cdaosmart-sdk / cdaosmart-evals mirror the client
+# reference project's agent/eval stack.
+cdao = [
+    "cdaosmart-sdk[a2a,tracing]==2.2.0",
+    "cdaosdk-all[openai]>=10.0.0",
+    "cdaosmart-evals==0.2.3",
+]
 # smart_sdk (JPMC SmartSDK/Fusion) is CLIENT-ARTIFACTORY ONLY and not on public PyPI, so it is
 # intentionally NOT declared here — install it explicitly in the client env (see CLIENT_ENV_SETUP.md).
 
@@ -71,10 +87,60 @@ include = ["app*"]
 [tool.uv]
 package = false
 
-# cdaosdk-all resolves ONLY from the client artifactory (named "artifacts" in uv.toml) —
-# never from public PyPI.
+# --- Client uv indexes (exactly as in the client's reference project). NOTE: when a
+# uv.toml is present in the project root, uv reads configuration from it INSTEAD of
+# [tool.uv] here — uv.toml defines the same default "artifacts" index, so resolution is
+# identical either way; these blocks make pyproject self-contained per the client setup. ---
+[[tool.uv.index]]
+name = "artifacts"
+url = "https://artifacts-read.gkp.jpmchase.net/artifactory/api/pypi/pypi/simple"
+publish-url = "https://artifacts-publish.gkp.jpmchase.net/artifactory/api/pypi/pypi"
+default = true
+
+[[tool.uv.index]]
+name = "artifacts-sandbox"
+url = "https://artifacts-read.gkp.jpmchase.net/artifactory/api/pypi/pypi-sandbox/simple"
+publish-url = "https://artifacts-publish.gkp.jpmchase.net/artifactory/api/pypi/pypi-sandbox"
+explicit = true
+
+# cdao* packages resolve ONLY from the client artifactory — never from public PyPI.
 [tool.uv.sources]
+cdaosmart-sdk = { index = "artifacts" }
 cdaosdk-all = { index = "artifacts" }
+cdaosmart-evals = { index = "artifacts" }
+
+# From the client reference project verbatim: pre-declared resolution metadata for
+# google-adk (lets uv resolve it without fetching/building its metadata from the index).
+[[tool.uv.dependency-metadata]]
+name = "google-adk"
+version = "1.22.1"
+requires-dist = [
+    "pydantic>=2.0,<3",
+    "google-genai>=1.0.0",
+    "google-auth>=2.23.0",
+    "google-cloud-storage>=2.0.0",
+    "google-cloud-core>=2.0.0",
+    "authlib>=1.2.0",
+    "click>=8.1.3",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.2",
+    "starlette>=0.27.0",
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.0",
+    "typing-extensions>=4.5.0",
+    "requests>=2.31.0",
+    "mcp>=1.0.0",
+    "aiosqlite>=0.19.0",
+    "sqlalchemy>=2.0.0",
+    "anyio>=4.0.0",
+    "tzlocal>=5.0",
+    "graphviz>=0.20.0",
+    "opentelemetry-api>=1.0.0",
+    "opentelemetry-sdk>=1.0.0",
+    "websockets>=10.0",
+    "watchdog>=4.0.0",
+    "a2a-sdk>=0.2.0",
+]
 
 [tool.ruff]
 line-length = 100

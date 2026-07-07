@@ -79,6 +79,15 @@ AT_RISK_FALLBACKS: dict[str, str] = {
         "Guarded import — required only for LLM_CLIENT_MODE=cdao_openai (the PRIMARY client LLM "
         "path); if unavailable, fall back to LLM_CLIENT_MODE=azure (SmartSDK)."
     ),
+    "cdaosmart-sdk": (
+        "Client-artifactory ONLY (pinned ==2.2.0 per the client reference project; "
+        "[tool.uv.sources] → 'artifacts'). Not imported by this app's core paths — mirrors the "
+        "client agent stack; absence never blocks boot."
+    ),
+    "cdaosmart-evals": (
+        "Client-artifactory ONLY (pinned ==0.2.3 per the client reference project; "
+        "[tool.uv.sources] → 'artifacts'). Eval tooling only; absence never blocks boot."
+    ),
 }
 
 STATUS_AVAILABLE = "AVAILABLE"

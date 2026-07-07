@@ -49,6 +49,45 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
   (+$2,657,167) vs 2026-Q1" (cross-checks exactly), "Biggest gainer: Central Division
   +$1,259,707 (+43.0%)". Screenshots: `session17/trend_explorer_bullets.png` + `_breakdown.png`.
 
+### ITEM 7 (follow-up request) — pyproject.toml aligned to the client reference project ✅
+
+**Added/changed:**
+- `requires-python = ">=3.10, <=3.14.2"` (client range; was `>=3.12`). Caveat documented in the
+  file: this app is developed/verified on **3.12 only** — 3.10/3.11 runtime compatibility is
+  unverified, and `scripts/check_client_deps.py` uses `tomllib` (needs ≥3.11).
+- New core deps from the client set (public packages): `google-genai>=1.41.0`, `PyYAML>=5.4.1`
+  (installed `google-genai 2.10.0` locally so the env matches; nothing in the app imports it yet
+  — it mirrors the client reference stack).
+- `[cdao]` optional group now carries ALL client-only cdao packages:
+  `cdaosmart-sdk[a2a,tracing]==2.2.0`, `cdaosdk-all[openai]>=10.0.0`, `cdaosmart-evals==0.2.3`.
+  **Deliberate placement:** they live in the optional group, NOT core — that is what keeps
+  `pip install -e .` working in the codespace where the artifactory is unreachable (rule 7);
+  the client installs them with `uv pip install -e ".[cdao]"`.
+- Both client uv indexes added verbatim (`artifacts` default with publish-url,
+  `artifacts-sandbox` explicit), `[tool.uv.sources]` maps cdaosmart-sdk / cdaosdk-all /
+  cdaosmart-evals → `artifacts`, and the `[[tool.uv.dependency-metadata]]` google-adk 1.22.1
+  block added exactly as provided (25 requires-dist entries). Note in-file: when `uv.toml` is
+  present uv reads config from it instead of `[tool.uv]` — both define the same default
+  `artifacts` index, so resolution is identical either way.
+
+**Version conflicts (client pin vs ours) — both resolved by REPLACING with the client's:**
+| Package | Ours (old) | Client (now) | Outcome |
+|---|---|---|---|
+| fastapi | >=0.115.0 | **>=0.100.0** | Floor lowered — installed 0.139.0 still satisfies; no break. |
+| uvicorn | >=0.30.0 | **>=0.23.2** | Floor lowered — installed 0.49.0 still satisfies; no break. |
+No other overlaps; **no genuine incompatibilities found — nothing needed a code change or a
+client escalation.** (Both conflicts were floor-loosenings, which can only widen resolution.)
+
+**App still boots/runs — actually run, not assumed:**
+- Backend imports clean, 48 routes; HTTP: `/health` 200, `/revenue/analytics` 200,
+  `/ingestion/entities` 200, `/predictions/revenue-decline/A001` 200,
+  `/recommendations/advisor/A001` 200, `POST /agentic-ai/run` 200 (an earlier
+  `/predictions/advisor/A001` 404 was a wrong URL in the test, not a regression).
+- Frontend: full `next build` PASS (all routes compiled/prerendered).
+- `check_client_deps.py` vs public PyPI: **40/44 AVAILABLE, 0 VERSION-MISMATCH**, the only 4
+  MISSING are exactly the client-artifactory-only cdao* + smart_sdk (each printed with its
+  fallback), exit 0. All three new cdao packages have AT-RISK fallback entries.
+
 ### ITEM 6 (follow-up request) — CdaoOpenAILLMClient: PRIMARY client LLM adapter ✅
 - `LLM_CLIENT_MODE=cdao_openai` → `CdaoOpenAILLMClient` (app/llm/client.py): wraps the client's
   confirmed-working `from cdao import openai_azure_client(api_version, workspace_id)` +

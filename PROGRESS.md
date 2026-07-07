@@ -2463,3 +2463,14 @@ CdaoOpenAILLMClient ("[cdao-stub:gpt-4o-2024-08-06] …", confidence 0.85) — a
 consumed by the nodes unchanged. Live cdao calls only testable on the client machine post-PCL-
 login (noted). check_client_deps vs public PyPI: cdaosdk-all correctly MISSING+AT-RISK w/
 fallback, exit 0.
+
+### ITEM 7 — pyproject aligned to client reference project — COMPLETE
+requires-python ">=3.10, <=3.14.2"; fastapi/uvicorn floors replaced with client pins (>=0.100.0 /
+>=0.23.2 — loosenings, no break); google-genai + PyYAML added to core; all cdao* client-only
+packages (cdaosmart-sdk[a2a,tracing]==2.2.0, cdaosdk-all[openai]>=10.0.0, cdaosmart-evals==0.2.3)
+in the guarded [cdao] optional group so codespace install still works; both client uv indexes
+(artifacts default + artifacts-sandbox explicit) + [tool.uv.sources] for all three cdao packages +
+google-adk 1.22.1 dependency-metadata block verbatim. check_client_deps covers everything (40/44
+AVAILABLE on public PyPI, 4 MISSING = exactly the client-only set, exit 0). Verified running:
+backend 48 routes + key endpoints 200 incl. POST /agentic-ai/run; full next build PASS. No genuine
+incompatibilities — conflict table in STATUS_CHECK.md.
