@@ -4,6 +4,97 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 14 — StateRepository refactor COMPLETE: all durable state on TigerGraph (2026-07-07)
+
+The three remaining durable-state domains are now migrated onto the same adapter proven for
+memory — **TigerGraph authority + SQLite fallback** — plus schema, seed CSVs, GSQL, and the two
+closing audits requested. Foundation validator **STATUS PASS** (60 vertices / 131 edges / 191
+manifest files / 47 queries).
+
+### Domains migrated (commit per domain)
+| Domain | Write (graph) | Read (traversal) | Fallback | Commit |
+|---|---|---|---|---|
+| **Learning/bandit weights** | `phx_dm_learning_weight` vertex per family | `get_learning_weights` | SQLite | `0b11e92` |
+| **Impact ledger** | `phx_dm_impact_ledger` vertex + `impact_for_advisor`/`impact_from_recommendation` edges | `get_impact_ledger` | SQLite | `5c58dd5` |
+| **Rec status + transitions** | status on `phx_dm_recommendation` vertex + `phx_dm_rec_status_transition` vertex + `transition_of_recommendation` edge | `get_rec_status_transitions` | SQLite | `5c58dd5` |
+| Memory (prior session) | `phx_dm_context_memory` + conversation/reasoning | `get_context_memory_by_scope` | SQLite | `d5e903c` |
+
+`LearningWeightStore` gutted (delegates to adapter); `lifecycle.py` writes/reads status,
+transitions, impact via the adapter (removed the SQLite INSERT/UPDATE/SELECT blocks). Only the
+generated-recommendation **attribute cache** (`register_generated`/`_rec_attrs` mirror) remains in
+SQLite — an operational cache, not a durable domain (authoritative rec attrs come from the graph
+vertex). `reset_advisor` clears both stores; `replay_on_boot` rehydrates the graph from the
+durable SQLite after a restart.
+
+### Schema + CSV + GSQL (commit `1dad658`)
+- 3 vertices + 3 edges added to `01_vertices/02_edges/03_create_graph.gsql` + `schema_catalog.json`.
+- Seed CSVs + manifest: curated learning weights (5 families) + **revenue-neutral** status-transition
+  history (144 rows) → graph-from-CSV reproduces weights + status history. **Impact ledger is
+  header-only (runtime-accumulated):** seeding impact entries would make `replay_on_boot` inject
+  revenue transactions on boot and **mutate the anchored/verified advisor figures**, so it is
+  deliberately left empty (the rec statuses themselves are already seeded on the rec vertex).
+- GSQL `GQ-044..047` mirroring the mock traversal queries (written-but-unverified-on-hardware, same
+  discipline as the rest of the RealGraphClient GSQL) + query catalog + test cases.
+
+### Verified (real evidence)
+- All three domains: write → graph vertex/edge → read by traversal (weights 1.05/1.1; impact
+  entry + `impact_for_advisor`; 2 transition vertices; status COMPLETED from latest transition).
+- **SQLite fallback** engages cleanly on a simulated graph failure (returns SQLite data, no crash,
+  full trace logged) for impact + memory.
+- `reset_advisor` clears both stores; `replay_on_boot` rehydrated 5 entries + statuses from durable
+  SQLite; **graph-from-CSV** reproduces weights (MANAGED_MIX=1.08) + 144 transition vertices.
+- HTTP smoke (graph mode): `/impact-ledger/advisor` 200 (1 entry), `/feedback-learning/state` 200,
+  regenerate → opportunity Addressed — all state graph-sourced. Backend boots (46 routes).
+
+### (A) Vertex/Edge usage audit — 191 types (60 V + 131 E)
+_"Read" below means **read via a graph traversal/lookup** in the query layer. Several
+"written-not-read-via-traversal" types ARE consumed via other paths (pandas/SQL/ML/API), noted._
+
+- **WRITTEN + READ (traversal): 160** — the active graph. Includes all 4 new state types
+  (learning_weight, impact_ledger, rec_status_transition + their edges) and memory types.
+- **WRITTEN (seeded/runtime) but NOT read via a graph traversal: 31** — data present but reached
+  through non-traversal paths, not graph queries. Notable:
+  - Analytics series read via pandas, not traversal: `phx_dm_monthly_product_revenue` (6480),
+    `phx_dm_aum_in_period`/`ncf_in_period`/`nnm_in_period` (2160 each),
+    `phx_dm_product_revenue_*` (6480).
+  - Read via service/API not graph query: `phx_dm_coaching_task` + its edges (90) — read by
+    CoachingReviewService; `phx_dm_eligibility*` (122); `phx_dm_best_practice`/
+    `phx_dm_playbook_has_best_practice` (6); `phx_dm_business_glossary_term` (6);
+    `phx_dm_rep_pool`/`advisor_in_rep_pool`.
+  - Similarity/embedding targets for households/accounts/products (similarity_match_targets_*,
+    *_has_similarity_match, product_has_embedding) — written by seed/ML, surfaced via the ML
+    similarity path rather than a traversal query.
+  - `phx_dm_scenario_for_user`/`scenario_for_advisor` (10), `phx_dm_memory_for_branch` (24),
+    `phx_dm_document_has_chunk` (24 — RAG reads chunks via Chroma, not graph),
+    `phx_dm_agp_program_has_milestone` (8).
+- **Genuinely SCHEMA-ONLY (no seed, no write, no read): 0.**
+- Note on the `phx_dm_tool_call` example: it is **seeded AND read** via the
+  `get_agent_execution_trace` traversal (`execution_has_tool_call`) — so it is not schema-only,
+  though whether agent runs actively WRITE new tool_call vertices at runtime is a separate question
+  (the Agent Orchestration page consumes seeded execution traces).
+
+### (B) Do agents reuse prior reasoning to inform NEW reasoning?
+**No — reasoning traces are WRITTEN and DISPLAYED, but not retrieved to improve new reasoning.**
+- `phx_dm_reasoning_trace` is written (`save_reasoning_trace`/linker) and read back ONLY by the
+  Explainability / Memory-Timeline **display** pages (`get_reasoning_trace`, `get_memory_timeline`
+  in `app/api/routers/explainability.py`).
+- The context assembler (`app/ai/chat/context_assembler.py`) assembles a **flat bundle** —
+  context_memory summary + scope rollup + knowledge + lifecycle — and does **not** pull prior
+  `phx_dm_reasoning_trace` vertices into the context for a new question. There is no multi-hop
+  "reason over connected prior reasoning" step; retrieval is scope-keyed memory, not relational
+  traversal across reasoning→memory→feature chains.
+- **Is it a quick wire-up now?** *Partially.* Because the graph is now authoritative and the
+  traversal query (`get_reasoning_trace` / `get_memory_timeline`) already exists, adding a
+  StateRepository `retrieve_reasoning_traces(scope)` + a new context item in the assembler is a
+  small, well-scoped change (est. a few hours) that would make prior reasoning inform new answers.
+  Genuine **relational, multi-hop reasoning** (e.g. "find similar advisors' past reasoning that led
+  to successful outcomes, via reasoning→memory→outcome edges") is a larger design task, not a quick
+  wire-up. Flagged for a decision — not built this session.
+
+Commits: `0b11e92` (weights) · `5c58dd5` (impact+status) · `1dad658` (schema/CSV/GSQL).
+
+---
+
 ## Session 13 — TigerGraph as source of truth for durable state (StateRepository) (2026-07-07)
 
 Large multi-step refactor to close the SQLite divergence documented in `DATABASES.md`. **The
