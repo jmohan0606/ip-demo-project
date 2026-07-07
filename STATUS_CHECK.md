@@ -772,3 +772,20 @@ Root cause was three compounding issues; fixed all three robustly + env-driven s
   "Failed to fetch" (docs/qa_screenshots/s16-fix-env-health-publicbase.png). Anonymous external-URL load
   hits GitHub's one-time port interstitial (click Continue) — not an app error.
 - TROUBLESHOOTING.md §0 added documenting all three parts + verify commands, for the client machine / future sessions.
+
+---
+
+## Session 16 — UI intelligence run (Fable 5, 2026-07-07)
+
+REQ-1 (mockup match, scope-aware tiles, AI narrative): DONE — diff table + closure evidence in
+UI_INTELLIGENCE_WORK.md; firm+advisor screenshots match the Hackathon mockup structure; GNN peer
+benchmarking replaces "No peer group at this scope"; Recent Transactions + PY trend line added.
+REQ-2 (visible intelligence per figure): DONE — WhyTrace popovers on tiles/cards with real
+computation/source/link; 3 verified figure→model paths (screenshots).
+REQ-3 (AI answers anything, per persona, full context): DONE — 5 new context domains; 12-question
+real-Claude audit across personas, all grounded and correctly scoped (evidence JSON committed);
+composition fixed so the real answer leads; AI Assistant page now follows the active scope.
+Pending items: §13B.3 division/market journeys VERIFIED (exact cross-scope propagation);
+AUM waterfall VERIFIED; §10 mentor pairing + AGP ROI BUILT and live.
+Boot: backend 142 routes; 15/15 pages HTTP 200; frontend tsc PASS; no purple.
+Commits: e6f05df, 56963e3, 5090273, 5b5909e, ce92cc9, + sweep commits. All pushed.

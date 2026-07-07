@@ -67,7 +67,26 @@ sqlite+cosine verified); 15,116 revenue transactions with full edge links.
    patterns)" + per-peer scores on the card itself; peer chips click through to that advisor.
    `req2_benchmark_gnn_trace.png`
 - [ ] REQ-3: persona question-set audit (real Claude) — answers + instrumented sources
-- [ ] Remaining pages sweep
+- [x] Remaining pages sweep (screenshots under `docs/qa_screenshots/session16/sweep/`):
+      · **AI Assistant** — REAL GAP FIXED: page pinned every scope to one advisor via
+        `useScopedAdvisor` (the exact §11.6 anti-pattern). Now follows the ACTIVE scope with
+        persona mapping + scope-adaptive question chips. Verified live in the UI: DDW at Division
+        D01 asked "Which of my advisors need attention?" → real Claude named 3 advisors with
+        per-advisor evidence, "Data used" line, 8 instrumented context items incl. division-wide
+        graph traversal (`assistant_ddw_division_scope.png`).
+      · **FormattedAnswer** — markdown tables/headings/rules now render properly (answers with
+        metric tables were showing raw pipes).
+      · **Revenue Analytics** — Trend Explorer confirmed working (slow load, not broken:
+        `trend_explorer_focus.png` shows stacked quarterly bars + AI period drivers); channel
+        label truncation fixed (RECOMMENDATION_IMPACT); WhyTrace added to all 4 KPI tiles.
+      · **Advisor 360** — WhyTrace added to the 4 KPI tiles; page already philosophy-rich
+        (AGP components, similar households/accounts w/ scores, PageRank plain-language card,
+        churn column w/ honest caveat).
+      · **Opportunities & Recommendations / Recommendation Impact** — verified already exemplary
+        (learning-loop formalism, weight trajectories, outcome-driven retraining before/after,
+        priority = base × learned weight shown per row). No changes needed.
+      · **No purple anywhere** re-verified (grep: zero violet hexes; bars are approved indigo).
+      · Smoke: 15/15 pages HTTP 200, backend 142 routes.
 - [x] §13B.3 division + market guided journeys — VERIFIED end to end. The frontend wrappers exist
       and launch (`story_launch_scenarios.png`: Advisor 11-step, DDW 9-step, MDW 9-step, all with
       Start buttons; anchored A001/A020 excluded from the pick pool). Real propagation proof, run

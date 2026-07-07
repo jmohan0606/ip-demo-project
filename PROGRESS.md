@@ -2334,3 +2334,22 @@ waterfall confirmed present/populated at firm scope.
 In progress: REQ-2 evidence walk (3 figures), REQ-3 persona question-set audit with real Claude.
 Next: REQ-3 audit + fixes; remaining-pages sweep; §13B.3 division/market journeys; §10 mentor
 pairing + AGP ROI.
+
+## Session 16 (cont.) — 2026-07-07 (REQ-2/3 + pending items + sweep)
+Completed: REQ-2 per-figure why-traces w/ 3 verified figure→model paths (incl. GNN benchmark
+popover + Predictions SHAP destination); fixed a real stale-response race on dashboard scope
+change. REQ-3: context assembler extended with 5 domains (AGP status, CRM pipeline, household
+churn ML, GNN peer benchmark, learning state); answer-leads composition fix; 12-question persona
+audit with real Claude (2 advisors, MDW M01, DDW D01, knowledge) — all grounded, persona-correct,
+evidence at docs/qa_evidence/session16_req3_results.json. §10: GNN mentor/mentee constrained
+pairing + AGP program ROI w/ fair GNN-peer baseline (backend + AGP page, verified live). §13B.3:
+division+market journeys verified — exact +$47,053.23 propagation at advisor/market/division.
+Sweep: AI Assistant now follows the ACTIVE scope (rollup reasoning verified in UI with real
+Claude); markdown tables in answers; WhyTrace on Advisor 360 + Revenue Analytics tiles; trend
+explorer confirmed working; no purple re-verified; 15/15 pages 200, 142 backend routes.
+In progress: —
+Known issues / deferred: household/product blank on impact-ledger transactions in Recent
+Transactions (genuinely absent edges — could label with recommendation title later); FormattedAnswer
+table support is lightweight (no cell alignment).
+Next: continue standing philosophy on any page found lacking during client review; UI_INTELLIGENCE_WORK.md
+is the detailed record.
