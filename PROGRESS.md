@@ -2043,3 +2043,19 @@ LLM_CLIENT_MODE=claude verified: `CLAUDE_OK` smoke test passed). Commit per item
   - Evidence: HTTP 200; A001 → 6 households, H0001(AFFLUENT) holds 6 cats, top next-best
     Alternatives (0.68, "68% of AFFLUENT households hold Alternatives; this household does not");
     held vs recommended overlap = ∅; A005 returns different households (real scoping).
+
+### ITEM 1 — AI labeling correction — DONE (verified)
+- Per-card chip already literal "✦ AI Generated" (no product name); AI Assistant page/nav already
+  "iPerform Coach Q&A Assistant" (commit 8bb6380) — confirmed by audit, no reverts needed.
+- Added shared `ProductSystemLabel` + proactive "iPerform Insights and Coaching" page label on
+  predictions/recommendations/advisor-360. Evidence: docs/qa_screenshots/session11/predictions_label.png,
+  ai_assistant_coach.png; tsc PASS. (NOTE: these frontend files were swept into the item-5 commit
+  e77fd3c by `git add -A`; work is committed, just bundled with item 5.)
+
+### ITEM 3 — AUM net-flows waterfall (Exec Dashboard) — DONE
+- `app/scope/net_flows.py` AumNetFlowsService + `GET /scope/aum-net-flows`: reconciling AUM bridge
+  (Beginning + New AUM − Departures + Market/Organic Growth − Fees = Ending) from REAL monthly
+  AUM/NNM snapshots + FEE transactions per in-scope advisor; growth = reconciling residual.
+- Frontend `AumNetflowWaterfall` (Recharts stacked-float, zoomed Y-axis) on the exec dashboard.
+- Evidence: FIRM $2.065B +20.4M −1.26M +23.5M −10.2M = $2.098B (reconciles exactly; fees 0.49% of
+  AUM); DIVISION D01 reconciles at 24-advisor scope. Screenshot dashboard_aum_waterfall.png. tsc PASS.
