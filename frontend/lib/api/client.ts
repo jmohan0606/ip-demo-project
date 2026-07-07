@@ -34,3 +34,18 @@ export class ApiClient {
   }
 }
 export const apiClient = new ApiClient();
+
+/** Fetch a binary endpoint (PDF/PPTX export) and trigger a browser download. */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`Export failed ${response.status}`);
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

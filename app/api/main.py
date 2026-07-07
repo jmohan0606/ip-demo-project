@@ -42,6 +42,7 @@ from app.api.routers.advisor360 import router as advisor360_router
 from app.api.routers.hierarchy import router as hierarchy_router
 from app.api.routers.whatif import router as whatif_router
 from app.api.routers.scope import router as scope_router
+from app.api.routers.export import router as export_router
 from app.api.routers.revenue import router as revenue_router
 from app.api.routers.graph_viz import router as graph_viz_router
 from app.api.routers.peers import router as peers_router
@@ -87,6 +88,7 @@ app.include_router(advisor360_router)
 app.include_router(hierarchy_router)
 app.include_router(whatif_router)
 app.include_router(scope_router)
+app.include_router(export_router)
 app.include_router(revenue_router)
 app.include_router(graph_viz_router)
 app.include_router(peers_router)

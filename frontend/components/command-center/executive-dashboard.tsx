@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import {
   Building2, TrendingUp, TrendingDown, Users, Target, DollarSign, Wallet, PiggyBank,
-  Layers, Gauge, ShieldAlert, AlertTriangle, MapPin, BarChart3, Sparkles,
+  Layers, Gauge, ShieldAlert, AlertTriangle, MapPin, BarChart3, Sparkles, FileDown,
 } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import {
@@ -22,7 +22,7 @@ import { AiCoachingCard, type AiCoachingData } from "@/components/patterns/ai-co
 import { DeltaIndicator } from "@/components/patterns/delta-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, downloadFile } from "@/lib/api/client";
 import { colors } from "@/styles/tokens";
 import type { ScopeType } from "@/lib/types/navigation";
 
@@ -120,6 +120,20 @@ export function ExecutiveDashboard() {
   const [coaching, setCoaching] = useState<{ insight: AiInsightData; coaching: AiCoachingData } | null>(null);
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const exportView = async (format: "pdf" | "pptx") => {
+    setExporting(true);
+    try {
+      const st = shell.scopeType.toUpperCase();
+      await downloadFile(
+        `/export/dashboard?scope_type=${st}&scope_id=${shell.scopeId}&period=${shell.period}&compare_to=${encodeURIComponent(shell.compareTo)}&format=${format}`,
+        `iperform_${st}_${shell.scopeId}_${shell.period}.${format}`.toLowerCase(),
+      );
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const isAdvisor = shell.scopeType === "Advisor";
 
@@ -177,7 +191,25 @@ export function ExecutiveDashboard() {
             snapshots + transactions. Change scope/period/compare in the filter bar to re-roll the page.
           </p>
         </div>
-        {busy && <span className="text-[12px] text-muted-foreground">Rolling up…</span>}
+        <div className="flex items-center gap-2">
+          {busy && <span className="text-[12px] text-muted-foreground">Rolling up…</span>}
+          <button
+            onClick={() => void exportView("pdf")}
+            disabled={exporting}
+            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
+            title="Export this dashboard view to PDF (real data)"
+          >
+            <FileDown className="h-3.5 w-3.5" /> PDF
+          </button>
+          <button
+            onClick={() => void exportView("pptx")}
+            disabled={exporting}
+            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
+            title="Export this dashboard view to PowerPoint (real data)"
+          >
+            <FileDown className="h-3.5 w-3.5" /> PPT
+          </button>
+        </div>
       </div>
 
       {/* KPI grid — headline revenue is period-windowed; its delta respects Compare-To (12.1) */}
