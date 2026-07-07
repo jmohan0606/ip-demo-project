@@ -11,6 +11,7 @@ import { SeverityBadge } from "@/components/patterns/severity-badge";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { apiClient } from "@/lib/api/client";
 import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
+import { GraphReasoningPath } from "@/components/explainability/graph-reasoning-path";
 import { colors, type } from "@/styles/tokens";
 
 interface Vertex {
@@ -149,6 +150,10 @@ export function ExplainabilityWorkspace() {
           </button>
         ))}
       </div>
+
+      {/* Graph relational reasoning: the REAL multi-hop traversal path + prior-reasoning reuse
+          that grounded the answer (items 1-3) — the temporal knowledge graph reasoning, visible. */}
+      {advisorId && <GraphReasoningPath scopeType="ADVISOR" scopeId={advisorId} />}
 
       {/* Section 13B.1: the "How It Works" pipeline trace (narrative/timing view) above
           the artifact-graph lineage chain — same selected recommendation. */}
