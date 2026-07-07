@@ -83,6 +83,39 @@ ANTHROPIC_MODEL=claude-haiku-4-5-20251001
 
 ## 2. Artifactory (`uv.toml`)
 
+### 2.0 Dependency pre-check — run this FIRST, before any install
+
+Two scripts verify every dependency against the client artifactory BEFORE anything is
+installed, so missing libraries surface upfront rather than mid-build:
+
+```
+python scripts/check_client_deps.py    # all pyproject groups (core/dev/aws/ml/gds) + smart_sdk
+python scripts/check_client_npm.py     # frontend/package.json deps + devDeps
+```
+
+- Defaults point at the client artifactory (PyPI:
+  `…/artifactory/api/pypi/pypi/simple`; npm: `…/artifactory/api/npm/npm/`). Override with
+  `--index-url` / `--registry` or `CLIENT_PYPI_INDEX` / `CLIENT_NPM_REGISTRY`.
+- Each package is reported AVAILABLE (3.12-compatible version satisfying the pin) /
+  VERSION-MISMATCH / MISSING; at-risk packages (torch, torch-geometric,
+  sentence-transformers, chromadb, pyTigerGraph[gds], smart_sdk) print their fallback from
+  the table below when not cleanly available.
+- Exit codes: 0 = pass, 1 = a required dep has an issue, 2 = index unreachable (clear
+  message — if you're not on the client network, pass the public index to validate logic).
+
+### 2.0b npm registry auth (`frontend/.npmrc`)
+
+Copy the committed template to activate the client registry for npm (the template holds NO
+token; the real `frontend/.npmrc` is gitignored):
+
+```
+cp frontend/.npmrc.client-template frontend/.npmrc
+```
+
+If `npm install` (or the pre-check) returns an auth/401 error, uncomment the
+`always-auth=true` and `_authToken` lines in `frontend/.npmrc` and supply a token issued by
+the artifactory — parallel to the TigerGraph secret in §3. Never commit the file with a token.
+
 `uv.toml` is committed and points every dependency — including `smart_sdk`, which is not on public
 PyPI — at the client index:
 ```toml
@@ -163,18 +196,23 @@ attribute DDL (`EMBEDDING(DIMENSION=EMBEDDING_DIM, METRIC="COSINE")`), and the C
 
 ## 6. First-run checklist (client machine)
 
-1. `git clone` the repo; `cp .env.example .env`.
-2. Fill `.env` per §1 (modes + SmartSDK/Fusion + TigerGraph). Paste `TG_SECRET` from §3.
-3. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[ml,gds]"` then
-   `uv pip install smart_sdk`.
-4. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 185 CSVs from
-   `docs/tigergraph_foundation/` (see `CLAUDE.md` §8 / `scripts/install_tigergraph_source_of_truth.sh`).
-5. Boot check (mock first, to isolate app issues from connectivity):
+1. **Dependency pre-check (§2.0) — before anything else:**
+   `python scripts/check_client_deps.py` and `python scripts/check_client_npm.py` against the
+   artifactory. Resolve every MISSING/VERSION-MISMATCH per the §2 fallback table first.
+2. `git clone` the repo; `cp .env.example .env`.
+3. Fill `.env` per §1 (modes + SmartSDK/Fusion + TigerGraph). Paste `TG_SECRET` from §3.
+4. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[ml,gds]"` then
+   `uv pip install smart_sdk`. Frontend: `cp frontend/.npmrc.client-template frontend/.npmrc`
+   (§2.0b) then `npm install` in `frontend/`.
+5. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 192 manifest CSVs from
+   `docs/tigergraph_foundation/` (see `CLAUDE.md` §8 / `scripts/install_tigergraph_source_of_truth.sh`;
+   the app's Data Ingestion & Sync page "Run All Ingestion" loads the complete graph remotely).
+6. Boot check (mock first, to isolate app issues from connectivity):
    `GRAPH_CLIENT_MODE=mock LLM_CLIENT_MODE=mock uvicorn app.api.main:app` → confirm it serves.
-6. Flip to real: set the §1 modes, restart, and open the **Connection & Environment Health**
+7. Flip to real: set the §1 modes, restart, and open the **Connection & Environment Health**
    screen (built for exactly this) to confirm TigerGraph auth/SSL/graph/counts, LLM test
    generation, embedding dimension, and Chroma — each green/red with the real error if red.
-7. If any tier is red, the health screen shows the real error; fix per the fallback table (§2)
+8. If any tier is red, the health screen shows the real error; fix per the fallback table (§2)
    and re-check. Do not proceed to demo until all green.
 
 ---

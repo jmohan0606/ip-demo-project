@@ -2415,3 +2415,23 @@ reference-only, not on live path); per-period LLM summaries are one Claude call 
 (existing behavior, fine at quarterly granularity).
 Next: client review feedback; consider describing /ingestion/run-all in ARCHITECTURE_OVERVIEW if
 handoff depth requires it.
+
+### ITEM 5 — Client dependency pre-check tooling — COMPLETE
+scripts/check_client_deps.py: parses pyproject (core + every optional group: dev/aws/ml/gds, plus
+the client-only smart_sdk) and checks each pin against a PEP 691/503 simple index (default = client
+artifactory, configurable via --index-url / CLIENT_PYPI_INDEX). Per package: AVAILABLE (3.12-
+compatible release satisfying the pin) / VERSION-MISMATCH / MISSING; at-risk deps (torch, torch-
+geometric, sentence-transformers, chromadb, pyTigerGraph[gds], smart_sdk) print their CLIENT_ENV_
+SETUP.md §2 fallback when not cleanly available. Exit 0/1(required-dep issue)/2(index unreachable,
+graceful). scripts/check_client_npm.py: same for frontend/package.json deps+devDeps against the
+client npm registry (default …/artifactory/api/npm/npm/, --registry / CLIENT_NPM_REGISTRY);
+minimal-semver range matching (^ ~ >= exact, prereleases excluded per npm semantics), 401/403
+detected with a pointer to the .npmrc template. frontend/.npmrc.client-template committed (registry
+line + COMMENTED always-auth/_authToken placeholders, NO real token; real frontend/.npmrc
+gitignored). CLIENT_ENV_SETUP.md: new §2.0 (pre-check = FIRST step) + §2.0b (npmrc auth), first-run
+checklist renumbered with pre-check as step 1; stale "185 CSVs" fixed to 192.
+Evidence (real runs): public PyPI — 38/39 AVAILABLE, smart_sdk correctly MISSING w/ fallback
+printed, PASS exit 0 (torch build-tag filenames initially misparsed as "3" — fixed via
+packaging.utils parsers, now 2.12.1); public npm — 28/28 AVAILABLE exit 0 (playwright prerelease
+initially matched ^1.49.0 — fixed, best match now 1.61.1); client artifactory from this box —
+both scripts exit 2 with the documented clear unreachable message (no traceback).

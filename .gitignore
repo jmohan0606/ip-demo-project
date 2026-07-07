@@ -67,3 +67,6 @@ models/artifacts/*
 # Stray runtime DBs written when a tool runs from the frontend/ CWD (belongs at repo-root data/)
 frontend/data/
 **/data/feature_store/*.db
+
+# client npm auth config (template .npmrc.client-template IS committed; the real file may hold a token)
+frontend/.npmrc
