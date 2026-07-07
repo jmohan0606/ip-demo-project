@@ -13,6 +13,17 @@ would a from-CSV-only rebuild reproduce what the app shows?
 
 ### VERDICT: YES — a CSV-only rebuild reproduces current app state. No gaps to export.
 
+**Re-confirmed 2026-07-07 (names are literal CSV values, not load-time-generated):** read the raw
+committed files directly — `phx_dm_firm.csv` → `F001,Chase Wealth Management,NWM,ACTIVE`;
+`phx_dm_division.csv` → `D01,Eastern Division,…`; `phx_dm_household.csv` → `H0001,The Whitfield
+Family,…`; `phx_dm_branch.csv` → `B001,Back Bay Office,…`; `phx_dm_advisor.csv` → `A001,Avery
+Diaz,…`. The load path does **no** name generation: `foundation_store.py:62` sets
+`attrs = {graph_attr: _coerce(row.get(src)) …}` — values come straight from the CSV cells
+(`_coerce` only casts type), and the real RESTPP/pyTigerGraph loaders upsert those same cell
+values. Placeholder grep (`Household [0-9]`, `Division [0-9]`, `Northwestern Mutual`, `Firm [0-9]`,
+…) across all vertex+edge CSVs = **0 hits**. So a graph from ONLY the CSVs yields the real names,
+never "Household 1"/"Division 1"/an old firm name. Name-generation is not needed at load time.
+
 **Definitive empirical test (not a claim):** moved the two gitignored runtime SQLite DBs
 (`data/feature_store/iperform_features.db`, `data/sqlite/iperform.db`) aside to simulate a fresh
 client clone (CSVs only, empty SQLite), booted the app in mock mode (graph loaded purely from the
