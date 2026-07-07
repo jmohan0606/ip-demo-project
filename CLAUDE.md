@@ -1045,6 +1045,25 @@ an AI-governance-minded client)
 - Results page: latest eval run's scores, per-question pass/fail, trend across runs. Wire the
   hallucination-guard principle visibly: answers must trace to retrieved evidence.
 
+### 11.6b Graph relational reasoning — BUILT (2026-07-07, supersedes the "flat bundle" gap)
+
+The context assembler no longer assembles a flat bundle: for every AI answer it now performs
+GENUINE graph-traversal relational reasoning (the core purpose of the temporal knowledge graph),
+wired into the live chat/agentic path and visible in the Explainability Explorer:
+- **Reasoning-trace reuse (experience memory):** each answer records a `phx_dm_reasoning_trace`
+  anchored to the advisor via the new `phx_dm_reasoning_for_advisor` edge; before answering, prior
+  traces for that advisor are retrieved BY TRAVERSAL (`get_reasoning_traces_for_scope`) and fed in,
+  so the agent builds on past conclusions.
+- **Multi-hop traversal:** `advisor_reasoning_traversal` walks advisor → households → open
+  opportunities, and advisor → `phx_dm_advisor_has_similarity_match` (scores) → similar advisors →
+  their proven action families (recs / impact-ledger / outcomes). `scope_reasoning_traversal` walks
+  scope → advisors → households → aggregated outcomes with named contributors.
+- Implementation: `app/graph/queries/reasoning.py` (instrumented mock traversals + GSQL
+  GQ-048..050), `app/ai/reasoning/graph_reasoner.py`, a force-kept `GRAPH_REASONING` context item,
+  and the `/explainability/graph-reasoning/{scope}/{id}` endpoint + `GraphReasoningPath` UI panel.
+- Rule preserved: **traversal is real and instrumented (the actual entities visited are returned),
+  never LLM-narrated.** Verify graph-reasoning behavior with `LLM_CLIENT_MODE=claude`.
+
 ### 11.6 Context engineering pipeline — memory coverage audit + real ranking (not just visibility)
 
 **Standing rule for this entire section, stated once, applies everywhere below:** any

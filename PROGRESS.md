@@ -2189,3 +2189,23 @@ verified. The remaining domains are deliberately left for a follow-up rather tha
   graph-from-CSV reproduces weights+transitions; HTTP smoke (impact-ledger/feedback-state/regenerate)
   200 with graph-sourced state. Backend boots.
 - Closing audits written to STATUS_CHECK (vertex/edge usage audit; reasoning-trace reuse answer).
+
+## Session 15 — 2026-07-07 — Graph relational reasoning (items 1-4 + propagation) — DONE
+Real graph-traversal reasoning built + verified with real Claude; propagated to schema/GSQL/
+manifest/UI/CLAUDE.md. Commits: c6c0863 (items 1+2) · 9a42789 (item 3) · d014866 (item 4).
+- ITEM 1 reasoning-trace reuse: phx_dm_reasoning_for_advisor edge; chat records + retrieves prior
+  traces by traversal. Verified: Q1 records trace, Q2 retrieves it (prior_reasoning_id fed to
+  context), real Claude Q2 builds on it.
+- ITEM 2 multi-hop traversal: advisor→households→opps; advisor→similar(scores)→proven families;
+  scope→advisors→households→outcomes. Verified: A001 4-hop path → similar advisor 0.73 → proven
+  NEXT_BEST_ACTION $658K; real Claude references peer pattern; DIVISION D01 24 advisors→144 hh→30
+  opps with named contributors. Traversal real/instrumented, never narrated.
+- ITEM 3 Explainability: /explainability/graph-reasoning endpoint + GraphReasoningPath panel shows
+  the real hops. Screenshot session15/explainability_graph_reasoning.png.
+- ITEM 4 + propagation: schema_catalog/create_graph/manifest + GQ-048..050 + validator STATUS PASS
+  (60v/132e/192/50q); CLAUDE.md 11.6b added; reasoning_for_advisor now WRITTEN+READ (not unused).
+- Live app: advisor + division chat use graph reasoning (real Claude, HTTP 200); frontend tsc PASS.
+- Vertex audit update: reasoning_for_advisor moved to WRITTEN+READ. phx_dm_tool_call: READ via
+  get_agent_execution_trace traversal (Agent Orchestration page) from SEEDED execution traces;
+  runtime agent runs do not yet WRITE new tool_call vertices — documented as intentionally-future
+  (seeded-and-read now; runtime write is a later agent-instrumentation task), not ambiguous.
