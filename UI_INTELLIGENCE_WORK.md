@@ -68,7 +68,14 @@ sqlite+cosine verified); 15,116 revenue transactions with full edge links.
    `req2_benchmark_gnn_trace.png`
 - [ ] REQ-3: persona question-set audit (real Claude) — answers + instrumented sources
 - [ ] Remaining pages sweep
-- [ ] §13B.3 division/market journeys
+- [x] §13B.3 division + market guided journeys — VERIFIED end to end. The frontend wrappers exist
+      and launch (`story_launch_scenarios.png`: Advisor 11-step, DDW 9-step, MDW 9-step, all with
+      Start buttons; anchored A001/A020 excluded from the pick pool). Real propagation proof, run
+      through the journey's actual action chain (reset → generate → ACCEPT → COMPLETE) on M01's
+      worst non-anchored advisor A002: recommendation "Close the AGP milestone execution gap",
+      recorded impact +$47,053.23 (transaction TXIMP_REC_OPP_AGPRESCUE_A002_v2.0) — LTM revenue
+      moved by EXACTLY that amount at all three scopes: ADVISOR/A002 $370,629.83→$417,683.06,
+      MARKET/M01 $3,513,329.94→$3,560,383.17, DIVISION/D01 $14,465,441.39→$14,512,494.62.
 - [x] §10 mentor/mentee GNN pairing + AGP program ROI — BUILT (`app/agp/mentorship.py`,
       `/agp/mentor-pairing` + `/agp/program-roi`, `MentorshipRoi` on the AGP page).
       Pairing: constrained greedy matching on graphsage-v1-ft cosine (capacity ≤2,
