@@ -184,7 +184,7 @@ export function RevenueAnalyticsWorkspace() {
                 <BarChart data={data?.by_channel ?? []} layout="vertical" margin={{ top: 4, right: 24, bottom: 4, left: 12 }}>
                   <CartesianGrid horizontal={false} stroke={colors.surface.border} strokeOpacity={0.6} />
                   <XAxis type="number" tickFormatter={fmtC} tick={{ fontSize: 10, fill: colors.text.muted }} tickLine={false} axisLine={{ stroke: colors.surface.border }} />
-                  <YAxis type="category" dataKey="channel" tick={{ fontSize: 11, fill: colors.text.secondary }} tickLine={false} axisLine={false} width={92} />
+                  <YAxis type="category" dataKey="channel" tick={{ fontSize: 10, fill: colors.text.secondary }} tickLine={false} axisLine={false} width={150} />
                   <Tooltip cursor={{ fill: colors.surface.border, fillOpacity: 0.25 }} contentStyle={{ borderRadius: 8, border: `1px solid ${colors.surface.border}`, fontSize: 12 }} formatter={(v: number) => [fmtC(v), "Revenue"]} />
                   <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={26} isAnimationActive={false}>
                     {(data?.by_channel ?? []).map((c) => <Cell key={c.channel} fill={colors.primary} />)}

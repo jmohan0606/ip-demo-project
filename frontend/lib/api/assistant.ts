@@ -27,23 +27,39 @@ export interface AgenticAnswer {
   predictions: Array<Record<string, unknown>>;
 }
 
-export function askChat(question: string, advisorId: string): Promise<ChatAnswer> {
+export interface AskScope {
+  scopeType: string; // Firm | Division | Region | Market | Advisor — the REAL active scope
+  scopeId: string;
+  persona: string; // Advisor | MDW | DDW | Firm (backend ChatPersona)
+}
+
+/** Map the shell persona to the backend's ChatPersona vocabulary. */
+export function toChatPersona(shellPersona: string, scopeType: string): string {
+  if (scopeType === "Advisor") return "Advisor";
+  if (shellPersona === "MDW") return "MDW";
+  if (shellPersona === "DDW") return "DDW";
+  return scopeType === "Firm" ? "Firm" : shellPersona === "Advisor" ? "Advisor" : shellPersona;
+}
+
+/** §11.6 — the assistant follows the ACTIVE scope: a DDW asking at Division scope gets
+ * real rollup reasoning across the division, never one resolved advisor's story. */
+export function askChat(question: string, scope: AskScope): Promise<ChatAnswer> {
   return apiClient.post<ChatAnswer>("/ai-chat/ask", {
     question,
-    persona: "Advisor",
-    scope_type: "Advisor",
-    scope_id: advisorId,
+    persona: toChatPersona(scope.persona, scope.scopeType),
+    scope_type: scope.scopeType,
+    scope_id: scope.scopeId,
     include_knowledge: true,
     write_to_tigergraph: false,
   });
 }
 
-export function runAgentic(question: string, advisorId: string): Promise<AgenticAnswer> {
+export function runAgentic(question: string, scope: AskScope): Promise<AgenticAnswer> {
   return apiClient.post<AgenticAnswer>("/agentic-ai/run", {
     question,
-    persona: "Advisor",
-    scope_type: "Advisor",
-    scope_id: advisorId,
+    persona: toChatPersona(scope.persona, scope.scopeType),
+    scope_type: scope.scopeType,
+    scope_id: scope.scopeId,
     write_to_memory: false,
     write_to_tigergraph: false,
   });

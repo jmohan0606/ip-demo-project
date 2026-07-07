@@ -10,14 +10,22 @@ import {
   type AgenticAnswer,
   type ChatAnswer,
 } from "@/lib/api/assistant";
-import { useScopedAdvisor } from "@/lib/hooks/use-scoped-advisor";
+import { useShellContext } from "@/components/layout/shell-context";
 import { colors, type } from "@/styles/tokens";
 
-const SUGGESTIONS = [
+// Question chips adapt to the active scope: an advisor asks about their book,
+// a market/division/firm leader asks rollup questions across their advisors (§11.6).
+const ADVISOR_SUGGESTIONS = [
   "Why is this advisor below the peer revenue benchmark?",
   "What is driving the AGP off-track risk and how do we recover it?",
   "Explain the evidence behind the top recommendation.",
   "Which CRM follow-ups are overdue and most valuable?",
+];
+const ROLLUP_SUGGESTIONS = [
+  "Which of my advisors need attention, and why?",
+  "Why is revenue lagging in my scope, and who is driving it?",
+  "What's the biggest opportunity across my advisors?",
+  "Which advisors improved most since last quarter?",
 ];
 
 type Turn =
@@ -26,26 +34,30 @@ type Turn =
   | { role: "agentic"; data: AgenticAnswer };
 
 export function AiAssistantWorkspace() {
-  const { advisorId } = useScopedAdvisor();
+  const shell = useShellContext();
   const [question, setQuestion] = useState("");
   const [mode, setMode] = useState<"chat" | "agentic">("chat");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isAdvisorScope = shell.scopeType === "Advisor";
+  const SUGGESTIONS = isAdvisorScope ? ADVISOR_SUGGESTIONS : ROLLUP_SUGGESTIONS;
+  const askScope = { scopeType: shell.scopeType, scopeId: shell.scopeId, persona: shell.persona };
+
   async function submit(text?: string) {
     const q = (text ?? question).trim();
-    if (!q || busy || !advisorId) return;
+    if (!q || busy || !shell.scopeId) return;
     setBusy(true);
     setError(null);
     setTurns((cur) => [...cur, { role: "user", content: q }]);
     setQuestion("");
     try {
       if (mode === "agentic") {
-        const data = await runAgentic(q, advisorId);
+        const data = await runAgentic(q, askScope);
         setTurns((cur) => [...cur, { role: "agentic", data }]);
       } else {
-        const data = await askChat(q, advisorId);
+        const data = await askChat(q, askScope);
         setTurns((cur) => [...cur, { role: "chat", data }]);
       }
     } catch (err) {
@@ -61,10 +73,13 @@ export function AiAssistantWorkspace() {
         <div>
           <h1 className={type.pageTitle} style={{ color: colors.text.primary }}>iPerform Coach Q&amp;A Assistant</h1>
           <p className={type.body} style={{ color: colors.text.secondary }}>
-            The reactive AI system — user-initiated advisor Q&amp;A for {advisorId}. Chat answers ground in
-            memory, knowledge and insights; agentic mode exposes the multi-agent reasoning path, evidence
-            and confidence. (Proactive insights &amp; recommendations are the <b>iPerform Insights and
-            Coaching</b> system.)
+            The reactive AI system — user-initiated Q&amp;A scoped to <b>{shell.scopeType} · {shell.scopeLabel}</b>
+            {isAdvisorScope
+              ? " (this advisor's book, pipeline, AGP and peers)."
+              : " — answers reason across ALL advisors in this scope by real rollup + graph traversal, not one resolved advisor."}{" "}
+            Chat answers ground in memory, knowledge and insights; agentic mode exposes the multi-agent
+            reasoning path, evidence and confidence. (Proactive insights &amp; recommendations are the{" "}
+            <b>iPerform Insights and Coaching</b> system.)
           </p>
         </div>
         <div className="flex overflow-hidden rounded-lg border" style={{ borderColor: colors.surface.border }}>
@@ -129,7 +144,7 @@ export function AiAssistantWorkspace() {
             }
           }}
           rows={3}
-          placeholder={`Ask about advisor ${advisorId}…  (Enter to send · Shift+Enter for a new line)`}
+          placeholder={`Ask anything about ${shell.scopeType.toLowerCase()} ${shell.scopeLabel}…  (Enter to send · Shift+Enter for a new line)`}
           className="min-h-[68px] flex-1 resize-y rounded-lg px-3 py-2 text-[13px] leading-5 outline-none"
           style={{ color: colors.text.primary }}
         />
