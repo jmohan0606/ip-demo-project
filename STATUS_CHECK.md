@@ -4,6 +4,54 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 13 — TigerGraph as source of truth for durable state (StateRepository) (2026-07-07)
+
+Large multi-step refactor to close the SQLite divergence documented in `DATABASES.md`. **The
+flagship — memory living in the graph — is complete and verified. The other three durable-state
+domains are scoped and flagged as remaining (not done), per the "don't fake it" instruction.**
+
+### DONE — MEMORY domain fully on TigerGraph-authority (write + read via traversal), verified
+- **StateRepository adapter** (`app/repositories/state_repository.py`), following the GraphClient/
+  LLMClient pattern: `StateRepository` Protocol + `TigerGraphStateRepository` (PRIMARY: writes
+  memory as graph vertices/edges via the GraphClient/linker, reads by **graph traversal**) +
+  `SqliteStateRepository` (current logic, retained as FALLBACK) + `FallbackStateRepository` (graph
+  authority → auto SQLite fallback, logged, never crashes). `STATE_STORE_MODE=tigergraph`(default)`
+  |sqlite`. Filled the empty `BaseRepository` stub.
+- New traversal query `get_context_memory_by_scope` (reads memory via `phx_dm_memory_for_<scope>`
+  edges). `MemoryService`/`ContextService` repointed through the adapter — **no direct SQLite in
+  the memory service layer**.
+- **Procedural memory** (was unpopulated) now written organically at recommendation completion
+  ("proven play") through the adapter → graph.
+- **Verified with real evidence:**
+  - Conversation turn → `phx_dm_context_memory` **vertex** + `memory_for_advisor` edge → retrieved
+    by **graph traversal** through the adapter.
+  - **SQLite fallback proven:** broke the graph primary → 5 memories returned from SQLite, no
+    crash, logged with full trace. `STATE_STORE_MODE=sqlite` legacy mode still works.
+  - **graph-from-CSV reproduces memory history:** 136 context_memory, 10 conversation, 120
+    reasoning, reachable by traversal from a CSV-only store.
+  - **Real-Claude end-to-end:** distinctive memory written to the graph → `retrieve_memories` used
+    `get_context_memory_by_scope` (instrumented) → in the assembled AI context (3 traversal calls)
+    → **real Claude answer references the graph-stored fact**.
+  - Backend boots (default tigergraph mode, 46 routes); frontend tsc PASS.
+
+### REMAINING — flagged for a decision (adapter seam is ready; NOT claimed as done)
+- Repoint the 3 still-SQLite-direct domains onto the same adapter: **learning/bandit weights**
+  (`recommendations/service.py` `LearningWeightStore`, raw `sqlite3`), **impact ledger** +
+  **recommendation status/transitions** (`recommendations/lifecycle.py`, `SQLiteManager`). They
+  currently write SQLite (authority) + a best-effort graph mirror; extending the interface + both
+  impls + repointing the call sites is the next step.
+- **Schema:** add `impact_ledger` + `rec_status_transition` VERTEX/edge types to
+  `tigergraph/schema/*.gsql` (the 6 memory types already have graph representation; procedural now
+  populated).
+- **CSV export + manifest** for feedback/impact/status current state so graph-from-CSV reproduces
+  those histories too (memory history already reproduces from the existing CSVs).
+
+Commits: `d5e903c` (step 1: adapter + memory) · `e80bb0e` (step 2: procedural + CSV reproduction).
+Honest call: the flagship was delivered and verified; the remaining domains were deliberately not
+rushed — see PROGRESS.md for the precise next-step breakdown.
+
+---
+
 ## Session 12 — architecture audit + persona/UX fixes (4 items) (2026-07-07)
 
 Real Claude available (`LLM_CLIENT_MODE=claude`). Committed per item; backend boots (46 routes);
