@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.scope.rollup import ScopeRollupService
 from app.scope.dashboard import ScopeDashboardService
 from app.scope.insight import ScopeInsightService
+from app.scope.net_flows import AumNetFlowsService
 from app.shared.responses import ok
 
 router = APIRouter(prefix="/scope", tags=["Scope Rollup"])
@@ -28,6 +29,14 @@ def dashboard(scope_type: str = "FIRM", scope_id: str = "F001",
     respects the Compare-To control. All values are real sums/means — no hardcoding."""
     return ok(data=ScopeDashboardService().dashboard(
         scope_type=scope_type, scope_id=scope_id, period=period, compare_to=compare_to))
+
+
+@router.get("/aum-net-flows")
+def aum_net_flows(scope_type: str = "FIRM", scope_id: str = "F001", period: str = "LTM"):
+    """AUM net-flows waterfall / bridge (Beginning → New AUM → Departures → Market Growth →
+    Fees → Ending) for the scope+period. Real sums over in-scope advisors' monthly AUM/NNM
+    snapshots + FEE transactions; organic growth is the reconciling residual."""
+    return ok(data=AumNetFlowsService().waterfall(scope_type=scope_type, scope_id=scope_id, period=period))
 
 
 @router.get("/ai-insight")

@@ -12,6 +12,7 @@ import {
   fetchScopeDashboard, fetchScopeAiInsight, type ScopeDashboard, type ScopeAiInsight,
 } from "@/lib/api/scope";
 import { ScopeChildBars } from "@/components/charts/scope-child-bars";
+import { AumNetflowWaterfall, type NetFlowStep } from "@/components/charts/aum-netflow-waterfall";
 import { ScopeStatusDonut } from "@/components/charts/scope-status-donut";
 import { RevenueTrendChart } from "@/components/charts/revenue-trend-chart";
 import { RevenueDonut } from "@/components/charts/revenue-donut";
@@ -114,6 +115,7 @@ function MarketTable({ title, rows, tone }: { title: string; rows: import("@/lib
 export function ExecutiveDashboard() {
   const shell = useShellContext();
   const [data, setData] = useState<ScopeDashboard | null>(null);
+  const [netFlows, setNetFlows] = useState<{ available: boolean; steps: NetFlowStep[]; window?: { beginning_month: string; ending_month: string }; note?: string } | null>(null);
   const [ai, setAi] = useState<ScopeAiInsight | null>(null);
   const [coaching, setCoaching] = useState<{ insight: AiInsightData; coaching: AiCoachingData } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -125,6 +127,12 @@ export function ExecutiveDashboard() {
     setBusy(true);
     try {
       setData(await fetchScopeDashboard(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo));
+      // AUM net-flows waterfall — leadership scopes only (not a single advisor).
+      apiClient
+        .get<{ available: boolean; steps: NetFlowStep[]; window?: { beginning_month: string; ending_month: string }; note?: string }>(
+          `/scope/aum-net-flows?scope_type=${shell.scopeType.toUpperCase()}&scope_id=${shell.scopeId}&period=${shell.period}`)
+        .then(setNetFlows)
+        .catch(() => setNetFlows(null));
     } finally {
       setBusy(false);
     }
@@ -322,6 +330,27 @@ export function ExecutiveDashboard() {
             <CardContent className="p-3">{t && <ScopeStatusDonut data={t.status_distribution} />}</CardContent>
           </Card>
         </div>
+      )}
+
+      {/* AUM Net-Flows waterfall (leadership scopes) — Beginning → New AUM → Departures
+          → Market Growth → Fees → Ending, all real from /scope/aum-net-flows. */}
+      {!isAdvisor && netFlows?.available && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]">
+              <TrendingUp className="h-4 w-4 text-primary" /> AUM Net-Flows Bridge
+            </CardTitle>
+            {netFlows.window && (
+              <span className="text-[10px] text-muted-foreground">
+                {netFlows.window.beginning_month} → {netFlows.window.ending_month}
+              </span>
+            )}
+          </CardHeader>
+          <CardContent className="p-3">
+            <AumNetflowWaterfall steps={netFlows.steps} />
+            {netFlows.note && <p className="mt-1 text-[10px] text-muted-foreground">{netFlows.note}</p>}
+          </CardContent>
+        </Card>
       )}
 
       {/* Top & Bottom Markets (non-advisor, non-market) */}
