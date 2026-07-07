@@ -29,6 +29,7 @@ class ChatContextSource(StrEnum):
     PREDICTIONS = "Predictions"
     COACHING_TASKS = "Coaching Tasks"
     RECOMMENDATION_LIFECYCLE = "Recommendation Actions & Impact"
+    GRAPH_REASONING = "Graph Relational Reasoning"
 
 
 class ChatRequest(BaseModel):

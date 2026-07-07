@@ -170,6 +170,41 @@ class ChatContextAssembler:
             except Exception:
                 pass
 
+        # Graph relational reasoning (multi-hop traversal + prior-reasoning reuse). This is the
+        # capability that distinguishes the temporal knowledge graph from a flat context bundle:
+        # the answer is grounded in RELATIONSHIPS walked across the graph (advisor→households→
+        # opportunities, advisor→similar advisors→their successful actions; or scope→advisors→
+        # households), plus prior reasoning traces retrieved for the advisor. High score keeps it
+        # prominent through the reranker.
+        try:
+            from app.ai.reasoning.graph_reasoner import GraphReasoner
+
+            reasoner = GraphReasoner()
+            if entity_id:  # advisor scope
+                trav = reasoner.advisor_traversal(entity_id)
+                priors = reasoner.prior_reasoning(entity_id, limit=3)
+                content = reasoner.render_advisor_reasoning(trav, priors)
+                if content:
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.GRAPH_REASONING,
+                        title="Graph Relational Reasoning (multi-hop traversal + prior reasoning)",
+                        content=content, score=97.0,
+                        metadata={"traversal": trav, "path": trav.get("path", []),
+                                  "prior_reasoning_ids": [p["reasoning_id"] for p in priors],
+                                  "reasoning": True}))
+            else:  # rollup scope (division/market/region/firm)
+                trav = reasoner.scope_traversal(request.scope_type.value.upper(), request.scope_id)
+                content = reasoner.render_scope_reasoning(trav)
+                if content:
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.GRAPH_REASONING,
+                        title=f"Graph Relational Reasoning across {request.scope_type.value} {request.scope_id}",
+                        content=content, score=97.0,
+                        metadata={"traversal": trav, "path": trav.get("path", []), "reasoning": True}))
+        except Exception as exc:  # noqa: BLE001 — reasoning augments, never blocks the answer
+            items.append(ChatContextItem(source=ChatContextSource.GRAPH_REASONING,
+                                         title="Graph Relational Reasoning Unavailable", content=str(exc), score=0))
+
         if request.include_insights:
             try:
                 payload = self.insight_service.generate_dashboard_payload(
@@ -267,10 +302,14 @@ class ChatContextAssembler:
         except Exception:  # noqa: BLE001 — never let ranking break assembly
             ranked = [{"index": i, "score": it.score or 0.0} for i, it in enumerate(items)]
         order = {r["index"]: r["score"] for r in ranked}
-        # sort by rerank score; force-keep the scope-rollup item (aggregate answer basis)
+        # sort by rerank score; force-keep the scope-rollup item (aggregate answer basis) and the
+        # graph relational-reasoning item (multi-hop traversal + prior reasoning must reach the LLM)
         def _keep_rank(i: int) -> float:
-            if items[i].metadata and items[i].metadata.get("scope_aware"):
+            meta = items[i].metadata or {}
+            if meta.get("scope_aware"):
                 return 2.0  # always top
+            if meta.get("reasoning") and items[i].source == ChatContextSource.GRAPH_REASONING:
+                return 1.9  # always keep graph relational reasoning
             return order.get(i, 0.0)
 
         idx_sorted = sorted(range(len(items)), key=lambda i: -_keep_rank(i))

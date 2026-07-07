@@ -13,6 +13,7 @@ from app.graph.queries import (  # noqa: F401
     crm,
     graph_ops,
     hierarchy,
+    reasoning,
     revenue,
     state,
 )

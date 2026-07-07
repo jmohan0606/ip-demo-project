@@ -134,3 +134,6 @@ CREATE DIRECTED EDGE phx_dm_execution_generated_reasoning (FROM phx_dm_agent_exe
 CREATE DIRECTED EDGE phx_dm_impact_for_advisor (FROM phx_dm_impact_ledger, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_impact_for_advisor";
 CREATE DIRECTED EDGE phx_dm_impact_from_recommendation (FROM phx_dm_impact_ledger, TO phx_dm_recommendation) WITH REVERSE_EDGE="rev_phx_dm_impact_from_recommendation";
 CREATE DIRECTED EDGE phx_dm_transition_of_recommendation (FROM phx_dm_rec_status_transition, TO phx_dm_recommendation) WITH REVERSE_EDGE="rev_phx_dm_transition_of_recommendation";
+
+// --- Reasoning-trace reuse: anchor chat/agentic reasoning to an advisor ---
+CREATE DIRECTED EDGE phx_dm_reasoning_for_advisor (FROM phx_dm_reasoning_trace, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_reasoning_for_advisor";

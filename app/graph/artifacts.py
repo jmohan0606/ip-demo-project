@@ -64,6 +64,9 @@ def write_reasoning_trace(
         "PREDICTION": ("phx_dm_reasoning_for_prediction", "phx_dm_prediction_result"),
         "OPPORTUNITY": ("phx_dm_reasoning_for_opportunity", "phx_dm_opportunity"),
         "RECOMMENDATION": ("phx_dm_reasoning_for_recommendation", "phx_dm_recommendation"),
+        # ADVISOR: chat/agentic reasoning anchored directly to an advisor so prior traces
+        # are retrievable by traversal (reasoning-trace reuse / experience memory).
+        "ADVISOR": ("phx_dm_reasoning_for_advisor", "phx_dm_advisor"),
     }.get(artifact_type)
     if artifact_edge:
         upsert_edge(graph, artifact_edge[0], "phx_dm_reasoning_trace", artifact_edge[1], reasoning_id, artifact_id)

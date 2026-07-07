@@ -3,7 +3,7 @@ from __future__ import annotations
 from app.agents.nodes.compliance_agent import ComplianceAgent
 from app.ai.chat.context_assembler import ChatContextAssembler
 from app.llm.client import get_llm_client
-from app.models.ai_chat import ChatRequest, ChatResponse
+from app.models.ai_chat import ChatContextSource, ChatRequest, ChatResponse
 from app.shared.ids import timestamp_id
 
 
@@ -65,6 +65,28 @@ Answer with evidence. Include what data was used and what next action should be 
         ]
         if compliance_block:
             reasoning_steps.insert(2, f"COMP-001 BLOCK raised: prohibited claim {compliance_block['terms']}.")
+
+        # Record a reasoning trace anchored to the advisor/scope so the NEXT question can
+        # retrieve and build on it (reasoning-trace reuse). Evidence carries the real traversal
+        # path + the prior traces reused — the same data the Explainability view renders.
+        graph_item = next((i for i in context_items if i.source == ChatContextSource.GRAPH_REASONING), None)
+        traversal_meta = (graph_item.metadata if graph_item else {}) or {}
+        try:
+            from app.ai.reasoning.graph_reasoner import GraphReasoner
+
+            trace_steps = reasoning_steps + [
+                f"Walked {len(traversal_meta.get('path', []))} graph hops for relational grounding.",
+                f"Reused {len(traversal_meta.get('prior_reasoning_ids', []))} prior reasoning trace(s).",
+                f"Conclusion: {answer.strip().splitlines()[0][:200] if answer.strip() else 'n/a'}",
+            ]
+            GraphReasoner().record_reasoning(
+                request.scope_type.value, request.scope_id, trace_steps,
+                evidence={"question": request.question,
+                          "traversal_path": traversal_meta.get("path", []),
+                          "prior_reasoning_ids": traversal_meta.get("prior_reasoning_ids", []),
+                          "peer_success_patterns": (traversal_meta.get("traversal") or {}).get("peer_success_patterns", [])})
+        except Exception:  # noqa: BLE001 — trace recording must never break the answer
+            pass
 
         return ChatResponse(
             conversation_id=conversation_id,
