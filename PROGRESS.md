@@ -2313,3 +2313,10 @@ Governance poster §1/§3). Full audit + gap table in STATUS_CHECK.md.
 Created COPILOT_CONTEXT.md (primer + adapter table + 5 env swaps + where-things-live),
 ARCHITECTURE_OVERVIEW.md (adapter interfaces + pipeline data flow + module map), TROUBLESHOOTING.md
 (13 real build problems + fixes). Grounded in this session's actual issues + PROGRESS/STATUS history.
+
+## Session 16 — Backend-unreachable-from-browser fix — DONE
+- API_HOST env-driven, default 0.0.0.0 (settings.py + run_api.sh + app/api/main.py __main__); backend
+  rebound 0.0.0.0:8000 (ss confirmed), loopback still 200. gh set ports 8000+3000 public. Frontend
+  restarted without the loopback override so the bundle uses the public forwarded URL.
+- VERIFIED: public-URL CORS 200 from the :3000 origin + all-green health render via the public backend
+  base (s16-fix-env-health-publicbase.png), 0 console errors, no "Failed to fetch". TROUBLESHOOTING §0 added.

@@ -152,3 +152,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+if __name__ == "__main__":
+    # `python -m app.api.main` — env-driven host/port (API_HOST default 0.0.0.0 so the server is
+    # reachable through Codespaces port forwarding; API_PORT default 8000). See run_api.sh and
+    # TROUBLESHOOTING.md "Backend unreachable from the browser".
+    import uvicorn
+
+    uvicorn.run("app.api.main:app", host=settings.api_host, port=settings.api_port)

@@ -750,3 +750,25 @@ CONCLUSION: All headline master-run deliverables (§9, §11, §12, §13, §13B, 
 only genuinely-unbuilt items are the two §10 fable-architect algorithms, which the plan itself sequences
 LAST and as optional-if-time. No evidence of a master-run regression from Parts A/B or Items 1–3.
 (Per instruction: did NOT start the CLAUDE.md consistency update or the size-reduction cleanup.)
+
+## Session 16 — Backend-unreachable-from-browser fix (127.0.0.1→0.0.0.0 bind + port visibility + SSR/browser base)
+Root cause was three compounding issues; fixed all three robustly + env-driven so they can't silently regress.
+- **Part A (bind):** backend was bound `127.0.0.1:8000` (ss confirmed) — not reachable via Codespaces
+  forwarding. Made host env-driven: `API_HOST` default **0.0.0.0** (settings.py), `scripts/run_api.sh`
+  uses `${API_HOST:-0.0.0.0}`/`${API_PORT:-8000}`, added `__main__` block to `app/api/main.py` so
+  `python -m app.api.main` binds via settings. Restarted → `ss -tlnp` shows `0.0.0.0:8000`; loopback
+  still 200 (0.0.0.0 accepts 127.0.0.1). Client machine can set API_HOST=127.0.0.1 with no code change.
+- **Part B (port visibility):** `gh codespace ports visibility 8000:public` (and 3000:public). Verified
+  `gh codespace ports` shows 8000 **public**. Documented that it resets to Private on restart.
+- **Part C (frontend base):** the RUNNING frontend had been started earlier with a one-off
+  `NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000` override (for a headless screenshot) baked into the
+  bundle → browser fetched loopback → "Failed to fetch". `.env.local` itself was correct (public
+  forwarded URL, matches computed `${CODESPACE_NAME}-8000.app.github.dev`). Restarted frontend plain so
+  the bundle uses the public URL (grep of .next confirms the public URL is inlined).
+- **VERIFIED end-to-end (real browser path):** public backend `curl -H "Origin: <FE-3000>"
+  $BE/env-health` → **HTTP/2 200** + `access-control-allow-origin: https://…-3000.app.github.dev`,
+  overall green all 4 checks. Playwright load with the bundle targeting the PUBLIC backend URL renders
+  **CONNECTED / All Systems Operational** (34,093 rows, Claude "OK", Chroma 257), 0 console errors, no
+  "Failed to fetch" (docs/qa_screenshots/s16-fix-env-health-publicbase.png). Anonymous external-URL load
+  hits GitHub's one-time port interstitial (click Continue) — not an app error.
+- TROUBLESHOOTING.md §0 added documenting all three parts + verify commands, for the client machine / future sessions.

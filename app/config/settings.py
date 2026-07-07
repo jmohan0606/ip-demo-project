@@ -185,7 +185,12 @@ class Settings(BaseSettings):
     exports_path: str = Field(default="./data/exports", alias="EXPORTS_PATH")
     documents_path: str = Field(default="./data/documents", alias="DOCUMENTS_PATH")
 
-    api_host: str = Field(default="127.0.0.1", alias="API_HOST")
+    # Bind address for uvicorn. Default 0.0.0.0 so the server is reachable through Codespaces
+    # port forwarding (a 127.0.0.1-only bind is NOT reachable by the forwarder / an external
+    # browser). On a client machine set API_HOST=127.0.0.1 for loopback-only if desired.
+    # Binding 0.0.0.0 still accepts loopback (127.0.0.1) connections, so SSR/internal tooling
+    # that targets 127.0.0.1:8000 keeps working. See TROUBLESHOOTING.md "Backend unreachable".
+    api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8000, alias="API_PORT")
     api_base_url: str = Field(default="http://127.0.0.1:8000", alias="API_BASE_URL")
     streamlit_port: int = Field(default=8501, alias="STREAMLIT_PORT")

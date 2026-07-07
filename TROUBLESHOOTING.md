@@ -5,6 +5,65 @@ included) continuing the work. Ordered roughly by how often they bite.
 
 ---
 
+## 0. Backend unreachable from the browser — "Degraded / Failed to fetch" (three-part root cause)
+
+This is the single most common "nothing loads in the browser" failure. It has **three** distinct
+parts that can each cause it, and they compound. Check all three.
+
+### Part A — backend must bind `0.0.0.0`, NOT `127.0.0.1`, in Codespaces
+A backend bound to `127.0.0.1:8000` (loopback only) is **not reachable through Codespaces port
+forwarding** — the forwarder/external browser cannot reach a loopback-only socket, so every
+browser fetch fails even though `curl http://127.0.0.1:8000/...` works fine inside the container.
+Diagnose: `ss -tlnp | grep :8000` — if it shows `127.0.0.1:8000` (not `0.0.0.0:8000`), that's the bug.
+
+**Fix (in place, env-driven so it can't silently regress):**
+- `API_HOST` env var, **default `0.0.0.0`** (`app/config/settings.py`). Binding `0.0.0.0` still
+  accepts loopback connections, so SSR/internal tooling hitting `127.0.0.1:8000` keeps working.
+- `scripts/run_api.sh` uses `--host "${API_HOST:-0.0.0.0}" --port "${API_PORT:-8000}"`.
+- `python -m app.api.main` runs uvicorn with `settings.api_host`/`api_port` (see the `__main__`
+  block in `app/api/main.py`).
+- On a client machine that wants loopback-only, set `API_HOST=127.0.0.1` — no code change.
+- Launch: `API_HOST=0.0.0.0 python -m app.api.main` (or `bash scripts/run_api.sh`). Confirm with
+  `ss -tlnp | grep :8000` → must show `0.0.0.0:8000`.
+
+### Part B — Codespaces port 8000 visibility resets to Private on restart
+Public forwarding is required for an external browser to reach the backend. Codespaces **silently
+resets forwarded ports to Private** across restarts. Set it back:
+```bash
+gh codespace ports visibility 8000:public -c "$CODESPACE_NAME"
+gh codespace ports visibility 3000:public -c "$CODESPACE_NAME"   # frontend, so the app page loads too
+gh codespace ports -c "$CODESPACE_NAME"                          # verify: 8000 shows "public"
+```
+(Or use the VS Code *Ports* panel → right-click 8000 → Port Visibility → Public.) Note: an
+anonymous first visit to a public port shows a one-time GitHub "You are about to access a
+development port" interstitial — a logged-in user clicks **Continue** once; it is not an app error.
+
+### Part C — the frontend's browser-side base URL must be the public URL (SSR-vs-browser split)
+`frontend/lib/api/client.ts` deliberately uses TWO bases (do not collapse them):
+- SSR / route handlers / in-container tooling → `API_BASE_URL_INTERNAL` (default `http://127.0.0.1:8000`).
+- **Browser** `fetch` → `NEXT_PUBLIC_API_BASE_URL`, inlined into the client bundle at build/dev time.
+
+In Codespaces `NEXT_PUBLIC_API_BASE_URL` (in `frontend/.env.local`) must be the public forwarded
+backend URL: `https://${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`. On a
+client machine it's the local URL (`http://127.0.0.1:8000`).
+
+**Silent-regression trap:** starting the dev server with a one-off override
+(`NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000 npm run dev`, e.g. for a headless screenshot)
+bakes loopback into the running bundle — the browser then fetches `127.0.0.1:8000` and fails for
+any external browser even though `.env.local` is correct. Restart with a plain `npm run dev` so it
+reads `.env.local`. Verify the running process isn't overridden:
+`cat /proc/$(pgrep -f next-server|head -1)/environ | tr '\0' '\n' | grep NEXT_PUBLIC_API_BASE_URL`.
+
+### Verify end-to-end (the real browser path)
+```bash
+FE="https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+BE="https://${CODESPACE_NAME}-8000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+# public backend reachable + CORS allows the frontend origin (must be HTTP 200 + ACAO header):
+curl -s -D - -o /dev/null -H "Origin: $FE" "$BE/env-health" | grep -iE "^HTTP|access-control-allow-origin"
+```
+Then open `/env-health` in the browser — it should render CONNECTED/green, not "Failed to fetch".
+(Backend CORS already allows `https://*.app.github.dev` via `allow_origin_regex` in `app/api/main.py`.)
+
 ## 1. Frontend loads but every panel is empty / "Failed to fetch"
 
 **Cause:** the API base URL differs between server-side rendering and the browser. Inside the
