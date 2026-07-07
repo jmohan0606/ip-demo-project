@@ -3128,6 +3128,13 @@
       "to": "phx_dm_recommendation",
       "attrs": [],
       "reverse_edge": "rev_phx_dm_transition_of_recommendation"
+    },
+    {
+      "name": "phx_dm_reasoning_for_advisor",
+      "from": "phx_dm_reasoning_trace",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "reverse_edge": "rev_phx_dm_reasoning_for_advisor"
     }
   ],
   "generated_at": "2026-07-02T19:15:08.289450Z",

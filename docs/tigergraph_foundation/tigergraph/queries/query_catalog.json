@@ -421,5 +421,32 @@
     "outputs": "context_memory vertices",
     "status": "implemented-static-reviewed-live-compile-pending",
     "file": "GQ-047_get_context_memory_by_scope.gsql"
+  },
+  {
+    "id": "GQ-048",
+    "name": "advisor_reasoning_traversal",
+    "parameters": "advisor_id STRING, similar_limit INT",
+    "purpose": "Graph relational reasoning traversal.",
+    "outputs": "traversal path + entities",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-048_advisor_reasoning_traversal.gsql"
+  },
+  {
+    "id": "GQ-049",
+    "name": "scope_reasoning_traversal",
+    "parameters": "scope_type STRING, scope_id STRING",
+    "purpose": "Graph relational reasoning traversal.",
+    "outputs": "traversal path + entities",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-049_scope_reasoning_traversal.gsql"
+  },
+  {
+    "id": "GQ-050",
+    "name": "get_reasoning_traces_for_scope",
+    "parameters": "scope_id STRING, result_limit INT",
+    "purpose": "Graph relational reasoning traversal.",
+    "outputs": "traversal path + entities",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-050_get_reasoning_traces_for_scope.gsql"
   }
 ]

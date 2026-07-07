@@ -4282,6 +4282,29 @@
         "vertices/phx_dm_recommendation.csv"
       ],
       "expected_rows": 0
+    },
+    {
+      "order": 192,
+      "kind": "edge",
+      "file": "edges/phx_dm_reasoning_for_advisor.csv",
+      "target": "phx_dm_reasoning_for_advisor",
+      "from_type": "phx_dm_reasoning_trace",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_reasoning_trace.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 0
     }
   ]
 }

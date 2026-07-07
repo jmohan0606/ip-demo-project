@@ -1,0 +1,17 @@
+/*
+ * GQ-050 — get_reasoning_traces_for_scope
+ * Purpose: Prior reasoning traces for an advisor via phx_dm_reasoning_for_advisor (experience
+ * memory reuse). Authoritative: app/graph/queries/reasoning.py.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_reasoning_traces_for_scope(STRING scope_id, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM advisors:a WHERE a.advisor_id == scope_id;
+    traces = SELECT r FROM advisor:a -(rev_phx_dm_reasoning_for_advisor:e)- phx_dm_reasoning_trace:r
+             ORDER BY r.created_at DESC LIMIT result_limit;
+    PRINT traces;
+}
+
+INSTALL QUERY get_reasoning_traces_for_scope

@@ -47,3 +47,6 @@ USE GRAPH iperform_insights_coaching_demo
 @GQ-045_get_impact_ledger.gsql
 @GQ-046_get_rec_status_transitions.gsql
 @GQ-047_get_context_memory_by_scope.gsql
+@GQ-048_advisor_reasoning_traversal.gsql
+@GQ-049_scope_reasoning_traversal.gsql
+@GQ-050_get_reasoning_traces_for_scope.gsql

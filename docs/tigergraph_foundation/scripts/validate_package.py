@@ -27,9 +27,9 @@ entries=manifest.get('files',[])
 # Catalog/schema integrity
 if len(vertices)!=60: fail('VERTEX_COUNT',f'Expected 60 vertices, found {len(vertices)}')
 else: ok('VERTEX_COUNT','57 vertex types catalogued',57)
-if len(edges)!=131: fail('EDGE_COUNT',f'Expected 131 directed edges, found {len(edges)}')
+if len(edges)!=132: fail('EDGE_COUNT',f'Expected 132 directed edges, found {len(edges)}')
 else: ok('EDGE_COUNT','128 directed edge types catalogued',128)
-if len(reverse)!=131: fail('REVERSE_EDGE_COUNT',f'Expected 131 reverse edges, found {len(reverse)}')
+if len(reverse)!=132: fail('REVERSE_EDGE_COUNT',f'Expected 132 reverse edges, found {len(reverse)}')
 else: ok('REVERSE_EDGE_COUNT','128 explicit reverse edges catalogued',128)
 for e in edges.values():
     if e['from'] not in vertices or e['to'] not in vertices: fail('EDGE_ENDPOINT_SCHEMA',f"{e['name']} has unknown endpoint",e)
@@ -51,8 +51,8 @@ ok('SCHEMA_DECLARATIONS','Schema declarations and graph membership checked')
 
 # Manifest integrity
 paths=[e['file'] for e in entries]; orders=[e['order'] for e in entries]
-if len(entries)!=191: fail('MANIFEST_COUNT',f'Expected 185 entries, found {len(entries)}')
-else: ok('MANIFEST_COUNT','191 manifest-controlled CSV targets',191)
+if len(entries)!=192: fail('MANIFEST_COUNT',f'Expected 185 entries, found {len(entries)}')
+else: ok('MANIFEST_COUNT','192 manifest-controlled CSV targets',192)
 for label,values in [('file path',paths),('order',orders)]:
     duplicates=[x for x,n in Counter(values).items() if n>1]
     if duplicates: fail('MANIFEST_DUPLICATE',f'Duplicate manifest {label}s',duplicates)
@@ -139,7 +139,7 @@ for e in entries:
 
 # GSQL query static validation and semantic direction check
 qfiles=sorted((ROOT/'tigergraph/queries').glob('GQ-*.gsql'))
-if len(qfiles)!=47 or len(qcat)!=47 or len(cases.get('cases',[]))!=47: fail('QUERY_COUNT',f'Expected 47 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
+if len(qfiles)!=50 or len(qcat)!=50 or len(cases.get('cases',[]))!=50: fail('QUERY_COUNT',f'Expected 50 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
 else: ok('QUERY_COUNT','43 implemented queries and test cases',43)
 q_by_file={q['file']:q for q in qcat}; case_names={c['query_name'] for c in cases.get('cases',[])}
 placeholder=re.compile(r'PRINT\s+query_id|contract-template|\bTODO\b|\bPLACEHOLDER\b|dummy query',re.I)

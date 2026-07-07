@@ -722,6 +722,48 @@
       "required_result_keys": [
         "result"
       ]
+    },
+    {
+      "id": "GQ-048",
+      "query_name": "advisor_reasoning_traversal",
+      "params": {
+        "advisor_id": "A001",
+        "similar_limit": 3
+      },
+      "expected_outputs": [
+        "start"
+      ],
+      "required_result_keys": [
+        "start"
+      ]
+    },
+    {
+      "id": "GQ-049",
+      "query_name": "scope_reasoning_traversal",
+      "params": {
+        "scope_type": "DIVISION",
+        "scope_id": "D01"
+      },
+      "expected_outputs": [
+        "start"
+      ],
+      "required_result_keys": [
+        "start"
+      ]
+    },
+    {
+      "id": "GQ-050",
+      "query_name": "get_reasoning_traces_for_scope",
+      "params": {
+        "scope_id": "A001",
+        "result_limit": 5
+      },
+      "expected_outputs": [
+        "start"
+      ],
+      "required_result_keys": [
+        "start"
+      ]
     }
   ]
 }
