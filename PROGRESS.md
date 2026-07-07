@@ -2174,3 +2174,18 @@ REMAINING (adapter seam is ready; these are the next steps, NOT done — do not 
   THOSE histories too (memory history already reproduces from the existing CSVs).
 This was scoped as a large multi-step refactor; the flagship (memory in the graph) is complete and
 verified. The remaining domains are deliberately left for a follow-up rather than rushed.
+
+### STEP 3-6 — remaining 3 durable-state domains migrated + schema/CSV/GSQL + audit — DONE
+- Weights (LearningWeightStore), impact ledger + rec status/transitions (lifecycle.py) repointed
+  through the StateRepository adapter (TigerGraph authority + SQLite fallback). Direct sqlite3/
+  SQLiteManager removed from those durable-state call sites; only the generated-rec attribute
+  CACHE (register_generated/_rec_attrs mirror) remains in SQLite (operational cache, documented).
+- Schema: 3 new vertices + 3 edges in schema/*.gsql + schema_catalog + graph membership.
+- Seed CSVs + manifest (191 files): curated weights (5) + revenue-neutral transition history (144).
+  Impact ledger header-only (runtime; seeding revenue would mutate anchored figures — documented).
+- GSQL GQ-044..047 + catalog + test cases. Foundation validator STATUS PASS (60v/131e/191/47q).
+- Verified: all 3 domains write graph vertices/edges + read by traversal; SQLite fallback engages
+  cleanly (logged); reset clears both stores; replay rehydrates graph from durable SQLite;
+  graph-from-CSV reproduces weights+transitions; HTTP smoke (impact-ledger/feedback-state/regenerate)
+  200 with graph-sourced state. Backend boots.
+- Closing audits written to STATUS_CHECK (vertex/edge usage audit; reasoning-trace reuse answer).
