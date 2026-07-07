@@ -18,17 +18,24 @@ export function StoryLaunch() {
   // so the coaching + recommendation steps target the actual contributor.
   const launch = async (scenarioId: string) => {
     const DIVISION = "D01";
+    const MARKET = "M01";
     let scenarioAdvisor = advisor;
-    if (scenarioId === "division-journey") {
+    // For a rollup journey, drive off the scope's OWN worst-contributing advisor
+    // (real bottom_advisors from the rollup), not the picker.
+    const rollup =
+      scenarioId === "division-journey" ? `scope_type=DIVISION&scope_id=${DIVISION}`
+      : scenarioId === "market-journey" ? `scope_type=MARKET&scope_id=${MARKET}`
+      : null;
+    if (rollup) {
       try {
         const d = await apiClient.get<{ bottom_advisors?: Array<{ advisor_id: string }> }>(
-          `/scope/dashboard?scope_type=DIVISION&scope_id=${DIVISION}&period=LTM&compare_to=Prior%20Year`);
+          `/scope/dashboard?${rollup}&period=LTM&compare_to=Prior%20Year`);
         const pick = (d.bottom_advisors ?? []).map((a) => a.advisor_id)
           .find((id) => id !== "A001" && id !== "A020");
         if (pick) scenarioAdvisor = pick;
       } catch { /* fall back to selected advisor */ }
     }
-    await start(scenarioId, scenarioAdvisor, DIVISION);
+    await start(scenarioId, scenarioAdvisor, DIVISION, MARKET);
   };
 
   useEffect(() => {

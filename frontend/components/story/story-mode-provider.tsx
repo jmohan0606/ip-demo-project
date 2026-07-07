@@ -8,7 +8,7 @@ import { apiClient } from "@/lib/api/client";
 import { SCENARIOS, templ, type Scenario, type StoryStep } from "@/components/story/scenarios";
 import { StoryOverlay } from "@/components/story/story-overlay";
 
-interface Baselines { advisorRevenue?: number; firmRevenue?: number; divisionRevenue?: number; snapshotRevenue?: number; weights?: Record<string, number> }
+interface Baselines { advisorRevenue?: number; firmRevenue?: number; divisionRevenue?: number; marketRevenue?: number; snapshotRevenue?: number; weights?: Record<string, number> }
 interface Captured { recId?: string; family?: string; impactEstimate?: number; impactRecorded?: number }
 interface ProofResult { label: string; pass: boolean }
 
@@ -20,7 +20,7 @@ interface StoryCtx {
   advisor: string;
   busy: boolean;
   proof: ProofResult | null;
-  start: (scenarioId: string, advisorId: string, division: string) => Promise<void>;
+  start: (scenarioId: string, advisorId: string, division: string, market?: string) => Promise<void>;
   next: () => void;
   back: () => void;
   exit: () => void;
@@ -44,12 +44,13 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [advisor, setAdvisor] = useState("A005");
   const [division, setDivision] = useState("D01");
+  const [market, setMarket] = useState("M01");
   const [baselines, setBaselines] = useState<Baselines>({});
   const [captured, setCaptured] = useState<Captured>({});
   const [busy, setBusy] = useState(false);
   const [proof, setProof] = useState<ProofResult | null>(null);
 
-  const ids = { advisor, division, firm: "F001" };
+  const ids = { advisor, division, market, firm: "F001" };
   const step = scenario ? scenario.steps[stepIndex] ?? null : null;
 
   // ---- persistence across the navigations the overlay itself triggers ------
@@ -59,14 +60,14 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       try {
         const s = JSON.parse(raw);
         const sc = SCENARIOS.find((x) => x.id === s.scenarioId) ?? null;
-        if (sc) { setScenario(sc); setStepIndex(s.stepIndex ?? 0); setAdvisor(s.advisor ?? "A005"); setDivision(s.division ?? "D01"); setBaselines(s.baselines ?? {}); setCaptured(s.captured ?? {}); }
+        if (sc) { setScenario(sc); setStepIndex(s.stepIndex ?? 0); setAdvisor(s.advisor ?? "A005"); setDivision(s.division ?? "D01"); setMarket(s.market ?? "M01"); setBaselines(s.baselines ?? {}); setCaptured(s.captured ?? {}); }
       } catch { /* ignore */ }
     }
   }, []);
   useEffect(() => {
-    if (scenario) sessionStorage.setItem(SS_KEY, JSON.stringify({ scenarioId: scenario.id, stepIndex, advisor, division, baselines, captured }));
+    if (scenario) sessionStorage.setItem(SS_KEY, JSON.stringify({ scenarioId: scenario.id, stepIndex, advisor, division, market, baselines, captured }));
     else sessionStorage.removeItem(SS_KEY);
-  }, [scenario, stepIndex, advisor, division, baselines, captured]);
+  }, [scenario, stepIndex, advisor, division, market, baselines, captured]);
 
   const CHECKERS: Record<string, (d: any) => ProofResult> = {
     hasPrediction: (d) => {
@@ -102,7 +103,7 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       const addr = (d?.addressed_opportunities ?? []).length;
       return { label: addr > 0 ? `${addr} opportunity now Addressed — won't be re-issued` : "Not yet addressed", pass: addr > 0 };
     },
-    // ---- Division-leader (DDW/MDW) journey checkers -----------------------
+    // ---- Division-leader (DDW) journey checkers ---------------------------
     divisionUnderperformance: (d) => {
       const bottom = d?.bottom_advisors ?? [];
       const delta = d?.headline?.delta_pct;
@@ -131,6 +132,30 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       const ok = base != null && Math.abs(now - base - impact) < 0.02;
       return { label: `Division ${usd(base)} → ${usd(now)}  (+${usd(now - (base ?? now))})${ok ? " = exactly the impact ✓" : ""}`, pass: ok };
     },
+    // ---- Market-leader (MDW) journey checkers -----------------------------
+    marketUnderperformance: (d) => {
+      const bottom = d?.bottom_advisors ?? [];
+      const delta = d?.headline?.delta_pct;
+      const names = bottom.slice(0, 3).map((a: any) => a.advisor_name).join(", ");
+      return { label: bottom.length ? `Market ${usd(d?.totals?.revenue_ltm)} · ${delta ?? "—"}% vs prior · lagging advisors: ${names}` : "No market data", pass: bottom.length > 0 };
+    },
+    marketInsight: (d) => {
+      const ins = d?.insight ?? d;
+      const drivers = ins?.key_drivers ?? [];
+      return { label: drivers.length ? `Cross-advisor reasoning across the market: ${drivers.length} key drivers, confidence ${ins?.confidence ?? "—"}` : "No insight", pass: drivers.length > 0 };
+    },
+    marketContributors: (d) => {
+      const bottom = d?.bottom_advisors ?? [];
+      const worst = bottom[0];
+      return { label: worst ? `Top contributor to the market gap: ${worst.advisor_name} (${usd(worst.revenue_ltm)}, ${worst.reason ?? ""})` : "No contributors", pass: bottom.length > 0 };
+    },
+    marketPropagated: (d) => {
+      const now = d?.totals?.revenue_ltm;
+      const base = baselines.marketRevenue;
+      const impact = captured.impactRecorded ?? captured.impactEstimate ?? 0;
+      const ok = base != null && Math.abs(now - base - impact) < 0.02;
+      return { label: `Market ${usd(base)} → ${usd(now)}  (+${usd(now - (base ?? now))})${ok ? " = exactly the impact ✓" : ""}`, pass: ok };
+    },
   };
 
   const goToStep = useCallback(async (idx: number, sc: Scenario) => {
@@ -138,7 +163,9 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
     if (!st) return;
     setProof(null);
     if (st.scope) {
-      const id = st.scope.idKey === "advisor" ? advisor : st.scope.idKey === "division" ? division : "F001";
+      const id = st.scope.idKey === "advisor" ? advisor
+        : st.scope.idKey === "division" ? division
+        : st.scope.idKey === "market" ? market : "F001";
       const label = st.scope.idKey === "firm" ? "Chase Wealth Management" : id;
       shell.setScope(st.scope.type, id, label);
     }
@@ -165,14 +192,14 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
       } catch { setProof({ label: "Could not load proof", pass: false }); }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [advisor, division, router, shell]);
+  }, [advisor, division, market, router, shell]);
 
-  const start = useCallback(async (scenarioId: string, advisorId: string, div: string) => {
+  const start = useCallback(async (scenarioId: string, advisorId: string, div: string, mkt = "M01") => {
     const sc = SCENARIOS.find((x) => x.id === scenarioId);
     if (!sc) return;
     setBusy(true);
     try {
-      setAdvisor(advisorId); setDivision(div);
+      setAdvisor(advisorId); setDivision(div); setMarket(mkt);
       shell.setPersona(sc.persona as any);
       // reset the scenario advisor for a clean replay (backend refuses anchored)
       await apiClient.post(`/recommendations/lifecycle/reset/${advisorId}`, {}).catch(() => null);
@@ -184,10 +211,11 @@ export function StoryModeProvider({ children }: { children: ReactNode }) {
         apiClient.get<any>(`/scope/dashboard?scope_type=DIVISION&scope_id=${div}&period=LTM&compare_to=Prior%20Year`).catch(() => null),
         apiClient.get<any>(`/feedback-learning/state`).catch(() => null),
       ]);
+      const mktDash = await apiClient.get<any>(`/scope/dashboard?scope_type=MARKET&scope_id=${mkt}&period=LTM&compare_to=Prior%20Year`).catch(() => null);
       const weights: Record<string, number> = {};
       (state?.weights ?? []).forEach((w: any) => { weights[w.family] = w.weight; });
       setBaselines({ advisorRevenue: rev?.kpis?.total_revenue, firmRevenue: firm?.totals?.revenue_ltm,
-                     divisionRevenue: divDash?.totals?.revenue_ltm,
+                     divisionRevenue: divDash?.totals?.revenue_ltm, marketRevenue: mktDash?.totals?.revenue_ltm,
                      snapshotRevenue: adv?.feature_snapshot?.features?.revenue_ltm, weights });
       setCaptured({});
       setScenario(sc); setStepIndex(0);
