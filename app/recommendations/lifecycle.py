@@ -287,6 +287,26 @@ class RecommendationLifecycleService:
         except Exception:
             pass
 
+        # PROCEDURAL memory (previously unpopulated) — a completed action that worked is
+        # reusable "how to act" knowledge. Written organically through the StateRepository
+        # adapter, so procedural memory now lives in the graph like the other memory types.
+        try:
+            from app.services.memory_service import MemoryService
+            from app.models.memory import ContextMemoryCreateRequest, MemoryScopeType, MemoryType
+            family = attrs.get("action_family") or "GENERAL"
+            MemoryService().create_memory(ContextMemoryCreateRequest(
+                memory_type=MemoryType.PROCEDURAL, scope_type=MemoryScopeType.ADVISOR,
+                scope_id=advisor_id,
+                title=f"Proven play: {family}",
+                summary=(f"For {family} situations, completing \"{attrs['title']}\" produced a measured "
+                         f"+${impact_amount:,.0f} revenue impact — a proven action to repeat when this "
+                         f"pattern recurs."),
+                facts={"action_family": family, "recommendation_id": recommendation_id,
+                       "impact_amount": impact_amount, "play": "repeat_on_similar_pattern"},
+                confidence=0.85, source="recommendation_lifecycle_procedural"))
+        except Exception:
+            pass
+
         return {"ledger_id": None, "impact_amount": impact_amount, "impact_type": "REVENUE",
                 "source_transaction_id": tx_id, "note": note_text, "opportunity_id": attrs.get("opportunity_id")}
 
