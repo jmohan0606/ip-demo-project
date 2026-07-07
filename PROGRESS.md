@@ -2209,3 +2209,38 @@ manifest/UI/CLAUDE.md. Commits: c6c0863 (items 1+2) · 9a42789 (item 3) · d0148
   get_agent_execution_trace traversal (Agent Orchestration page) from SEEDED execution traces;
   runtime agent runs do not yet WRITE new tool_call vertices — documented as intentionally-future
   (seeded-and-read now; runtime write is a later agent-instrumentation task), not ambiguous.
+
+## Session 16 — 2026-07-07 — PART A: reasoning-trace representation consolidation — DONE
+Resolved the two reasoning-trace representations into ONE canonical shape used by BOTH display
+and reuse. Investigation + fix + real-Claude verification.
+- FINDING: not vertex duplication — a divergent WRITE path. The canonical rep (foundation
+  schema + manifest + every reader: get_reasoning_trace, get_memory_timeline, client360 lineage,
+  and the reuse reader get_reasoning_traces_for_scope) is `phx_dm_reasoning_trace` PK
+  `reasoning_id` with `artifact_type`/`artifact_id`/`created_at` and edges
+  `phx_dm_reasoning_uses_memory` + `phx_dm_reasoning_for_{advisor,prediction,opportunity,
+  recommendation}`. The memory-service write path (MemoryService.save_reasoning_trace →
+  TigerGraphMemoryLinker.upsert_reasoning_trace) instead wrote rep-2 attrs
+  (`trace_id`/`trace_type`/`conclusion`/`status`/`created_ts`) and linked the DEAD edge
+  `phx_dm_reasoning_used_memory` (absent from the manifest; every reader queries `_uses_memory`).
+  Result: memory-service traces were invisible to both display and reuse (proven via repro:
+  memory-timeline surfaced=False, raw vertex lacked artifact_type/created_at).
+- FIX (code): rewrote `upsert_reasoning_trace` to emit the canonical vertex (conclusion folded in
+  as terminal reasoning step; raw fields preserved in evidence_json); corrected the edge to
+  `phx_dm_reasoning_uses_memory`; `memory_service.save_reasoning_trace` now resolves
+  artifact_type/artifact_id from the request's recommendation/prediction/opportunity id and adds
+  the matching `phx_dm_reasoning_for_*` edge, so a memory-service trace is first-class in the
+  explainability lineage.
+- FIX (schema): the legacy top-level `tigergraph/schema/` (stale base-repo mirror; NOT loaded at
+  runtime — FoundationGraphStore loads only docs/tigergraph_foundation) was updated to the
+  canonical vertex + edge names (`_used_memory`/`_supports_*` → `_uses_memory`/`_for_*`, added
+  `_for_advisor` + `_uses_feature_snapshot`); 03_create_graph updated. The authoritative
+  foundation schema/manifest already had the canonical shape — unchanged. Documented in
+  DATABASES.md ("Reasoning-trace consolidation").
+- VERIFIED: (display) get_reasoning_trace by RECOMMENDATION finds the memory-service trace=True;
+  get_memory_timeline surfaces it via _uses_memory=True; (reuse, REAL Claude
+  claude-haiku-4-5-20251001) record_reasoning → prior_reasoning retrieves it by
+  phx_dm_reasoning_for_advisor traversal → real answer grounds in traversal ($75,230 peer impact,
+  6 open opps). App imports OK (app.api.main), legacy edge targets all resolve.
+- NOTE (unrelated, logged not fixed): seed context_memory vertices use subject_type/subject_id
+  while the runtime memory linker's upsert_memory writes scope_type/scope_id — a separate
+  memory-attr divergence outside Part A's reasoning-trace scope.

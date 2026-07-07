@@ -321,15 +321,23 @@ CREATE VERTEX phx_dm_conversation_turn (
   status STRING
 ) WITH primary_id_as_attribute="true"
 
+-- Canonical reasoning-trace representation (single, unified — see DATABASES.md "Reasoning
+-- trace consolidation"). PK `reasoning_id`; `artifact_type`/`artifact_id` anchor the trace to
+-- the artifact it explains (PREDICTION/OPPORTUNITY/RECOMMENDATION/ADVISOR) for the
+-- Explainability/Memory-Timeline display AND the reasoning-reuse path. The former memory-service
+-- shape (trace_id/conclusion/status) is folded in: conclusion → terminal reasoning step,
+-- the raw fields preserved inside evidence_json. Matches the authoritative foundation schema
+-- (docs/tigergraph_foundation/tigergraph/schema/01_vertices.gsql) and data/manifest.json.
 CREATE VERTEX phx_dm_reasoning_trace (
-  PRIMARY_ID trace_id STRING,
-  trace_type STRING,
-  conclusion STRING,
-  confidence DOUBLE,
+  PRIMARY_ID reasoning_id STRING,
+  artifact_type STRING,
+  artifact_id STRING,
   reasoning_steps_json STRING,
   evidence_json STRING,
-  created_ts DATETIME,
-  status STRING
+  model_name STRING,
+  prompt_version STRING,
+  confidence DOUBLE,
+  created_at DATETIME
 ) WITH primary_id_as_attribute="true"
 
 CREATE VERTEX phx_dm_document (

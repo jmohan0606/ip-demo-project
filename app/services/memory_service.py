@@ -82,11 +82,26 @@ class MemoryService:
             evidence=request.evidence,
         )
         self.state.save_reasoning_trace(trace)
-        if write_to_graph and request.memory_ids:
+        # Anchor this trace into the SAME canonical representation the pipeline uses, so a
+        # memory-service trace is discoverable by the explainability lineage exactly like a
+        # prediction/opportunity/recommendation trace. artifact_type/artifact_id + the
+        # matching `phx_dm_reasoning_for_*` edge come from whichever artifact the request cites.
+        artifact_type, artifact_id, artifact_edge = None, None, None
+        if request.recommendation_id:
+            artifact_type, artifact_id, artifact_edge = "RECOMMENDATION", request.recommendation_id, "phx_dm_reasoning_for_recommendation"
+        elif request.prediction_id:
+            artifact_type, artifact_id, artifact_edge = "PREDICTION", request.prediction_id, "phx_dm_reasoning_for_prediction"
+        elif request.opportunity_id:
+            artifact_type, artifact_id, artifact_edge = "OPPORTUNITY", request.opportunity_id, "phx_dm_reasoning_for_opportunity"
+        if write_to_graph:
             try:
-                for memory_id in request.memory_ids:
-                    self.linker.upsert.upsert_edge("phx_dm_reasoning_used_memory", trace.trace_id, memory_id, {})
-            except Exception:  # noqa: BLE001
+                # re-upsert with the resolved artifact linkage + canonical `_uses_memory` edges
+                self.linker.upsert_reasoning_trace(
+                    trace, memory_ids=request.memory_ids, artifact_type=artifact_type, artifact_id=artifact_id
+                )
+                if artifact_edge and artifact_id:
+                    self.linker.upsert.upsert_edge(artifact_edge, trace.trace_id, artifact_id, {})
+            except Exception:  # noqa: BLE001 — graph link is best-effort; trace already persisted
                 pass
         return trace
 

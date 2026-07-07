@@ -46,18 +46,44 @@ class TigerGraphMemoryLinker:
             self.upsert.upsert_edge("phx_dm_conversation_created_memory", turn.conversation_turn_id, memory_id, {})
         return result
 
-    def upsert_reasoning_trace(self, trace: ReasoningTrace, memory_ids: list[str] | None = None) -> dict:
+    def upsert_reasoning_trace(
+        self,
+        trace: ReasoningTrace,
+        memory_ids: list[str] | None = None,
+        artifact_type: str | None = None,
+        artifact_id: str | None = None,
+    ) -> dict:
+        """Persist a reasoning trace in the ONE canonical `phx_dm_reasoning_trace` shape
+        used by every display reader (get_reasoning_trace / get_memory_timeline / client360)
+        AND the reuse reader (get_reasoning_traces_for_scope): PK `reasoning_id`, plus
+        `artifact_type`/`artifact_id`/`created_at`. The memory-service semantics
+        (trace_type/conclusion/status) are preserved: trace_type → artifact_type, and
+        conclusion is appended as the terminal reasoning step (so the reuse reader, which
+        takes steps[-1] as the conclusion, surfaces it) with the raw fields kept inside
+        evidence_json. Memories link via `phx_dm_reasoning_uses_memory` — the canonical edge
+        the readers traverse (the old `phx_dm_reasoning_used_memory` name was a dead edge:
+        not in the manifest and never read)."""
+        steps = list(trace.reasoning_steps)
+        if trace.conclusion and (not steps or steps[-1] != trace.conclusion):
+            steps.append(trace.conclusion)
         payload = {
-            "trace_id": trace.trace_id,
-            "trace_type": trace.trace_type,
-            "conclusion": trace.conclusion,
+            "reasoning_id": trace.trace_id,
+            "artifact_type": (artifact_type or trace.trace_type or "").upper(),
+            "artifact_id": artifact_id or "",
+            "reasoning_steps_json": json.dumps(steps),
+            "evidence_json": json.dumps({
+                "evidence": trace.evidence,
+                "trace_type": trace.trace_type,
+                "conclusion": trace.conclusion,
+                "status": trace.status,
+                "confidence": trace.confidence,
+            }),
+            "model_name": "",
+            "prompt_version": "",
             "confidence": trace.confidence,
-            "reasoning_steps_json": json.dumps(trace.reasoning_steps),
-            "evidence_json": json.dumps(trace.evidence),
-            "created_ts": trace.created_ts.isoformat(),
-            "status": trace.status,
+            "created_at": trace.created_ts.isoformat(),
         }
         result = self.upsert.upsert_vertex("phx_dm_reasoning_trace", trace.trace_id, payload)
         for memory_id in memory_ids or []:
-            self.upsert.upsert_edge("phx_dm_reasoning_used_memory", trace.trace_id, memory_id, {})
+            self.upsert.upsert_edge("phx_dm_reasoning_uses_memory", trace.trace_id, memory_id, {})
         return result

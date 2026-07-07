@@ -156,3 +156,40 @@ Confirmed in `.gitignore` — all three runtime stores are ignored, so a `git cl
 The graph itself, in the client environment, is rebuilt from the committed
 `docs/tigergraph_foundation/data/sample/*.csv` + `manifest.json` (verified in the pre-migration
 data audit — see `STATUS_CHECK.md`).
+
+---
+
+## Reasoning-trace consolidation (single canonical representation)
+
+There is **one** reasoning-trace representation, used by both the display path and the
+reasoning-reuse path. This resolves an earlier accidental divergence where the memory-service
+write path emitted a different vertex shape and a dead edge that no reader consumed.
+
+**Canonical vertex** `phx_dm_reasoning_trace` — PK `reasoning_id`, attrs
+`artifact_type, artifact_id, reasoning_steps_json, evidence_json, model_name, prompt_version,
+confidence, created_at`. Authoritative def:
+`docs/tigergraph_foundation/tigergraph/schema/01_vertices.gsql` + `data/manifest.json`; the
+legacy top-level `tigergraph/schema/` mirror was updated to match.
+
+**Canonical edges** (trace → target): `phx_dm_reasoning_for_prediction`,
+`phx_dm_reasoning_for_opportunity`, `phx_dm_reasoning_for_recommendation`,
+`phx_dm_reasoning_for_advisor` (reuse anchor), and `phx_dm_reasoning_uses_memory` /
+`phx_dm_reasoning_uses_feature_snapshot` (+ `_uses_document_chunk/_uses_crm_activity/
+_uses_transaction`, `_execution_generated_reasoning`) for lineage.
+
+| Path | Writer | Reader |
+|------|--------|--------|
+| Pipeline artifacts (prediction/opp/rec) | `app/graph/artifacts.py::write_reasoning_trace` | `get_reasoning_trace`, client360 lineage (DISPLAY) |
+| Chat/agentic reasoning-reuse | `app/ai/reasoning/graph_reasoner.py` (artifact_type `ADVISOR`/`SCOPE`) | `get_reasoning_traces_for_scope` via `phx_dm_reasoning_for_advisor` (REUSE) |
+| Memory-service `/memory/reasoning-trace` | `app/services/memory_service.py` → `TigerGraphMemoryLinker.upsert_reasoning_trace` | now emits the **canonical** shape + `phx_dm_reasoning_uses_memory` + the artifact `_for_*` edge, so it appears in DISPLAY (`get_reasoning_trace`, `get_memory_timeline`) exactly like a pipeline trace |
+
+**What changed (Part A):** `TigerGraphMemoryLinker.upsert_reasoning_trace` now writes the canonical
+vertex (was: `trace_id`/`trace_type`/`conclusion`/`status`/`created_ts`); the memory-service
+`conclusion` is folded in as the terminal reasoning step (matching the reuse reader's
+`steps[-1]` convention) with the raw fields preserved inside `evidence_json`. The write edge was
+corrected from the dead `phx_dm_reasoning_used_memory` (absent from the manifest, never read) to
+the canonical `phx_dm_reasoning_uses_memory`. The SQLite mirror
+(`phx_dm_local_reasoning_trace`) keeps its own columns unchanged — it is a local cache, not the
+display/reuse source. Verified: explainability-by-recommendation, memory-timeline, and the
+real-Claude reasoning-reuse traversal all surface the same trace. This is deliberate
+consolidation, not duplication — do not re-introduce a second reasoning-trace shape.

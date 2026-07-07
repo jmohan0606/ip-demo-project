@@ -77,10 +77,16 @@ CREATE DIRECTED EDGE phx_dm_memory_for_market (FROM phx_dm_context_memory, TO ph
 CREATE DIRECTED EDGE phx_dm_memory_for_advisor (FROM phx_dm_context_memory, TO phx_dm_advisor)
 CREATE DIRECTED EDGE phx_dm_memory_for_household (FROM phx_dm_context_memory, TO phx_dm_household)
 CREATE DIRECTED EDGE phx_dm_conversation_created_memory (FROM phx_dm_conversation_turn, TO phx_dm_context_memory)
-CREATE DIRECTED EDGE phx_dm_reasoning_used_memory (FROM phx_dm_reasoning_trace, TO phx_dm_context_memory)
-CREATE DIRECTED EDGE phx_dm_reasoning_supports_recommendation (FROM phx_dm_reasoning_trace, TO phx_dm_recommendation)
-CREATE DIRECTED EDGE phx_dm_reasoning_supports_prediction (FROM phx_dm_reasoning_trace, TO phx_dm_prediction_result)
-CREATE DIRECTED EDGE phx_dm_reasoning_supports_opportunity (FROM phx_dm_reasoning_trace, TO phx_dm_opportunity)
+-- Canonical reasoning-trace edges (single naming, matches code + foundation schema + manifest).
+-- Renamed from the legacy `_used_memory` / `_supports_*` names, which no live code wrote or read
+-- (the writer used `_used_memory`, every reader queried `_uses_memory` — a dead link). Added
+-- `_for_advisor` (reasoning-reuse anchor) and `_uses_feature_snapshot` (lineage). See DATABASES.md.
+CREATE DIRECTED EDGE phx_dm_reasoning_uses_memory (FROM phx_dm_reasoning_trace, TO phx_dm_context_memory)
+CREATE DIRECTED EDGE phx_dm_reasoning_uses_feature_snapshot (FROM phx_dm_reasoning_trace, TO phx_dm_feature_snapshot)
+CREATE DIRECTED EDGE phx_dm_reasoning_for_recommendation (FROM phx_dm_reasoning_trace, TO phx_dm_recommendation)
+CREATE DIRECTED EDGE phx_dm_reasoning_for_prediction (FROM phx_dm_reasoning_trace, TO phx_dm_prediction_result)
+CREATE DIRECTED EDGE phx_dm_reasoning_for_opportunity (FROM phx_dm_reasoning_trace, TO phx_dm_opportunity)
+CREATE DIRECTED EDGE phx_dm_reasoning_for_advisor (FROM phx_dm_reasoning_trace, TO phx_dm_advisor)
 
 CREATE DIRECTED EDGE phx_dm_document_has_chunk (FROM phx_dm_document, TO phx_dm_document_chunk)
 CREATE DIRECTED EDGE phx_dm_document_supports_playbook (FROM phx_dm_document, TO phx_dm_playbook)
