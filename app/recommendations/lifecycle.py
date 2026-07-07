@@ -51,7 +51,15 @@ class LifecycleError(Exception):
 
 class RecommendationLifecycleService:
     def __init__(self) -> None:
+        # Durable state (status, status-transitions, impact ledger) now flows through the
+        # StateRepository adapter — TigerGraph authority + SQLite fallback. `self.db` is
+        # retained ONLY for the generated-recommendation attribute cache (register_generated /
+        # _rec_attrs mirror), which is an operational cache, not one of the migrated durable
+        # domains (the authoritative rec attrs come from the graph vertex in _rec_attrs).
+        from app.repositories.state_repository import get_state_repository
+
         self.db = SQLiteManager()
+        self.state = get_state_repository()
         self.initialize()
 
     # ---- schema ------------------------------------------------------------
@@ -98,10 +106,9 @@ class RecommendationLifecycleService:
 
     # ---- status reads ------------------------------------------------------
     def effective_status(self, recommendation_id: str) -> str:
-        with self.db.connect() as conn:
-            row = conn.execute("SELECT status FROM phx_dm_local_recommendation WHERE recommendation_id=?",
-                               (recommendation_id,)).fetchone()
-        return canonical(row[0]) if row else "OPEN"
+        # Graph-authoritative (latest transition), SQLite fallback — via the adapter.
+        status = self.state.get_rec_status(recommendation_id)
+        return canonical(status) if status else "OPEN"
 
     def allowed_actions(self, status: str) -> list[str]:
         return list(TRANSITIONS.get(canonical(status), {}).keys())
@@ -189,32 +196,21 @@ class RecommendationLifecycleService:
         transitions.append((frm, to, action))
 
         impact = None
-        with self.db.connect() as conn:
-            for (f, t, a) in transitions:
-                conn.execute("""INSERT INTO phx_dm_local_rec_status_transition
-                    (transition_id, recommendation_id, advisor_id, from_status, to_status, action,
-                     actor_type, actor_id, note, created_ts) VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                    (new_id("TRN"), recommendation_id, advisor_id, f, t, a, actor_type, actor_id,
-                     note if a == action else None, _now()))
-            conn.execute("UPDATE phx_dm_local_recommendation SET status=?, updated_ts=? WHERE recommendation_id=?",
-                         (to, _now(), recommendation_id))
-            conn.commit()
-
-        # Reflect status onto the graph vertex (merge-upsert, additive).
-        try:
-            upsert_vertex(get_graph_client(), "phx_dm_recommendation", "recommendation_id",
-                          {"recommendation_id": recommendation_id, "status": to})
-        except Exception:
-            pass
+        # Status-transition audit trail + status → the StateRepository adapter (graph vertices
+        # via phx_dm_rec_status_transition + status on the recommendation vertex; SQLite fallback).
+        for (f, t, a) in transitions:
+            self.state.record_transition({
+                "transition_id": new_id("TRN"), "recommendation_id": recommendation_id,
+                "advisor_id": advisor_id, "from_status": f, "to_status": t, "action": a,
+                "actor_type": actor_type, "actor_id": actor_id,
+                "note": note if a == action else None, "created_ts": _now()})
+        self.state.set_rec_status(recommendation_id, to)
 
         status_note = None
         if to == "COMPLETED":
             impact = self._generate_impact(recommendation_id, attrs, actor_type, actor_id, note)
             status_note = impact["note"]
-            with self.db.connect() as conn:
-                conn.execute("UPDATE phx_dm_local_recommendation SET status_note=? WHERE recommendation_id=?",
-                             (status_note, recommendation_id))
-                conn.commit()
+            self.state.set_rec_status(recommendation_id, to, note=status_note)
 
         return {"recommendation_id": recommendation_id, "from_status": current, "to_status": to,
                 "transition_id": transitions[-1] and new_id("TRN"), "status_note": status_note,
@@ -244,14 +240,13 @@ class RecommendationLifecycleService:
                      f"{actor_id or ''}: {attrs['title']} — +${impact_amount:,.0f} revenue impact recorded "
                      f"(transaction {tx_id}).{(' ' + note) if note else ''}")
 
-        with self.db.connect() as conn:
-            conn.execute("""INSERT OR REPLACE INTO phx_dm_local_impact_ledger
-                (ledger_id, recommendation_id, advisor_id, opportunity_id, action_family,
-                 impact_amount, impact_type, source_transaction_id, note, created_ts)
-                VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                (new_id("LEDG"), recommendation_id, advisor_id, attrs.get("opportunity_id"),
-                 attrs.get("action_family"), impact_amount, "REVENUE", tx_id, note_text, _now()))
-            conn.commit()
+        # Impact-ledger entry → the StateRepository adapter (phx_dm_impact_ledger vertex +
+        # impact_for_advisor / impact_from_recommendation edges in the graph; SQLite fallback).
+        self.state.add_impact_entry({
+            "ledger_id": new_id("LEDG"), "recommendation_id": recommendation_id, "advisor_id": advisor_id,
+            "opportunity_id": attrs.get("opportunity_id"), "action_family": attrs.get("action_family"),
+            "impact_amount": impact_amount, "impact_type": "REVENUE", "source_transaction_id": tx_id,
+            "note": note_text, "created_ts": _now()})
 
         # Mark the opportunity ADDRESSED (additive merge).
         if attrs.get("opportunity_id"):
@@ -313,57 +308,68 @@ class RecommendationLifecycleService:
     # ---- reads for the UI / context / regeneration ------------------------
     def lifecycle_for(self, recommendation_id: str) -> dict:
         status = self.effective_status(recommendation_id)
-        with self.db.connect() as conn:
-            note = conn.execute("SELECT status_note FROM phx_dm_local_recommendation WHERE recommendation_id=?",
-                                (recommendation_id,)).fetchone()
-            trns = conn.execute("""SELECT from_status, to_status, action, actor_type, actor_id, note, created_ts
-                FROM phx_dm_local_rec_status_transition WHERE recommendation_id=? ORDER BY created_ts""",
-                (recommendation_id,)).fetchall()
-            led = conn.execute("""SELECT ledger_id, impact_amount, source_transaction_id, note, created_ts
-                FROM phx_dm_local_impact_ledger WHERE recommendation_id=?""", (recommendation_id,)).fetchone()
+        # transitions + impact via graph traversal through the adapter.
+        trns = self.state.transitions_for(recommendation_id)
+        led = self.state.impact_entry_for_recommendation(recommendation_id)
+        status_note = (led or {}).get("note")
         return {
             "recommendation_id": recommendation_id, "status": status,
-            "status_note": note[0] if note else None,
+            "status_note": status_note,
             "allowed_actions": self.allowed_actions(status), "terminal": status in TERMINAL,
-            "transitions": [dict(zip(["from_status", "to_status", "action", "actor_type", "actor_id", "note", "created_ts"], t)) for t in trns],
-            "impact": (dict(zip(["ledger_id", "impact_amount", "source_transaction_id", "note", "created_ts"], led)) if led else None),
+            "transitions": [{k: t.get(k) for k in ["from_status", "to_status", "action", "actor_type", "actor_id", "note", "created_ts"]} for t in trns],
+            "impact": ({k: led.get(k) for k in ["ledger_id", "impact_amount", "source_transaction_id", "note", "created_ts"]} if led else None),
             "reasoning_trace_id": f"REASON_{recommendation_id}",
         }
 
     def addressed_opportunity_ids(self, advisor_id: str) -> set[str]:
-        with self.db.connect() as conn:
-            rows = conn.execute("SELECT opportunity_id FROM phx_dm_local_impact_ledger "
-                                "WHERE advisor_id=? AND opportunity_id IS NOT NULL", (advisor_id,)).fetchall()
-        return {r[0] for r in rows}
+        return {e["opportunity_id"] for e in self.state.impact_entries_for_advisor(advisor_id)
+                if e.get("opportunity_id")}
 
     def ledger_for_opportunity(self, opportunity_id: str) -> dict | None:
-        with self.db.connect() as conn:
-            row = conn.execute("""SELECT recommendation_id, created_ts, note FROM phx_dm_local_impact_ledger
-                WHERE opportunity_id=? ORDER BY created_ts DESC LIMIT 1""", (opportunity_id,)).fetchone()
-        return {"recommendation_id": row[0], "created_ts": row[1], "note": row[2]} if row else None
+        entries = [e for e in self.state.all_impact_entries() if e.get("opportunity_id") == opportunity_id]
+        entries.sort(key=lambda e: str(e.get("created_ts") or ""), reverse=True)
+        if not entries:
+            return None
+        e = entries[0]
+        return {"recommendation_id": e.get("recommendation_id"), "created_ts": e.get("created_ts"), "note": e.get("note")}
 
     def counts_for_advisor(self, advisor_id: str) -> dict:
+        """Status counts across the advisor's recommendations — derived from the graph rec
+        vertices' status attribute (set via the adapter), with the SQLite mirror as fallback."""
         counts = {k: 0 for k in ["open", "accepted", "in_progress", "completed", "rejected", "ignored", "modified"]}
-        with self.db.connect() as conn:
-            for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation "
-                                          "WHERE advisor_id=? GROUP BY status", (advisor_id,)):
-                counts[canonical(status).lower()] = counts.get(canonical(status).lower(), 0) + n
+        store = get_graph_client().store
+        rec_ids = store.in_ids("phx_dm_recommendation_for_advisor", advisor_id) or \
+            store.out_ids("phx_dm_recommendation_for_advisor", advisor_id)
+        seen = False
+        for rid in rec_ids:
+            st = (store.vertex("phx_dm_recommendation", rid) or {}).get("status")
+            if st:
+                seen = True
+                key = canonical(st).lower()
+                counts[key] = counts.get(key, 0) + 1
+        if not seen:  # fallback to the SQLite rec-attr cache
+            with self.db.connect() as conn:
+                for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation "
+                                              "WHERE advisor_id=? GROUP BY status", (advisor_id,)):
+                    counts[canonical(status).lower()] = counts.get(canonical(status).lower(), 0) + n
         return counts
 
     def recent_activity_for_advisor(self, advisor_id: str, limit: int = 5) -> dict:
-        with self.db.connect() as conn:
-            recs = conn.execute("""SELECT r.recommendation_id, r.title, r.status, r.status_note, r.updated_ts,
-                    l.impact_amount, l.source_transaction_id
-                FROM phx_dm_local_recommendation r
-                LEFT JOIN phx_dm_local_impact_ledger l ON l.recommendation_id = r.recommendation_id
-                WHERE r.advisor_id=? AND UPPER(r.status) NOT IN ('OPEN','GENERATED','PRESENTED')
-                ORDER BY r.updated_ts DESC LIMIT ?""", (advisor_id, limit)).fetchall()
-            total = conn.execute("SELECT COALESCE(SUM(impact_amount),0) FROM phx_dm_local_impact_ledger WHERE advisor_id=?",
-                                 (advisor_id,)).fetchone()[0]
-            ledger_ids = [r[0] for r in conn.execute("SELECT ledger_id FROM phx_dm_local_impact_ledger WHERE advisor_id=?", (advisor_id,))]
-        events = [{"recommendation_id": r[0], "title": r[1], "status": canonical(r[2]), "note": r[3],
-                   "created_ts": r[4] or "", "impact_amount": r[5], "source_transaction_id": r[6]} for r in recs]
-        return {"events": events, "total_impact": float(total or 0.0), "ledger_ids": ledger_ids}
+        # Impact history from the graph (traversal); rec titles/status from the graph vertex.
+        entries = self.state.impact_entries_for_advisor(advisor_id)
+        store = get_graph_client().store
+        events = []
+        for e in entries[:limit]:
+            rid = e.get("recommendation_id")
+            v = store.vertex("phx_dm_recommendation", rid) or {}
+            events.append({
+                "recommendation_id": rid, "title": v.get("title") or e.get("note") or rid,
+                "status": canonical(v.get("status") or "COMPLETED"), "note": e.get("note"),
+                "created_ts": e.get("created_ts") or "",
+                "impact_amount": e.get("impact_amount"), "source_transaction_id": e.get("source_transaction_id")})
+        total = sum(float(e.get("impact_amount") or 0.0) for e in entries)
+        ledger_ids = [e.get("ledger_id") for e in entries]
+        return {"events": events, "total_impact": float(total), "ledger_ids": ledger_ids}
 
     # ---- ledger reads (for the Impact Ledger page) ------------------------
     def _advisor_name(self, advisor_id: str) -> str:
@@ -380,33 +386,34 @@ class RecommendationLifecycleService:
         return (row[0] if row and row[0] else recommendation_id)
 
     def ledger_entries(self, advisor_id: str | None = None) -> list[dict]:
-        sql = ("SELECT ledger_id, recommendation_id, advisor_id, opportunity_id, action_family, "
-               "impact_amount, impact_type, source_transaction_id, note, created_ts "
-               "FROM phx_dm_local_impact_ledger")
-        params: list = []
-        if advisor_id:
-            sql += " WHERE advisor_id=?"
-            params.append(advisor_id)
-        sql += " ORDER BY created_ts DESC"
-        cols = ["ledger_id", "recommendation_id", "advisor_id", "opportunity_id", "action_family",
-                "impact_amount", "impact_type", "source_transaction_id", "note", "created_ts"]
-        with self.db.connect() as conn:
-            rows = conn.execute(sql, params).fetchall()
+        # Impact ledger via the adapter (graph traversal; SQLite fallback), enriched with names.
+        entries = (self.state.impact_entries_for_advisor(advisor_id) if advisor_id
+                   else self.state.all_impact_entries())
         out = []
-        for r in rows:
-            e = dict(zip(cols, r))
-            e["advisor_name"] = self._advisor_name(e["advisor_id"])
-            e["recommendation_title"] = self._rec_title(e["recommendation_id"])
+        for e in entries:
+            e = dict(e)
+            e["advisor_name"] = self._advisor_name(e.get("advisor_id"))
+            e["recommendation_title"] = self._rec_title(e.get("recommendation_id"))
             out.append(e)
         return out
 
     def lifecycle_totals(self) -> dict:
         """Per-status recommendation counts across ALL advisors — for real
-        acceptance/completion rates on the Business Impact page (13B.4)."""
+        acceptance/completion rates on the Business Impact page (13B.4). Derived from the
+        graph rec vertices' status (adapter authority), SQLite mirror as fallback."""
         counts = {k: 0 for k in ["open", "accepted", "in_progress", "completed", "rejected", "ignored", "modified"]}
-        with self.db.connect() as conn:
-            for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation GROUP BY status"):
-                counts[canonical(status).lower()] = counts.get(canonical(status).lower(), 0) + n
+        store = get_graph_client().store
+        seen = False
+        for attrs in store.all_vertices("phx_dm_recommendation").values():
+            st = attrs.get("status")
+            if st:
+                seen = True
+                key = canonical(st).lower()
+                counts[key] = counts.get(key, 0) + 1
+        if not seen:
+            with self.db.connect() as conn:
+                for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation GROUP BY status"):
+                    counts[canonical(status).lower()] = counts.get(canonical(status).lower(), 0) + n
         return counts
 
     def ledger_totals(self, entries: list[dict]) -> dict:
@@ -438,23 +445,36 @@ class RecommendationLifecycleService:
         if advisor_id in ANCHORED:
             raise LifecycleError(f"{advisor_id} is an anchored verification advisor — refusing to reset (Section 13 guardrail).")
         graph = get_graph_client()
-        # read ledger rows first (need the tx ids + opportunity ids before deleting)
-        with self.db.connect() as conn:
-            rows = conn.execute("SELECT source_transaction_id, opportunity_id FROM phx_dm_local_impact_ledger WHERE advisor_id=?", (advisor_id,)).fetchall()
+        # read ledger entries via the adapter (graph authority) — need tx + opportunity ids first.
+        entries = self.state.impact_entries_for_advisor(advisor_id)
         tx_removed = 0
-        for tx_id, opp_id in rows:
+        for e in entries:
+            tx_id, opp_id = e.get("source_transaction_id"), e.get("opportunity_id")
             if tx_id and str(tx_id).startswith("TXIMP_"):
-                assert str(tx_id).startswith("TXIMP_")  # structural safety: never seed data
                 if graph.store.remove_vertex("phx_dm_revenue_transaction", tx_id):
                     tx_removed += 1
+            # remove the graph impact-ledger vertex + its edges (graph is authority now)
+            if e.get("ledger_id"):
+                graph.store.remove_vertex("phx_dm_impact_ledger", e["ledger_id"])
             if opp_id:  # un-address so regeneration re-issues the rec
                 try:
                     upsert_vertex(graph, "phx_dm_opportunity", "opportunity_id",
                                   {"opportunity_id": opp_id, "status": "OPEN", "addressed_by_recommendation_id": ""})
                 except Exception:
                     pass
+        n_led = len(entries)
+        # clear the graph status-transition vertices + reset rec statuses for this advisor
+        for tid in [t for t, a in graph.store.all_vertices("phx_dm_rec_status_transition").items()
+                    if a.get("advisor_id") == advisor_id]:
+            graph.store.remove_vertex("phx_dm_rec_status_transition", tid)
+        rec_ids = graph.store.in_ids("phx_dm_recommendation_for_advisor", advisor_id) or \
+            graph.store.out_ids("phx_dm_recommendation_for_advisor", advisor_id)
+        for rid in rec_ids:
+            if (graph.store.vertex("phx_dm_recommendation", rid) or {}).get("status") not in (None, "OPEN"):
+                upsert_vertex(graph, "phx_dm_recommendation", "recommendation_id",
+                              {"recommendation_id": rid, "status": "OPEN", "status_note": ""})
+        # clear the SQLite fallback tier's rows too (reset means both stores)
         with self.db.connect() as conn:
-            n_led = conn.execute("SELECT COUNT(*) FROM phx_dm_local_impact_ledger WHERE advisor_id=?", (advisor_id,)).fetchone()[0]
             for t in ["phx_dm_local_recommendation", "phx_dm_local_rec_status_transition", "phx_dm_local_impact_ledger"]:
                 conn.execute(f"DELETE FROM {t} WHERE advisor_id=?", (advisor_id,))
             conn.execute("DELETE FROM phx_dm_local_context_memory WHERE scope_id=? AND source='recommendation_lifecycle'", (advisor_id,))
@@ -473,27 +493,44 @@ class RecommendationLifecycleService:
                 "transactions_removed": tx_removed, "snapshot_revenue_ltm": base_rev,
                 "note": "Learning history (bandit weights / GNN) is intentionally NOT rewound — it is cumulative."}
 
-    # ---- boot replay -------------------------------------------------------
+    # ---- boot replay / graph rehydration ----------------------------------
     def replay_on_boot(self) -> dict:
+        """Rehydrate the graph from the DURABLE state on boot. In mock mode the graph store is
+        in-memory (rebuilt from CSVs each boot), so runtime-written impact/transition/status
+        vertices are gone after a restart — but the SQLite fallback tier persisted them. We read
+        the durable entries via the adapter (graph-primary; after a restart that's empty, so the
+        fallback returns the SQLite rows) and re-write them back into the graph so graph-based
+        reads reflect the full history again. This is the SQLite safety-net doing its job."""
         graph = get_graph_client()
+        entries = self.state.all_impact_entries()
         replayed = 0
-        with self.db.connect() as conn:
-            ledger = conn.execute("""SELECT recommendation_id, advisor_id, impact_amount, source_transaction_id
-                FROM phx_dm_local_impact_ledger""").fetchall()
-        for rid, advisor_id, amount, tx_id in ledger:
+        statuses = 0
+        for e in entries:
+            tx_id = e.get("source_transaction_id")
+            rid = e.get("recommendation_id")
+            advisor_id = e.get("advisor_id")
+            amount = float(e.get("impact_amount") or 0.0)
             try:
-                upsert_vertex(graph, "phx_dm_revenue_transaction", "transaction_id", {
-                    "transaction_id": tx_id, "transaction_date": "2026-06-30",
-                    "revenue_amount": float(amount), "transaction_type": "RECOMMENDATION_IMPACT",
-                    "quantity": 0, "gross_amount": float(amount), "source_system": "IPERFORM_LIFECYCLE"})
-                if advisor_id:
-                    upsert_edge(graph, "phx_dm_transaction_for_advisor", "phx_dm_revenue_transaction",
-                                "phx_dm_advisor", tx_id, advisor_id)
-                upsert_edge(graph, "phx_dm_transaction_from_recommendation", "phx_dm_revenue_transaction",
-                            "phx_dm_recommendation", tx_id, rid)
+                if tx_id:
+                    upsert_vertex(graph, "phx_dm_revenue_transaction", "transaction_id", {
+                        "transaction_id": tx_id, "transaction_date": "2026-06-30",
+                        "revenue_amount": amount, "transaction_type": "RECOMMENDATION_IMPACT",
+                        "quantity": 0, "gross_amount": amount, "source_system": "IPERFORM_LIFECYCLE"})
+                    if advisor_id:
+                        upsert_edge(graph, "phx_dm_transaction_for_advisor", "phx_dm_revenue_transaction",
+                                    "phx_dm_advisor", tx_id, advisor_id)
+                    if rid:
+                        upsert_edge(graph, "phx_dm_transaction_from_recommendation", "phx_dm_revenue_transaction",
+                                    "phx_dm_recommendation", tx_id, rid)
+                # Rehydrate the impact-ledger vertex + edges into the graph too.
+                self.state.add_impact_entry(e)
+                # Reapply the completed status onto the rec vertex.
+                if rid:
+                    self.state.set_rec_status(rid, "COMPLETED")
+                    statuses += 1
                 replayed += 1
             except Exception:
                 pass
-        report = {"ledger_entries_replayed": replayed, "statuses_reapplied": 0}
+        report = {"ledger_entries_replayed": replayed, "statuses_reapplied": statuses}
         RecommendationLifecycleService._last_replay = report
         return report
