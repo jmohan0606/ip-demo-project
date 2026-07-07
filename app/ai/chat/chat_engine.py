@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from app.agents.nodes.compliance_agent import ComplianceAgent
 from app.ai.chat.context_assembler import ChatContextAssembler
+from app.config.settings import get_settings
+from app.guardrails.service import GuardrailService
 from app.llm.client import get_llm_client
 from app.models.ai_chat import ChatContextSource, ChatRequest, ChatResponse
 from app.shared.ids import timestamp_id
@@ -10,17 +12,31 @@ from app.shared.ids import timestamp_id
 class AiAssistantChatEngine:
     def __init__(self) -> None:
         self.context_assembler = ChatContextAssembler()
-        self.llm = get_llm_client()  # Section 2 adapter: mock | claude | real
+        self.llm = get_llm_client()  # Section 2 adapter: mock | claude | real | azure
+        self.guardrails = GuardrailService() if get_settings().guardrails_enabled else None
 
     def answer(self, request: ChatRequest) -> ChatResponse:
         conversation_id = request.conversation_id or timestamp_id("conv")
         turn_id = timestamp_id("chatturn")
-        context_items = self.context_assembler.assemble(request)
 
-        # COMP-001 request-level guardrail: screen the user's question for prohibited
-        # performance claims BEFORE answering, reusing the same term list the ComplianceAgent
-        # applies to generated recommendations. A hit produces a visible block in the answer.
-        compliance_block = self._compliance_screen(request.question)
+        # ---- INPUT GUARDRAILS (Security & Governance §1): PII redaction + prompt-injection/
+        # jailbreak/oversize detection BEFORE any context assembly or LLM call. A BLOCK
+        # short-circuits with a safe refusal; PII is redacted from the question before it reaches
+        # the model. ----
+        input_gr = self.guardrails.check_input(request.question) if self.guardrails else None
+        guardrails_report: dict = {}
+        if input_gr is not None:
+            guardrails_report["input"] = input_gr.model_dump(mode="json")
+            if input_gr.blocked:
+                return self._blocked_response(request, conversation_id, turn_id, input_gr, guardrails_report)
+        safe_question = input_gr.sanitized_text if input_gr else request.question
+
+        # Assemble context from the SANITIZED question so redacted PII never enters retrieval/prompt.
+        safe_request = request.model_copy(update={"question": safe_question})
+        context_items = self.context_assembler.assemble(safe_request)
+
+        # COMP-001 request-level guardrail: screen for prohibited performance claims.
+        compliance_block = self._compliance_screen(safe_question)
 
         prompt_context = "\n\n".join(
             f"[{item.source.value}] {item.title}\n{item.content}"
@@ -29,7 +45,7 @@ class AiAssistantChatEngine:
 
         prompt = f"""
 Question:
-{request.question}
+{safe_question}
 
 Persona:
 {request.persona.value}
@@ -51,10 +67,23 @@ Answer with evidence. Include what data was used and what next action should be 
         )
 
         # Mock adapter gives generic answer, so augment with deterministic evidence response.
-        answer = self._grounded_answer(request, context_items, raw_answer, compliance_block)
+        answer = self._grounded_answer(safe_request, context_items, raw_answer, compliance_block)
+
+        # ---- OUTPUT GUARDRAILS (Security & Governance §3): PII filtering + toxicity/content-
+        # safety + numeric-grounding/hallucination check on the final answer. PII is redacted; a
+        # BLOCK replaces the answer with a safe notice; grounding/toxicity are surfaced. ----
+        if self.guardrails is not None:
+            output_gr = self.guardrails.check_output(answer, prompt_context)
+            guardrails_report["output"] = output_gr.model_dump(mode="json")
+            if output_gr.blocked:
+                answer = ("⚠️ The generated response was withheld by the output guardrails "
+                          f"({output_gr.summary()}). Please rephrase your question.")
+            elif output_gr.redacted:
+                answer = output_gr.sanitized_text
 
         reasoning_steps = [
             "Resolved persona and scope.",
+            f"Applied input guardrails ({input_gr.summary() if input_gr else 'disabled'}).",
             "Screened the request against COMP-001 prohibited-claim rules.",
             "Retrieved context memory.",
             "Retrieved knowledge/RAG snippets where available.",
@@ -98,6 +127,27 @@ Answer with evidence. Include what data was used and what next action should be 
             context_items=context_items,
             reasoning_steps=reasoning_steps,
             confidence=(0.99 if compliance_block else (0.82 if context_items else 0.55)),
+            guardrails=guardrails_report,
+        )
+
+    def _blocked_response(self, request, conversation_id, turn_id, input_gr, guardrails_report) -> ChatResponse:
+        """Input guardrails BLOCKED the request (injection/jailbreak/oversize) — return a safe
+        refusal without ever assembling context or calling the model."""
+        return ChatResponse(
+            conversation_id=conversation_id,
+            conversation_turn_id=turn_id,
+            answer=GuardrailService.safe_refusal(input_gr),
+            persona=request.persona,
+            scope_type=request.scope_type,
+            scope_id=request.scope_id,
+            context_items=[],
+            reasoning_steps=[
+                "Resolved persona and scope.",
+                f"Input guardrails BLOCKED the request: {input_gr.summary()}.",
+                "Returned a safe refusal without calling the model.",
+            ],
+            confidence=0.99,
+            guardrails=guardrails_report,
         )
 
     @staticmethod

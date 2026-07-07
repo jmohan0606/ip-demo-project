@@ -63,6 +63,10 @@ class ChatResponse(BaseModel):
     context_items: list[ChatContextItem] = Field(default_factory=list)
     reasoning_steps: list[str] = Field(default_factory=list)
     confidence: float = 0.80
+    # Input/output guardrail outcomes (Security & Governance): what the guardrail layer detected
+    # on the way in (PII redaction, prompt-injection/jailbreak) and out (PII filtering, toxicity,
+    # grounding). Empty dict when guardrails found nothing.
+    guardrails: dict = Field(default_factory=dict)
     generated_at: datetime = Field(default_factory=datetime.utcnow)
 
 

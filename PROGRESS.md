@@ -2283,3 +2283,19 @@ sensitive values load from gitignored .env; .env.example has placeholders + comm
   clean LLMClientError (guarded, not an import crash); langgraph_builder runs a real linear graph
   (path a→b→c); mock LLM generate regression OK. NO real secret values in any committed file
   (AZURE_API_KEY/TG_SECRET/FUSION_WORKSPACE_ID all blank/placeholder).
+
+## Session 16 — Item 1: Guardrails audit + build — DONE
+Built a real, wired input/output guardrail layer on the AI request/response path (Security &
+Governance poster §1/§3). Full audit + gap table in STATUS_CHECK.md.
+- New app/guardrails/: LocalGuardrailClient (regex PII redaction SSN/email/phone/account/API-key/
+  Luhn-CC; prompt-injection + jailbreak pattern BLOCK; input-length validation; output toxicity/
+  content-safety BLOCK; numeric-grounding/hallucination FLAG), SmartSdkGuardrailClient (JPMC
+  EvaluationService, guarded import, GUARDRAIL_CLIENT_MODE=smartsdk), GuardrailService (records
+  real phx_dm_guardrail_event — vertex was read-only/seeded before).
+- Wired into AiAssistantChatEngine: input guardrails run before context/LLM (BLOCK → safe refusal,
+  no model call; PII redacted from question before retrieval); output guardrails on the answer
+  (PII filter, toxicity BLOCK, grounding FLAG). ChatResponse.guardrails + reasoning step. New
+  /guardrails/{status,check-input,check-output} endpoints. Settings + .env.example.
+- VERIFIED: jailbreak→BLOCK (no LLM call), PII→REDACT (Luhn CC), benign→ALLOW with REAL Claude
+  (grounding 1.0), ungrounded $999,999→FLAG, output PII→REDACT, guardrail_event 10→13 written,
+  HTTP 200 on all endpoints, app boots (47 routes).

@@ -36,7 +36,11 @@ class Settings(BaseSettings):
     # Adapter selection (Section 2 of the rebuild brief)
     graph_client_mode: str = Field(default="mock", alias="GRAPH_CLIENT_MODE")  # mock | local_real | real
     llm_client_mode: str = Field(default="mock", alias="LLM_CLIENT_MODE")  # mock | claude | real
-    embedding_client_mode: str = Field(default="local", alias="EMBEDDING_CLIENT_MODE")  # local | azure
+    embedding_client_mode: str = Field(default="local", alias="EMBEDDING_CLIENT_MODE")  # local | azure | azure_openai
+    # Input/output AI guardrails (Security & Governance poster). local = regex/heuristic (default);
+    # smartsdk = JPMC SmartSDK EvaluationService (toxicity/qa_correctness/hallucination) in client env.
+    guardrail_client_mode: str = Field(default="local", alias="GUARDRAIL_CLIENT_MODE")  # local | smartsdk
+    guardrails_enabled: bool = Field(default=True, alias="GUARDRAILS_ENABLED")
     local_embedding_model: str = Field(
         default="sentence-transformers/all-MiniLM-L6-v2", alias="LOCAL_EMBEDDING_MODEL"
     )
