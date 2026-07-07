@@ -2399,3 +2399,19 @@ Evidence: real Claude run (claude-haiku-4-5) — 2026-Q2 "Total $11,535,868 — 
 vs 2026-Q1" cross-checks exactly (11,535,868−8,878,701); "Biggest gainer: Central Division
 +$1,259,707 (+43.0%)". Screenshots: docs/qa_screenshots/session17/trend_explorer_bullets.png +
 trend_explorer_breakdown.png (13-quarter breakdown live). tsc PASS.
+
+### ITEM 4 — Copilot handoff docs — VERIFIED CURRENT
+All four docs exist, last touched 2026-07-07, content matches reality (adapter table, env swaps,
+source-of-truth pointers). One stale figure fixed in COPILOT_CONTEXT.md (185→192 seed CSVs, added
+TIGERGRAPH_AUDIT.md + Run All ingestion pointers). Full findings in STATUS_CHECK.md Session 17.
+
+## Session 17 closure
+Completed: all four items (TG source-of-truth audit w/ validator PASS + rebuild proof; ingestion
+page now exposes/loads the complete 60v/132e graph incl. Run All verified 192/192 = 156,247 rows;
+trend explorer per-period exact-figure bullets + full-range breakdown verified w/ real Claude;
+handoff docs verified current). Screenshots: docs/qa_screenshots/session17/.
+Known issues / deferred: legacy fallback modules still read old tigergraph/sample_data (documented
+reference-only, not on live path); per-period LLM summaries are one Claude call per period bucket
+(existing behavior, fine at quarterly granularity).
+Next: client review feedback; consider describing /ingestion/run-all in ARCHITECTURE_OVERVIEW if
+handoff depth requires it.

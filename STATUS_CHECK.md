@@ -4,6 +4,63 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 17 — Four-item run: TG source-of-truth audit, complete-graph ingestion, trend bullets, handoff-doc check (2026-07-07)
+
+### ITEM 1 — TigerGraph source-of-truth audit ✅ (TIGERGRAPH_AUDIT.md)
+- **Source of truth confirmed: `docs/tigergraph_foundation/`** — settings `FOUNDATION_DIR`,
+  `FoundationGraphStore`, ingestion, and the package validators all point there. Root
+  `tigergraph/` = legacy 42-vertex mirror, now marked reference-only (`tigergraph/README.md`);
+  its only consumers are dead/fallback code paths, none on the live or rebuild path.
+- **Complete + consistent:** all post-Section-9 additions present (learning_weight, impact_ledger
+  + edges, rec_status_transition + edge, canonical reasoning_trace, reasoning_for_advisor,
+  guardrail_event, GQ-044..050). Validator: **STATUS PASS — 60v / 132e / 132 reverse / 192
+  manifest files / 156,247 rows / 50 queries**.
+- **Rebuild-from-source-of-truth-only verified fresh:** manifest load = 34,070 vertex + 122,177
+  edge rows (= exactly 156,247), 0 mismatches; the 1 vertex + 3 edge types that load empty are
+  precisely the deliberate header-only runtime-accumulated types (impact ledger + reasoning
+  edges). A001 present; weights (5 families) + 144 transitions reproduce from CSV.
+- Trap documented: root `scripts/validate_tigergraph_foundation.py` validates the LEGACY package;
+  the real gate is `docs/tigergraph_foundation/scripts/validate_package.py`.
+
+### ITEM 2 — Data Ingestion & Sync loads the COMPLETE graph ✅
+- **Root cause of "15 entities":** `app/ingestion/entity_registry.py` was a hand-written
+  15-vertex subset with no edge ingestion at all — unrelated to the manifest (an original gap,
+  not a Section-11 regression). Registry now **generated from the source-of-truth manifest: 192
+  entities (60 vertices + 132 edges)**, dependency-ordered, legacy names aliased.
+- Ingestion service: kind-aware (edges key on from->to), reads manifest paths, **bulk writes**
+  (one adapter call + one hash transaction per batch — required for 156K rows / remote
+  TigerGraph); failed flushes rewind the checkpoint so resume never skips rows.
+- **"Run All Ingestion"** (`POST /ingestion/run-all` + `/run-all/status`): background worker,
+  all vertices then all edges, per-entity progress + success/failure. Single-entity Run kept.
+  "Foundation Capabilities Locked" section removed cleanly.
+- **Evidence:** Run All completed **192/192 entities, 156,247 rows, 0 failures** — in-process
+  AND over HTTP; UI screenshot `docs/qa_screenshots/session17/ingestion_runall_complete.png`
+  (KPIs 60/132/192/156,247 + completed per-entity table). tsc PASS.
+- Ops note: port 8000 public visibility had reset after the codespace crash — re-set via
+  `gh codespace ports visibility 8000:public` (documented cause of the first empty screenshot).
+
+### ITEM 3 — Revenue Trend Explorer per-period bullets ✅
+- Every period now carries `driver_bullets` computed directly from the real figures (exact by
+  construction): total + PoP change ($ and %), leading slice + share, biggest gainer, biggest
+  decline, breadth. Real-Claude headline summary kept; evidence line extended.
+- New Month-by-Month / Quarter-by-Quarter breakdown below the selected-period panel: every
+  period in range, newest first, delta badge + bullets, click-to-inspect.
+- **Evidence (real Claude, claude-haiku-4-5):** 2026-Q2 "Total $11,535,868 — up +29.9%
+  (+$2,657,167) vs 2026-Q1" (cross-checks exactly), "Biggest gainer: Central Division
+  +$1,259,707 (+43.0%)". Screenshots: `session17/trend_explorer_bullets.png` + `_breakdown.png`.
+
+### ITEM 4 — Copilot handoff docs check ✅ (no rebuild needed)
+- All four exist and are current (each last touched 2026-07-07): `COPILOT_CONTEXT.md` (94 ln),
+  `ARCHITECTURE_OVERVIEW.md` (131 ln), `TROUBLESHOOTING.md` (194 ln), `CLIENT_ENV_SETUP.md`
+  (188 ln). Adapter table, env-swap guidance, and source-of-truth pointers all match reality.
+- Gap fixed: COPILOT_CONTEXT said "185 seed CSVs" → corrected to 192 files (60v+132e, 156,247
+  rows) + pointers to TIGERGRAPH_AUDIT.md and the new Run All ingestion path.
+- Remaining (minor, non-blocking): none of the docs yet describe Session 17's run-all endpoint
+  in depth — COPILOT_CONTEXT now references it; ARCHITECTURE_OVERVIEW's module table already
+  lists `ingestion/` generically, which stays accurate.
+
+---
+
 ## Session 15 — Graph relational reasoning: real multi-hop traversal + reasoning reuse (2026-07-07)
 
 Closed the "flat bundle, no traversal, no reasoning reuse" gap completely. Every AI answer now

@@ -20,9 +20,11 @@ traceable artifact** (which features/evidence produced it) — never just a numb
 - **Backend:** Python 3.12, FastAPI (`app/api/main.py`), Pydantic v2 settings (`app/config/settings.py`).
 - **Frontend:** Next.js 14 + TypeScript + Tailwind + ShadCN UI + Recharts + Framer Motion
   (`frontend/`). Dark navy sidebar + light canvas. Design tokens in `frontend/styles/tokens.ts`.
-- **Data/graph:** TigerGraph schema + 185 seed CSVs in `docs/tigergraph_foundation/` (the
-  source-of-truth "foundation package"). At runtime in mock mode, an in-memory
-  `FoundationGraphStore` loads those CSVs.
+- **Data/graph:** TigerGraph schema + 192 manifest-controlled seed CSVs (60 vertex + 132 edge
+  types, 156,247 rows) in `docs/tigergraph_foundation/` (the source-of-truth "foundation
+  package" — see `TIGERGRAPH_AUDIT.md`; root `tigergraph/` is legacy/reference-only). At runtime
+  in mock mode, an in-memory `FoundationGraphStore` loads those CSVs. The Data Ingestion & Sync
+  page can load the ENTIRE dataset via "Run All Ingestion" (`POST /ingestion/run-all`).
 - **No Streamlit, no MUI, no purple.** Every page is a distinct component from shared primitives.
 
 ## The adapter pattern (the single most important concept)
