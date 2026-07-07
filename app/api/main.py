@@ -18,6 +18,7 @@ from app.api.routers.agentic_ai import router as agentic_ai_router
 from app.api.routers.graph_access import router as graph_access_router
 from app.api.routers.ai_chat import router as ai_chat_router
 from app.api.routers.guardrails import router as guardrails_router
+from app.api.routers.env_health import router as env_health_router
 from app.api.routers.insights_coaching import router as insights_coaching_router
 from app.api.routers.feedback_learning import router as feedback_learning_router
 from app.api.routers.recommendations import router as recommendations_router
@@ -124,6 +125,7 @@ app.include_router(insights_coaching_router)
 
 app.include_router(ai_chat_router)
 app.include_router(guardrails_router)
+app.include_router(env_health_router)
 
 
 app.include_router(graph_access_router)

@@ -191,6 +191,14 @@ export const navigationItems: NavigationItem[] = [
     iconName: "ShieldCheck",
     group: "Admin",
     status: "audit"
+  },
+  {
+    id: "env-health",
+    label: "Connection & Environment Health",
+    description: "Setup verification: TigerGraph, LLM, Embedding and Chroma each actively tested green/red — open first on the client machine.",
+    href: "/env-health",
+    iconName: "PlugZap",
+    group: "Admin"
   }
 ];
 

@@ -682,3 +682,20 @@ schema and was READ (agent-execution-trace) but nothing WROTE it at runtime.
   → REDACT. `phx_dm_guardrail_event` vertices: 10 → 13 (runtime events now written).
 - HTTP: GET /guardrails/status=200 (local); POST /guardrails/check-input BLOCK/REDACT=200. App
   boots (47 routes).
+
+## Session 16 — Item 2: Connection & Environment Health screen (DONE)
+Active setup-verification page + endpoint — the first screen to open on the client machine.
+- Backend `EnvironmentHealthService` + `GET /env-health`: ACTIVELY exercises each dependency
+  (unlike /adapters/status which only describes). TigerGraph (health probe + mode + graph name +
+  SSL + auth method + schema_installed + per-vertex-type row counts), LLM (real test generation +
+  latency + response preview), Embedding (real embed + returned vs configured EMBEDDING_DIM),
+  Chroma (reachable + collection count + total vectors). Each green/red with the real error string;
+  overall green only if all green.
+- Frontend page `/env-health` (component env-health-workspace.tsx) + nav entry (Admin group,
+  PlugZap icon) + api helper. Green/red pills, per-check headline + detail rows + JSON blocks,
+  Re-check button, mode badges.
+- VERIFIED (real screenshot docs/qa_screenshots/s16-item2-env-health.png, 0 console errors): all 4
+  GREEN — TigerGraph 60 vertex types/34,093 rows with full per-type counts (revenue_transaction
+  15124, …), LLM claude-haiku-4-5 "OK" 1324ms, Embedding local 384-dim match, Chroma 1
+  collection/257 vectors. RED path proven: EMBEDDING_CLIENT_MODE=azure w/o smart_sdk → Embedding
+  red + real error "No module named 'smart_sdk'", overall red. tsc PASS, HTTP 200.

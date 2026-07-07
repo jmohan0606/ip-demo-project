@@ -2299,3 +2299,12 @@ Governance poster §1/§3). Full audit + gap table in STATUS_CHECK.md.
 - VERIFIED: jailbreak→BLOCK (no LLM call), PII→REDACT (Luhn CC), benign→ALLOW with REAL Claude
   (grounding 1.0), ungrounded $999,999→FLAG, output PII→REDACT, guardrail_event 10→13 written,
   HTTP 200 on all endpoints, app boots (47 routes).
+
+## Session 16 — Item 2: Connection & Environment Health screen — DONE
+- Backend: EnvironmentHealthService + GET /env-health actively tests TigerGraph (reachable/auth/
+  SSL/graph/schema/per-vertex-type row counts), LLM (real gen+latency+response), Embedding (real
+  embed+configured dim), Chroma (collections+vectors) — each green/red + real error.
+- Frontend: /env-health page + nav (Admin, PlugZap) + api helper; green/red pills, detail rows,
+  Re-check, mode badges.
+- VERIFIED: real screenshot s16-item2-env-health.png all-green (0 console errors); RED path proven
+  (azure embedding w/o smart_sdk → red + real error). tsc PASS, HTTP 200.
