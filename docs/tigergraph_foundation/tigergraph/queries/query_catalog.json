@@ -385,5 +385,41 @@
     "outputs": "issue count and typed issue vertex sets",
     "status": "implemented-static-reviewed-live-compile-pending",
     "file": "GQ-043_get_data_quality_issues.gsql"
+  },
+  {
+    "id": "GQ-044",
+    "name": "get_learning_weights",
+    "parameters": "family STRING",
+    "purpose": "RL/bandit learning weights (StateRepository).",
+    "outputs": "learning_weight vertices",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-044_get_learning_weights.gsql"
+  },
+  {
+    "id": "GQ-045",
+    "name": "get_impact_ledger",
+    "parameters": "advisor_id STRING, recommendation_id STRING",
+    "purpose": "Impact-ledger entries by traversal (StateRepository).",
+    "outputs": "impact_ledger vertices",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-045_get_impact_ledger.gsql"
+  },
+  {
+    "id": "GQ-046",
+    "name": "get_rec_status_transitions",
+    "parameters": "recommendation_id STRING",
+    "purpose": "Recommendation status-transition audit trail by traversal.",
+    "outputs": "rec_status_transition vertices",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-046_get_rec_status_transitions.gsql"
+  },
+  {
+    "id": "GQ-047",
+    "name": "get_context_memory_by_scope",
+    "parameters": "scope_type STRING, scope_id STRING, memory_type STRING, result_limit INT",
+    "purpose": "Context memory by graph traversal of memory_for_<scope> edges.",
+    "outputs": "context_memory vertices",
+    "status": "implemented-static-reviewed-live-compile-pending",
+    "file": "GQ-047_get_context_memory_by_scope.gsql"
   }
 ]

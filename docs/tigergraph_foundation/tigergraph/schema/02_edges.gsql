@@ -129,3 +129,8 @@ CREATE DIRECTED EDGE phx_dm_execution_has_tool_call (FROM phx_dm_agent_execution
 CREATE DIRECTED EDGE phx_dm_execution_has_evaluation (FROM phx_dm_agent_execution, TO phx_dm_evaluation_result) WITH REVERSE_EDGE="rev_phx_dm_execution_has_evaluation";
 CREATE DIRECTED EDGE phx_dm_execution_has_guardrail_event (FROM phx_dm_agent_execution, TO phx_dm_guardrail_event) WITH REVERSE_EDGE="rev_phx_dm_execution_has_guardrail_event";
 CREATE DIRECTED EDGE phx_dm_execution_generated_reasoning (FROM phx_dm_agent_execution, TO phx_dm_reasoning_trace) WITH REVERSE_EDGE="rev_phx_dm_execution_generated_reasoning";
+
+// --- StateRepository durable-state edges ---
+CREATE DIRECTED EDGE phx_dm_impact_for_advisor (FROM phx_dm_impact_ledger, TO phx_dm_advisor) WITH REVERSE_EDGE="rev_phx_dm_impact_for_advisor";
+CREATE DIRECTED EDGE phx_dm_impact_from_recommendation (FROM phx_dm_impact_ledger, TO phx_dm_recommendation) WITH REVERSE_EDGE="rev_phx_dm_impact_from_recommendation";
+CREATE DIRECTED EDGE phx_dm_transition_of_recommendation (FROM phx_dm_rec_status_transition, TO phx_dm_recommendation) WITH REVERSE_EDGE="rev_phx_dm_transition_of_recommendation";

@@ -1,0 +1,17 @@
+/*
+ * GQ-044 — get_learning_weights
+ * Purpose: Return the RL/bandit learning weights (StateRepository durable state).
+ * Outputs: one row per phx_dm_learning_weight vertex (optionally one family).
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_learning_weights(STRING family) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    weights = {phx_dm_learning_weight.*};
+    result = SELECT w FROM weights:w
+             WHERE family == "" OR w.family == family
+             ORDER BY w.family ASC;
+    PRINT result;
+}
+
+INSTALL QUERY get_learning_weights

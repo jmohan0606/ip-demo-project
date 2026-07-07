@@ -43,3 +43,7 @@ USE GRAPH iperform_insights_coaching_demo
 @GQ-041_get_recommendation_adoption_learning_summary.gsql
 @GQ-042_get_persona_scope_assignments.gsql
 @GQ-043_get_data_quality_issues.gsql
+@GQ-044_get_learning_weights.gsql
+@GQ-045_get_impact_ledger.gsql
+@GQ-046_get_rec_status_transitions.gsql
+@GQ-047_get_context_memory_by_scope.gsql

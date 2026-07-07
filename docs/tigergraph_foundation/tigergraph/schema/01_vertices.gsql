@@ -57,3 +57,8 @@ CREATE VERTEX phx_dm_agent_execution (PRIMARY_ID execution_id STRING, agent_name
 CREATE VERTEX phx_dm_tool_call (PRIMARY_ID tool_call_id STRING, tool_name STRING, operation STRING, request_summary STRING, response_summary STRING, status STRING, latency_ms INT, error_code STRING) WITH primary_id_as_attribute="true";
 CREATE VERTEX phx_dm_evaluation_result (PRIMARY_ID evaluation_id STRING, evaluator STRING, relevance_score DOUBLE, groundedness_score DOUBLE, safety_score DOUBLE, confidence_score DOUBLE, threshold DOUBLE, passed BOOL) WITH primary_id_as_attribute="true";
 CREATE VERTEX phx_dm_guardrail_event (PRIMARY_ID guardrail_event_id STRING, event_type STRING, severity STRING, action STRING, matched_rule STRING, redacted_content STRING, created_at DATETIME) WITH primary_id_as_attribute="true";
+
+// --- StateRepository durable-state vertices (weights / impact ledger / status transitions) ---
+CREATE VERTEX phx_dm_learning_weight (PRIMARY_ID family STRING, weight DOUBLE, feedback_count INT, updated_at DATETIME) WITH primary_id_as_attribute="true";
+CREATE VERTEX phx_dm_impact_ledger (PRIMARY_ID ledger_id STRING, recommendation_id STRING, advisor_id STRING, opportunity_id STRING, action_family STRING, impact_amount DOUBLE, impact_type STRING, source_transaction_id STRING, note STRING, created_ts DATETIME) WITH primary_id_as_attribute="true";
+CREATE VERTEX phx_dm_rec_status_transition (PRIMARY_ID transition_id STRING, recommendation_id STRING, advisor_id STRING, from_status STRING, to_status STRING, action STRING, actor_type STRING, actor_id STRING, note STRING, created_ts DATETIME) WITH primary_id_as_attribute="true";

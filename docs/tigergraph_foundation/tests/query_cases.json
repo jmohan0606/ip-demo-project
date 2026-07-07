@@ -666,6 +666,62 @@
       "required_result_keys": [
         "issue_count"
       ]
+    },
+    {
+      "id": "GQ-044",
+      "query_name": "get_learning_weights",
+      "params": {
+        "family": ""
+      },
+      "expected_outputs": [
+        "result"
+      ],
+      "required_result_keys": [
+        "result"
+      ]
+    },
+    {
+      "id": "GQ-045",
+      "query_name": "get_impact_ledger",
+      "params": {
+        "advisor_id": "",
+        "recommendation_id": ""
+      },
+      "expected_outputs": [
+        "result"
+      ],
+      "required_result_keys": [
+        "result"
+      ]
+    },
+    {
+      "id": "GQ-046",
+      "query_name": "get_rec_status_transitions",
+      "params": {
+        "recommendation_id": "REC_A001"
+      },
+      "expected_outputs": [
+        "result"
+      ],
+      "required_result_keys": [
+        "result"
+      ]
+    },
+    {
+      "id": "GQ-047",
+      "query_name": "get_context_memory_by_scope",
+      "params": {
+        "scope_type": "ADVISOR",
+        "scope_id": "A001",
+        "memory_type": "",
+        "result_limit": 10
+      },
+      "expected_outputs": [
+        "result"
+      ],
+      "required_result_keys": [
+        "result"
+      ]
     }
   ]
 }

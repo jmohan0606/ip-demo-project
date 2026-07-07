@@ -23,13 +23,13 @@
     },
     {
       "code": "MANIFEST_COUNT",
-      "message": "185 manifest-controlled CSV targets",
-      "count": 185
+      "message": "191 manifest-controlled CSV targets",
+      "count": 191
     },
     {
       "code": "CSV_VALIDATION",
-      "message": "Validated 185 CSV files and 155954 data rows",
-      "count": 155954
+      "message": "Validated 191 CSV files and 156247 data rows",
+      "count": 156247
     },
     {
       "code": "QUERY_COUNT",
@@ -45,11 +45,11 @@
   "errors": [],
   "warnings": [],
   "summary": {
-    "vertices": 57,
-    "edges": 128,
-    "reverse_edges": 128,
-    "manifest_files": 185,
-    "data_rows": 155954,
-    "queries": 43
+    "vertices": 60,
+    "edges": 131,
+    "reverse_edges": 131,
+    "manifest_files": 191,
+    "data_rows": 156247,
+    "queries": 47
   }
 }

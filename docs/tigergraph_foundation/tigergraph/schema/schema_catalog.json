@@ -1784,6 +1784,108 @@
       ],
       "domain": "Compliance",
       "purpose": "PII, prompt-injection or policy event."
+    },
+    {
+      "name": "phx_dm_learning_weight",
+      "primary_id": "family",
+      "attrs": [
+        [
+          "weight",
+          "DOUBLE"
+        ],
+        [
+          "feedback_count",
+          "INT"
+        ],
+        [
+          "updated_at",
+          "DATETIME"
+        ]
+      ]
+    },
+    {
+      "name": "phx_dm_impact_ledger",
+      "primary_id": "ledger_id",
+      "attrs": [
+        [
+          "recommendation_id",
+          "STRING"
+        ],
+        [
+          "advisor_id",
+          "STRING"
+        ],
+        [
+          "opportunity_id",
+          "STRING"
+        ],
+        [
+          "action_family",
+          "STRING"
+        ],
+        [
+          "impact_amount",
+          "DOUBLE"
+        ],
+        [
+          "impact_type",
+          "STRING"
+        ],
+        [
+          "source_transaction_id",
+          "STRING"
+        ],
+        [
+          "note",
+          "STRING"
+        ],
+        [
+          "created_ts",
+          "DATETIME"
+        ]
+      ]
+    },
+    {
+      "name": "phx_dm_rec_status_transition",
+      "primary_id": "transition_id",
+      "attrs": [
+        [
+          "recommendation_id",
+          "STRING"
+        ],
+        [
+          "advisor_id",
+          "STRING"
+        ],
+        [
+          "from_status",
+          "STRING"
+        ],
+        [
+          "to_status",
+          "STRING"
+        ],
+        [
+          "action",
+          "STRING"
+        ],
+        [
+          "actor_type",
+          "STRING"
+        ],
+        [
+          "actor_id",
+          "STRING"
+        ],
+        [
+          "note",
+          "STRING"
+        ],
+        [
+          "created_ts",
+          "DATETIME"
+        ]
+      ]
     }
   ],
   "edges": [
@@ -3005,6 +3107,27 @@
       "domain": "AI Ops",
       "purpose": "Execution explanation.",
       "reverse_edge": "rev_phx_dm_execution_generated_reasoning"
+    },
+    {
+      "name": "phx_dm_impact_for_advisor",
+      "from": "phx_dm_impact_ledger",
+      "to": "phx_dm_advisor",
+      "attrs": [],
+      "reverse_edge": "rev_phx_dm_impact_for_advisor"
+    },
+    {
+      "name": "phx_dm_impact_from_recommendation",
+      "from": "phx_dm_impact_ledger",
+      "to": "phx_dm_recommendation",
+      "attrs": [],
+      "reverse_edge": "rev_phx_dm_impact_from_recommendation"
+    },
+    {
+      "name": "phx_dm_transition_of_recommendation",
+      "from": "phx_dm_rec_status_transition",
+      "to": "phx_dm_recommendation",
+      "attrs": [],
+      "reverse_edge": "rev_phx_dm_transition_of_recommendation"
     }
   ],
   "generated_at": "2026-07-02T19:15:08.289450Z",

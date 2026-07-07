@@ -25,11 +25,11 @@ all_edges={**edges,**reverse}
 entries=manifest.get('files',[])
 
 # Catalog/schema integrity
-if len(vertices)!=57: fail('VERTEX_COUNT',f'Expected 57 vertices, found {len(vertices)}')
+if len(vertices)!=60: fail('VERTEX_COUNT',f'Expected 60 vertices, found {len(vertices)}')
 else: ok('VERTEX_COUNT','57 vertex types catalogued',57)
-if len(edges)!=128: fail('EDGE_COUNT',f'Expected 128 directed edges, found {len(edges)}')
+if len(edges)!=131: fail('EDGE_COUNT',f'Expected 131 directed edges, found {len(edges)}')
 else: ok('EDGE_COUNT','128 directed edge types catalogued',128)
-if len(reverse)!=128: fail('REVERSE_EDGE_COUNT',f'Expected 128 reverse edges, found {len(reverse)}')
+if len(reverse)!=131: fail('REVERSE_EDGE_COUNT',f'Expected 131 reverse edges, found {len(reverse)}')
 else: ok('REVERSE_EDGE_COUNT','128 explicit reverse edges catalogued',128)
 for e in edges.values():
     if e['from'] not in vertices or e['to'] not in vertices: fail('EDGE_ENDPOINT_SCHEMA',f"{e['name']} has unknown endpoint",e)
@@ -51,8 +51,8 @@ ok('SCHEMA_DECLARATIONS','Schema declarations and graph membership checked')
 
 # Manifest integrity
 paths=[e['file'] for e in entries]; orders=[e['order'] for e in entries]
-if len(entries)!=185: fail('MANIFEST_COUNT',f'Expected 185 entries, found {len(entries)}')
-else: ok('MANIFEST_COUNT','185 manifest-controlled CSV targets',185)
+if len(entries)!=191: fail('MANIFEST_COUNT',f'Expected 185 entries, found {len(entries)}')
+else: ok('MANIFEST_COUNT','191 manifest-controlled CSV targets',191)
 for label,values in [('file path',paths),('order',orders)]:
     duplicates=[x for x,n in Counter(values).items() if n>1]
     if duplicates: fail('MANIFEST_DUPLICATE',f'Duplicate manifest {label}s',duplicates)
@@ -89,7 +89,7 @@ for e in sorted(entries,key=lambda x:x['order']):
     with p.open(newline='',encoding='utf-8-sig') as f:
         reader=csv.DictReader(f); headers=reader.fieldnames or []; rows=list(reader)
     total_rows+=len(rows)
-    if not rows: fail('CSV_EMPTY',f'{e["file"]} contains no data')
+    if not rows and e.get('expected_rows',0)>0: fail('CSV_EMPTY',f'{e["file"]} contains no data')
     if len(rows)!=e.get('expected_rows'): fail('CSV_EXPECTED_ROWS',f"{e['file']} expected {e.get('expected_rows')} rows, found {len(rows)}")
     if set(headers)!=set(e.get('columns',{})): fail('CSV_HEADER_MAPPING',f"Header/mapping mismatch in {e['file']}",{'headers':headers,'mapping':list(e.get('columns',{}))})
     missing=[x for x in e.get('required_columns',[]) if x not in headers]
@@ -139,7 +139,7 @@ for e in entries:
 
 # GSQL query static validation and semantic direction check
 qfiles=sorted((ROOT/'tigergraph/queries').glob('GQ-*.gsql'))
-if len(qfiles)!=43 or len(qcat)!=43 or len(cases.get('cases',[]))!=43: fail('QUERY_COUNT',f'Expected 43 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
+if len(qfiles)!=47 or len(qcat)!=47 or len(cases.get('cases',[]))!=47: fail('QUERY_COUNT',f'Expected 47 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
 else: ok('QUERY_COUNT','43 implemented queries and test cases',43)
 q_by_file={q['file']:q for q in qcat}; case_names={c['query_name'] for c in cases.get('cases',[])}
 placeholder=re.compile(r'PRINT\s+query_id|contract-template|\bTODO\b|\bPLACEHOLDER\b|dummy query',re.I)

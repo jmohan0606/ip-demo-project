@@ -4147,6 +4147,141 @@
         "vertices/phx_dm_persona_user.csv"
       ],
       "expected_rows": 90
+    },
+    {
+      "order": 186,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_learning_weight.csv",
+      "target": "phx_dm_learning_weight",
+      "id_column": "family",
+      "columns": {
+        "family": "family",
+        "weight": "weight",
+        "feedback_count": "feedback_count",
+        "updated_at": "updated_at"
+      },
+      "required_columns": [
+        "family"
+      ],
+      "dependencies": [],
+      "expected_rows": 5
+    },
+    {
+      "order": 187,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_rec_status_transition.csv",
+      "target": "phx_dm_rec_status_transition",
+      "id_column": "transition_id",
+      "columns": {
+        "transition_id": "transition_id",
+        "recommendation_id": "recommendation_id",
+        "advisor_id": "advisor_id",
+        "from_status": "from_status",
+        "to_status": "to_status",
+        "action": "action",
+        "actor_type": "actor_type",
+        "actor_id": "actor_id",
+        "note": "note",
+        "created_ts": "created_ts"
+      },
+      "required_columns": [
+        "transition_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 144
+    },
+    {
+      "order": 188,
+      "kind": "vertex",
+      "file": "vertices/phx_dm_impact_ledger.csv",
+      "target": "phx_dm_impact_ledger",
+      "id_column": "ledger_id",
+      "columns": {
+        "ledger_id": "ledger_id",
+        "recommendation_id": "recommendation_id",
+        "advisor_id": "advisor_id",
+        "opportunity_id": "opportunity_id",
+        "action_family": "action_family",
+        "impact_amount": "impact_amount",
+        "impact_type": "impact_type",
+        "source_transaction_id": "source_transaction_id",
+        "note": "note",
+        "created_ts": "created_ts"
+      },
+      "required_columns": [
+        "ledger_id"
+      ],
+      "dependencies": [],
+      "expected_rows": 0
+    },
+    {
+      "order": 189,
+      "kind": "edge",
+      "file": "edges/phx_dm_transition_of_recommendation.csv",
+      "target": "phx_dm_transition_of_recommendation",
+      "from_type": "phx_dm_rec_status_transition",
+      "to_type": "phx_dm_recommendation",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_rec_status_transition.csv",
+        "vertices/phx_dm_recommendation.csv"
+      ],
+      "expected_rows": 144
+    },
+    {
+      "order": 190,
+      "kind": "edge",
+      "file": "edges/phx_dm_impact_for_advisor.csv",
+      "target": "phx_dm_impact_for_advisor",
+      "from_type": "phx_dm_impact_ledger",
+      "to_type": "phx_dm_advisor",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_impact_ledger.csv",
+        "vertices/phx_dm_advisor.csv"
+      ],
+      "expected_rows": 0
+    },
+    {
+      "order": 191,
+      "kind": "edge",
+      "file": "edges/phx_dm_impact_from_recommendation.csv",
+      "target": "phx_dm_impact_from_recommendation",
+      "from_type": "phx_dm_impact_ledger",
+      "to_type": "phx_dm_recommendation",
+      "from_column": "from_id",
+      "to_column": "to_id",
+      "columns": {
+        "from_id": "from_id",
+        "to_id": "to_id"
+      },
+      "required_columns": [
+        "from_id",
+        "to_id"
+      ],
+      "dependencies": [
+        "vertices/phx_dm_impact_ledger.csv",
+        "vertices/phx_dm_recommendation.csv"
+      ],
+      "expected_rows": 0
     }
   ]
 }
