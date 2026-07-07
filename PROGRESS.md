@@ -2146,3 +2146,31 @@ per logical step; real Claude for AI-behavior checks. This is multi-step; status
   onto the adapter (currently still SQLite-direct); add impact_ledger + rec_status_transition
   vertex/edge schema; populate procedural memory organically; export current SQLite state → CSV +
   manifest so a graph-from-CSV rebuild reproduces history.
+
+### STEP 2 verification + honest scope (2026-07-07)
+- Real-Claude end-to-end PROVEN: wrote a distinctive SEMANTIC memory for A044 via the adapter →
+  graph vertex; retrieve_memories demonstrably used the graph traversal query
+  get_context_memory_by_scope (instrumented, confirmed); the assembled AI context contained it (3
+  graph-traversal calls); the REAL CLAUDE answer referenced the graph-stored pilot. Memory in the
+  assembled context came from graph traversal, not SQLite.
+- Backend boots in default STATE_STORE_MODE=tigergraph (fallback tier); no direct sqlite3 in the
+  memory service/context service; frontend tsc PASS.
+
+### HONEST STATUS — what's DONE vs REMAINING (flagged for decision)
+DONE (MEMORY domain fully migrated to TigerGraph-authority + verified):
+- StateRepository adapter (TG primary + SQLite fallback, STATE_STORE_MODE default tigergraph),
+  BaseRepository filled, MemoryService/ContextService repointed. Memory writes→graph vertices/
+  edges, reads→graph traversal. Procedural memory populated organically. Fallback proven. graph-
+  from-CSV reproduces memory history. Real-Claude context assembly from graph traversal verified.
+REMAINING (adapter seam is ready; these are the next steps, NOT done — do not claim otherwise):
+- Repoint the 3 still-SQLite-direct domains onto the same adapter: learning/bandit weights
+  (recommendations/service.py LearningWeightStore, raw sqlite3), impact ledger + recommendation
+  status/transitions (recommendations/lifecycle.py, SQLiteManager). They currently write SQLite
+  (authority) + a best-effort graph mirror; extend StateRepository with their methods + both impls
+  + repoint the call sites.
+- Schema: add impact_ledger + rec_status_transition VERTEX/edge types to tigergraph/schema/*.gsql
+  (the 6 memory types already have graph representation; procedural now populated).
+- CSV export + manifest for feedback/impact/status current state so graph-from-CSV reproduces
+  THOSE histories too (memory history already reproduces from the existing CSVs).
+This was scoped as a large multi-step refactor; the flagship (memory in the graph) is complete and
+verified. The remaining domains are deliberately left for a follow-up rather than rushed.
