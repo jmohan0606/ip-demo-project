@@ -30,6 +30,11 @@ class ChatContextSource(StrEnum):
     COACHING_TASKS = "Coaching Tasks"
     RECOMMENDATION_LIFECYCLE = "Recommendation Actions & Impact"
     GRAPH_REASONING = "Graph Relational Reasoning"
+    AGP_STATUS = "AGP Program Status"
+    CRM_PIPELINE = "CRM Pipeline & Activities"
+    HOUSEHOLD_RISK = "Household Risk (ML)"
+    PEER_BENCHMARK = "GNN Peer Benchmark"
+    LEARNING_STATE = "Feedback Learning State"
 
 
 class ChatRequest(BaseModel):

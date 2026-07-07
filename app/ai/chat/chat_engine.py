@@ -177,6 +177,25 @@ Answer with evidence. Include what data was used and what next action should be 
                 "review before client contact.",
                 "",
             ])
+        has_real_answer = bool(raw_answer) and "[mock-llm" not in raw_answer
+
+        if has_real_answer:
+            # Real LLM (Claude): its question-specific answer LEADS — never buried under
+            # boilerplate. A compact grounding footer names the strongest evidence used
+            # (the full instrumented item list rides along in context_items).
+            lines.append(raw_answer.strip())
+            grounding: list[str] = []
+            if recs:
+                grounding.append(f"Top-ranked recommendation: {recs[0].content}")
+            if opps:
+                grounding.append(f"Top opportunity: {opps[0].title} — {opps[0].content}")
+            if preds:
+                grounding.append(f"Prediction signal: {preds[0].title} — {preds[0].content}")
+            if grounding:
+                lines.extend(["", "---", "Grounding highlights:"] + [f"- {g}" for g in grounding])
+            return "\n".join(lines)
+
+        # Mock mode: no real prose exists, so the deterministic evidence composition IS the answer.
         lines.extend([
             f"For {request.scope_type.value} {request.scope_id}, here is the grounded answer:",
             "",
@@ -195,6 +214,4 @@ Answer with evidence. Include what data was used and what next action should be 
             "",
             "Next action: review the evidence and, if the recommendation is accepted or completed, capture feedback so future ranking can improve.",
         ])
-        if raw_answer and "[mock-llm" not in raw_answer:
-            lines.extend(["", "AI generated note:", raw_answer])
         return "\n".join(lines)

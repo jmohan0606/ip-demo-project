@@ -90,6 +90,39 @@ sqlite+cosine verified); 15,116 revenue transactions with full edge links.
 - `docs/qa_screenshots/session16/dashboard_firm_scope.png` — firm scope, full page (matches mockup structure)
 - `docs/qa_screenshots/session16/dashboard_advisor_scope.png` — advisor scope, full page (scope-aware tiles + GNN benchmark)
 
-## REQ-3 answer audit
+## REQ-3 answer audit (real Claude, 2026-07-07)
 
-(to be appended)
+**Context assembler extended first** (`app/ai/chat/context_assembler.py` + `ChatContextSource`):
+five missing domains added so any reasonable question has its data available — **AGP Program
+Status** (real AGP-004 banded score + components), **CRM Pipeline & Activities** (stages + open
+work), **Household Risk (ML)** (household-churn-xgb propensities with the honest quality-gate
+caveat), **GNN Peer Benchmark** (graphsage-v1-ft peers + metric gaps), **Feedback Learning State**
+(bandit weights + feedback counts). Retrieval stays broad; the question-relevance reranker decides
+what reaches the prompt. Duplicate RAG chunks deduped.
+
+**Composition defect found by the audit and FIXED** (`app/ai/chat/chat_engine.py`): with real
+Claude, the question-specific answer was appended LAST under "AI generated note", behind generic
+boilerplate. Now the real answer LEADS, with a compact grounding footer; the mock path keeps the
+deterministic evidence composition. Re-verified post-fix (household-risk + MDW questions below).
+
+**Full 12-question run: `docs/qa_evidence/session16_req3_results.json`** (complete answers +
+per-answer instrumented source lists). Summary — every answer 8 context items, persona-correct:
+
+| # | Persona/scope | Question | Grounded? | Key sources used (instrumented) |
+|---|---|---|---|---|
+| 1 | Advisor A001 | Why is my revenue up; sustainable? | ✓ real figures ($437K LTM, 68% 3m growth, drivers + risks) | GraphReasoning, Opportunities, Insights, GNN Peers, CRM |
+| 2 | Advisor A001 | Best next actions? | ✓ overdue follow-ups oldest-first, $405K pipeline, coaching tasks | Recommendations, CoachingTasks, Lifecycle, CRM |
+| 3 | Advisor A001 | Which households at risk? | ✓ all 6 households w/ real ML propensities + model caveat (PR-AUC below gate — honest) | **Household Risk (ML)**, GraphReasoning |
+| 4 | Advisor A001 | How am I vs peers? | ✓ metric table vs GNN peer avg (−16.8% LTM etc.), names peers | **GNN Peer Benchmark**, AGP, CRM |
+| 5 | Advisor A001 | AGP status? | ✓ on_track band, risk 20.3→25.8 components, milestone detail | **AGP Program Status**, Insights |
+| 6 | Advisor A001 | What did I complete + impact? | ✓ completed rec + measured +$50K impact w/ transaction id | **Lifecycle**, GraphReasoning |
+| 7 | Advisor A020 | vs peers? | ✓ different advisor, different (correct) story: ABOVE peer avg revenue, AGP risk 56.8 | GNN Peers, AGP, Recommendations |
+| 8 | Advisor A020 | Best next actions? | ✓ A020-specific: 2 overdue follow-ups, milestone deadline coaching | Recommendations×3, CoachingTasks |
+| 9 | MDW M01 | Which advisors need attention, why? | ✓ 3 named advisors w/ per-advisor reasons (A002: 6 open opps, $0 recorded impact; A001: $50K impact but low CRM activity) | Scope rollup (Insights), GraphReasoning (scope traversal), Predictions |
+| 10 | MDW M01 | What's driving my market? | ✓ market rollup $3.7M/6 advisors, per-advisor contribution reasoning | Insights (rollup), GraphReasoning, Predictions |
+| 11 | DDW D01 | Why lagging; biggest opportunity? | ✓ division rollup 24 advisors/$15.4M, names attention advisors, cross-advisor opportunity | Insights (rollup), GraphReasoning, Memory, Predictions |
+| 12 | Knowledge | Off-track AGP policy? | ✓ cites `agp_program_overview.txt` verbatim (attention tier, monthly reviews, written plan <70%) + applies it to the asker's own real status | **Knowledge RAG**, AGP Status, CoachingTasks |
+
+None returned "I don't have that", none defaulted a rollup scope to one advisor (M01→6 advisors,
+D01→24 advisors, both with per-advisor traversal facts), and every figure in the answers matches a
+retrieved context item.

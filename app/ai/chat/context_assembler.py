@@ -91,7 +91,11 @@ class ChatContextAssembler:
                 search = self.knowledge_service.search(
                     KnowledgeSearchRequest(query=request.question, top_k=4)
                 )
+                seen_chunks: set[str] = set()
                 for result in search.results:
+                    if result.chunk_text in seen_chunks:
+                        continue  # identical chunk indexed more than once — keep one
+                    seen_chunks.add(result.chunk_text)
                     items.append(ChatContextItem(
                         source=ChatContextSource.KNOWLEDGE_RAG,
                         title=result.document_name,
@@ -204,6 +208,92 @@ class ChatContextAssembler:
         except Exception as exc:  # noqa: BLE001 — reasoning augments, never blocks the answer
             items.append(ChatContextItem(source=ChatContextSource.GRAPH_REASONING,
                                          title="Graph Relational Reasoning Unavailable", content=str(exc), score=0))
+
+        # ---- REQ-3 full-context domains (advisor scope): AGP status, CRM pipeline,
+        # household-level ML risk, GNN peer benchmark, learning state. Retrieved broadly;
+        # the question-relevance reranker decides what actually reaches the prompt.
+        if entity_id:
+            try:  # AGP program status — real AGP-004 banded score with component explanation
+                from app.agp.service import AgpService
+                ts = AgpService().track_status(entity_id)
+                if ts.get("enrolled"):
+                    comp = ts.get("components", {})
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.AGP_STATUS, title="AGP Track Status",
+                        content=(f"AGP status for {entity_id}: {ts.get('band')} (risk score {ts.get('score')}). "
+                                 f"{ts.get('explanation', '')} Components: attainment_gap {comp.get('attainment_gap')}, "
+                                 f"time_pressure {comp.get('time_pressure')}, crm_execution_risk {comp.get('crm_execution_risk')}."),
+                        score=70.0, metadata=ts))
+                else:
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.AGP_STATUS, title="AGP Track Status",
+                        content=f"{entity_id} is NOT enrolled in the AGP growth program.",
+                        score=40.0, metadata=ts))
+            except Exception:
+                pass
+
+            try:  # CRM pipeline + open work — leads/referrals/opportunities by stage/status
+                from app.crm.service import CrmService
+                crm = CrmService()
+                pipe = crm.pipeline_by_stage(entity_id).get("pipeline_by_stage", [])
+                work = crm.work_summary(entity_id).get("work_summary", [])
+                pipe_txt = "; ".join(
+                    f"{p['stage']}: {p['opportunity_count']} opp(s) ${p['pipeline_amount']:,.0f} "
+                    f"(weighted ${p['weighted_amount']:,.0f})" for p in pipe)
+                work_txt = "; ".join(
+                    f"{w['work_type']} {w['status']}: {w['item_count']} (${w['estimated_value']:,.0f})" for w in work)
+                items.append(ChatContextItem(
+                    source=ChatContextSource.CRM_PIPELINE, title="CRM Pipeline & Open Work",
+                    content=f"Pipeline by stage — {pipe_txt or 'none'}. Work items — {work_txt or 'none'}.",
+                    score=65.0, metadata={"pipeline": pipe, "work": work}))
+            except Exception:
+                pass
+
+            try:  # Household churn/attrition propensity (ML model, honest caveat carried along)
+                from app.ml.client import get_model_client
+                hh = get_model_client().household_churn(entity_id)
+                if hh.get("available") and hh.get("households"):
+                    ranked = sorted(hh["households"], key=lambda h: -(h.get("propensity") or 0))[:6]
+                    hh_txt = "; ".join(f"{h['household_id']} {h.get('band')} ({h.get('propensity')})" for h in ranked)
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.HOUSEHOLD_RISK, title="Household Attrition Risk (ML)",
+                        content=(f"Model {hh.get('model')}: per-household attrition propensity (highest first): {hh_txt}. "
+                                 f"Caveat: {hh.get('caveat', '')}"),
+                        score=60.0, metadata={"model": hh.get("model"), "households": ranked}))
+            except Exception:
+                pass
+
+            try:  # GNN peer benchmark — WHO the similar advisors are and the metric gaps
+                from app.scope.dashboard import ScopeDashboardService
+                bench = ScopeDashboardService()._advisor_benchmark(entity_id)  # noqa: SLF001 — shared computation
+                if bench.get("metrics"):
+                    peers_txt = ", ".join(f"{p['advisor_name']} ({p['score']})" for p in bench.get("peers", []))
+                    gaps = "; ".join(
+                        f"{m['metric']}: you {m['you']} vs peer avg {m['peer_avg']} ({m['vs_peer_pct']:+}%)"
+                        for m in bench["metrics"] if m.get("vs_peer_pct") is not None)
+                    items.append(ChatContextItem(
+                        source=ChatContextSource.PEER_BENCHMARK, title="GNN Peer Benchmark",
+                        content=(f"Peer group by {bench.get('model')} embedding similarity: {peers_txt}. "
+                                 f"Metric comparison — {gaps}."),
+                        score=68.0, metadata={"model": bench.get("model"), "peers": bench.get("peers"),
+                                              "metrics": bench.get("metrics")}))
+            except Exception:
+                pass
+
+        try:  # Feedback-learning state — how accept/reject history has moved the ranking weights
+            from app.feedback.service import FeedbackLearningService
+            state = FeedbackLearningService().learning_state()
+            weights = state.get("weights", [])
+            if weights:
+                w_txt = "; ".join(
+                    f"{w['family']} {w['weight']} ({w['feedback_count']} feedback events)" for w in weights)
+                items.append(ChatContextItem(
+                    source=ChatContextSource.LEARNING_STATE, title="Recommendation Learning Weights",
+                    content=("Current RL/bandit ranking weights learned from real accept/reject/complete feedback: "
+                             + w_txt + ". Weights >1 boost that recommendation family's ranking; <1 demotes it."),
+                    score=45.0, metadata={"weights": weights}))
+        except Exception:
+            pass
 
         if request.include_insights:
             try:
