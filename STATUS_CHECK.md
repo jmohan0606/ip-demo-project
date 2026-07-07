@@ -49,6 +49,32 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
   (+$2,657,167) vs 2026-Q1" (cross-checks exactly), "Biggest gainer: Central Division
   +$1,259,707 (+43.0%)". Screenshots: `session17/trend_explorer_bullets.png` + `_breakdown.png`.
 
+### ITEM 6 (follow-up request) — CdaoOpenAILLMClient: PRIMARY client LLM adapter ✅
+- `LLM_CLIENT_MODE=cdao_openai` → `CdaoOpenAILLMClient` (app/llm/client.py): wraps the client's
+  confirmed-working `from cdao import openai_azure_client(api_version, workspace_id)` +
+  `chat.completions.create` pattern behind the existing LLMClient interface — same
+  `_render_messages` prompt assembly as every other adapter, plain-str return, token usage
+  recorded. Client constructed once in `__init__`. SmartSDK `azure` mode = secondary alternate.
+- **Guarded import**: `cdao` imported only inside `__init__`, only in this mode. Verified: app
+  imports in mock/claude with cdao absent (48 routes); selecting cdao_openai without it raises a
+  clean `LLMClientError` naming the install command and the fallback mode.
+- **LangGraph integration verified the right way (1.5)**: inspected the real consumption path
+  first — every agent node calls `get_llm_client().generate(prompt, context) -> str`; NO node
+  uses a LangChain model object / `.bind_tools` / AIMessage parsing (linear StateGraph of plain
+  callables). Then ran the REAL `/agentic-ai` service end-to-end with an OpenAI-shape stub cdao
+  module (scratchpad only, not committed): supervisor-routed run, 6 tasks / 3 evidence / 5
+  reasoning steps, confidence 0.85, final answer authored via the cdao adapter — the graph
+  consumed the adapter's return unchanged. Live cdao calls testable only on the client machine
+  after PCL login (documented).
+- Deps: pyproject `[cdao]` group `cdaosdk-all[openai]>=10.0.0`, `[tool.uv.sources]` pins it to
+  the `artifacts` index (uv.toml index named accordingly); check_client_deps.py picks it up
+  (verified: MISSING+AT-RISK on public PyPI with its fallback printed, exit 0) with a new
+  at-risk fallback entry.
+- Docs: `.env.example` CDAO_* block (no secrets); CLIENT_ENV_SETUP.md §1b — cdao_openai is the
+  PRIMARY/recommended path (try first), **PCL AWS login documented as a CRITICAL pre-step**
+  (ambient auth session, no credentials in code/.env), fallback to `azure` (SmartSDK) spelled
+  out, first-run checklist updated (PCL step inserted, installs include `.[cdao]`).
+
 ### ITEM 5 (follow-up request) — Client dependency pre-check tooling ✅
 - `scripts/check_client_deps.py`: every pyproject group (core/dev/aws/ml/gds) + client-only
   `smart_sdk` checked against a configurable PEP 691/503 index (default = client artifactory,
