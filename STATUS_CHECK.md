@@ -49,6 +49,49 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
   (+$2,657,167) vs 2026-Q1" (cross-checks exactly), "Biggest gainer: Central Division
   +$1,259,707 (+43.0%)". Screenshots: `session17/trend_explorer_bullets.png` + `_breakdown.png`.
 
+### ITEM 8 (follow-up request) — TigerGraph MCP-first tier cascade verified (codespace-side) ✅
+
+**1. Code inspection — order + routing confirmed (real code path):**
+- `app/graph/tiered_client.py` `TieredGraphClient.for_mode()`: `auto|tiered|mcp` →
+  `[(1, McpGraphClient), (2, PyTigerGraphClient), (3, RealGraphClient/RESTPP), (4, MockGraphClient)]`
+  — genuinely **MCP → pyTigerGraph → RESTPP → Mock**. `local_real|real` = the documented
+  non-agent chain `[2,3,4]` (pyTigerGraph first). `_dispatch()` tries tiers in order; connection
+  failures set a 60s cooldown; `GraphClientError` (query-level) falls through without cooldown;
+  `PartialUpsertError` propagates (engine reached — never degraded to a lower tier); mock always
+  tried last.
+- **No bypasses:** zero direct `McpGraphClient()/PyTigerGraphClient()/RealGraphClient()/
+  MockGraphClient()` instantiations outside `client.py`/`tiered_client.py`; 35 modules
+  (agents/services included) consume the graph ONLY via `get_graph_client()`.
+
+**2. Failure cascade — proven with real runs + logs:**
+- **Natural (codespace, mode=auto):** the REAL `tigergraph-mcp` 1.0.1 server subprocess spawned
+  and its tool call genuinely failed (`tigergraph__get_vertex_count … Cannot connect to host
+  127.0.0.1:14240`) → tier2 pyTigerGraph failed (connection refused) → tier3 RESTPP failed
+  (Errno 111) → tier4 mock served (60 advisors). TierUsageLog recorded all four rows (tier,
+  op, target, latency, error) and the serving row carries `fallback_from` naming every prior
+  failure verbatim.
+- **Simulated single-step cascade (stub tiers):** all-healthy → tier 1 serves FIRST, no
+  fallback; MCP down → tier 2 serves + tier 1 on 60.0s cooldown (second call skips it); tiers
+  1+2 down → tier 3; tiers 1-3 down → tier 4. Each fallback logged with `fallback_from`. No
+  crash anywhere in the chain.
+- **Active tier in the codespace, unambiguous:** with `.env` `GRAPH_CLIENT_MODE=real`, health
+  reports `mode: tiered:real, active_tier: 4 (mock)` with per-tier healthy/error detail
+  (tier2/tier3 show their real connection errors); every result envelope carries
+  `served_by`/`served_by_tier`, and the Admin adapter-status panel exposes `tier_status()`
+  (chain, cooldowns, usage counters).
+
+**3. MCP config is env-driven:** Tier 1 spawns `tigergraph-mcp` as a local **stdio subprocess**
+(no separate server URL); it receives the same `TG_*` env as tier 2 (`TG_HOST/TG_GRAPHNAME/
+TG_USERNAME/TG_PASSWORD/TG_API_TOKEN/TG_SECRET/TG_JWT_TOKEN/TG_RESTPP_PORT/TG_GS_PORT/
+TG_SSL_PORT/TG_CERT_PATH`) — all placeholdered in `.env.example` §"TigerGraph — Section-9.4
+4-tier adapter". One `.env` drives all four tiers.
+
+**Client-machine live checklist added — CLIENT_ENV_SETUP.md §3b:** confirm tier 1 healthy +
+`active_tier: 1`, confirm agent requests count under tier 1 in the usage log, force a live
+tier-1 failure and confirm the logged fallback + cooldown + recovery, and how to read
+`served_by_tier`/`fallback_from`. (Tier-1 SUCCESS is the one thing untestable from the
+codespace — everything else above is proven here.)
+
 ### ITEM 7 (follow-up request) — pyproject.toml aligned to the client reference project ✅
 
 **Added/changed:**

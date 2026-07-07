@@ -192,6 +192,46 @@ it to a REST++ token via `getToken(secret)` on first connect. SSL is on (`TG_USE
 
 ---
 
+## 3b. TigerGraph MCP tier — live verification checklist (client machine only)
+
+The 4-tier GraphClient (`GRAPH_CLIENT_MODE=auto|tiered|mcp` → **MCP → pyTigerGraph → RESTPP →
+Mock**, `app/graph/tiered_client.py`) was verified in the codespace as far as possible
+(tier order, clean per-step fallback, cooldown, tier logging — see STATUS_CHECK.md Session 17
+ITEM 8). What CANNOT be verified off the client network is Tier 1 actually *succeeding* against
+the client's TigerGraph — that needs this checklist, run on the client machine.
+
+**How Tier 1 works / what it needs:** the app spawns the official `tigergraph-mcp` server as a
+local **stdio subprocess** (`app/graph/tigergraph_mcp_stdio_client.py`) — there is no separate
+MCP server URL to configure. The subprocess receives the SAME `TG_*` env the pyTigerGraph tier
+uses: `TG_HOST`, `TG_GRAPHNAME`, `TG_USERNAME`, `TG_PASSWORD` / `TG_API_TOKEN` / `TG_SECRET` /
+`TG_JWT_TOKEN`, `TG_RESTPP_PORT`, `TG_GS_PORT`, `TG_SSL_PORT`, `TG_CERT_PATH` (all in
+`.env.example` §"TigerGraph — Section-9.4 4-tier adapter"). So: one `.env`, all four tiers.
+
+Steps (after §3's secret is in `.env` and `uv pip install -e .` has installed `tigergraph-mcp`):
+
+1. Set `GRAPH_CLIENT_MODE=auto` in `.env`; start the backend.
+2. **Confirm the MCP tier connects:** `curl -s localhost:8000/graph-access/health` (or open the
+   Connection & Environment Health screen). In the tiered health payload, expect
+   `"active_tier": 1, "active_tier_name": "tigergraph-mcp", tiers[0].healthy: true`.
+   If tier 1 shows an error, the message is the real cause (auth, SSL, host) — fix per §3.
+3. **Confirm agents use MCP FIRST:** load any data page (Advisor 360) or run
+   `POST /agentic-ai/run`, then check the Admin/Data Health page's adapter-status panel
+   (backed by `tier_status()`): `usage.served_by_tier` should count requests under tier `1`,
+   and recent request rows should show `tier1 tigergraph-mcp ok=True`. Every served request
+   also carries `served_by`/`served_by_tier` in its result envelope.
+4. **Prove the fallback live:** make tier 1 fail (simplest: run once in a scratch venv without
+   `tigergraph-mcp` installed; or temporarily rename the executable) and repeat step 3:
+   requests must now log `tier2 pytigergraph ok=True` with `fallback_from` naming the tier-1
+   error, no crash, and tier 1 on a 60s cooldown (`GRAPH_TIER_COOLDOWN_SECONDS`). Restore,
+   wait out the cooldown (or restart), confirm tier 1 serves again.
+5. **Reading the logs:** every dispatch is recorded in the TierUsageLog (Admin page +
+   `tier_status()`): tier number/name, operation, target, latency ms, ok/error, and
+   `fallback_from` listing exactly which higher tiers failed first. If a page shows data while
+   `served_by_tier` is 4 (mock), the engine is unreachable — an unambiguous signal, never a
+   silent degradation.
+
+---
+
 ## 4. SmartSDK LangGraph import remapping
 
 SmartSDK re-exports the LangGraph symbols; graph-construction signatures are unchanged — only

@@ -2474,3 +2474,14 @@ google-adk 1.22.1 dependency-metadata block verbatim. check_client_deps covers e
 AVAILABLE on public PyPI, 4 MISSING = exactly the client-only set, exit 0). Verified running:
 backend 48 routes + key endpoints 200 incl. POST /agentic-ai/run; full next build PASS. No genuine
 incompatibilities — conflict table in STATUS_CHECK.md.
+
+### ITEM 8 — TigerGraph MCP-first cascade verified (codespace-side) — COMPLETE
+Code-inspected: for_mode(auto|tiered|mcp) = MCP→pyTigerGraph→RESTPP→Mock; no adapter bypasses (35
+modules via get_graph_client() only). Proven with real runs: natural cascade in the codespace
+(real tigergraph-mcp subprocess spawned, tool call failed against 127.0.0.1:14240 → tier2 → tier3
+→ mock served, full fallback_from log); simulated per-step fallbacks (tier1 serves first when
+healthy; each single-tier failure falls exactly one tier, 60s cooldown, no crash). Active tier in
+codespace = 4 (mock) under mode tiered:real, unambiguously logged (health active_tier, per-result
+served_by_tier, Admin tier_status). MCP config fully env-driven (stdio subprocess, same TG_* env
+as tier 2, placeholders in .env.example). Client live-test checklist added: CLIENT_ENV_SETUP.md
+§3b. Full evidence in STATUS_CHECK.md ITEM 8.
