@@ -4,6 +4,25 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 12 — architecture audit + persona/UX fixes (4 items) (2026-07-07)
+
+Real Claude available (`LLM_CLIENT_MODE=claude`). Committed per item; backend boots (46 routes);
+frontend tsc PASS throughout.
+
+| # | Item | Status | Key evidence |
+|---|------|--------|--------------|
+| 1 | TigerGraph-vs-SQLite state audit (investigate only) | **Done — no code change** | New `DATABASES.md`. Verdict: **genuine architectural divergence**, not a config-swap. All durable state (learning weights, rec status, impact ledger, 6 memory types) is in **SQLite via hardcoded `SQLiteManager()`/raw `sqlite3`** — no persistence adapter (`BaseRepository` is an empty stub). `GraphClient` IS a real adapter but graph writes are best-effort ephemeral mirrors (`replay_on_boot` rehydrates the ledger). Schema HAS most types (conversation/reasoning/context-memory, feedback/outcome/learning + edges, seeded) but LACKS impact-ledger + rec-status-transition vertices; procedural memory unpopulated. Documented both SQLite DBs + confirmed both DBs + Chroma gitignored & auto-recreated. Includes a concrete 6-step path to make TG the authority. |
+| 2 | DDW ≠ MDW: fix DDW text + build MDW market journey | **Done** | DDW (Division) and MDW (Market) separated; division journey → "Division-Leader Journey (DDW)". New MDW MARKET journey reconciles: **Market M01 (Boston Metro) $3,713,409 → $3,760,462 = +$47,053.23**; 3 tasks persisted; 5 real AI drivers (conf 0.82). Browser: MDW persona, breadcrumb Market: Boston Metro, Step 1/9, green proof bar names real lagging advisors. `mdw_step1.png`. |
+| 3 | ID + Name everywhere (shared helper) | **Done** | `GET /hierarchy/entity-names` (466 names) + `formatEntity()` + `useEntityLabel()` hook (module-cached). Applied to exec dashboard header/evidence/AI-title/advisor tables, shared AdvisorSelector, Advisor 360, Predictions. Header now **"F001 · Chase Wealth Management Overview"**, tables "A001 · Avery Diaz". `item3_id_name_dashboard.png`. |
+| 4 | Consistent header type hierarchy (shared tokens) | **Done** | Canonical `type.eyebrow` < `pageSubtitle` < `pageTitle` (22px) tokens + shared `PageHeader` component. Applied to exec dashboard (eyebrow→title→subtitle→PDF/PPT actions); swept **15** other workspaces' ad-hoc `text-[22px] font-black` onto `type.pageTitle`. `item4_header_hierarchy.png`. |
+
+Commits: `002a13f` (item 1) · `efaf11d` (item 2) · `f8137f4` (item 3) · `736bc61` (item 4).
+(The prompt said "five items" but listed four; flagged in the handoff.) Screenshots under
+`docs/qa_screenshots/session12/` (gitignored). Item 1 is investigation + a recommended path in
+`DATABASES.md` — no code changed, for a joint decision on the TigerGraph-as-authority refactor.
+
+---
+
 ## Session 11 — all 6 remaining deferred items COMPLETE (2026-07-07)
 
 Real Claude available all session (`LLM_CLIENT_MODE=claude`, verified). Committed per item;
