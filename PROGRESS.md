@@ -2059,3 +2059,31 @@ LLM_CLIENT_MODE=claude verified: `CLAUDE_OK` smoke test passed). Commit per item
 - Frontend `AumNetflowWaterfall` (Recharts stacked-float, zoomed Y-axis) on the exec dashboard.
 - Evidence: FIRM $2.065B +20.4M −1.26M +23.5M −10.2M = $2.098B (reconciles exactly; fees 0.49% of
   AUM); DIVISION D01 reconciles at 24-advisor scope. Screenshot dashboard_aum_waterfall.png. tsc PASS.
+
+### ITEM 4 — export dashboard to PDF/PPT — DONE
+- app/export/dashboard_export.py (reportlab PDF + python-pptx PPTX) renders the real
+  ScopeDashboardService + AumNetFlowsService payloads (KPIs, net-flows bridge, top/bottom
+  advisors). GET /export/dashboard?format=pdf|pptx; exec dashboard PDF/PPT buttons (downloadFile).
+- Evidence: valid PDF v1.4 2-page (real $35.89M rev / $2.09B AUM extracted), valid PPTX;
+  Playwright click-PDF real browser download (iperform_firm_f001_ytd.pdf). Screenshot export_buttons.png.
+
+### ITEM 2 — 13B.3 division-leader guided journey — DONE
+- 9-step DIVISION_STEPS in the existing story engine (no new backend): detect underperforming
+  division → cross-advisor AI insight (persona=DDW) → drill worst real contributor → assign real
+  coaching task → generate + accept/complete rec → division rollup moves by exactly the impact →
+  division-scope AI closure. Launcher pre-resolves the division's own worst contributor.
+- Evidence: real spine reconciles — D01 $14,738,198 → $14,785,251 = +$47,053.23 (= rec impact);
+  3 coaching tasks persisted; AI insight 5 real drivers conf 0.82. Browser: persona DDW, Eastern
+  Division, overlay Step 1/9, green proof bar names real lagging advisors. story_div_step1.png.
+
+### ITEM 6 — AI-Assistant completion narration — DONE (real Claude)
+- Strengthened context_assembler: completed actions ALWAYS narrate measured impact + explicit
+  plain-language completion summary the LLM echoes.
+- Evidence (real Claude): A012 BEFORE "no record of a recently completed initiative"; AFTER a
+  "What Was Completed / Measured Financial Impact" section + LTM revenue $454K→$685K (= +$231,400
+  impact). Transcript docs/qa_screenshots/session11/item6_narration_before_after.txt.
+
+### SESSION 11 CLOSE — all 6 deferred items DONE
+Final: backend 46 top-level routes + export/nbp/net-flows live (HTTP 200); frontend tsc PASS.
+Commits: e77fd3c(item5+item1 labels) · 29ee2fa(item3) · cb0834e(item4) · 7e80d63(item2) ·
+aae4b30(item6). Real Claude available all session (LLM_CLIENT_MODE=claude).
