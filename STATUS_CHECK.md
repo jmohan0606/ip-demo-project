@@ -4,6 +4,56 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 15 — Graph relational reasoning: real multi-hop traversal + reasoning reuse (2026-07-07)
+
+Closed the "flat bundle, no traversal, no reasoning reuse" gap completely. Every AI answer now
+performs GENUINE graph-traversal relational reasoning — the core purpose of the temporal knowledge
+graph — wired into the live chat/agentic path and visible in Explainability. All four items built
+and verified with real Claude + instrumented (real, not narrated) traversal.
+
+### The north-star verification (met, with evidence)
+Connecting entity relationships across multiple hops produced a concrete answer a flat lookup
+could not, AND the agent reused prior reasoning:
+- **Advisor A001** (real Claude): 4-hop path walked — `advisor_serves_household` (6 households) →
+  `opportunity_for_household` (6 open opps) → `advisor_has_similarity_match → similarity_match_
+  targets_advisor` (similar advisor Reese Kim, **score 0.73**) → `recommendation_for_advisor /
+  impact_for_advisor` (peer's **proven NEXT_BEST_ACTION, $658,823**). The answer references the peer
+  pattern — a concrete, connected recommendation a flat per-advisor lookup has no way to produce.
+- **Reasoning reuse:** Q1 recorded a trace via `phx_dm_reasoning_for_advisor`; Q2 (related)
+  retrieved it BY TRAVERSAL (`get_reasoning_traces_for_scope`, instrumented — prior_reasoning_id
+  fed into Q2's context) and real Claude built on it.
+- **Division D01** (real Claude, DDW): scope traversal — 24 advisors → 144 households → 30 open
+  opportunities, naming the real top contributors found by walking the subgraph.
+
+### Items
+| # | Item | Built | Evidence |
+|---|------|-------|----------|
+| 1 | Reasoning-trace reuse | `phx_dm_reasoning_for_advisor` edge; record + retrieve prior traces by traversal; fed into new answer | Q1→trace, Q2 retrieved+used it (instrumented), real Claude built on it |
+| 2 | Multi-hop traversal (advisor + scope) | `advisor_reasoning_traversal`, `scope_reasoning_traversal` (real instrumented walks) + `GraphReasoner` + force-kept `GRAPH_REASONING` context item | A001 4-hop path; peer proven NEXT_BEST_ACTION $658K; D01 24→144→30 |
+| 3 | Visible in Explainability | `/explainability/graph-reasoning/{scope}/{id}` + `GraphReasoningPath` panel | `session15/explainability_graph_reasoning.png` shows the 4 real hops + peer success + reuse status |
+| 4 | New types to real use + propagation | `reasoning_for_advisor` now WRITTEN+READ; GQ-048..050; schema/catalog/manifest; validator PASS; CLAUDE.md 11.6b | validator STATUS PASS (60v/132e/192/50q) |
+
+### Propagation (done)
+Context assembler + chat engine (live app uses it), `/ai-chat/ask` + `/explainability/graph-
+reasoning` endpoints, Explainability UI panel, schema `02_edges/03_create_graph.gsql` +
+`schema_catalog.json` + GSQL `GQ-048..050` + query catalog/cases + manifest, `CLAUDE.md` §11.6b,
+`PROGRESS.md`, vertex-usage audit. Live: advisor + division chat both invoke graph reasoning
+(real Claude, HTTP 200); backend boots (46 routes); frontend tsc PASS.
+
+### Vertex-usage audit update (item 4 — no ambiguous half-used types)
+- `phx_dm_reasoning_for_advisor` → **WRITTEN+READ** (written by `write_reasoning_trace(ADVISOR)`,
+  read by `get_reasoning_traces_for_scope` traversal). The similarity/opportunity/impact edges are
+  now actively traversed by the reasoning path.
+- `phx_dm_tool_call` → **READ** via `get_agent_execution_trace` traversal (Agent Orchestration page)
+  from SEEDED execution traces. Runtime agent runs do not yet WRITE new tool_call vertices —
+  documented as **intentionally-future** (seeded-and-read today; live agent-run instrumentation is a
+  later task), not an ambiguous half-used type.
+
+Commits: `c6c0863` (items 1+2) · `9a42789` (item 3) · `d014866` (item 4) · docs. Screenshots under
+`docs/qa_screenshots/session15/`.
+
+---
+
 ## Session 14 — StateRepository refactor COMPLETE: all durable state on TigerGraph (2026-07-07)
 
 The three remaining durable-state domains are now migrated onto the same adapter proven for
