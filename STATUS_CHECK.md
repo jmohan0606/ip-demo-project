@@ -699,3 +699,17 @@ Active setup-verification page + endpoint — the first screen to open on the cl
   15124, …), LLM claude-haiku-4-5 "OK" 1324ms, Embedding local 384-dim match, Chroma 1
   collection/257 vectors. RED path proven: EMBEDDING_CLIENT_MODE=azure w/o smart_sdk → Embedding
   red + real error "No module named 'smart_sdk'", overall red. tsc PASS, HTTP 200.
+
+## Session 16 — Item 3: Copilot handoff docs (DONE)
+Three docs for GitHub Copilot / any developer where Claude Code isn't available:
+- COPILOT_CONTEXT.md — condensed primer: what the app is, the adapter pattern (7 adapters table),
+  the 5 environment swaps, where things live, conventions/run commands.
+- ARCHITECTURE_OVERVIEW.md — adapter interface signatures, the end-to-end pipeline data flow
+  (feature→embedding→prediction→opportunity→recommendation→feedback→learning) with the artifact
+  each stage persists, the AI answer path incl guardrails, reasoning-trace rep, full backend +
+  frontend module map.
+- TROUBLESHOOTING.md — 13 real problems from this build + fixes: API-base SSR-vs-browser + port
+  visibility resets, CORS, module/app.api.main paths, .store attr, TigerGraph 2-core C++ install
+  stall, GSQL/schema edge cases + dead-edge trap, duplicate-implementation trap, smart_sdk guarded
+  import, EMBEDDING_DIM/Chroma rebuild, background-process/pkill gotcha, screenshot location, real
+  Claude for AI checks, datetime warnings.

@@ -2308,3 +2308,8 @@ Governance poster §1/§3). Full audit + gap table in STATUS_CHECK.md.
   Re-check, mode badges.
 - VERIFIED: real screenshot s16-item2-env-health.png all-green (0 console errors); RED path proven
   (azure embedding w/o smart_sdk → red + real error). tsc PASS, HTTP 200.
+
+## Session 16 — Item 3: Copilot handoff docs — DONE
+Created COPILOT_CONTEXT.md (primer + adapter table + 5 env swaps + where-things-live),
+ARCHITECTURE_OVERVIEW.md (adapter interfaces + pipeline data flow + module map), TROUBLESHOOTING.md
+(13 real build problems + fixes). Grounded in this session's actual issues + PROGRESS/STATUS history.
