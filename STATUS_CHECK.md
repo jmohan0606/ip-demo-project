@@ -4,6 +4,27 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 11 — all 6 remaining deferred items COMPLETE (2026-07-07)
+
+Real Claude available all session (`LLM_CLIENT_MODE=claude`, verified). Committed per item;
+frontend tsc PASS throughout; backend boots (46 top-level routes, new endpoints live HTTP 200).
+
+| # | Item | Status | Key evidence |
+|---|------|--------|--------------|
+| 1 | AI-Generated labeling correction | **Done (audit)** | Per-card chip already literal "✦ AI Generated" (no product name); AI Assistant already "iPerform Coach Q&A Assistant" (8bb6380) — confirmed, no reverts needed. Added shared `ProductSystemLabel` proactive tag on predictions/recommendations/advisor-360. `predictions_label.png`. |
+| 2 | 13B.3 division-leader guided journey | **Done** | 9-step DIVISION_STEPS in the existing story engine (no new backend). Real spine reconciles: **D01 $14,738,198 → $14,785,251 = +$47,053.23** (= completed rec impact); 3 coaching tasks persisted; AI insight 5 real drivers (conf 0.82). Browser: DDW persona, Eastern Division, Step 1/9, green proof bar names real lagging advisors. `story_div_step1.png`. |
+| 3 | AUM net-flows waterfall (Exec Dashboard) | **Done** | `AumNetFlowsService` + `GET /scope/aum-net-flows`: reconciling bridge from real monthly AUM/NNM + FEE txns. **FIRM $2.065B +20.4M −1.26M +23.5M −10.2M = $2.098B** (fees 0.49% of AUM); DIVISION scoped. `dashboard_aum_waterfall.png`. |
+| 4 | Export dashboard to PDF/PPT | **Done** | `dashboard_export.py` (reportlab + python-pptx) renders the real rollup; `GET /export/dashboard?format=pdf\|pptx` + exec buttons. Valid PDF (real $35.89M/$2.09B extracted) + PPTX; Playwright click → real browser download. `export_buttons.png`. |
+| 5 | Household model extensions | **Done** | Household churn already existed (household-churn-xgb) — confirmed. NEW next-best-product propensity reusing the model tier (registry + ModelClient + `/predictions/next-best-product/{advisor}`): collaborative propensity over the real holdings graph. A001→H0001 top "Alternatives" 0.68 (68% AFFLUENT peers); held∩recommended=∅; A005 different households. |
+| 6 | AI-Assistant completion narration | **Done (real Claude)** | Strengthened `context_assembler` (always narrate measured impact + explicit completion summary). Before/after: A012 BEFORE "no record of a recently completed initiative"; AFTER a "What Was Completed / Measured Financial Impact" section + LTM $454K→$685K (= +$231,400 impact). `item6_narration_before_after.txt`. |
+
+Commits: `e77fd3c` (item 5 + item 1 labels) · `29ee2fa` (item 3) · `cb0834e` (item 4) ·
+`7e80d63` (item 2) · `aae4b30` (item 6). Nothing was faked or deferred; where an item was
+already satisfied (household churn, the chip/rename), that was confirmed with evidence rather
+than rebuilt. Screenshots/transcripts under `docs/qa_screenshots/session11/` (gitignored).
+
+---
+
 ## Pre-migration data audit — is every change in the committed CSVs? (2026-07-06)
 
 **Ask:** the client rebuilds their entire TigerGraph from the committed
