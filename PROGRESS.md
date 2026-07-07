@@ -2087,3 +2087,39 @@ LLM_CLIENT_MODE=claude verified: `CLAUDE_OK` smoke test passed). Commit per item
 Final: backend 46 top-level routes + export/nbp/net-flows live (HTTP 200); frontend tsc PASS.
 Commits: e77fd3c(item5+item1 labels) · 29ee2fa(item3) · cb0834e(item4) · 7e80d63(item2) ·
 aae4b30(item6). Real Claude available all session (LLM_CLIENT_MODE=claude).
+
+## Session 12 — 2026-07-07 — 4-item run (architecture audit + persona/UX fixes)
+Real Claude available (LLM_CLIENT_MODE=claude). Commit per item.
+
+### ITEM 1 — TigerGraph-vs-SQLite state audit → DATABASES.md (investigate only, NO code change)
+- New DATABASES.md. Verdict: genuine architectural divergence (not a config-swap fallback).
+  All durable state (bandit/learning weights, rec status, impact ledger, 6 memory types) is in
+  SQLite via hardcoded SQLiteManager()/raw sqlite3 — no persistence adapter (BaseRepository is an
+  empty stub). GraphClient IS a real adapter but the graph writes are best-effort ephemeral
+  mirrors (mock store in-memory; replay_on_boot rehydrates the ledger). TG schema HAS most types
+  (conversation_turn, reasoning_trace, context_memory w/ memory_type, feedback/outcome/learning +
+  edges, all seeded) but LACKS impact_ledger + rec_status_transition vertices; procedural memory
+  unpopulated; learning weight is not a vertex. Documented both SQLite DBs (iperform_features.db =
+  active/settings path; iperform.db = preloaded snapshot), confirmed both DBs + Chroma gitignored
+  + auto-recreated (CREATE-IF-NOT-EXISTS + reseed scripts; Chroma via ingest_sample_knowledge).
+  Includes a concrete 6-step path (StateStore adapter + refactor ~6 call sites + 2 impls + 3
+  schema additions). No code changed — for joint decision.
+
+### ITEM 2 — DDW ≠ MDW; fix DDW text + build MDW market journey — DONE
+- DDW (Division Director) and MDW (Market Director) are distinct. Division journey relabelled
+  "Division-Leader Journey (DDW)", "DDW/MDW" text → "DDW".
+- Built MARKET_STEPS (MDW, market scope). Real spine reconciles: Market M01 (Boston Metro)
+  $3,713,409 → $3,760,462 = +$47,053.23; 3 tasks persisted; 5 real AI drivers. Browser: MDW
+  persona, breadcrumb Market: Boston Metro, Step 1/9, green proof bar. mdw_step1.png.
+
+### ITEM 3 — ID + Name everywhere via shared helper — DONE
+- GET /hierarchy/entity-names (466 names); formatEntity() + useEntityLabel() hook. Applied to exec
+  dashboard header/evidence/AI-title/advisor tables, shared AdvisorSelector, Advisor 360,
+  Predictions. Header now "F001 · Chase Wealth Management Overview". item3_id_name_dashboard.png.
+
+### ITEM 4 — consistent header hierarchy via shared tokens — DONE
+- Canonical type.eyebrow < pageSubtitle < pageTitle(22px) tokens + shared PageHeader component.
+  Applied to exec dashboard; swept 15 workspaces' ad-hoc text-[22px] font-black → type.pageTitle.
+  item4_header_hierarchy.png. tsc PASS throughout.
+
+Commits: 002a13f(item1) · efaf11d(item2) · f8137f4(item3) · 736bc61(item4).
