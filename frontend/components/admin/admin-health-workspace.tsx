@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/api/client";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const compact = (v: number) => Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v);
@@ -190,7 +190,7 @@ function EvaluationTrustTab() {
         {([["Groundedness", "groundedness_pct"], ["Citation Coverage", "citation_coverage_pct"], ["Refusal Correctness", "refusal_correctness_pct"], ["Pass Rate", "pass_rate_pct"]] as const).map(([label, key]) => (
           <div key={key} className="rounded-xl border bg-white p-3 shadow-sm" style={{ borderColor: colors.surface.border }}>
             <div className="text-[11px] uppercase text-muted-foreground">{label}</div>
-            <div className="text-[22px] font-black" style={{ color: kpiColor(agg[key] ?? 0) }}>{agg[key] ?? "—"}%</div>
+            <div className={type.pageTitle} style={{ color: kpiColor(agg[key] ?? 0) }}>{agg[key] ?? "—"}%</div>
           </div>
         ))}
       </div>
@@ -367,7 +367,7 @@ export function AdminHealthWorkspace() {
     <div className="space-y-3">
       <div>
         <Badge variant="glass">Admin / Data Quality / Runtime Health</Badge>
-        <h2 className="mt-2 text-[22px] font-black">Runtime Adapters &amp; Data Quality</h2>
+        <h2 className={`mt-2 ${type.pageTitle}`}>Runtime Adapters &amp; Data Quality</h2>
         <p className="text-[12px] text-muted-foreground">
           Live adapter modes and graph load report from `/adapters/status` — the mock/local/real
           swap-in points, with real vertex/edge row counts and load-integrity checks.

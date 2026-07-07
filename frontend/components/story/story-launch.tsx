@@ -50,7 +50,7 @@ export function StoryLaunch() {
         <div className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ borderColor: "#BFDBFE", background: "#EFF6FF", color: colors.primary }}>
           <Sparkles className="h-3.5 w-3.5" /> Guided Story Mode
         </div>
-        <h2 className="mt-2 text-[22px] font-black">See the whole system work, end to end</h2>
+        <h2 className={`mt-2 ${type.pageTitle}`}>See the whole system work, end to end</h2>
         <p className="max-w-3xl text-[13px] text-muted-foreground">
           A guided walkthrough that drives the REAL app on REAL data — not a slideshow. It detects a risk with
           a real model, explains it, acts on a recommendation through the real state machine, records a real

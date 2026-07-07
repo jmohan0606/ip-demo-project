@@ -23,7 +23,7 @@ import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-i
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors, severity as sevTokens } from "@/styles/tokens";
+import { colors, severity as sevTokens, type } from "@/styles/tokens";
 import { formatCurrency } from "@/lib/utils";
 
 const BAND_VARIANT: Record<string, "success" | "warning" | "destructive"> = {
@@ -117,7 +117,7 @@ export function AgpWorkspace() {
   if (track && !track.enrolled) {
     return (
       <div className="space-y-3">
-        <h2 className="text-[22px] font-black">{advisorName} · AGP Goals &amp; Coaching</h2>
+        <h2 className={type.pageTitle}>{advisorName} · AGP Goals &amp; Coaching</h2>
         <Card><CardContent className="p-8 text-center text-[13px] text-muted-foreground">
           {advisorName} is not enrolled in an AGP program. Select an enrolled advisor from the breadcrumb or the picker to view goals, KPIs and coaching.
         </CardContent></Card>
@@ -130,7 +130,7 @@ export function AgpWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Advisor Growth Program</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{advisorName} · AGP Goals &amp; Coaching</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{advisorName} · AGP Goals &amp; Coaching</h2>
           <p className="text-[12px] text-muted-foreground">
             Real AGP-004 on/off-track scoring, per-KPI Target-vs-Current attainment, milestone status and cohort rollup — scope-aware via the breadcrumb.
           </p>

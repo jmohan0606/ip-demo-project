@@ -58,7 +58,12 @@ export const type = {
   data: "text-[12px] leading-4 tabular-nums",
   kpiValue: "text-[22px] font-bold leading-7 tabular-nums",
   cardTitle: "text-[14px] font-semibold",
-  pageTitle: "text-[20px] font-bold",
+  // --- Canonical header hierarchy (item 4): one scale, every page ----------
+  // eyebrow (smallest, uppercase system/context label) < pageTitle (largest,
+  // the primary page title) ; pageSubtitle for the description line beneath.
+  eyebrow: "text-[11px] font-semibold uppercase tracking-[0.1em]",
+  pageTitle: "text-[22px] font-bold leading-tight tracking-tight",
+  pageSubtitle: "text-[13px] leading-5",
 } as const;
 
 /** Recharts series palette, ordered by assignment priority. */

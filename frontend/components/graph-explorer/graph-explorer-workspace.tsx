@@ -9,7 +9,7 @@ import { resolveScope } from "@/lib/api/hierarchy";
 import { fetchNeighborhood, type GraphNeighborhood, type GraphVizNode } from "@/lib/api/graph-viz";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 
 // group -> node fill, mapped to the design tokens (AI artifacts on the indigo-blue
 // AI-accent so the pipeline output stands out on the canvas).
@@ -126,7 +126,7 @@ export function GraphExplorerWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Knowledge Graph Explorer</Badge>
-          <h2 className="mt-2 text-[22px] font-black">Relationship Explorer · {advisorName}</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>Relationship Explorer · {advisorName}</h2>
           <p className="text-[12px] text-muted-foreground">
             Real one-hop subgraph from the foundation graph — households, CRM, AGP and the AI
             pipeline artifacts (prediction → opportunity → recommendation) around this advisor.

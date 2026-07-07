@@ -11,7 +11,7 @@ import {
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 
 const STATUS_VARIANT: Record<string, "success" | "warning" | "glass"> = {
   COMPLETED: "success",
@@ -92,7 +92,7 @@ export function CoachingReviewsWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Coaching &amp; Reviews</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{advisorName} · Coaching History</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{advisorName} · Coaching History</h2>
           <p className="text-[12px] text-muted-foreground">
             Real coaching sessions and manager reviews from the graph — the human side of the AGP
             loop, with action items and ratings.

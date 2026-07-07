@@ -20,7 +20,7 @@ import { CrmStageFunnel } from "@/components/charts/crm-stage-funnel";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 
 const ACTIVITY_ICON: Record<string, LucideIcon> = {
   MEETING: Users, CALL: Phone, EMAIL: Mail, REVIEW: CalendarDays, FOLLOW_UP: CheckSquare,
@@ -89,7 +89,7 @@ export function CrmActivitiesWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">CRM Activities</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{advisorName} · Pipeline &amp; Activity</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{advisorName} · Pipeline &amp; Activity</h2>
           <p className="text-[12px] text-muted-foreground">
             Real leads, referrals and opportunities with pipeline stages, weighted value and overdue
             work — the same records that feed the CRM feature inputs.

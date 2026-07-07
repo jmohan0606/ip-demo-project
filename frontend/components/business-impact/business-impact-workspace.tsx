@@ -61,7 +61,7 @@ export function BusinessImpactWorkspace() {
         <div className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ borderColor: "#A7F3D0", background: "#F0FDF4", color: "#065F46" }}>
           <BadgeDollarSign className="h-3.5 w-3.5" /> Executive · Business Impact & ROI
         </div>
-        <h2 className="mt-2 text-[22px] font-black">What the platform has driven</h2>
+        <h2 className={`mt-2 ${type.pageTitle}`}>What the platform has driven</h2>
         <p className="max-w-3xl text-[12px] text-muted-foreground">
           The executive aggregate — cumulative dollar impact recorded from real completed recommendations,
           with acceptance and completion rates. (The <a href="/impact-ledger" className="font-semibold text-primary underline">Impact Ledger</a> is

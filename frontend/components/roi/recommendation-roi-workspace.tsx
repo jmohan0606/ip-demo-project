@@ -21,7 +21,7 @@ import { fetchImpactTrend, generateRecommendations, type ImpactTrend, type Recom
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 
 const compactUsd = (v: number) =>
   `$${Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v)}`;
@@ -73,7 +73,7 @@ export function RecommendationROIWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Recommendation Impact / ROI</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{advisorName} · Outcome &amp; Learning Loop</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{advisorName} · Outcome &amp; Learning Loop</h2>
           <p className="text-[12px] text-muted-foreground">
             Real feedback-learning signals for <strong>{advisorName}</strong>: accept/reject/complete events move
             per-family learning weights, which re-rank future recommendations — scoped to the selected advisor.

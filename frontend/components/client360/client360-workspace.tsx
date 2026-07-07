@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { Wallet, Landmark, Receipt, Sparkles, UserCircle, Users2, GitBranch } from "lucide-react";
-import { colors, type as typo } from "@/styles/tokens";
+import { colors, type as typo, type } from "@/styles/tokens";
 import { useShellContext } from "@/components/layout/shell-context";
 import { resolveScope } from "@/lib/api/hierarchy";
 import {
@@ -58,7 +58,7 @@ export function Client360Workspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Client Intelligence 360</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{profile?.household_name ?? "Client"} Profile</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{profile?.household_name ?? "Client"} Profile</h2>
           <p className="text-[12px] text-muted-foreground">
             Real household profile — accounts, product holdings, transactions and AI
             recommendations, served by{" "}

@@ -1,4 +1,5 @@
 "use client";
+import { type } from "@/styles/tokens";
 import { useEffect, useMemo, useState } from "react";
 import { Database, PlayCircle, GitBranch, Layers, CheckCircle2, AlertTriangle } from "lucide-react";
 import {
@@ -55,7 +56,7 @@ export function DataIngestionWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Data Ingestion &amp; Sync</Badge>
-          <h2 className="mt-2 text-[22px] font-black">Manifest-Driven Ingestion &amp; Checkpointing</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>Manifest-Driven Ingestion &amp; Checkpointing</h2>
           <p className="text-[12px] text-muted-foreground">
             Real entity manifest from the foundation package — upsert with batch/checkpoint/retry.
             {manifest && ` Graph ${manifest.graph_name} · stage ${manifest.package_stage} · ${manifest.foundation_status}.`}

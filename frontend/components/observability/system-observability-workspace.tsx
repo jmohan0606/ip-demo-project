@@ -1,4 +1,5 @@
 "use client";
+import { type } from "@/styles/tokens";
 import { useCallback, useEffect, useState } from "react";
 import { Bot, PlayCircle, Workflow, ShieldCheck, Network, Brain, Sparkles } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
@@ -70,7 +71,7 @@ export function SystemObservabilityWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Agent Orchestration &amp; Observability</Badge>
-          <h2 className="mt-2 text-[22px] font-black">Live Multi-Agent Workflow Trace</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>Live Multi-Agent Workflow Trace</h2>
           <p className="text-[12px] text-muted-foreground">
             Runs the real supervisor→agents orchestration (`/agentic-ai/run`) and shows the actual
             route, per-agent tasks, evidence and confidence — plus live adapter modes. No simulated

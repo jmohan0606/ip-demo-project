@@ -8,7 +8,7 @@ import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { AdvisorSelector } from "@/components/status/advisor-selector";
 import { useShellContext } from "@/components/layout/shell-context";
 import { fetchImpactLedger, fetchRecLifecycle, type LedgerResponse, type RecLifecycle } from "@/lib/api/impact-ledger";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 
 const usd = (v: number) => `$${Math.round(v).toLocaleString()}`;
 
@@ -53,7 +53,7 @@ export function ImpactLedgerWorkspace() {
           <div className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold" style={{ borderColor: "#A7F3D0", background: "#F0FDF4", color: "#065F46" }}>
             <Receipt className="h-3.5 w-3.5" /> iPerform Insights and Coaching · Impact Ledger
           </div>
-          <h2 className="mt-2 text-[22px] font-black">Recommendation Impact Ledger</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>Recommendation Impact Ledger</h2>
           <p className="text-[12px] text-muted-foreground">
             Every completed recommendation records a real, persisted consequence — a transaction generated from the
             recommendation&apos;s own estimated impact, linked back to the rec and its evidence chain. This is the live

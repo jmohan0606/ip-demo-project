@@ -5,7 +5,7 @@ import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
 import { simulateWhatIf, saveScenarioAsRecommendation, type WhatIfLevers, type WhatIfResult, type SavedRecommendation } from "@/lib/api/whatif";
-import { colors } from "@/styles/tokens";
+import { colors, type } from "@/styles/tokens";
 import { AssumptionSlider } from "@/components/whatif/assumption-slider";
 import { WhatIfImpactBars } from "@/components/charts/whatif-impact-bars";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,7 +96,7 @@ export function WhatIfSimulatorClient() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Scenario Simulator</Badge>
-          <h2 className="mt-2 text-[22px] font-black">What-If Scenario Simulator</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>What-If Scenario Simulator</h2>
           <p className="text-[12px] text-muted-foreground">
             Projects <strong>{advisorName}</strong>&apos;s real current feature snapshot forward under the
             scenario levers — transparent elasticity formulas, not fabricated figures.

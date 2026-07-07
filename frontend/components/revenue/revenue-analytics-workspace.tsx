@@ -95,7 +95,7 @@ export function RevenueAnalyticsWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Revenue Intelligence</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{shell.scopeLabel || shell.scopeId} Revenue</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{shell.scopeLabel || shell.scopeId} Revenue</h2>
           <p className="text-[12px] text-muted-foreground">
             {shell.scopeType} scope · {periodLabel}{k?.transaction_count?.toLocaleString() ?? "—"} transactions — trend,
             channel, business-line and geographic mix computed from real revenue_transaction records. Scope-aware via the breadcrumb.

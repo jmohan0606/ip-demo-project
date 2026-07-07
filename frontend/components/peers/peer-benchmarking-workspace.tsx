@@ -1,4 +1,5 @@
 "use client";
+import { type } from "@/styles/tokens";
 import { useCallback, useEffect, useState } from "react";
 import { Radar as RadarIcon, Users } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
@@ -52,7 +53,7 @@ export function PeerBenchmarkingWorkspace() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Badge variant="glass">Peer Benchmarking</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{advisorName} vs Peers</h2>
+          <h2 className={`mt-2 ${type.pageTitle}`}>{advisorName} vs Peers</h2>
           <p className="text-[12px] text-muted-foreground">
             Percentile rank across {data?.dimensions.length ?? 0} metrics within a real peer group of{" "}
             {data?.peer_group_size ?? "—"} advisors, plus nearest peers from the similarity model.

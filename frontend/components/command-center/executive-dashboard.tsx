@@ -17,6 +17,7 @@ import { ScopeStatusDonut } from "@/components/charts/scope-status-donut";
 import { RevenueTrendChart } from "@/components/charts/revenue-trend-chart";
 import { RevenueDonut } from "@/components/charts/revenue-donut";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import { PageHeader } from "@/components/patterns/page-header";
 import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-insight-summary";
 import { AiCoachingCard, type AiCoachingData } from "@/components/patterns/ai-coaching-card";
 import { DeltaIndicator } from "@/components/patterns/delta-indicator";
@@ -184,36 +185,38 @@ export function ExecutiveDashboard() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <Badge variant="glass">Command Center · iPerform Insights and Coaching</Badge>
-          <h2 className="mt-2 text-[22px] font-black">{entityLabel(shell.scopeId)} Overview</h2>
-          <p className="text-[12px] text-muted-foreground">
+      <PageHeader
+        eyebrow={<Badge variant="glass">Command Center · iPerform Insights and Coaching</Badge>}
+        title={`${entityLabel(shell.scopeId)} Overview`}
+        subtitle={
+          <>
             {shell.scopeType} scope · {t?.advisor_count ?? "—"} advisors · {data?.period ?? shell.period} ·
             compare {data?.compare_to ?? shell.compareTo}. Every figure aggregated live from real per-advisor
             snapshots + transactions. Change scope/period/compare in the filter bar to re-roll the page.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {busy && <span className="text-[12px] text-muted-foreground">Rolling up…</span>}
-          <button
-            onClick={() => void exportView("pdf")}
-            disabled={exporting}
-            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
-            title="Export this dashboard view to PDF (real data)"
-          >
-            <FileDown className="h-3.5 w-3.5" /> PDF
-          </button>
-          <button
-            onClick={() => void exportView("pptx")}
-            disabled={exporting}
-            className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
-            title="Export this dashboard view to PowerPoint (real data)"
-          >
-            <FileDown className="h-3.5 w-3.5" /> PPT
-          </button>
-        </div>
-      </div>
+          </>
+        }
+        actions={
+          <>
+            {busy && <span className="text-[12px] text-muted-foreground">Rolling up…</span>}
+            <button
+              onClick={() => void exportView("pdf")}
+              disabled={exporting}
+              className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
+              title="Export this dashboard view to PDF (real data)"
+            >
+              <FileDown className="h-3.5 w-3.5" /> PDF
+            </button>
+            <button
+              onClick={() => void exportView("pptx")}
+              disabled={exporting}
+              className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold disabled:opacity-50"
+              title="Export this dashboard view to PowerPoint (real data)"
+            >
+              <FileDown className="h-3.5 w-3.5" /> PPT
+            </button>
+          </>
+        }
+      />
 
       {/* KPI grid — headline revenue is period-windowed; its delta respects Compare-To (12.1) */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
