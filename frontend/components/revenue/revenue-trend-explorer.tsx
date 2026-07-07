@@ -35,6 +35,7 @@ interface TrendPeriod {
   slices: Record<string, number>;
   top_slice: string | null;
   driver_summary: string;
+  driver_bullets: string[];
 }
 
 interface TrendResponse {
@@ -252,6 +253,16 @@ export default function RevenueTrendExplorer() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className={type.body} style={{ color: colors.text.secondary }}>{selected.driver_summary}</p>
+                    {(selected.driver_bullets ?? []).length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {selected.driver_bullets.map((b, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-[12px]" style={{ color: colors.text.secondary }}>
+                            <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: colors.primary }} />
+                            <span className="tabular-nums">{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                       {data.slices.map((label, i) =>
                         selected.slices[label] ? (
@@ -266,6 +277,51 @@ export default function RevenueTrendExplorer() {
                 </div>
               </AiContentCard>
             ) : null}
+
+            {/* Per-period breakdown — one entry per month/quarter across the WHOLE
+                selected range, each with concise, exact-figure bullets (period-over-
+                period change, leader, biggest movers). */}
+            <div>
+              <div className="mb-1.5 flex items-baseline justify-between">
+                <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em]" style={{ color: colors.text.muted }}>
+                  {granularity === "quarterly" ? "Quarter-by-Quarter" : "Month-by-Month"} Breakdown ({data.periods.length} periods)
+                </h3>
+                <span className="text-[11px] text-muted-foreground">Newest first · click a period to inspect it above</span>
+              </div>
+              <div className="max-h-[26rem] space-y-2 overflow-y-auto pr-1">
+                {[...data.periods].reverse().map((p) => (
+                  <button
+                    key={p.period}
+                    type="button"
+                    onClick={() => setSelectedPeriod(p.period)}
+                    className={`block w-full rounded-xl border p-3 text-left transition-colors hover:bg-muted/40 ${
+                      selectedPeriod === p.period ? "bg-muted/40" : ""
+                    }`}
+                    style={{ borderColor: selectedPeriod === p.period ? colors.primary : colors.surface.border }}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[13px] font-bold" style={{ color: colors.text.primary }}>{p.period}</span>
+                      <span className="text-[12px] font-semibold tabular-nums" style={{ color: colors.text.secondary }}>
+                        {formatCurrency(p.total_revenue, { compact: true })}
+                      </span>
+                      {p.change_pct != null ? (
+                        <DeltaIndicator changePct={p.change_pct} suffix={`vs ${p.prior_period}`} />
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">first period in data</span>
+                      )}
+                    </div>
+                    <ul className="mt-1.5 space-y-0.5">
+                      {(p.driver_bullets ?? []).map((b, i) => (
+                        <li key={i} className="flex items-start gap-1.5 text-[12px]" style={{ color: colors.text.secondary }}>
+                          <span className="mt-[5px] h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: colors.text.muted }} />
+                          <span className="tabular-nums">{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </button>
+                ))}
+              </div>
+            </div>
           </>
         )}
       </CardContent>

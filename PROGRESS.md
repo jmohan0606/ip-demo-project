@@ -2386,3 +2386,16 @@ Capabilities Locked" section removed. Evidence: Run All completed 192/192 entiti
 ingestion_runall_complete.png shows 60v/132e/192/156,247 KPIs + completed run). tsc PASS.
 Note: port 8000 public visibility had reset after the codespace restart (re-set via gh CLI) —
 that was why the first screenshot showed an empty page, not an app bug.
+
+### ITEM 3 — Revenue Trend Explorer: per-period bullet narrative — COMPLETE
+Backend: each trend period now carries `driver_bullets` computed DIRECTLY from the real figures
+(exact by construction, no LLM in the loop): total + period-over-period change ($ and %), leading
+slice with share, biggest gainer, biggest decline, breadth ("N of M slices grew"). The existing
+per-period real-Claude `driver_summary` headline stays; evidence line extended to state the bullet
+provenance. Frontend: selected-period panel keeps the AI headline and now renders the driver detail
+as bullets; below it a new Month-by-Month / Quarter-by-Quarter breakdown lists EVERY period in the
+selected range (newest first, scrollable, click-to-inspect) with its delta badge + bullets.
+Evidence: real Claude run (claude-haiku-4-5) — 2026-Q2 "Total $11,535,868 — up +29.9% (+$2,657,167)
+vs 2026-Q1" cross-checks exactly (11,535,868−8,878,701); "Biggest gainer: Central Division
++$1,259,707 (+43.0%)". Screenshots: docs/qa_screenshots/session17/trend_explorer_bullets.png +
+trend_explorer_breakdown.png (13-quarter breakdown live). tsc PASS.

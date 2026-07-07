@@ -117,6 +117,59 @@ class RevenueTrendExplorerService:
         )
         return llm.generate(prompt, context)
 
+    @staticmethod
+    def _driver_bullets(
+        total: float,
+        change_pct: float | None,
+        prior_b: str | None,
+        folded: dict[str, float],
+        prior_folded: dict[str, float],
+        dimension: str,
+        granularity: str,
+    ) -> list[str]:
+        """Short, specific per-period bullets computed DIRECTLY from the real figures
+        (no LLM in the loop, so every number is exact by construction): period change,
+        leading slice, biggest gainer, biggest decliner, breadth of movement."""
+        unit = "quarter" if granularity == "quarterly" else "month"
+        dim_label = dimension.replace("_", " ")
+        bullets: list[str] = []
+
+        if change_pct is not None and prior_b:
+            prior_total = sum(prior_folded.values())
+            delta = total - prior_total
+            arrow = "up" if delta >= 0 else "down"
+            bullets.append(
+                f"Total ${total:,.0f} — {arrow} {change_pct:+.1f}% (${delta:+,.0f}) vs {prior_b}"
+            )
+        else:
+            bullets.append(f"Total ${total:,.0f} — first {unit} in the selected data (no prior comparison)")
+
+        ranked = sorted(folded.items(), key=lambda kv: kv[1], reverse=True)
+        if ranked and total > 0:
+            top_label, top_rev = ranked[0]
+            bullets.append(
+                f"{top_label} led the {unit} with ${top_rev:,.0f} ({top_rev / total * 100:.0f}% of revenue)"
+            )
+
+        if prior_folded:
+            movers = {
+                label: (rev - prior_folded.get(label, 0.0), prior_folded.get(label, 0.0))
+                for label, rev in folded.items()
+            }
+            up = max(movers.items(), key=lambda kv: kv[1][0], default=None)
+            down = min(movers.items(), key=lambda kv: kv[1][0], default=None)
+            if up and up[1][0] > 0:
+                label, (delta, prior_v) = up
+                pct = f" ({delta / prior_v * 100:+.1f}%)" if prior_v > 0 else ""
+                bullets.append(f"Biggest gainer: {label} +${delta:,.0f}{pct} vs prior {unit}")
+            if down and down[1][0] < 0 and (not up or down[0] != up[0]):
+                label, (delta, prior_v) = down
+                pct = f" ({delta / prior_v * 100:+.1f}%)" if prior_v > 0 else ""
+                bullets.append(f"Biggest decline: {label} -${abs(delta):,.0f}{pct} vs prior {unit}")
+            grew = sum(1 for _, (d, _p) in movers.items() if d > 0)
+            bullets.append(f"{grew} of {len(movers)} {dim_label} slices grew vs prior {unit}")
+        return bullets
+
     # ---- main --------------------------------------------------------------------
     def trend(
         self,
@@ -218,6 +271,11 @@ class RevenueTrendExplorerService:
                 "slices": folded,
                 "top_slice": max(folded, key=folded.get) if folded else None,
                 "driver_summary": self._driver_summary(llm, b, total, change_pct, folded, movers, dimension),
+                "driver_bullets": self._driver_bullets(
+                    total, change_pct,
+                    prior_b if prior_total is not None else None,
+                    folded, prior_folded, dimension, granularity,
+                ),
             })
 
         return {
@@ -238,7 +296,8 @@ class RevenueTrendExplorerService:
                     f"Σ revenue_amount grouped by {granularity} period × {dimension} "
                     f"(top {_MAX_SLICES} slices by range total, remainder folded into '{_OTHER}'); "
                     "change_pct = vs immediately preceding period bucket; driver summaries are "
-                    "LLM-generated from ONLY these computed figures"
+                    "LLM-generated from ONLY these computed figures; per-period driver bullets are "
+                    "computed directly from the same figures (exact by construction)"
                 ),
                 "llm": llm.describe(),
             },
