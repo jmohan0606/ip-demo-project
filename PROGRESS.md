@@ -2353,3 +2353,19 @@ Transactions (genuinely absent edges — could label with recommendation title l
 table support is lightweight (no cell alignment).
 Next: continue standing philosophy on any page found lacking during client review; UI_INTELLIGENCE_WORK.md
 is the detailed record.
+
+## Session 17 — 2026-07-07 (four-item run: TG audit, ingestion completeness, trend bullets, handoff docs)
+
+### ITEM 1 — TigerGraph source-of-truth audit (TIGERGRAPH_AUDIT.md) — COMPLETE
+Completed: full artifact-location enumeration (docs/tigergraph_foundation = SOURCE OF TRUTH via
+FOUNDATION_DIR/foundation_store/ingestion/validators; root tigergraph/ = legacy 42-vertex mirror,
+now marked reference-only via tigergraph/README.md). All post-Section-9 additions verified present
+(learning_weight, impact_ledger+edges, rec_status_transition+edge, canonical reasoning_trace,
+reasoning_for_advisor, guardrail_event, GQ-044..050). Validator PASS: 60v/132e/132 reverse/192
+manifest files/156,247 rows/50 queries. Fresh rebuild-from-manifest: 59v/129e types loaded,
+34,070+122,177 rows = exactly 156,247, 0 mismatches; the 1v/3e gap is precisely the deliberate
+header-only runtime-accumulated types (impact ledger + reasoning_for_advisor). A001 present,
+weights (5 families) + 144 transitions reproduce from CSV alone. No schema divergence found —
+Part A (a226193) had already realigned the legacy mirror toward the canonical foundation shape.
+Known trap documented: root scripts/validate_tigergraph_foundation.py validates the LEGACY package;
+the real gate is docs/tigergraph_foundation/scripts/validate_package.py.
