@@ -286,13 +286,89 @@ class AzureOpenAILLMClient:
         return {"mode": "azure", "model": self.model, "auth_method": self._auth_method}
 
 
+class CdaoOpenAILLMClient:
+    """Azure OpenAI via the client's cdao SDK — the PRIMARY client-site LLM path
+    (LLM_CLIENT_MODE=cdao_openai). Confirmed working by the developer in the client's
+    Jupyter environment; the SmartSDK AzureOpenAILLMClient (mode=azure) stays as the
+    secondary alternate.
+
+    Pattern (verified in the client notebook):
+        from cdao import openai_azure_client
+        client = openai_azure_client(api_version=..., workspace_id=...)
+        client.chat.completions.create(model=..., messages=[...]).choices[0].message.content
+
+    The cdao client is the standard OpenAI SDK shape, so generate() maps 1:1 onto the
+    same messages the other adapters send (_render_messages) and returns the same plain
+    string every LangGraph agent node consumes via get_llm_client().generate() — the
+    agentic flow is unchanged, only the transport differs. (Inspection note: no agent
+    node uses a LangChain model object / .bind_tools; they all call generate() -> str,
+    so no LangChain wrapper is needed.)
+
+    GUARDED IMPORT: `cdao` exists only in the client artifactory (cdaosdk-all[openai]).
+    It is imported ONLY here, inside __init__, and only when this mode is selected —
+    the app boots normally in mock/claude/real/azure modes without it.
+
+    PREREQUISITE (client machine): a PCL AWS login must be run BEFORE starting the app;
+    cdao authenticates from that ambient AWS session, not from code/.env credentials.
+    """
+
+    def __init__(self) -> None:
+        settings = get_settings()
+        if not settings.cdao_workspace_id:
+            raise LLMClientError(
+                "LLM_CLIENT_MODE=cdao_openai requires CDAO_WORKSPACE_ID in .env "
+                "(plus CDAO_API_VERSION / CDAO_MODEL — see CLIENT_ENV_SETUP.md §1b)"
+            )
+        try:
+            from cdao import openai_azure_client  # type: ignore  # guarded: client-only package
+        except ImportError as exc:  # pragma: no cover — depends on client-only package
+            raise LLMClientError(
+                "LLM_CLIENT_MODE=cdao_openai requires the client-only 'cdao' package "
+                "(cdaosdk-all[openai], JPMC artifactory). Install it in the client "
+                "environment (uv pip install 'cdaosdk-all[openai]'), or use "
+                "LLM_CLIENT_MODE=mock|claude here. Original error: " + str(exc)
+            ) from exc
+
+        # Construct once; reused for every generate() call.
+        self._client = openai_azure_client(
+            api_version=settings.cdao_api_version,
+            workspace_id=settings.cdao_workspace_id,
+        )
+        self.model = settings.cdao_model
+
+    @logged_adapter_call("llm")
+    def generate(self, prompt: str, context: dict | None = None) -> str:
+        import time as _t
+        _start = _t.perf_counter()
+        system_prompt, user_content = _render_messages(prompt, context)
+        response = self._client.chat.completions.create(
+            model=self.model,
+            max_tokens=1024,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+        )
+        text = response.choices[0].message.content or ""
+        usage = getattr(response, "usage", None)
+        _record_llm_tokens("cdao_openai", f"cdao:{self.model}",
+                           getattr(usage, "prompt_tokens", None), getattr(usage, "completion_tokens", None),
+                           user_content, text, (_t.perf_counter() - _start) * 1000)
+        return text
+
+    def describe(self) -> dict:
+        return {"mode": "cdao_openai", "model": f"cdao:{self.model}"}
+
+
 _llm_client: LLMClient | None = None
 
 
 def get_llm_client() -> LLMClient:
-    """Select the LLMClient per LLM_CLIENT_MODE (mock | claude | real | azure).
+    """Select the LLMClient per LLM_CLIENT_MODE (mock | claude | real | cdao_openai | azure).
 
-    `azure` = JPMC SmartSDK/Fusion gateway (client site); `real` = direct Azure OpenAI SDK.
+    Client site: `cdao_openai` = cdao SDK Azure client (PRIMARY, confirmed-working);
+    `azure` = JPMC SmartSDK/Fusion gateway (secondary alternate). `real` = direct Azure
+    OpenAI SDK; `claude`/`mock` = build-box modes.
     """
     global _llm_client
     if _llm_client is None:
@@ -303,10 +379,14 @@ def get_llm_client() -> LLMClient:
             _llm_client = ClaudeLLMClient()
         elif mode == "real":
             _llm_client = RealLLMClient()
+        elif mode == "cdao_openai":
+            _llm_client = CdaoOpenAILLMClient()
         elif mode == "azure":
             _llm_client = AzureOpenAILLMClient()
         else:
-            raise LLMClientError(f"Unknown LLM_CLIENT_MODE '{mode}' (expected mock|claude|real|azure)")
+            raise LLMClientError(
+                f"Unknown LLM_CLIENT_MODE '{mode}' (expected mock|claude|real|cdao_openai|azure)"
+            )
     return _llm_client
 
 

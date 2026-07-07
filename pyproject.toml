@@ -53,6 +53,11 @@ ml = [
 # TigerGraph GDS extra for pyTigerGraph[gds] (GraphSAGE loaders, Featurizer). Optional — base
 # pyTigerGraph connects without it; GNN falls back to the local PyG path.
 gds = ["pyTigerGraph[gds]>=1.8.0"]
+# cdao SDK (JPMC) — provides `from cdao import openai_azure_client`, the PRIMARY client-site
+# LLM path (LLM_CLIENT_MODE=cdao_openai → CdaoOpenAILLMClient). CLIENT-ARTIFACTORY ONLY (not on
+# public PyPI); guarded import, so the app boots in every other mode without it. Sourced from
+# the "artifacts" uv index — see [tool.uv.sources] below and uv.toml.
+cdao = ["cdaosdk-all[openai]>=10.0.0"]
 # smart_sdk (JPMC SmartSDK/Fusion) is CLIENT-ARTIFACTORY ONLY and not on public PyPI, so it is
 # intentionally NOT declared here — install it explicitly in the client env (see CLIENT_ENV_SETUP.md).
 
@@ -65,6 +70,11 @@ include = ["app*"]
 
 [tool.uv]
 package = false
+
+# cdaosdk-all resolves ONLY from the client artifactory (named "artifacts" in uv.toml) —
+# never from public PyPI.
+[tool.uv.sources]
+cdaosdk-all = { index = "artifacts" }
 
 [tool.ruff]
 line-length = 100

@@ -17,7 +17,7 @@ these env selectors. All service code depends on the adapter *interfaces*, never
 | Selector | Build box (here) | Client (JPMC) |
 |----------|------------------|---------------|
 | `GRAPH_CLIENT_MODE` | `mock` | `real` (live TigerGraph via pyTigerGraph/getToken) |
-| `LLM_CLIENT_MODE` | `mock` / `claude` | `azure` (SmartSDK/Fusion) |
+| `LLM_CLIENT_MODE` | `mock` / `claude` | `cdao_openai` (PRIMARY, cdao SDK) — fallback `azure` (SmartSDK/Fusion) |
 | `EMBEDDING_CLIENT_MODE` | `local` (sentence-transformers) | `azure` (SmartSDK) |
 | `MODEL_CLIENT_MODE` | `deterministic` | `real` (if the ML deps + data are present) |
 | `VECTOR_CLIENT_MODE` | `local` | `local` or `tigergraph` (once TigerVector confirmed) |
@@ -32,12 +32,48 @@ NEVER commit.
 ### Modes
 ```
 GRAPH_CLIENT_MODE=real
-LLM_CLIENT_MODE=azure
+LLM_CLIENT_MODE=cdao_openai     # PRIMARY (cdao SDK) — if it fails, fall back to azure (SmartSDK)
 EMBEDDING_CLIENT_MODE=azure
 MODEL_CLIENT_MODE=real          # optional; falls back to deterministic if ML deps absent
 ```
 
-### SmartSDK / Fusion — Azure OpenAI LLM + Embeddings (`smart_sdk`)
+### 1b. cdao OpenAI Azure client — the PRIMARY LLM path (`LLM_CLIENT_MODE=cdao_openai`)
+
+Confirmed working by the developer in the client's Jupyter environment (simpler than the
+SmartSDK path — try this FIRST):
+
+```python
+from cdao import openai_azure_client
+client = openai_azure_client(api_version="2024-02-01", workspace_id="906313")
+client.chat.completions.create(model="gpt-4o-2024-08-06", messages=[...])
+```
+
+`CdaoOpenAILLMClient` (`app/llm/client.py`) wraps exactly this behind the standard `LLMClient`
+interface — every agent/chat/insight path consumes it through `get_llm_client().generate()`
+unchanged.
+
+**CRITICAL PREREQUISITE — PCL AWS login BEFORE starting the app.** The cdao client
+authenticates from the ambient AWS auth session established by the PCL login; there are NO
+credentials in code or `.env` for it. Run the PCL AWS login in the same shell/session, THEN
+start the backend. If the login has expired, cdao calls fail at request time — re-run the
+login and restart.
+
+```
+CDAO_API_VERSION=2024-02-01
+CDAO_WORKSPACE_ID=906313        # workspace id from the client console
+CDAO_MODEL=gpt-4o-2024-08-06
+```
+
+Install (client artifactory only — see §2): `uv pip install -e ".[cdao]"` (pulls
+`cdaosdk-all[openai]`, pinned to the `artifacts` index via `[tool.uv.sources]`).
+
+**If cdao_openai fails** (package unavailable, PCL/AWS session issues, workspace errors):
+fall back to `LLM_CLIENT_MODE=azure` (SmartSDK/Fusion below) — same prompts, same interface,
+different transport. Selecting `cdao_openai` without the package installed raises a clean
+`LLMClientError` naming the fix; it never crashes the boot of other modes.
+
+### SmartSDK / Fusion — Azure OpenAI LLM + Embeddings (`smart_sdk`) — SECONDARY alternate LLM
+path (embeddings still use this regardless: `EMBEDDING_CLIENT_MODE=azure`)
 ```
 AZURE_AUTH_METHOD=key           # key (primary, confirmed) | certificate (alternate)
 AZURE_MODEL_NAME=gpt-4o-2024-08-06
@@ -89,7 +125,7 @@ Two scripts verify every dependency against the client artifactory BEFORE anythi
 installed, so missing libraries surface upfront rather than mid-build:
 
 ```
-python scripts/check_client_deps.py    # all pyproject groups (core/dev/aws/ml/gds) + smart_sdk
+python scripts/check_client_deps.py    # all pyproject groups (core/dev/aws/ml/gds/cdao) + smart_sdk
 python scripts/check_client_npm.py     # frontend/package.json deps + devDeps
 ```
 
@@ -98,7 +134,7 @@ python scripts/check_client_npm.py     # frontend/package.json deps + devDeps
   `--index-url` / `--registry` or `CLIENT_PYPI_INDEX` / `CLIENT_NPM_REGISTRY`.
 - Each package is reported AVAILABLE (3.12-compatible version satisfying the pin) /
   VERSION-MISMATCH / MISSING; at-risk packages (torch, torch-geometric,
-  sentence-transformers, chromadb, pyTigerGraph[gds], smart_sdk) print their fallback from
+  sentence-transformers, chromadb, pyTigerGraph[gds], smart_sdk, cdaosdk-all) print their fallback from
   the table below when not cleanly available.
 - Exit codes: 0 = pass, 1 = a required dep has an issue, 2 = index unreachable (clear
   message — if you're not on the client network, pass the public index to validate logic).
@@ -126,8 +162,9 @@ default = true
 Install:
 ```
 uv pip install -e .            # core deps
+uv pip install -e ".[cdao]"    # cdao SDK (cdaosdk-all[openai]) — PRIMARY LLM path (§1b)
 uv pip install -e ".[ml,gds]"  # optional: real ML/GNN tier + pyTigerGraph[gds]
-uv pip install smart_sdk       # client-only; not in pyproject by design
+uv pip install smart_sdk       # client-only; secondary LLM path + embeddings; not in pyproject by design
 ```
 
 ### Library fallback table (when the artifactory is the sole index)
@@ -139,6 +176,7 @@ uv pip install smart_sdk       # client-only; not in pyproject by design
 | `chromadb` | needs `onnxruntime` for its default embedder (unused — we pass our own vectors) | pin `onnxruntime` if the default build is unavailable. |
 | `pyTigerGraph[gds]` | `[gds]` extra adds torch/pandas GDS helpers | base `pyTigerGraph` still connects; GNN falls back to local PyG or deterministic projection. |
 | `smart_sdk` | client-artifactory only | guarded import — absence never blocks boot in mock/claude/real mode. Required only for `azure` modes. |
+| `cdaosdk-all[openai]` | client-artifactory only (pinned to the `artifacts` index via `[tool.uv.sources]`) | guarded import — required only for `LLM_CLIENT_MODE=cdao_openai` (PRIMARY LLM path); if unavailable, fall back to `LLM_CLIENT_MODE=azure` (SmartSDK). |
 
 ---
 
@@ -201,18 +239,20 @@ attribute DDL (`EMBEDDING(DIMENSION=EMBEDDING_DIM, METRIC="COSINE")`), and the C
    artifactory. Resolve every MISSING/VERSION-MISMATCH per the §2 fallback table first.
 2. `git clone` the repo; `cp .env.example .env`.
 3. Fill `.env` per §1 (modes + SmartSDK/Fusion + TigerGraph). Paste `TG_SECRET` from §3.
-4. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[ml,gds]"` then
+4. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[cdao,ml,gds]"` then
    `uv pip install smart_sdk`. Frontend: `cp frontend/.npmrc.client-template frontend/.npmrc`
    (§2.0b) then `npm install` in `frontend/`.
-5. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 192 manifest CSVs from
+5. **Run the PCL AWS login** (required by the cdao LLM client, §1b) in the shell that will run
+   the backend — cdao has no credentials in `.env`; it uses this ambient session.
+6. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 192 manifest CSVs from
    `docs/tigergraph_foundation/` (see `CLAUDE.md` §8 / `scripts/install_tigergraph_source_of_truth.sh`;
    the app's Data Ingestion & Sync page "Run All Ingestion" loads the complete graph remotely).
-6. Boot check (mock first, to isolate app issues from connectivity):
+7. Boot check (mock first, to isolate app issues from connectivity):
    `GRAPH_CLIENT_MODE=mock LLM_CLIENT_MODE=mock uvicorn app.api.main:app` → confirm it serves.
-7. Flip to real: set the §1 modes, restart, and open the **Connection & Environment Health**
+8. Flip to real: set the §1 modes, restart, and open the **Connection & Environment Health**
    screen (built for exactly this) to confirm TigerGraph auth/SSL/graph/counts, LLM test
    generation, embedding dimension, and Chroma — each green/red with the real error if red.
-8. If any tier is red, the health screen shows the real error; fix per the fallback table (§2)
+9. If any tier is red, the health screen shows the real error; fix per the fallback table (§2)
    and re-check. Do not proceed to demo until all green.
 
 ---

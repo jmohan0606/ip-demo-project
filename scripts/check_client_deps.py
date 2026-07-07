@@ -74,6 +74,11 @@ AT_RISK_FALLBACKS: dict[str, str] = {
         "Client-artifactory ONLY (never on public PyPI). Guarded import — absence never blocks "
         "boot in mock/claude/real mode. Required only for the azure (SmartSDK/Fusion) modes."
     ),
+    "cdaosdk-all": (
+        "Client-artifactory ONLY (cdao SDK; [tool.uv.sources] pins it to the 'artifacts' index). "
+        "Guarded import — required only for LLM_CLIENT_MODE=cdao_openai (the PRIMARY client LLM "
+        "path); if unavailable, fall back to LLM_CLIENT_MODE=azure (SmartSDK)."
+    ),
 }
 
 STATUS_AVAILABLE = "AVAILABLE"

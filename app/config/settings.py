@@ -82,6 +82,14 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
     anthropic_model: str = Field(default="claude-haiku-4-5-20251001", alias="ANTHROPIC_MODEL")
 
+    # --- cdao OpenAI Azure client (client env: LLM_CLIENT_MODE=cdao_openai — PRIMARY) ---
+    # Backs CdaoOpenAILLMClient via `from cdao import openai_azure_client` (cdaosdk-all[openai],
+    # client artifactory only; guarded import). Auth comes from the ambient PCL AWS login session
+    # — no credentials here. See CLIENT_ENV_SETUP.md §1b.
+    cdao_api_version: str = Field(default="2024-02-01", alias="CDAO_API_VERSION")
+    cdao_workspace_id: str | None = Field(default=None, alias="CDAO_WORKSPACE_ID")
+    cdao_model: str = Field(default="gpt-4o-2024-08-06", alias="CDAO_MODEL")
+
     # --- SmartSDK / Fusion (client env: LLM_CLIENT_MODE=azure, EMBEDDING_CLIENT_MODE=azure) ---
     # These back AzureOpenAILLMClient / AzureOpenAIEmbeddingClient, which route through JPMC's
     # SmartSDK (smart_sdk.models.Model → _to_langgraph_model). smart_sdk is only in the client

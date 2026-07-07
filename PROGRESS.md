@@ -2435,3 +2435,31 @@ printed, PASS exit 0 (torch build-tag filenames initially misparsed as "3" — f
 packaging.utils parsers, now 2.12.1); public npm — 28/28 AVAILABLE exit 0 (playwright prerelease
 initially matched ^1.49.0 — fixed, best match now 1.61.1); client artifactory from this box —
 both scripts exit 2 with the documented clear unreachable message (no traceback).
+
+### ITEM 6 — CdaoOpenAILLMClient: primary client-site LLM adapter — COMPLETE
+New LLM_CLIENT_MODE=cdao_openai (app/llm/client.py CdaoOpenAILLMClient) wrapping the client's
+confirmed-working `from cdao import openai_azure_client` pattern behind the existing LLMClient
+interface: client constructed once (CDAO_API_VERSION/CDAO_WORKSPACE_ID from settings), generate()
+via chat.completions.create with the SAME _render_messages system/user assembly every adapter
+uses, returns plain str, real token usage recorded to observability. Import GUARDED inside
+__init__ (cdao only in client artifactory); missing package or CDAO_WORKSPACE_ID → clean
+LLMClientError. SmartSDK azure mode kept as secondary alternate.
+LangGraph integration (1.5): INSPECTED the actual consumption path first — every agent node
+(ai_assistant_agent, coaching_agent, chat_engine) calls get_llm_client().generate(prompt, context)
+-> str; NO node holds a LangChain model object, no .bind_tools/.invoke/AIMessage parsing anywhere
+(the graph is a linear StateGraph of plain callables in langgraph_builder.py). So matching
+generate() -> str exactly IS the correct integration; no LangChain wrapper needed.
+Deps/docs: pyproject [cdao] optional group cdaosdk-all[openai]>=10.0.0 + [tool.uv.sources]
+cdaosdk-all={index="artifacts"} (uv.toml index now named "artifacts"); check_client_deps.py
+covers it automatically via pyproject parsing + new AT-RISK fallback entry. .env.example CDAO_*
+block. CLIENT_ENV_SETUP.md: §1b cdao_openai = PRIMARY (try first, azure = fallback), PCL AWS
+login documented as CRITICAL pre-step (ambient auth, no creds in .env), checklist gets the PCL
+step, install lines updated.
+Evidence: (a) backend imports in mock/claude with cdao ABSENT (48 routes, find_spec=None);
+(b) cdao_openai without cdao → clean LLMClientError naming the fix; (c) END-TO-END agentic run
+through the REAL LangGraph graph with an OpenAI-shape stub cdao module (session scratchpad, not
+committed): supervisor-routed 6 tasks / 3 evidence / 5 reasoning steps, final answer authored via
+CdaoOpenAILLMClient ("[cdao-stub:gpt-4o-2024-08-06] …", confidence 0.85) — adapter return shape
+consumed by the nodes unchanged. Live cdao calls only testable on the client machine post-PCL-
+login (noted). check_client_deps vs public PyPI: cdaosdk-all correctly MISSING+AT-RISK w/
+fallback, exit 0.

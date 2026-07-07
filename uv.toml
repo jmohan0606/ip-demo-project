@@ -8,6 +8,7 @@
 # app installs and runs fine from public PyPI without it in mock/claude/real mode.
 
 [[index]]
+name = "artifacts"
 url = "https://artifacts-read.gkp.jpmchase.net/artifactory/api/pypi/pypi/simple"
 default = true
 
@@ -29,3 +30,7 @@ default = true
 # smart_sdk               : CLIENT-ARTIFACTORY ONLY — intentionally absent from pyproject.toml.
 #                           Install explicitly in the client env: `uv pip install smart_sdk`.
 #                           Guarded imports mean its absence never blocks boot in other modes.
+# cdaosdk-all[openai]     : CLIENT-ARTIFACTORY ONLY — the cdao SDK behind CdaoOpenAILLMClient
+#                           (LLM_CLIENT_MODE=cdao_openai, the PRIMARY client LLM path). Declared
+#                           in pyproject's [cdao] optional group, pinned to this index via
+#                           [tool.uv.sources]. Install: `uv pip install -e ".[cdao]"`.
