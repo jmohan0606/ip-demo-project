@@ -57,43 +57,25 @@ ACTION_FAMILIES = {
 
 class LearningWeightStore:
     """Per-action-family ranking weights updated by feedback (the RL-style signal).
-    Weight 1.0 is neutral; accepted/completed actions push it up, rejections down."""
+    Weight 1.0 is neutral; accepted/completed actions push it up, rejections down.
+
+    Now a thin facade over the StateRepository adapter — the weights live in TigerGraph
+    (phx_dm_learning_weight vertices) as the source of truth, with SQLite fallback. No
+    direct sqlite3 here anymore (see DATABASES.md / StateRepository)."""
 
     def __init__(self, db_path: str | None = None) -> None:
-        self.db_path = db_path or get_settings().sqlite_db_path
-        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                """CREATE TABLE IF NOT EXISTS learning_weights (
-                    family TEXT PRIMARY KEY, weight REAL NOT NULL, feedback_count INTEGER NOT NULL,
-                    updated_at TEXT)"""
-            )
+        from app.repositories.state_repository import get_state_repository
+
+        self._state = get_state_repository()
 
     def weight(self, family: str) -> float:
-        with sqlite3.connect(self.db_path) as conn:
-            row = conn.execute("SELECT weight FROM learning_weights WHERE family = ?", (family,)).fetchone()
-        return float(row[0]) if row else 1.0
+        return self._state.get_learning_weight(family)
 
     def apply_delta(self, family: str, delta: float, updated_at: str) -> float:
-        current = self.weight(family)
-        new_weight = round(max(0.5, min(1.5, current + delta)), 4)
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "INSERT INTO learning_weights (family, weight, feedback_count, updated_at) VALUES (?,?,1,?) "
-                "ON CONFLICT(family) DO UPDATE SET weight=?, feedback_count=feedback_count+1, updated_at=?",
-                (family, new_weight, updated_at, new_weight, updated_at),
-            )
-        return new_weight
+        return self._state.apply_learning_delta(family, delta, updated_at)
 
     def all_weights(self) -> list[dict]:
-        with sqlite3.connect(self.db_path) as conn:
-            rows = conn.execute(
-                "SELECT family, weight, feedback_count, updated_at FROM learning_weights ORDER BY family"
-            ).fetchall()
-        return [
-            {"family": family, "weight": weight, "feedback_count": count, "updated_at": updated}
-            for family, weight, count, updated in rows
-        ]
+        return self._state.all_learning_weights()
 
 
 class RecommendationService:
