@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Bar, BarChart, Cell, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
@@ -185,6 +185,10 @@ export function ExecutiveDashboard() {
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [exporting, setExporting] = useState(false);
+  // Guards against stale-response races: a slow in-flight response for a PREVIOUS
+  // scope must never overwrite the current scope's data after a filter change.
+  const loadSeq = useRef(0);
+  const aiSeq = useRef(0);
 
   const exportView = async (format: "pdf" | "pptx") => {
     setExporting(true);
@@ -202,21 +206,25 @@ export function ExecutiveDashboard() {
   const isAdvisor = shell.scopeType === "Advisor";
 
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current;
     setBusy(true);
     try {
-      setData(await fetchScopeDashboard(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo));
+      const payload = await fetchScopeDashboard(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo);
+      if (seq !== loadSeq.current) return; // a newer scope/period selection superseded this request
+      setData(payload);
       // AUM net-flows waterfall — leadership scopes only (not a single advisor).
       apiClient
         .get<{ available: boolean; steps: NetFlowStep[]; window?: { beginning_month: string; ending_month: string }; note?: string }>(
           `/scope/aum-net-flows?scope_type=${shell.scopeType.toUpperCase()}&scope_id=${shell.scopeId}&period=${shell.period}`)
-        .then(setNetFlows)
-        .catch(() => setNetFlows(null));
+        .then((nf) => { if (seq === loadSeq.current) setNetFlows(nf); })
+        .catch(() => { if (seq === loadSeq.current) setNetFlows(null); });
     } finally {
-      setBusy(false);
+      if (seq === loadSeq.current) setBusy(false);
     }
   }, [shell.scopeType, shell.scopeId, shell.period, shell.compareTo]);
 
   const loadAi = useCallback(async () => {
+    const seq = ++aiSeq.current;
     setAiBusy(true);
     setAi(null);
     setCoaching(null);
@@ -228,15 +236,18 @@ export function ExecutiveDashboard() {
           fetchScopeAiInsight("ADVISOR", shell.scopeId, shell.period, shell.compareTo, shell.persona),
           apiClient.get<{ insight: AiInsightData; coaching: AiCoachingData }>(`/advisor/360/${shell.scopeId}/ai`),
         ]);
+        if (seq !== aiSeq.current) return; // superseded by a newer selection
         setAi(scopeInsight);
         setCoaching(advisorAi);
       } else {
-        setAi(await fetchScopeAiInsight(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo, shell.persona));
+        const scopeInsight = await fetchScopeAiInsight(shell.scopeType.toUpperCase(), shell.scopeId, shell.period, shell.compareTo, shell.persona);
+        if (seq !== aiSeq.current) return;
+        setAi(scopeInsight);
       }
     } catch {
       /* AI card stays hidden on failure — dashboard numbers already render. */
     } finally {
-      setAiBusy(false);
+      if (seq === aiSeq.current) setAiBusy(false);
     }
   }, [isAdvisor, shell.scopeType, shell.scopeId, shell.period, shell.compareTo, shell.persona]);
 

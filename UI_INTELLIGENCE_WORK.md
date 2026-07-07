@@ -47,7 +47,25 @@ sqlite+cosine verified); 15,116 revenue transactions with full edge links.
       chips, click→that advisor), Recent Transaction Highlights, dashed Prior-Year trend line
 - [x] Screenshots firm + advisor scope — REQ-1 diff lines all closed (see table; every "build" row done)
 - [x] AUM net-flows waterfall verified present + populated at firm scope (pending-item check)
-- [ ] REQ-2: 3 figure→model paths documented (traces built; evidence walk below)
+- [x] REQ-2: 3 figure→model paths documented + verified with screenshots (below). Also found and
+      FIXED a real stale-response race in the dashboard (a slow in-flight FIRM fetch resolving
+      after an ADVISOR selection overwrote the advisor's data — request-sequence guards added to
+      `load`/`loadAi` in `executive-dashboard.tsx`; the bug was caught on a real screenshot showing
+      advisor title with firm tiles).
+
+### REQ-2 figure→model evidence (all user-reachable, 2026-07-07)
+1. **Total Revenue tile** → ⓘ popover: "Σ revenue_amount in the selected window; delta vs the real
+   month-shifted −12 window" + source (transaction traversal) + link → Revenue Analytics.
+   `req2_total_revenue_trace.png`
+2. **AGP Risk tile** → ⓘ popover: names the AGP off-track prediction model, links → /predictions,
+   where the real model detail lives: XGBoost/TreeSHAP feature contributions (+13.7
+   overdue_followup_count etc.), confidence, "How this was derived" steps, artifact IDs
+   (PRED_AGPRISK_A001_v2.0 / FS / REASON trace). `req2_agp_risk_trace.png` +
+   `req2_predictions_model_detail.png`
+3. **Benchmarking vs Peers** → ⓘ popover: "Peer group = the 5 nearest advisors by graphsage-v1-ft
+   embedding cosine similarity — learned from the real graph (households, products, CRM, revenue
+   patterns)" + per-peer scores on the card itself; peer chips click through to that advisor.
+   `req2_benchmark_gnn_trace.png`
 - [ ] REQ-3: persona question-set audit (real Claude) — answers + instrumented sources
 - [ ] Remaining pages sweep
 - [ ] §13B.3 division/market journeys · §10 mentor pairing + AGP ROI
