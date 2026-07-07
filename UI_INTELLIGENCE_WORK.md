@@ -68,7 +68,14 @@ sqlite+cosine verified); 15,116 revenue transactions with full edge links.
    `req2_benchmark_gnn_trace.png`
 - [ ] REQ-3: persona question-set audit (real Claude) — answers + instrumented sources
 - [ ] Remaining pages sweep
-- [ ] §13B.3 division/market journeys · §10 mentor pairing + AGP ROI
+- [ ] §13B.3 division/market journeys
+- [x] §10 mentor/mentee GNN pairing + AGP program ROI — BUILT (`app/agp/mentorship.py`,
+      `/agp/mentor-pairing` + `/agp/program-roi`, `MentorshipRoi` on the AGP page).
+      Pairing: constrained greedy matching on graphsage-v1-ft cosine (capacity ≤2,
+      mentor ≥1.2× mentee revenue, PageRank tie-break) — 8/8 at-risk enrollees matched, each with
+      a plain-language rationale. ROI: per-enrollee growth since real enrollment date vs the same
+      calendar-window growth of their 5 GNN-most-similar NON-enrolled advisors; caveats stated.
+      Screenshot: `agp_mentorship_roi.png`. AUM waterfall verified earlier (firm dashboard).
 
 ### REQ-1 diff-closure evidence (2026-07-07)
 - Advisor scope now shows: Total Revenue $275.4K (+30.7%, vs PY: $210.7K), Managed Revenue $32.9K

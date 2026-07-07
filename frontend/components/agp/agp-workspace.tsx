@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { colors, severity as sevTokens, type } from "@/styles/tokens";
 import { formatCurrency } from "@/lib/utils";
+import { MentorshipRoi } from "@/components/agp/mentorship-roi";
 
 const BAND_VARIANT: Record<string, "success" | "warning" | "destructive"> = {
   on_track: "success", attention: "warning", urgent: "warning", critical: "destructive",
@@ -385,6 +386,9 @@ export function AgpWorkspace() {
           })}
         </CardContent>
       </Card>
+
+      {/* Section 10 — GNN mentor/mentee pairing + program ROI vs fair peer baseline */}
+      <MentorshipRoi />
     </div>
   );
 }

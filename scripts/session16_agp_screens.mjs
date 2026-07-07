@@ -1,0 +1,17 @@
+import { chromium } from "/workspaces/ip-demo-project/frontend/node_modules/playwright/index.mjs";
+import { mkdirSync } from "node:fs";
+const OUT = new URL("../docs/qa_screenshots/session16/", import.meta.url).pathname;
+mkdirSync(OUT, { recursive: true });
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+page.setDefaultTimeout(180000);
+await page.goto("http://127.0.0.1:3000/agp", { waitUntil: "domcontentloaded" });
+await page.waitForSelector("text=Mentor / Mentee Pairing", { timeout: 180000 });
+await page.waitForSelector("text=AGP Program ROI", { timeout: 180000 });
+await page.waitForTimeout(4000);
+const el = page.locator("text=Mentor / Mentee Pairing").first();
+await el.scrollIntoViewIfNeeded();
+await page.waitForTimeout(800);
+await page.screenshot({ path: OUT + "agp_mentorship_roi.png", fullPage: false });
+console.log("agp mentorship/roi captured");
+await browser.close();
