@@ -27,6 +27,12 @@ page read as frozen or broken.
   error path — previously they spun forever on failure).
 - Working content rendering untouched — only the loading/error wrappers were added around it.
 
+**Follow-up (same day):** client reported the Revenue Trend Explorer still read as "blank until
+loaded" — the plain grey `Skeleton` blocks weren't obviously a loading state. Fixed by overlaying
+an explicit spinner + **"Generating revenue trend…"** label (with "Computing period revenue and
+AI-summarizing drivers" subtext) centered on the skeleton, so the ~20s claude-mode wait is
+unmistakably in-progress. Evidence: `docs/qa_screenshots/session18/revenue-trend-LOADING-v2.png`.
+
 **Verified (real, not asserted):** `tsc --noEmit` clean; Playwright run captured 0 console
 errors; before/after screenshots in `docs/qa_screenshots/session18/`:
 `revenue-trend-LOADING` (skeleton) → `revenue-trend-LOADED` (real AI period drivers);

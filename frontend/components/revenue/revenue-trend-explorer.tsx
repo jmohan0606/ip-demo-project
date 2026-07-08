@@ -12,6 +12,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { Loader2 } from "lucide-react";
+
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
@@ -178,7 +180,17 @@ export default function RevenueTrendExplorer() {
           <ErrorState message="Couldn't load the revenue trend." onRetry={() => void load()} />
         ) : busy && !data ? (
           <div className="space-y-3">
-            <Skeleton className="h-[320px] rounded-xl" />
+            {/* Explicit spinner + label — the AI driver summaries take real time
+                (~20s in claude mode), so make it unmistakably "in progress", not
+                a blank grey box. Skeleton sits behind the label as layout hint. */}
+            <div className="relative">
+              <Skeleton className="h-[320px] rounded-xl" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="text-[13px] font-medium">Generating revenue trend…</span>
+                <span className="text-[11px]">Computing period revenue and AI-summarizing drivers</span>
+              </div>
+            </div>
             <Skeleton className="h-24 rounded-xl" />
           </div>
         ) : !data || data.periods.length === 0 ? (
