@@ -4,6 +4,40 @@ _Started: 2026-07-06. Main thread: Opus 4.8. Design delegations: `fable-architec
 
 ---
 
+## Session 18 — UX polish: consistent loading + error states for async / AI-generated content (2026-07-08)
+
+**Problem:** several components fetch real / AI-generated content that takes real time — with
+`LLM_CLIENT_MODE=claude`, `/revenue/trend` measured at **22.1s** and the dashboard AI insight /
+coaching cards take several seconds. Previously these rendered **blank** while in flight, so the
+page read as frozen or broken.
+
+**Fix — one shared loading/error language, no ad-hoc per-page spinners:**
+- New `frontend/components/ui/skeleton.tsx` — the single shimmer primitive (design-token `muted`
+  surface, light + dark aware).
+- New `frontend/components/patterns/async-state.tsx` — `LoadingState` (spinner + short label),
+  `ErrorState` (clean "couldn't load — Retry"), `AsyncBoundary` (decides loading vs error vs
+  content in one place), plus layout-shaped `AiCardSkeleton` and `CardSkeleton`. All styled from
+  the existing tokens; retry re-invokes the component's own load fn.
+- Wired into the async / AI components and audited the rest: Executive Dashboard (AI Insight +
+  Coaching → `AiCardSkeleton` + error/retry), Revenue Trend Explorer (shared `Skeleton` +
+  `ErrorState`), Predictions, Opportunities & Recommendations (list skeletons + retry), Peer
+  Benchmarking (radar skeleton + error/retry, previously NO loading state at all), Agent
+  Orchestration run (`LoadingState` banner + error/retry for the multi-second agentic run),
+  Advisor 360 and AGP (AI cards: upgraded bare `animate-pulse` boxes to `AiCardSkeleton` + a real
+  error path — previously they spun forever on failure).
+- Working content rendering untouched — only the loading/error wrappers were added around it.
+
+**Verified (real, not asserted):** `tsc --noEmit` clean; Playwright run captured 0 console
+errors; before/after screenshots in `docs/qa_screenshots/session18/`:
+`revenue-trend-LOADING` (skeleton) → `revenue-trend-LOADED` (real AI period drivers);
+`dashboard-AI-LOADING` (AiCardSkeleton + "Generating insight…") → `dashboard-AI-LOADED`;
+`dashboard-AI-ERROR` (ErrorState + Retry, rest of dashboard intact); `orchestration-RUN-LOADING`
+(spinner + "Running agent workflow…") → `orchestration-RUN-LOADED`. Endpoint timing confirmed
+via curl (`/revenue/trend` = 22.1s). `npm run validate:ui`'s pre-existing "AI Assistant menu"
+failure is unrelated (confirmed identical on a clean tree). CLAUDE.md not touched.
+
+---
+
 ## Session 17 — Four-item run: TG source-of-truth audit, complete-graph ingestion, trend bullets, handoff-doc check (2026-07-07)
 
 ### ITEM 1 — TigerGraph source-of-truth audit ✅ (TIGERGRAPH_AUDIT.md)

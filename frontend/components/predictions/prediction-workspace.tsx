@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { AiCardSkeleton, ErrorState } from "@/components/patterns/async-state";
 import { RevenueForecastChart } from "@/components/charts/revenue-forecast-chart";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
@@ -51,13 +52,17 @@ export function PredictionWorkspace() {
   const { label: entityLabel } = useEntityLabel();
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const run = useCallback(async () => {
     if (!advisorId) return;
     setBusy(true);
+    setError(null);
     try {
       const data = await apiClient.post<{ predictions: Prediction[] }>(`/predictions/run/${advisorId}`);
       setPredictions(data.predictions.filter((p) => p.enrolled !== false));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to run predictions");
     } finally {
       setBusy(false);
     }
@@ -111,6 +116,13 @@ export function PredictionWorkspace() {
       {advisorId ? <RevenueForecastChart advisorId={advisorId} /> : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {error && predictions.length === 0 ? (
+          <div className="lg:col-span-2">
+            <ErrorState message="Couldn't score predictions for this advisor." onRetry={() => void run()} />
+          </div>
+        ) : busy && predictions.length === 0 ? (
+          Array.from({ length: 2 }).map((_, i) => <AiCardSkeleton key={i} />)
+        ) : null}
         {predictions.map((prediction) => (
           <AiContentCard
             key={prediction.prediction_id}
@@ -192,7 +204,7 @@ export function PredictionWorkspace() {
             )}
           </AiContentCard>
         ))}
-        {predictions.length === 0 && !busy ? (
+        {predictions.length === 0 && !busy && !error ? (
           <p className={type.body} style={{ color: colors.text.muted }}>No active predictions.</p>
         ) : null}
       </div>

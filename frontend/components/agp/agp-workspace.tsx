@@ -20,6 +20,7 @@ import { AgpCohortBars } from "@/components/charts/agp-cohort-bars";
 import { KpiGauge } from "@/components/charts/kpi-gauge";
 import { KpiTargetActual } from "@/components/charts/kpi-target-actual";
 import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-insight-summary";
+import { AsyncBoundary, AiCardSkeleton } from "@/components/patterns/async-state";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +66,7 @@ export function AgpWorkspace() {
   const [kpis, setKpis] = useState<AgpKpiRow[]>([]);
   const [milestones, setMilestones] = useState<MilestoneRow[]>([]);
   const [ai, setAi] = useState<AiInsightData | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [communities, setCommunities] = useState<PeerCommunities | null>(null);
   const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
 
@@ -84,6 +86,7 @@ export function AgpWorkspace() {
     const cohortScope = shell.scopeType === "Advisor" ? "FIRM" : shell.scopeType.toUpperCase();
     const cohortScopeId = shell.scopeType === "Advisor" ? "F001" : shell.scopeId;
     setAi(null);
+    setAiError(null);
     const [t, e, c, ch, sc] = await Promise.all([
       fetchAgpTrackStatus(advisorId),
       fetchAgpEnrollment(advisorId),
@@ -103,7 +106,7 @@ export function AgpWorkspace() {
       apiClient.get<{ timeline: MilestoneRow[] }>(`/agp/milestones/${enr.enrollment_id}`).then((m) => setMilestones(m.timeline ?? [])).catch(() => setMilestones([]));
     } else setMilestones([]);
     // AI KPI insights (reuse the grounded advisor insight engine)
-    apiClient.get<{ insight: AiInsightData }>(`/advisor/360/${advisorId}/ai`).then((r) => setAi(r.insight)).catch(() => setAi(null));
+    apiClient.get<{ insight: AiInsightData }>(`/advisor/360/${advisorId}/ai`).then((r) => setAi(r.insight)).catch((err) => setAiError(err instanceof Error ? err.message : "Failed to generate insight"));
     // Peer Communities (Section 11.1 §6 — Louvain over advisor embeddings)
     apiClient.get<PeerCommunities>(`/graph-insights/communities`).then(setCommunities).catch(() => setCommunities(null));
   }, [advisorId, shell.scopeType, shell.scopeId, shell.refreshNonce]);
@@ -318,7 +321,9 @@ export function AgpWorkspace() {
           </CardContent>
         </Card>
 
-        {ai ? <AiInsightSummary data={ai} title="AI KPI Insights" /> : <div className="h-[320px] animate-pulse rounded-xl bg-slate-100" />}
+        <AsyncBoundary loading={!ai && !aiError} error={aiError} onRetry={() => void load()} errorMessage="Couldn't generate the KPI insights." skeleton={<AiCardSkeleton />}>
+          {ai ? <AiInsightSummary data={ai} title="AI KPI Insights" /> : <span />}
+        </AsyncBoundary>
       </div>
 
       {/* Peer Communities (Section 11.1 §6 · Louvain over advisor embeddings) */}

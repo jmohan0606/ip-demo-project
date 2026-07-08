@@ -8,6 +8,7 @@ import { resolveScope } from "@/lib/api/hierarchy";
 import { runAgenticWorkflow, type AgenticRun } from "@/lib/api/agentic";
 import { fetchAdapterStatus, type AdapterStatus } from "@/lib/api/admin";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import { LoadingState, ErrorState } from "@/components/patterns/async-state";
 import { AgentSystemGraph } from "@/components/observability/agent-system-graph";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,7 @@ export function SystemObservabilityWorkspace() {
   const [run, setRun] = useState<AgenticRun | null>(null);
   const [adapters, setAdapters] = useState<AdapterStatus | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdapterStatus().then(setAdapters).catch(() => setAdapters(null));
@@ -76,9 +78,12 @@ export function SystemObservabilityWorkspace() {
   const execute = useCallback(async () => {
     const seq = ++runSeq.current;
     setBusy(true);
+    setError(null);
     try {
       const result = await runAgenticWorkflow(question.trim() || DEFAULT_QUESTION, advisorId);
       if (seq === runSeq.current) setRun(result);
+    } catch (e) {
+      if (seq === runSeq.current) setError(e instanceof Error ? e.message : "Workflow run failed");
     } finally {
       if (seq === runSeq.current) setBusy(false);
     }
@@ -158,6 +163,12 @@ export function SystemObservabilityWorkspace() {
           </div>
         </CardContent>
       </Card>
+
+      {error && !run ? (
+        <ErrorState message="The agent workflow couldn't complete. Check the backend is running, then retry." onRetry={() => void execute()} />
+      ) : busy && !run ? (
+        <LoadingState label="Running agent workflow — orchestrating agents, gathering evidence…" />
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiStatCard label="Final Agent" value={run ? run.final_agent.replace(/_/g, " ") : "—"} />

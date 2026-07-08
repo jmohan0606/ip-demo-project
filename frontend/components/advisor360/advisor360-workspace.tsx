@@ -7,6 +7,7 @@ import { AccountMixDonut, type AccountMixSlice } from "@/components/charts/accou
 import { AdvisorRevenueTrend, type AdvisorTrendPoint } from "@/components/charts/advisor-revenue-trend";
 import { AiCoachingCard, type AiCoachingData } from "@/components/patterns/ai-coaching-card";
 import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-insight-summary";
+import { AsyncBoundary, AiCardSkeleton } from "@/components/patterns/async-state";
 import { useShellContext } from "@/components/layout/shell-context";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
@@ -67,6 +68,7 @@ export function Advisor360Workspace() {
   const [advisorId, setAdvisorId] = useState("A001");
   const [data, setData] = useState<Advisor360Response | null>(null);
   const [ai, setAi] = useState<AiResponse | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [churn, setChurn] = useState<ChurnResponse | null>(null);
   const [referral, setReferral] = useState<{ available: boolean; tier?: string; percentile?: number; degree?: number; summary?: string } | null>(null);
   const [review, setReview] = useState<{ available: boolean; disclaimer?: string; false_positive_note?: string; flagged?: Array<{ household_id: string; review_reason: string; top_signals: Array<{ signal: string; value: number }> }> } | null>(null);
@@ -93,11 +95,12 @@ export function Advisor360Workspace() {
   const load = useCallback(async () => {
     setBusy(true);
     setAi(null);
+    setAiError(null);
     setChurn(null);
     try {
       setData(await apiClient.get<Advisor360Response>(`/advisor/360/${advisorId}`));
       // AI card loads independently so the page paints without waiting on generation.
-      apiClient.get<AiResponse>(`/advisor/360/${advisorId}/ai`).then(setAi).catch(() => setAi(null));
+      apiClient.get<AiResponse>(`/advisor/360/${advisorId}/ai`).then(setAi).catch((e) => setAiError(e instanceof Error ? e.message : "Failed to generate insight"));
       // Household churn (Section 11.1) — real per-household model output when MODEL_CLIENT_MODE=real.
       apiClient.get<ChurnResponse>(`/predictions/household-churn/${advisorId}`).then(setChurn).catch(() => setChurn(null));
       // Referral Network Position (Section 11.1 §6 — PageRank over the real referral/book graph).
@@ -171,8 +174,12 @@ export function Advisor360Workspace() {
 
       {/* AI Insight Summary + AI Coaching Card (structured, per-advisor) */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {ai ? <AiInsightSummary data={ai.insight} /> : <div className="h-[320px] animate-pulse rounded-xl bg-slate-100" />}
-        {ai ? <AiCoachingCard data={ai.coaching} /> : <div className="h-[320px] animate-pulse rounded-xl bg-slate-100" />}
+        <AsyncBoundary loading={!ai && !aiError} error={aiError} onRetry={() => void load()} errorMessage="Couldn't generate the AI insight." skeleton={<AiCardSkeleton />}>
+          {ai ? <AiInsightSummary data={ai.insight} /> : <span />}
+        </AsyncBoundary>
+        <AsyncBoundary loading={!ai && !aiError} error={aiError} onRetry={() => void load()} errorMessage="Couldn't generate the coaching card." skeleton={<AiCardSkeleton />}>
+          {ai ? <AiCoachingCard data={ai.coaching} /> : <span />}
+        </AsyncBoundary>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

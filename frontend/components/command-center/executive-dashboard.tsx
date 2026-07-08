@@ -23,6 +23,7 @@ import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { PageHeader } from "@/components/patterns/page-header";
 import { AiInsightSummary, type AiInsightData } from "@/components/patterns/ai-insight-summary";
 import { AiCoachingCard, type AiCoachingData } from "@/components/patterns/ai-coaching-card";
+import { AsyncBoundary, AiCardSkeleton } from "@/components/patterns/async-state";
 import { DeltaIndicator } from "@/components/patterns/delta-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -184,6 +185,7 @@ export function ExecutiveDashboard() {
   const [coaching, setCoaching] = useState<{ insight: AiInsightData; coaching: AiCoachingData } | null>(null);
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   // Guards against stale-response races: a slow in-flight response for a PREVIOUS
   // scope must never overwrite the current scope's data after a filter change.
@@ -226,6 +228,7 @@ export function ExecutiveDashboard() {
   const loadAi = useCallback(async () => {
     const seq = ++aiSeq.current;
     setAiBusy(true);
+    setAiError(null);
     setAi(null);
     setCoaching(null);
     try {
@@ -244,8 +247,9 @@ export function ExecutiveDashboard() {
         if (seq !== aiSeq.current) return;
         setAi(scopeInsight);
       }
-    } catch {
-      /* AI card stays hidden on failure — dashboard numbers already render. */
+    } catch (e) {
+      /* Dashboard numbers already render; surface a retry for the AI section only. */
+      if (seq === aiSeq.current) setAiError(e instanceof Error ? e.message : "Failed to generate insight");
     } finally {
       if (seq === aiSeq.current) setAiBusy(false);
     }
@@ -300,14 +304,32 @@ export function ExecutiveDashboard() {
 
       {/* AI Insight Summary (grounded in this scope+period) + AI Coaching (Advisor scope only) */}
       <div className={`grid gap-3 ${isAdvisor ? "xl:grid-cols-2" : ""}`}>
-        {insightData ? (
-          <AiInsightSummary data={insightData} title={`AI Insight Summary — ${entityLabel(shell.scopeId)}`} />
-        ) : (
-          <div className="flex h-[220px] items-center justify-center rounded-xl border bg-white text-[12px] text-muted-foreground">
-            {aiBusy ? "Generating scope insight…" : "AI insight unavailable"}
-          </div>
+        <AsyncBoundary
+          loading={aiBusy && !insightData}
+          error={aiError && !insightData ? aiError : null}
+          onRetry={() => void loadAi()}
+          errorMessage="Couldn't generate the scope insight."
+          skeleton={<AiCardSkeleton />}
+        >
+          {insightData ? (
+            <AiInsightSummary data={insightData} title={`AI Insight Summary — ${entityLabel(shell.scopeId)}`} />
+          ) : (
+            <div className="flex h-[220px] items-center justify-center rounded-xl border bg-white text-[12px] text-muted-foreground">
+              AI insight unavailable
+            </div>
+          )}
+        </AsyncBoundary>
+        {isAdvisor && (
+          <AsyncBoundary
+            loading={aiBusy && !coaching?.coaching}
+            error={aiError && !coaching?.coaching ? aiError : null}
+            onRetry={() => void loadAi()}
+            errorMessage="Couldn't generate the coaching card."
+            skeleton={<AiCardSkeleton />}
+          >
+            {coaching?.coaching ? <AiCoachingCard data={coaching.coaching} /> : <span />}
+          </AsyncBoundary>
         )}
-        {isAdvisor && coaching?.coaching && <AiCoachingCard data={coaching.coaching} />}
       </div>
 
       {/* AGP Program Status (non-advisor) */}

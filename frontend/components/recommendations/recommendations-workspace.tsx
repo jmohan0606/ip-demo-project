@@ -9,6 +9,8 @@ import { ImpactTrendChart, type ImpactPoint } from "@/components/charts/impact-t
 import LearningStateShowcase from "@/components/recommendations/learning-state-showcase";
 import { OutcomeLearningPanel } from "@/components/recommendations/outcome-learning-panel";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
+import { AiCardSkeleton, ErrorState } from "@/components/patterns/async-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EvidenceTracePills } from "@/components/patterns/evidence-trace";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { SeverityBadge } from "@/components/patterns/severity-badge";
@@ -286,7 +288,7 @@ export function RecommendationsWorkspace() {
             </div>
           </div>
         ) : (
-          <div className="mt-2 h-[240px] animate-pulse rounded-lg bg-slate-100" />
+          <Skeleton className="mt-2 h-[240px]" />
         )}
       </div>
 
@@ -298,11 +300,16 @@ export function RecommendationsWorkspace() {
           <span className="font-bold uppercase tracking-wide">What changed · </span>{lastEffect}
         </div>
       ) : null}
-      {error ? (
+      {error && recs.length === 0 ? (
+        <ErrorState message="Couldn't generate recommendations for this advisor." onRetry={() => void generate()} />
+      ) : error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>
       ) : null}
 
       <div className="space-y-3">
+        {busy && recs.length === 0 && !error
+          ? Array.from({ length: 3 }).map((_, i) => <AiCardSkeleton key={i} />)
+          : null}
         {recs.map((rec, index) => (
           <div key={rec.recommendation_id} data-story-target={index === 0 ? "rec-card-top" : undefined}>
           <AiContentCard

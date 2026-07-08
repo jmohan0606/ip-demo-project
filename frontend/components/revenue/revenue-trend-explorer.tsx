@@ -17,6 +17,8 @@ import { apiClient } from "@/lib/api/client";
 import { AiContentCard } from "@/components/patterns/ai-content-card";
 import { DeltaIndicator } from "@/components/patterns/delta-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/patterns/async-state";
 import { chartSeries, colors, type } from "@/styles/tokens";
 import { formatCurrency } from "@/lib/utils";
 
@@ -172,14 +174,12 @@ export default function RevenueTrendExplorer() {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {error}
-          </div>
+        {error && !data ? (
+          <ErrorState message="Couldn't load the revenue trend." onRetry={() => void load()} />
         ) : busy && !data ? (
           <div className="space-y-3">
-            <div className="h-[320px] animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/60" />
-            <div className="h-24 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800/60" />
+            <Skeleton className="h-[320px] rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
           </div>
         ) : !data || data.periods.length === 0 ? (
           <div className="rounded-xl border border-dashed p-8 text-center text-[12px] text-muted-foreground" style={{ borderColor: colors.surface.border }}>

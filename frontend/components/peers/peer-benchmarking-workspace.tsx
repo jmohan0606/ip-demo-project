@@ -7,6 +7,8 @@ import { apiClient } from "@/lib/api/client";
 import { resolveScope } from "@/lib/api/hierarchy";
 import { fetchPeerBenchmark, type PeerBenchmark } from "@/lib/api/peers";
 import { PeerRadar } from "@/components/charts/peer-radar";
+import { AsyncBoundary } from "@/components/patterns/async-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,8 @@ export function PeerBenchmarkingWorkspace() {
   const [advisorId, setAdvisorId] = useState("A001");
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
   const [data, setData] = useState<PeerBenchmark | null>(null);
+  const [busy, setBusy] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     apiClient
@@ -37,7 +41,15 @@ export function PeerBenchmarkingWorkspace() {
     // benchmark against the peer group defined by the current (rollup) scope
     const peerScope = shell.scopeType === "Advisor" ? "FIRM" : shell.scopeType.toUpperCase();
     const peerScopeId = shell.scopeType === "Advisor" ? "F001" : shell.scopeId;
-    setData(await fetchPeerBenchmark(advisorId, peerScope, peerScopeId));
+    setBusy(true);
+    setError(null);
+    try {
+      setData(await fetchPeerBenchmark(advisorId, peerScope, peerScopeId));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load peer benchmark");
+    } finally {
+      setBusy(false);
+    }
   }, [advisorId, shell.scopeType, shell.scopeId]);
 
   useEffect(() => {
@@ -96,7 +108,15 @@ export function PeerBenchmarkingWorkspace() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3">
-            {data && <PeerRadar data={data.dimensions} advisorName={advisorName} />}
+            <AsyncBoundary
+              loading={busy && !data}
+              error={error && !data ? error : null}
+              onRetry={() => void load()}
+              errorMessage="Couldn't load the peer benchmark."
+              skeleton={<Skeleton className="h-[280px] w-full rounded-xl" />}
+            >
+              {data ? <PeerRadar data={data.dimensions} advisorName={advisorName} /> : null}
+            </AsyncBoundary>
           </CardContent>
         </Card>
 
