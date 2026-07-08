@@ -1216,3 +1216,60 @@ backend (mock mode) + frontend dev server: new page loads, renders the real stac
 bulleted breakdown, no console/page errors; Revenue Analytics reloaded clean with no trace of the
 old section. Screenshots: `docs/qa_screenshots/revenue-trend-explorer-page.png`,
 `docs/qa_screenshots/revenue-analytics-no-trend.png`.
+
+## Client Setup Runbook — summary (2026-07-08)
+
+Created `CLIENT_SETUP_RUNBOOK.md` (top-to-bottom client-machine setup). Answers to the key questions:
+
+1. **Dependency install command (confirmed):** `uv venv` + `uv pip install -e ".[cdao,ml,gds]"`
+   (plus `uv pip install smart_sdk` for the azure fallback). NOT `uv sync` — there is no `uv.lock`
+   (the committed lockfile is `poetry.lock`), and `pyproject.toml` sets `[tool.uv] package = false`.
+   `[cdao]` pulls `cdaosdk-all[openai]` (PRIMARY LLM + embeddings, pinned to the `artifacts` index);
+   `[ml,gds]` are optional (guarded imports fall back to deterministic scorers). Frontend:
+   `cd frontend && npm install`.
+
+2. **ALTER VERTEX EMBEDDING + GDS install scripts:** NO — they do not exist anywhere in `tigergraph/`
+   or `docs/tigergraph_foundation/` (no `ADD EMBEDDING`/`EMBEDDING(DIMENSION`/HNSW/`Featurizer`/
+   PageRank/Louvain `.gsql`). The `phx_dm_embedding` vertex stores only metadata
+   (`dimensions INT`, `vector_preview STRING`). Handled honestly: documented that native vectors +
+   graph algorithms are CODE-driven at runtime — `app/ml/vector_client.py`
+   (`VECTOR_CLIENT_MODE=local` default; `tigergraph` issues EMBEDDING/HNSW GSQL at runtime only if
+   supported) and `app/ml/graph_algorithms.py` (networkx PageRank/Louvain). Empirical probe:
+   `scripts/check_tg_vector_support.sh`. Referenced NO nonexistent scripts; did not create fake DDL.
+
+3. **ML training scripts, run order** (all under `scripts/train/`, run from repo root with
+   `PYTHONPATH=.`): 1) `train_revenue_decline.py`, 2) `train_household_churn.py`,
+   3) `train_agp_off_track.py`, 4) `train_revenue_forecast.py`,
+   5) `train_graphsage_embeddings.py` (needs torch-geometric), 6) `train_anomaly_detector.py`,
+   7) `train_fl_finetune.py`. Artifacts → `models/artifacts/*.joblib|*.pt`, registry →
+   `models/registry.json`. GNN fallback: steps 5 & 7 skip if torch-geometric/pyTigerGraph[gds]
+   absent (falls back to local PyG / deterministic projection).
+   **Orchestrator:** `scripts/train/run_all.py` existed but covered only the 3 tabular classifiers,
+   so I CREATED `scripts/train/run_all.sh` — runs all 7 in order with PYTHONPATH + per-step
+   time-box + skip-on-missing-dep.
+
+4. **Combined launcher:** none existed (only `scripts/run_api.sh` + `npm run dev`). CREATED
+   `scripts/run_all.sh` — starts backend :8000 + frontend :3000 together (`uv run uvicorn` when uv
+   present, else `python -m uvicorn`; ports overridable via API_PORT/UI_PORT). Tested working.
+
+5. **Verified in codespace vs verify-live:**
+   - Verified in codespace: app import/boot (mock), `/health/runtime` + `/graph-access/health` +
+     `/env-health` (green) + 146-route count; `check_client_deps.py` (40/44, exit 0 vs public PyPI)
+     and `check_client_npm.py` (28/28, exit 0); `train_revenue_decline.py` end-to-end (roc_auc
+     0.7755 PASS, A001 anchor OK); `scripts/run_all.sh` (backend 200/frontend 307);
+     `scripts/train/run_all.sh` through step 1; ingestion endpoints present.
+   - Must verify live on client: `uv venv`/`uv pip install` (uv NOT installed in codespace);
+     `smart_sdk`/`cdao*` install + pre-checks against the CLIENT artifactory; TigerGraph
+     connect/`CREATE SECRET`/schema+query install/live load; `check_tg_vector_support.sh` (needs TG
+     container); cdao PCL AWS login + real LLM/embedding health greens; MCP Tier-1 checklist;
+     `env-health` all-green under real modes.
+
+6. **Gaps found + handling:** (a) no combined launcher → created `scripts/run_all.sh`; (b) partial
+   train-all (`run_all.py` = 3 of 7) → created `scripts/train/run_all.sh`; (c) no EMBEDDING/GDS DDL
+   scripts → documented as code-driven/optional, invented nothing; (d) two TigerGraph layouts
+   (`docs/tigergraph_foundation/` vs repo-root `tigergraph/`) → named the foundation package
+   authoritative, told reader not to run both; (e) `uv` absent in codespace → all `uv` lines tagged
+   not-testable, verified the `python -m uvicorn` fallback the launcher uses; (f) training scripts
+   need `PYTHONPATH=.` (else `ModuleNotFoundError: app`) → documented + baked into the orchestrator.
+
+Committed + pushed as `018ac8c` (CLIENT_SETUP_RUNBOOK.md + both scripts). CLAUDE.md untouched.
