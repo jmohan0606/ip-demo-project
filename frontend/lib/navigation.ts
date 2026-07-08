@@ -19,6 +19,15 @@ export const navigationItems: NavigationItem[] = [
     group: "Executive"
   },
   {
+    id: "revenue-trend-explorer",
+    label: "Revenue Trend Explorer",
+    description: "Revenue per period sliced by a selectable dimension, with AI-summarized drivers per period.",
+    href: "/revenue-trend-explorer",
+    iconName: "BarChart3",
+    group: "Executive",
+    status: "new"
+  },
+  {
     id: "business-impact",
     label: "Business Impact & ROI",
     description: "Cumulative, recorded platform impact: revenue driven, recommendations acted on, acceptance and completion rates — from the real impact ledger.",

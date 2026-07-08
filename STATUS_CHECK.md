@@ -1189,3 +1189,30 @@ one-time port warning): all API calls hit the public 8000 URL with 200s (`/advis
 `/adapters/status`, `/hierarchy/tree`, `/agentic-ai/topology`, ...) and a live agentic run completed
 (run banner present). Screenshot: `docs/qa_screenshots/agents-public-url-browser.png`.
 URL to open: https://effective-goldfish-9jv9xpx9jx4cp969-3000.app.github.dev/agents
+
+## Session 19 — Revenue Trend Explorer moved to its own page (2026-07-08)
+
+Revenue Analytics had grown too tall with the full Revenue Trend Explorer (bar chart + AI period
+summaries + quarter-by-quarter breakdown) stacked at the bottom. Moved the entire feature —
+frontend surface only, no backend/logic changes — to its own dedicated page:
+
+- New nav entry `revenue-trend-explorer` (Executive group, "New" badge) → `/revenue-trend-explorer`.
+  Added `BarChart3` to the sidebar icon map/import.
+- New `frontend/app/(dashboard)/revenue-trend-explorer/page.tsx` rendering a new
+  `RevenueTrendExplorerWorkspace` wrapper (`frontend/components/revenue/revenue-trend-explorer-workspace.tsx`)
+  — a thin page-header (badge/title/scope line) around the existing, untouched
+  `frontend/components/revenue/revenue-trend-explorer.tsx` component (own controls, own
+  `/revenue/trend` fetch, own AI-generated driver summaries — nothing rebuilt).
+- Removed the `<RevenueTrendExplorer />` mount + its import from
+  `frontend/components/revenue/revenue-analytics-workspace.tsx`; page now ends cleanly at the
+  Revenue by Division chart + evidence card, no gap/broken layout.
+- Backend untouched — same `/revenue/trend` endpoint, same service logic, only the frontend
+  mount point moved.
+
+Verified: `npx tsc --noEmit` clean; `npm run build` succeeds (new route `/revenue-trend-explorer`
+7.24 kB, `/revenue-analytics` unaffected functionally). Real Playwright run against the running
+backend (mock mode) + frontend dev server: new page loads, renders the real stacked bar chart
+(13 quarters, Division slices), real AI-generated "Period Drivers" card + quarter-by-quarter
+bulleted breakdown, no console/page errors; Revenue Analytics reloaded clean with no trace of the
+old section. Screenshots: `docs/qa_screenshots/revenue-trend-explorer-page.png`,
+`docs/qa_screenshots/revenue-analytics-no-trend.png`.
