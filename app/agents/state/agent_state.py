@@ -46,6 +46,10 @@ class AgenticResponse(BaseModel):
     compliance_review: dict[str, Any] | None = None
     coaching_card: dict[str, Any] | None = None
     confidence: float = 0.80
+    confidence_breakdown: dict[str, Any] | None = None
+    route_plan: list[str] = Field(default_factory=list)
+    graph_evidence: dict[str, Any] | None = None
+    errors: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class AgentWorkflowState(BaseModel):

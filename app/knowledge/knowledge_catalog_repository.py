@@ -70,3 +70,34 @@ class KnowledgeCatalogRepository:
 
     def list_documents(self) -> list[dict]:
         return self.db.query("SELECT * FROM phx_dm_knowledge_document_catalog ORDER BY uploaded_at DESC")
+
+    def find_document(self, document_name: str, content_hash: str) -> KnowledgeDocument | None:
+        """Return the already-indexed document matching name + content sha256, if any
+        (ingestion idempotency). Rows indexed before hashes were recorded match on
+        name alone — the sample corpus is keyed by unique file names."""
+        rows = self.db.query(
+            "SELECT * FROM phx_dm_knowledge_document_catalog WHERE document_name = ? ORDER BY uploaded_at ASC",
+            (document_name,),
+        )
+        for row in rows:
+            meta = json.loads(row.get("metadata_json") or "{}")
+            stored_hash = meta.get("content_hash")
+            if stored_hash is None or stored_hash == content_hash:
+                return KnowledgeDocument(
+                    document_id=row["document_id"], document_name=row["document_name"],
+                    document_type=row.get("document_type") or "Other",
+                    document_category=row.get("document_category") or "General",
+                    source_path=row.get("source_path") or "", version=row.get("version") or "1.0",
+                    status=row.get("status") or "indexed",
+                )
+        return None
+
+    def chunk_ids_for_document(self, document_id: str) -> list[str]:
+        return [r["chunk_id"] for r in self.db.query(
+            "SELECT chunk_id FROM phx_dm_knowledge_chunk_catalog WHERE document_id = ?", (document_id,))]
+
+    def delete_document(self, document_id: str) -> None:
+        with self.db.connect() as conn:
+            conn.execute("DELETE FROM phx_dm_knowledge_chunk_catalog WHERE document_id = ?", (document_id,))
+            conn.execute("DELETE FROM phx_dm_knowledge_document_catalog WHERE document_id = ?", (document_id,))
+            conn.commit()

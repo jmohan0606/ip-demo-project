@@ -15,7 +15,12 @@ from app.services.knowledge_management_service import KnowledgeManagementService
 class AgentToolbox:
     def graph_health(self) -> dict[str, Any]: return GraphAccessService().health()
     def graph_query_advisor_evidence(self, advisor_id: str) -> dict[str, Any]:
-        return GraphAccessService().run_installed_query('phx_dm_getInsightEvidenceForAdvisor', {'advisorId': advisor_id, 'advisor_id': advisor_id})
+        # Real advisor-neighborhood traversal (GQ get_advisor_360) through the tiered
+        # GraphClient backed by the verified foundation store — NOT the legacy
+        # GraphAccessService mock, whose sample_data CSVs use a stale id scheme
+        # (ADV0001-style) and return all-zero metrics for every real advisor.
+        from app.graph.client import get_graph_client
+        return get_graph_client().run_query('get_advisor_360', {'advisor_id': advisor_id})
     def retrieve_context(self, scope_type: str, scope_id: str, question: str) -> dict[str, Any]:
         scope = MemoryScopeType.ADVISOR if scope_type == 'Advisor' else MemoryScopeType(scope_type)
         return ContextService().build_context_package(MemoryRetrievalRequest(scope_type=scope, scope_id=scope_id, query=question, limit=10)).model_dump()

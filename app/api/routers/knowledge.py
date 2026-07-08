@@ -21,6 +21,11 @@ def ingest_document(request: KnowledgeIngestionRequest):
 def ingest_samples():
     return ok(data=[r.model_dump() for r in KnowledgeManagementService().ingest_sample_knowledge()])
 
+@router.post("/dedupe")
+def dedupe_corpus():
+    """Remove duplicate documents (same name) from catalog + vector index, keeping the earliest."""
+    return ok(data=KnowledgeManagementService().dedupe_corpus())
+
 @router.post("/search")
 def search(request: KnowledgeSearchRequest):
     return ok(data=KnowledgeManagementService().search(request).model_dump())

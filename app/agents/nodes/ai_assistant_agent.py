@@ -58,10 +58,41 @@ class AiAssistantAgent(BaseAgent):
             self.complete_task(task, {"answer_length": len(answer), "authored_by": "fallback"})
 
         state.answer = answer
-        state.confidence = 0.85 if state.evidence else 0.55
+        state.confidence = self._compute_confidence(state, task.result.get("authored_by") == "llm")
         state.current_agent = self.name
         state.tasks.append(task)
         return state
+
+    @staticmethod
+    def _compute_confidence(state, llm_authored: bool) -> float:
+        """Composite run confidence from measurable run properties — replaces the
+        earlier hardcoded 0.85/0.55. Components (each 0..1, weights sum to 1):
+        agent task success rate (0.35), evidence coverage vs a 6-item target
+        (0.30), whether the answer was LLM-authored vs deterministic fallback
+        (0.15), and the mean model confidence of any predictions produced
+        (0.20; neutral 0.70 when the route ran no prediction model). The
+        breakdown is persisted to state.context for the observability UI."""
+        tasks = [t for t in state.tasks if t.agent_name != 'supervisor']
+        task_success = (sum(1 for t in tasks if t.status == 'completed') / len(tasks)) if tasks else 0.0
+        evidence_coverage = min(1.0, len(state.evidence) / 6)
+        pred_confs = [float(p['confidence']) for p in state.predictions
+                      if isinstance(p.get('confidence'), (int, float))]
+        model_confidence = sum(pred_confs) / len(pred_confs) if pred_confs else 0.70
+        components = {
+            'task_success_rate': round(task_success, 4),
+            'evidence_coverage': round(evidence_coverage, 4),
+            'llm_authored': llm_authored,
+            'model_confidence': round(model_confidence, 4),
+            'model_confidence_source': f'mean of {len(pred_confs)} prediction(s)' if pred_confs else 'neutral prior (no prediction in route)',
+        }
+        confidence = round(
+            0.35 * task_success + 0.30 * evidence_coverage
+            + 0.15 * (1.0 if llm_authored else 0.4) + 0.20 * model_confidence, 4)
+        state.context['confidence_breakdown'] = {
+            'confidence': confidence, 'components': components,
+            'formula': '0.35*task_success + 0.30*evidence_coverage + 0.15*llm_authored + 0.20*model_confidence',
+        }
+        return confidence
 
     @staticmethod
     def _fallback_text(state, rec, opp, pred) -> str:

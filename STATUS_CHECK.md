@@ -1048,3 +1048,27 @@ check_client_deps note was updated.
 3. Real computed confidence (replace the 0.85/0.55 hardcode) with the formula exposed.
 4. Adapter cards show the ACTIVE tier that served the run, not just configured mode.
 5. Knowledge index dedupe (10× duplicate ingestion) + retrieval-side dedupe guard.
+
+## Session 18 — PART 1: static/fake sections rewired to real per-run data (2026-07-08)
+
+**Fixes, each verified with real re-runs (A001 revenue question `agentrun_20260708052549_d3794679`, A020 coaching+compliance question `agentrun_20260708052657_15ee61da`):**
+
+1. **TigerGraph Graph Access evidence — now real traversal data.** `graph_query_advisor_evidence`
+   rewired from the stale `GraphAccessService`/`sample_data` mock (ADV0001 ids, all-zero metrics)
+   to `get_graph_client().run_query('get_advisor_360')` — the tiered client over the verified
+   156,247-row foundation store. Evidence card now renders the ACTUAL neighborhood:
+   - A001: "get_advisor_360 traversal for A001 — Back Bay Office · Boston Metro: 6 households, 12 accounts, 5 CRM activities..."
+   - A020: "get_advisor_360 traversal for Riley Adams (A020) — Scottsdale Office · Phoenix Metro: ..."
+   Title shows the tier that ACTUALLY served ("Advisor neighborhood via tier: mock") — honest, per-dispatch `served_by`.
+   NOTE (honest data caveat): structural counts are identical across advisors BY SEED DESIGN — verified
+   `phx_dm_advisor_serves_household.csv`: 60 advisors × exactly 6 households each. Differentiation is real
+   at name/branch/market/figure level, not count level.
+2. **Opportunity Engine evidence render fixed** — reads `opportunity_type`/`impact_summary` (pipeline's real keys).
+   Re-run proof (A020): "AGP_MILESTONE | 74.8 | AGP off-track risk scored 56.8/100...", "CRM_EXECUTION | 68.1 | $1,050,000 of open CRM pipeline ($642,500 weighted)..." — previously title "Opportunity", content EMPTY.
+3. **Confidence now computed, not hardcoded** — `0.35*task_success + 0.30*evidence_coverage + 0.15*llm_authored + 0.20*model_confidence`,
+   breakdown persisted (`confidence_breakdown`) and shown on the page. Two-run proof: 0.79 (run A, 3 evidence items → coverage 0.5) vs 0.94 (run B, 15 items → coverage 1.0) — values now move with the run.
+4. **Adapter card honesty** — Graph Client card now shows the ACTIVE serving tier ("serving: mock", amber warning badge when configured real but serving mock) alongside the configured mode, from `/adapters/status` `active_tier_name`.
+5. **RAG corpus dedupe** — root cause: `ingest_document` minted a fresh `DOC_<uuid>` per call, no idempotency; repeated ingest-samples calls left every doc ×10 (138 docs). Fixed: sha256 content-hash idempotency guard in ingestion + `dedupe_corpus()` (`POST /knowledge/dedupe`). Executed: **138 → 15 docs (123 duplicates removed from catalog + Chroma)**. Re-ran ingest-samples: "15 files processed, 15 skipped as duplicates" — idempotent.
+6. `AgenticResponse` extended: `confidence_breakdown`, `route_plan`, `graph_evidence`, `errors` (needed by the page and Part 2's live graph).
+
+Frontend typecheck clean. Backend re-verified live on 0.0.0.0:8000.

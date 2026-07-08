@@ -28,6 +28,21 @@ class KnowledgeManagementService:
             raise ValueError("source_path is required")
         source_path = Path(request.source_path)
         text = self.parser.parse(source_path)
+
+        # Idempotency guard: the same file content under the same name must not index
+        # twice (root cause of the corpus reaching 10 copies of every document —
+        # repeated ingest-samples calls each minted a fresh DOC_<uuid>).
+        import hashlib
+        content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        existing = self.catalog.find_document(source_path.name, content_hash)
+        if existing:
+            return KnowledgeIngestionResult(
+                document=existing, chunks=[], collection_name=request.collection_name,
+                indexed_count=0, status=existing.status,
+                message=f"Skipped duplicate: '{source_path.name}' already indexed as "
+                        f"{existing.document_id} with identical content (sha256 match).",
+            )
+
         document_id = f"DOC_{uuid4().hex[:12]}"
         document = KnowledgeDocument(
             document_id=document_id,
@@ -47,11 +62,33 @@ class KnowledgeManagementService:
         embeddings = self.embedder.embed_many([c.chunk_text for c in chunks]) if chunks else []
         indexed = self.vector_store.upsert_chunks(request.collection_name, chunks, embeddings, document.document_name, document.document_category)
         document.status = KnowledgeDocumentStatus.INDEXED
-        self.catalog.save_document(document, {"collection_name": request.collection_name, "chunk_count": len(chunks), "indexed_count": indexed})
+        self.catalog.save_document(document, {"collection_name": request.collection_name, "chunk_count": len(chunks), "indexed_count": indexed, "content_hash": content_hash})
         for chunk in chunks:
             self.catalog.save_chunk(chunk.chunk_id, chunk.document_id, chunk.chunk_index, chunk.chunk_summary, chunk.metadata)
         graph_link = self.linker.link_document(document, chunks)
         return KnowledgeIngestionResult(document=document, chunks=chunks, collection_name=request.collection_name, indexed_count=indexed, status=document.status, message=f"Document indexed and linked. {graph_link}")
+
+    def dedupe_corpus(self) -> dict:
+        """Remove duplicate documents (same document_name) from the catalog AND the
+        vector index, keeping the earliest copy of each. One-time repair for the
+        pre-idempotency corpus where every sample doc was ingested repeatedly."""
+        import json as _json
+        docs = self.catalog.list_documents()
+        by_name: dict[str, list[dict]] = {}
+        for row in docs:
+            by_name.setdefault(row["document_name"], []).append(row)
+        removed, kept = [], []
+        for name, rows in by_name.items():
+            rows.sort(key=lambda r: r.get("uploaded_at") or "")
+            kept.append(rows[0]["document_id"])
+            for dup in rows[1:]:
+                meta = _json.loads(dup.get("metadata_json") or "{}")
+                collection = meta.get("collection_name") or "iperform_knowledge_base"
+                self.vector_store.delete_document_chunks(collection, dup["document_id"])
+                self.catalog.delete_document(dup["document_id"])
+                removed.append({"document_id": dup["document_id"], "document_name": name})
+        return {"documents_before": len(docs), "documents_kept": len(kept),
+                "duplicates_removed": len(removed), "removed": removed}
 
     def ingest_sample_knowledge(self) -> list[KnowledgeIngestionResult]:
         sample_dir = Path(self.settings.documents_path) / "sample_knowledge"

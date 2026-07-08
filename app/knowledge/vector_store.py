@@ -24,6 +24,10 @@ class KnowledgeVectorStore:
         )
         return len(chunks)
 
+    def delete_document_chunks(self, collection_name: str, document_id: str) -> None:
+        collection = self.factory.get_or_create_collection(collection_name)
+        collection.delete(where={"document_id": document_id})
+
     def search(self, collection_name: str, query_embedding: list[float], query_text: str, top_k: int = 5) -> list[KnowledgeSearchResult]:
         collection = self.factory.get_or_create_collection(collection_name)
         result = collection.query(query_embeddings=[query_embedding], query_texts=[query_text], n_results=top_k)

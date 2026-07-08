@@ -58,11 +58,25 @@ export function SystemObservabilityWorkspace() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [advisorId]);
 
+  // Show the tier that ACTUALLY serves graph requests, not just the configured mode —
+  // configured `tiered:real` can still be served by the mock tier when no live engine
+  // is reachable, and hiding that difference is exactly what a "real" label must not do.
+  const graphActiveTier = adapters?.graph.active_tier_name;
+  const graphServingLive = graphActiveTier != null && graphActiveTier !== "mock";
   const services = adapters
     ? [
-        { icon: <Network className="h-4 w-4" />, name: "Graph Client", mode: adapters.graph.mode, healthy: adapters.graph.healthy, detail: adapters.graph.graph },
-        { icon: <Brain className="h-4 w-4" />, name: "LLM Client", mode: adapters.llm.mode, healthy: true, detail: adapters.llm.model },
-        { icon: <Sparkles className="h-4 w-4" />, name: "Embedding Client", mode: adapters.embedding.mode, healthy: true, detail: `${adapters.embedding.model} · ${adapters.embedding.dimensions}d` },
+        {
+          icon: <Network className="h-4 w-4" />,
+          name: "Graph Client",
+          mode: graphActiveTier ? `serving: ${graphActiveTier}` : adapters.graph.mode,
+          healthy: adapters.graph.healthy,
+          warn: graphActiveTier != null && !graphServingLive && adapters.graph_client_mode !== "mock",
+          detail: `${adapters.graph.graph} · configured ${adapters.graph_client_mode} (${adapters.graph.mode})${
+            adapters.graph.active_tier != null ? ` · active tier ${adapters.graph.active_tier} of 4` : ""
+          }`,
+        },
+        { icon: <Brain className="h-4 w-4" />, name: "LLM Client", mode: adapters.llm.mode, healthy: true, warn: false, detail: adapters.llm.model },
+        { icon: <Sparkles className="h-4 w-4" />, name: "Embedding Client", mode: adapters.embedding.mode, healthy: true, warn: false, detail: `${adapters.embedding.model} · ${adapters.embedding.dimensions}d` },
       ]
     : [];
 
@@ -107,12 +121,26 @@ export function SystemObservabilityWorkspace() {
         <KpiStatCard label="Evidence Items" value={String(run?.evidence.length ?? "—")} />
       </div>
 
+      {run?.confidence_breakdown && (
+        <div className="rounded-xl border bg-background/60 px-3 py-2 text-[11px] text-muted-foreground">
+          <span className="font-semibold text-foreground">How Confidence Was Computed · </span>
+          {run.confidence_breakdown.formula} ={" "}
+          <span className="font-mono">
+            task success {(run.confidence_breakdown.components.task_success_rate * 100).toFixed(0)}% ·
+            evidence coverage {(run.confidence_breakdown.components.evidence_coverage * 100).toFixed(0)}% ·
+            answer {run.confidence_breakdown.components.llm_authored ? "LLM-authored" : "deterministic fallback"} ·
+            model confidence {(run.confidence_breakdown.components.model_confidence * 100).toFixed(0)}%
+            ({run.confidence_breakdown.components.model_confidence_source})
+          </span>
+        </div>
+      )}
+
       <div className="grid gap-3 xl:grid-cols-3">
         {services.map((s) => (
           <Card key={s.name}>
             <CardHeader className="flex flex-row items-center justify-between p-3">
               <CardTitle className="flex items-center gap-2 text-[13px]">{s.icon} {s.name}</CardTitle>
-              <Badge variant={s.healthy ? "success" : "warning"}>{s.mode}</Badge>
+              <Badge variant={s.warn ? "warning" : s.healthy ? "success" : "destructive"}>{s.mode}</Badge>
             </CardHeader>
             <CardContent className="p-3 text-[12px] text-muted-foreground">{s.detail}</CardContent>
           </Card>

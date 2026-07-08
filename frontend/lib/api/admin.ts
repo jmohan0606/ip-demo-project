@@ -6,6 +6,9 @@ export interface AdapterStatus {
     healthy: boolean;
     mode: string;
     graph: string;
+    active_tier?: number;
+    active_tier_name?: string;
+    tiers?: Array<{ tier: number; name: string; healthy?: boolean; error?: string }>;
     load_report: {
       vertex_types: number;
       edge_types: number;
