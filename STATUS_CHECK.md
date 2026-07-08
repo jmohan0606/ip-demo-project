@@ -1305,3 +1305,58 @@ task's "132 edges" reflects the slightly-stale `schema_catalog.json`, which is m
 count. Documented in `CLIENT_SETUP_RUNBOOK.md` new §6.5 "Reset / rebuild the schema". 🔶 GSQL was
 STRUCTURALLY validated only — not executed (no reachable TigerGraph in the codespace); verify live on
 the client machine / a real TigerGraph.
+
+## CLAUDE.md consistency update — Section 15 added (2026-07-08)
+
+Comprehensive, additive consistency pass on `CLAUDE.md` to reflect all post-Section-14 work.
+Grounded entirely in the repo + docs (`CLIENT_SETUP_RUNBOOK.md`, `CLIENT_ENV_SETUP.md`,
+`SMARTSDK_REFERENCE.md`, `TIGERGRAPH_AUDIT.md`, `DATABASES.md`, `GRAPH_ML_AND_GDS.md`,
+`ARCHITECTURE_OVERVIEW.md`, `PROGRESS.md`, this file, `git log`) + direct code verification.
+Commit pushed to `origin/main`.
+
+### 1. Sections added / updated
+- **ADDED Section 15 "Client-Environment Pre-Wiring & Production Hardening (post-Section-14)"**,
+  18 subsections:
+  - 15.1 adapter mode matrix (build-box → client) incl. `STATE_STORE_MODE` / `LOG_SINK`
+  - 15.2 cdao OpenAI LLM adapter (PRIMARY) · 15.3 SmartSDK `azure` secondary
+  - 15.4 MCP-first 4-tier cascade (MCP→pyTigerGraph→RESTPP→Mock)
+  - 15.5 TigerGraph source-of-truth (foundation authoritative; root `tigergraph/` reference-only) +
+    `99_drop_all.gsql` + 132-vs-133 edge reconciliation
+  - 15.6 Data Ingestion "Run All" full load (192 entities / 156,247 rows)
+  - 15.7 Connection & Environment Health screen
+  - 15.8 StateRepository (TG-authoritative + SQLite fallback; all 4 domains migrated)
+  - 15.9 guardrails (input/output, chat + agentic) · 15.10 graph relational reasoning (canonical
+    `phx_dm_reasoning_trace`) · 15.11 Agent Orchestration real-audit + live agent graph
+  - 15.12 Revenue Trend Explorer as its own page · 15.13 honest graph-ML/GDS reality
+  - 15.14 pyproject alignment + dependency pre-check · 15.15 structured logging (CloudWatch-ready)
+  - 15.16 runbook + `run_all` launchers + UX polish · 15.17 anchored figures · 15.18 client hand-off
+- **UPDATED Section 14**: added a reconciliation note (default LLM path is now cdao PRIMARY, not
+  Claude) pointing to 15.2 — Section 14 text itself left intact.
+
+### 2. Inconsistencies found & how reconciled
+- **A001 anchor $387,293.22 vs $437,293.22** — the $437,293.22 seen in Session-18 agent-run
+  screenshots was NOT adopted; the training-script anchor assertion (`anchor check OK — A001
+  revenue_ltm=387293.22`) + full feature lineage in PROGRESS.md confirm **$387,293.22** as canonical.
+- **Edge count 132 vs 133** — loaded/validated = 132; `99_drop_all.gsql` header = 133 forward
+  (includes `phx_dm_transaction_from_recommendation`, missing from the stale `schema_catalog.json`).
+  Documented as correct-for-what-each-describes, not a contradiction.
+- **Section 14 default (Claude) vs current cdao PRIMARY** — reconciled via a note, not a deletion.
+- **`state_repository.py` docstring stale** ("feedback/impact/status being migrated") vs PROGRESS
+  Session 14 (all four domains migrated, commits `0b11e92`/`5c58dd5`/`1dad658`) — documented the
+  accurate state and flagged the stale docstring.
+- **`MIGRATION_TO_CLIENT.md` does not exist** — noted its content lives in the runbook + env-setup
+  docs so it is not recreated as a duplicate.
+
+### 3. Anchored figures & confirmed client values — PRESERVED, NOT ALTERED
+- A001 `revenue_ltm` = **$387,293.22** (also aum_total 10,018,200, MANAGED_MIX 1.08, 144 revenue-
+  neutral transition rows); recommendation-completion propagation **+$47,053.23**; A020 "Riley Adams".
+- Confirmed client values unchanged: TigerGraph host `wh-110ecdf498.svr.us.jpmchase.net`, graph
+  `iperform_insights_coaching_demo`, user `R757680`, TigerGraph 4.2.2, cdao workspace `906313`,
+  `text-embedding-3-large-1`=3072-dim, firm renamed "Chase Wealth Management".
+- Section 15.17 restates these as a preservation guardrail; none were changed.
+
+### 4. No invention
+Every statement in Section 15 is traceable to an existing doc, the repo code (verified the actual
+modules exist: `app/repositories/state_repository.py`, `app/shared/logging.py`, cdao classes in
+`app/llm/client.py`/`embedding_client.py`, `app/graph/tiered_client.py`, `app/guardrails/`, the
+Revenue Trend page), or `git log`. No new features, counts, or figures were fabricated.
