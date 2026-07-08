@@ -1133,3 +1133,19 @@ grounding score), events persisted to `phx_dm_guardrail_event`, full results in 
 - Verified: `docs/qa_screenshots/agents-runner-textarea.png` (new runner, placeholder visible) and
   the full two-run + guardrail-block E2E script re-ran green against the new textarea
   (agents-runA/B/C screenshots refreshed).
+
+## Session 18 — Browser-access fix (networking, 2026-07-08)
+
+Diagnosis (both servers were actually fine — backend bound 0.0.0.0:8000, frontend *:3000, CORS
+regex for *.app.github.dev already present). Two real problems:
+1. Ports 3000/8000 were **private** in the Codespaces Ports panel (public 8000 URL 302-redirected
+   to GitHub auth → browser fetches fail). Fixed: `gh codespace ports visibility 8000:public 3000:public`.
+2. The running frontend dev server had been started with `NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000`
+   (the loopback override used for internal Playwright verification) — an external browser can't
+   reach that. Fixed: restarted `npm run dev` clean so it uses `.env.local`'s public 8000 URL.
+
+Verified through the REAL browser path (headless Chromium on the PUBLIC 3000 URL, through GitHub's
+one-time port warning): all API calls hit the public 8000 URL with 200s (`/advisor/list`,
+`/adapters/status`, `/hierarchy/tree`, `/agentic-ai/topology`, ...) and a live agentic run completed
+(run banner present). Screenshot: `docs/qa_screenshots/agents-public-url-browser.png`.
+URL to open: https://effective-goldfish-9jv9xpx9jx4cp969-3000.app.github.dev/agents
