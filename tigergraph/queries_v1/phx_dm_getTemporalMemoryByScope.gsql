@@ -1,8 +1,0 @@
-USE GRAPH iperform_insights_coaching_demo
-
-CREATE QUERY phx_dm_getTemporalMemoryByScope(STRING scopeType, STRING scopeId, INT limitCount) FOR GRAPH iperform_insights_coaching_demo {
-  Memories = SELECT m FROM phx_dm_context_memory:m
-             WHERE m.scope_type == scopeType AND m.scope_id == scopeId
-             LIMIT limitCount;
-  PRINT Memories AS memories;
-}

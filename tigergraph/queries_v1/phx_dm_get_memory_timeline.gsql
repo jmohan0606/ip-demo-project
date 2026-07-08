@@ -1,8 +1,0 @@
-USE GRAPH iperform_insights_coaching_demo
-
-CREATE QUERY phx_dm_get_memory_timeline(STRING scope_id) FOR GRAPH iperform_insights_coaching_demo {
-  A = SELECT a FROM {phx_dm_advisor.*}:a WHERE a.advisor_id == scope_id;
-  M = SELECT m FROM A:a -(phx_dm_has_memory:e)-> phx_dm_memory:m;
-  C = SELECT c FROM A:a -(phx_dm_has_context_packet:e)-> phx_dm_context_packet:c;
-  PRINT A, M, C;
-}

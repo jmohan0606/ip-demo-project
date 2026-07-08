@@ -1,4 +1,0 @@
-term_id,term_name,definition,formula,example,status,document_id
-TERM001,NNM,Net New Money measures client inflows minus outflows.,Deposits + Transfers In - Withdrawals - Transfers Out,NNM increased when new deposits exceed withdrawals.,Active,DOC002
-TERM002,AUM,Assets Under Management measures total client assets.,Sum of account market values,AUM can change due to inflows and market performance.,Active,DOC001
-TERM003,NCF,Net Cash Flow measures cash movement in and out.,Cash In - Cash Out,Negative NCF can indicate retention risk.,Active,DOC001

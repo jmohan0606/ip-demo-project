@@ -1,8 +1,0 @@
-USE GRAPH iperform_insights_coaching_demo
-
-CREATE QUERY phx_dm_getDataIngestionSummary() FOR GRAPH iperform_insights_coaching_demo {
-  PRINT vertexCount("phx_dm_document") AS document_count;
-  PRINT vertexCount("phx_dm_document_chunk") AS document_chunk_count;
-  PRINT vertexCount("phx_dm_feature_snapshot") AS feature_snapshot_count;
-  PRINT vertexCount("phx_dm_embedding") AS embedding_count;
-}

@@ -1,8 +1,0 @@
-// ============================================================
-// Combined schema runner
-// Recommended: execute files individually in WebShell if needed.
-// 00_create_graph_header.gsql
-// 01_vertices.gsql
-// 02_edges.gsql
-// 03_create_graph.gsql
-// ============================================================
