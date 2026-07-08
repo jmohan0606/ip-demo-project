@@ -1472,3 +1472,346 @@ client's own hands-on testing — no mock anywhere: `GRAPH_CLIENT_MODE=real` (or
 the live TigerGraph container is the intended target) and `LLM_CLIENT_MODE=claude`. Confirm the
 backend actually boots and serves correctly in this configuration before handing it over — this
 is a real environment change, verify it like one, not just flip the env var and assume it works.
+
+> **Superseded default, see Section 15.2:** the client-environment PRIMARY LLM/embedding path is
+> now **cdao OpenAI** (`LLM_CLIENT_MODE=cdao_openai` / `EMBEDDING_CLIENT_MODE=cdao_openai`), not
+> Claude. `LLM_CLIENT_MODE=claude` remains valid for local spot-checks; on the client machine cdao
+> is PRIMARY with `azure` (SmartSDK/Fusion) as the fallback. The verify-before-handover rule above
+> stands unchanged — the Connection & Environment Health screen (Section 15.7) is the gate.
+
+## 15. Client-Environment Pre-Wiring & Production Hardening (post-Section-14) — CURRENT STATE
+
+**Status: all of Sections 9–14 are complete and verified.** This section documents everything
+built AFTER Section 14 to make the app run in the client's (JPMC) real environment and to harden
+it for production hand-off. Nothing here contradicts the pipeline/data facts proven in Sections
+9–13B — it changes *how the app connects to real backends* and *how durable state, logging, and
+graph reasoning are made production-grade*, and adds a small set of new capabilities/pages.
+
+**Companion docs are the field reference (read alongside this section; this section summarizes,
+they carry the exact commands/values):**
+- `CLIENT_SETUP_RUNBOOK.md` — literal top-to-bottom runbook for bringing the app up on the client
+  machine (env → deps pre-check → install → TigerGraph → boot/health → data load → ML training →
+  verify). Every command is real; gaps are flagged ⚠️.
+- `CLIENT_ENV_SETUP.md` — the definitive `.env` variable reference (all adapter modes, cdao,
+  SmartSDK/Fusion, TigerGraph secret, MCP tier).
+- `SMARTSDK_REFERENCE.md` — confirmed-verbatim client values (TigerGraph host/user/graph, Fusion
+  endpoints, SmartSDK `Model(...)` construction) — do not invent signatures, match these.
+- `TIGERGRAPH_AUDIT.md` — source-of-truth audit: `docs/tigergraph_foundation/` is authoritative;
+  root `tigergraph/` is legacy/reference-only.
+- `DATABASES.md` — where every runtime store (two SQLite DBs, Chroma) lives and the StateRepository
+  seam.
+- `GRAPH_ML_AND_GDS.md` — honest inventory of what runs natively-in-TigerGraph vs. in-Python, and
+  the client-machine native-GDS/GNN conversion plan.
+- `ARCHITECTURE_OVERVIEW.md` / `COPILOT_CONTEXT.md` / `TROUBLESHOOTING.md` — adapter map,
+  end-to-end data flow, and symptom→fix table.
+
+Note: `MIGRATION_TO_CLIENT.md` does **not** exist — the migration content lives in
+`CLIENT_SETUP_RUNBOOK.md` + `CLIENT_ENV_SETUP.md`. Do not create it as a duplicate.
+
+### 15.1 The adapter mode matrix (the ONLY thing that changes build-box → client)
+
+All business/prompt/query logic is identical between the build box and the client — only these
+env selectors flip. Every service depends on the adapter *interface*, never an SDK (Section 2
+invariant, still enforced: SDK imports live only inside their implementation class).
+
+| Selector | Build box (here) | Client (JPMC) | Adapter module |
+|----------|------------------|---------------|----------------|
+| `GRAPH_CLIENT_MODE` | `mock` | `real` (or `auto`/`tiered`/`mcp` for the 4-tier cascade) | `app/graph/client.py`, `app/graph/tiered_client.py` |
+| `LLM_CLIENT_MODE` | `mock` / `claude` | `cdao_openai` (PRIMARY) → `azure` (fallback) | `app/llm/client.py` |
+| `EMBEDDING_CLIENT_MODE` | `local` (384-dim) | `cdao_openai` (PRIMARY, 3072-dim) → `azure` (1536) | `app/llm/embedding_client.py` |
+| `MODEL_CLIENT_MODE` | `deterministic` | `real` (trained XGBoost/GNN/forecast artifacts) | `app/ml/client.py` |
+| `VECTOR_CLIENT_MODE` | `local` (SQLite cosine) | `local` or `tigergraph` (native EMBEDDING/HNSW, after probe) | `app/ml/vector_client.py` |
+| `STATE_STORE_MODE` | `tigergraph` (TG-authoritative + SQLite fallback) | `tigergraph` | `app/repositories/state_repository.py` |
+| `LOG_SINK` | `file` | `stdout` (ECS/Fargate → CloudWatch) or `cloudwatch` | `app/shared/logging.py` |
+
+### 15.2 cdao OpenAI adapter — the PRIMARY client LLM **and** embedding path (new)
+
+The developer confirmed cdao works in the client's Jupyter environment — simpler than the SmartSDK
+path — so it is PRIMARY for BOTH LLM and embeddings. One package (`cdaosdk-all[openai]`, pinned to
+the `artifacts` uv index) and **one PCL AWS login** serve both.
+
+- `CdaoOpenAILLMClient` (`app/llm/client.py`, `LLM_CLIENT_MODE=cdao_openai`) — wraps
+  `cdao.openai_azure_client(api_version=CDAO_API_VERSION, workspace_id=CDAO_WORKSPACE_ID)` +
+  `client.chat.completions.create(model=CDAO_MODEL=gpt-4o-2024-08-06, …)` behind the standard
+  `LLMClient` interface. Every agent/chat/insight path consumes it via `get_llm_client().generate()`
+  unchanged; verified consumed end-to-end by the LangGraph path.
+- `CdaoOpenAIEmbeddingClient` (`app/llm/embedding_client.py`, `EMBEDDING_CLIENT_MODE=cdao_openai`) —
+  wraps `client.embeddings.create(model=CDAO_EMBEDDING_MODEL=text-embedding-3-large-1, …)`, verified
+  live returning **3072-dim** vectors. RAG ingestion + similarity consume it via
+  `get_embedding_client().embed()/embed_many()` unchanged.
+- **Shared construction:** both adapters build the same `openai_azure_client` via one helper
+  (`build_cdao_openai_client` in `app/llm/client.py`) — one install, one login, two adapters.
+- **PCL AWS login is a hard prerequisite** — cdao has NO keys in `.env`; it authenticates from the
+  ambient AWS session. Run the login in the same shell that starts the backend; if it expires, cdao
+  calls fail at request time (re-login + restart).
+- **`EMBEDDING_DIM` is load-bearing:** `local`=384, `cdao_openai` (text-embedding-3-large-1)=**3072**,
+  `azure` (text-embedding-3-small)=1536. It must match the active adapter, the Chroma collection,
+  AND the TigerGraph `EMBEDDING` DDL. Switching modes requires rebuilding the Chroma collection
+  (`scripts/ingest_sample_knowledge.py`). The adapter raises loudly on a mismatch — it never
+  silently corrupts the vector space.
+- **Env:** `CDAO_API_VERSION=2024-02-01`, `CDAO_WORKSPACE_ID=906313`, `CDAO_MODEL=gpt-4o-2024-08-06`,
+  `CDAO_EMBEDDING_MODEL=text-embedding-3-large-1`, `EMBEDDING_DIM=3072`.
+
+### 15.3 SmartSDK / Fusion — the SECONDARY (fallback) LLM + embedding path
+
+Used only if cdao is unavailable (`LLM_CLIENT_MODE=azure` / `EMBEDDING_CLIENT_MODE=azure`).
+`AzureOpenAILLMClient` / `AzureOpenAIEmbeddingClient` (`app/llm/`) build a `smart_sdk.models.Model`
+(provider `AZURE_OPENAI`, key/fusion auth confirmed, certificate auth as alternate) and convert via
+`_to_langgraph_model`. Endpoint `https://llm-multitenancy-exp.jpmchase.net`, workspace `906313`,
+`text-embedding-3-small`=1536-dim. `smart_sdk` is intentionally NOT in `pyproject.toml` (not on
+public PyPI) — install it explicitly from the client artifactory only when the azure fallback is
+needed. The LangGraph→SmartSDK swap is isolated to ONE module
+(`app/agents/workflows/langgraph_builder.py`) — only import paths change, signatures are identical.
+
+### 15.4 TigerGraph MCP-first 4-tier cascade (Section 9.4, now verified)
+
+`GRAPH_CLIENT_MODE=auto|tiered|mcp` selects `TieredGraphClient` (`app/graph/tiered_client.py`) with
+automatic per-request fallback in strict order:
+
+**Tier 1 `tigergraph-mcp` → Tier 2 `pyTigerGraph` → Tier 3 RESTPP → Tier 4 Mock.**
+
+- Tier 1 spawns the official `tigergraph-mcp` server as a local **stdio subprocess**
+  (`app/graph/tigergraph_mcp_stdio_client.py`) — no separate MCP server URL to configure; it
+  receives the same `TG_*` env as the pyTigerGraph tier (one `.env`, all four tiers).
+- Every dispatch is logged to a `TierUsageLog` (`app/graph/tier_log.py`): tier number/name,
+  operation, latency, ok/error, and `fallback_from` naming exactly which higher tiers failed first.
+  Each served result envelope carries `served_by` / `served_by_tier`. Failed tiers go on a 60s
+  cooldown (`GRAPH_TIER_COOLDOWN_SECONDS`). Surfaced on the Admin/Data Health adapter-status panel.
+- **Verified in codespace:** tier order, clean per-step fallback, cooldown, tier logging (natural +
+  simulated fallback with real tier logs). **Not testable off the client network:** Tier 1 actually
+  *succeeding* against the live TigerGraph — the live verification checklist is `CLIENT_ENV_SETUP.md`
+  §3b. Auth precedence in the pyTigerGraph tier: `TG_JWT_TOKEN → TG_API_TOKEN → TG_SECRET(getToken)
+  → user/pass`; with only `TG_SECRET` set, `conn.getToken(secret)` is called automatically.
+- Confirmed client connection facts (`SMARTSDK_REFERENCE.md` §9): host
+  `https://wh-110ecdf498.svr.us.jpmchase.net`, TigerGraph **4.2.2**, user `R757680`, graph
+  `iperform_insights_coaching_demo`, `getToken(secret)` + SSL.
+
+### 15.5 TigerGraph source of truth — `docs/tigergraph_foundation/` (audited, authoritative)
+
+`docs/tigergraph_foundation/` is the single source of truth for schema, loading jobs, queries, and
+seed data — validator-PASS and continuously extended through Sections 9–15. The repo-root
+`tigergraph/` folder is the **stale 42-vertex legacy build, now explicitly marked reference-only**
+(`tigergraph/README.md`); it is on NO client-rebuild path. Do not install from it.
+
+**Current verified foundation counts (`docs/tigergraph_foundation/scripts/validate_package.py`,
+STATUS PASS):**
+
+```
+vertices 60 · edges 132 (+132 reverse) · loading jobs 185 · queries 50 (GQ-001..050)
+manifest files 192 · data rows 156,247   (34,070 vertex + 122,177 edge)
+```
+
+- Schema additions that back the intelligence-layer state (all validated present):
+  `phx_dm_learning_weight` (GQ-044), `phx_dm_impact_ledger` + `impact_for_advisor` /
+  `impact_from_recommendation` (GQ-045), `phx_dm_rec_status_transition` +
+  `transition_of_recommendation` (GQ-046), `phx_dm_context_memory` by scope (GQ-047), the canonical
+  `phx_dm_reasoning_trace` + `phx_dm_reasoning_for_advisor` + traversal queries (GQ-048/049/050),
+  and `phx_dm_guardrail_event`.
+- `impact_ledger` and `reasoning_for_advisor` are **intentionally header-only / runtime-accumulated**
+  (seeding them would make `replay_on_boot` inject revenue at boot and silently mutate anchored
+  advisor figures — Section 14 decision, still correct). A rebuild from the foundation alone
+  reproduces the complete current graph, these types intentionally starting empty.
+- The real gate is `docs/tigergraph_foundation/scripts/validate_package.py` — NOT the repo-root
+  `scripts/validate_tigergraph_foundation.py` (that one validates the *legacy* package; documented
+  naming trap, not renamed to avoid breaking references).
+- **Schema teardown/rebuild:** `docs/tigergraph_foundation/tigergraph/schema/99_drop_all.gsql`
+  drops, in TigerGraph-correct order, the graph → **133** forward edge types (reverse edges
+  auto-drop with their forward edge) → **60** vertex types at `USE GLOBAL`. Object lists were
+  derived programmatically from `01_vertices.gsql`/`02_edges.gsql` (not hand-typed). Structurally
+  validated; execute live on the client machine to fully confirm.
+- **Edge count 132 vs 133 — reconciled, not a contradiction:** the validator/loaded/manifest count
+  is **132** edges (what `validate_package.py` reports and what the 156,247-row load covers). The
+  `99_drop_all.gsql` header says **133** forward edges because it drops from the live
+  `01_vertices.gsql`/`02_edges.gsql`, which include one edge (`phx_dm_transaction_from_recommendation`,
+  added in Section 13) not yet reflected in the slightly-stale `schema_catalog.json` the validator
+  reads. Both numbers are correct for what they describe; the graph runs on 132.
+
+### 15.6 Data Ingestion "Run All" — full graph load (Section 3B page, completed)
+
+The **Data Ingestion & Sync** page loads the COMPLETE graph, not a partial subset. Registry is
+generated from the manifest (**192 entities = 60 vertices + 132 edges**), with edge-aware bulk
+ingestion and a "Run All Ingestion" control showing per-entity progress. Endpoints:
+`POST /ingestion/run-all` (background worker, manifest order, batch size 500) and
+`GET /ingestion/run-all/status` (per-entity counts + mismatches). Loads the 192 manifest CSVs from
+`docs/tigergraph_foundation/data/sample/{vertices,edges}/` via real RESTPP upserts. Alternative:
+server-side GSQL loading jobs (`.../loading/run_all_loading_jobs.sh`). The earlier "Capabilities
+Locked" section was removed.
+
+### 15.7 Connection & Environment Health screen (new — the setup gate)
+
+A real active-verification page (`GET /env-health`, plus `GET /graph-access/health` for the tiered
+adapter). It actively checks — each green/red with the real error if red:
+- **TigerGraph** — reachable, auth/SSL, graph present, schema installed, per-vertex-type row counts.
+- **LLM** — a real test generation (latency + response) via the active adapter (cdao/azure).
+- **Embedding** — a real embed + the configured `EMBEDDING_DIM`.
+- **Chroma** — reachable + collection count.
+
+`overall: green` is the gate — do not load data or train models until it is green. Verified in
+codespace under mock modes (`overall: green`; OpenAPI exposes **146** routes). Live greens (cdao,
+real TigerGraph) verify on the client machine.
+
+### 15.8 StateRepository — durable state made TigerGraph-authoritative (new seam)
+
+Per `DATABASES.md`, all durable runtime state (memory, learning/bandit weights, impact ledger,
+recommendation status) was previously hardcoded to SQLite with no adapter seam. `app/repositories/
+state_repository.py` introduces the seam, following the GraphClient/LLMClient pattern:
+
+```
+STATE_STORE_MODE=tigergraph (default) → TigerGraphStateRepository PRIMARY, SQLite FALLBACK
+STATE_STORE_MODE=sqlite               → SqliteStateRepository only (legacy behavior)
+```
+
+Three concrete implementations: `TigerGraphStateRepository` (PRIMARY — writes state as graph
+vertices/edges via the existing `GraphClient`, reads it back by traversal: installed GQ queries in
+real mode, mock equivalents in mock mode), `SqliteStateRepository` (retains the exact prior SQLite
+logic), and `FallbackStateRepository` (graph-authority-then-auto-SQLite, logged, never crashing —
+the safety net for the client env's first run). Access everything via `get_state_repository()`;
+the previously-empty `BaseRepository` stub is now filled.
+
+**All four durable-state domains are migrated onto the seam** (Sessions 13–14): the six memory
+types (`phx_dm_context_memory` by scope, GQ-047, with Procedural now populated organically),
+learning/bandit weights (`phx_dm_learning_weight`, GQ-044), the impact ledger (`phx_dm_impact_ledger`
++ edges, GQ-045), and recommendation status + transitions (`phx_dm_rec_status_transition` +
+`transition_of_recommendation`, GQ-046). Direct `sqlite3`/`SQLiteManager()` calls were removed from
+these durable-state call sites; only the generated-recommendation attribute *cache* remains SQLite
+(a documented operational cache, not authoritative state). This makes TigerGraph the intended
+"memory and intelligence backbone" the Temporal Knowledge Graph architecture calls for, while local
+dev keeps SQLite as the fast fallback. (The `state_repository.py` module docstring still describes
+feedback/impact/status as "being migrated" — that comment is stale; the migration landed per
+`PROGRESS.md` Session 14, commits `0b11e92`/`5c58dd5`/`1dad658`.)
+
+Two gitignored SQLite DBs remain (both auto-recreate on an empty clone via `CREATE TABLE IF NOT
+EXISTS` + reseed scripts): `data/feature_store/iperform_features.db` (active runtime writes,
+feature vectors, GNN/FL/model outputs, ingestion checkpoints) and `data/sqlite/iperform.db`
+(preloaded demo snapshot). Chroma at `data/chroma/` holds document/RAG vectors only.
+
+### 15.9 Guardrail layer — real input/output AI protections (new)
+
+`app/guardrails/` (`client.py` / `service.py` / `models.py`, `GuardrailClient` adapter:
+local regex/heuristic default | SmartSDK `EvaluationService`) is wired on the live AI path — both
+chat and agentic:
+- **INPUT:** PII redaction, prompt-injection / jailbreak detection (BLOCK).
+- **OUTPUT:** PII filter, toxicity, grounding / hallucination check (answers must trace to retrieved
+  evidence).
+Events persist to `phx_dm_guardrail_event` (10 seeded rows load). Verify guardrail *behavior* with
+`LLM_CLIENT_MODE=claude` (real calls), never mock.
+
+### 15.10 Graph relational reasoning — consolidated + wired (extends 11.6b)
+
+The reasoning-trace representation is now **one canonical vertex** `phx_dm_reasoning_trace` (PK
+`reasoning_id`; attrs `artifact_type/artifact_id/reasoning_steps_json/evidence_json/model_name/
+prompt_version/confidence/created_at`), used by BOTH the Explainability/Memory-Timeline display path
+and the reasoning-reuse path — resolving an earlier accidental divergence where the memory-service
+write path emitted a different vertex shape + a dead edge (fixed in commit `a226193`; do not
+re-introduce a second shape). For every AI answer the context assembler performs genuine multi-hop
+graph traversal (`app/ai/reasoning/graph_reasoner.py`, GQ-048/049/050): advisor → households →
+opportunities/outcomes → `phx_dm_advisor_has_similarity_match` → similar advisors → their proven
+action families; and prior traces for that advisor are retrieved by traversal and fed back in
+(experience memory). **Traversal is real and instrumented (actual entities visited are returned),
+never LLM-narrated.** Surfaced via `/explainability/graph-reasoning/{scope}/{id}` + the
+`GraphReasoningPath` UI panel.
+
+### 15.11 Agent Orchestration — real-vs-static audit + live agent graph (new)
+
+The Agent Orchestration page was audited (two-run evidence) and rewired from static sections to real
+per-run data: a **live agent system graph**, real per-agent decisions, real guardrail + compliance
+sections, and per-run confidence (previously hardcoded). Five defects found and fixed during the
+audit (fake-in-effect graph evidence, broken opportunity render, hardcoded confidence, hidden
+adapter tier, RAG corpus 10× duplicated). The "Run Workflow" button runs the real orchestration
+path (`/orchestration/run`).
+
+### 15.12 Revenue Trend Explorer — now its own dedicated page (Section 9.6, promoted)
+
+Moved from being folded into Revenue Analytics to its own page
+(`frontend/app/(dashboard)/revenue-trend-explorer`). Bar chart of revenue over a user-selected
+date range + granularity (monthly/quarterly), sliced by advisor/region/market/division/branch, with
+exact-figure driver bullets per period, an up/down indicator vs. the prior comparable period, and a
+real Claude-generated headline summary grounded in the underlying data (same evidence standard as
+every AI-generated card). Full month/quarter breakdown across the expanded date range.
+
+### 15.13 Graph ML / GDS — the honest current reality (see `GRAPH_ML_AND_GDS.md`)
+
+Be precise about WHERE compute happens — results are real either way:
+- **Runs natively IN TigerGraph today:** entity/relationship storage (the 60v/132e/156,247-row
+  temporal knowledge graph) and real multi-hop GSQL traversal reasoning (the backbone of the
+  agentic graph-reasoning feature).
+- **Runs in PYTHON today (TigerGraph as data source, not compute engine):** classical graph
+  algorithms — PageRank (referral-network centrality) and Louvain (AGP cohort/community detection)
+  via **networkx** (`app/ml/graph_algorithms.py`), NOT native GDS; the **GraphSAGE GNN** via **local
+  PyTorch Geometric** (`app/ml/gnn.py`, `scripts/train/train_graphsage_embeddings.py`), NOT
+  `pyTigerGraph[gds]`'s `neighborLoader`; plus XGBoost/RandomForest + SHAP, a GRU revenue forecast,
+  and Isolation Forest anomaly detection — all standard Python ML with deterministic fallbacks.
+- **Native conversion is a documented CLIENT-ENVIRONMENT task**, not a codespace gap: `GRAPH_ML_AND_
+  GDS.md` Part 2 gives the step-by-step (install native GDS library; repoint algorithms networkx→GDS;
+  `ALTER VERTEX … ADD EMBEDDING (DIMENSION=3072, INDEX=HNSW, METRIC=COSINE)`; native GraphSAGE via
+  `neighborLoader`). It needs a live TigerGraph 4.2.2 instance (unreachable from the build box) and
+  the `pyTigerGraph[gds]` extra — which is **commented out / optional in `pyproject.toml` and used by
+  nothing yet** (anticipatory only). Every native step keeps its Python fallback. There are NO
+  `ADD EMBEDDING`/HNSW/`Featurizer`/PageRank/Louvain `.gsql` install scripts in the repo — the honest
+  claim is "TigerGraph stores the graph and does real multi-hop traversal reasoning; the GNN/ML runs
+  in Python today, with a documented path to native GDS/GNN on the client's instance."
+
+### 15.14 pyproject alignment + dependency pre-check tooling (new)
+
+- `pyproject.toml` aligned to the client reference: client deps merged (`cdao*` guarded optional
+  under `[cdao]`), both uv indexes + `[tool.uv.sources]` + google-adk metadata, floors replaced for
+  `fastapi`/`uvicorn`. Verified: backend imports + frontend build both succeed. `[tool.uv] package =
+  false` — the intended flow is `uv venv` + `uv pip install -e .` (there is no `uv.lock`; the
+  committed lockfile is `poetry.lock`). `uv.toml` (committed) points every dependency, including
+  client-only `smart_sdk`/`cdao*`, at the artifactory.
+- **Dependency pre-check (run BEFORE any install):** `scripts/check_client_deps.py` (every pyproject
+  group + `smart_sdk`) and `scripts/check_client_npm.py` (frontend deps). Each reports
+  AVAILABLE/VERSION-MISMATCH/MISSING against the client artifactory; exit 0=pass, 1=required-dep
+  issue, 2=index unreachable. The four client-only packages (`smart_sdk`, `cdaosmart-sdk`,
+  `cdaosdk-all`, `cdaosmart-evals`) correctly show MISSING on public PyPI. `frontend/.npmrc.client-
+  template` (committed, no token) activates the client npm registry.
+
+### 15.15 Structured logging — CloudWatch-ready (new)
+
+`app/shared/logging.py` configures stdlib `logging` to emit structured JSON identically on a laptop
+and on ECS/Fargate. Every record carries ISO-8601 UTC timestamp, level, logger name,
+correlation/request id (`app/shared/correlation.py`), message, and full exception+stack on errors.
+Sink is config, not code — `LOG_SINK=file` (local default, rotating `logs/app.log`) | `stdout`
+(recommended for Fargate → CloudWatch via the awslogs driver, no in-app AWS SDK needed) |
+`cloudwatch` (direct `watchtower` push, falls back to stdout if the package/creds are missing so the
+app never fails to boot over logging). `LOG_JSON=true` by default; `LOG_JSON=false` for a coloured
+console during local debug.
+
+### 15.16 Setup runbook + launchers + UX polish (new)
+
+- **Launchers:** `scripts/run_all.sh` (combined backend :8000 + frontend :3000; uses `uv run` when
+  present, falls back to `python -m uvicorn`; `API_PORT`/`UI_PORT`/`API_HOST` overrides — verified
+  backend HTTP 200 / frontend HTTP 307). `scripts/train/run_all.sh` — full ML/GNN training
+  orchestrator over all 7 trainers (revenue-decline, household churn, AGP off-track, revenue
+  forecast, GraphSAGE, anomaly, FL fine-tune) with `PYTHONPATH=.` set, per-step time-box
+  (`ML_TIME_BOX_MINUTES`, default 10), and skip-on-missing-dep. Artifacts → `models/artifacts/`,
+  registry → `models/registry.json`. (The older `run_all.py` covered only the 3 tabular classifiers;
+  it was left untouched.)
+- **UX polish:** shared loading/spinner + error states for async/AI content; larger multi-line
+  question textarea on the workflow runner and AI Assistant; explicit spinner + label on the Revenue
+  Trend Explorer load. Browser-access fix: bind `0.0.0.0`, ports 3000/8000 set Public, `NEXT_PUBLIC_
+  API_BASE_URL` = the public forwarded URL for browser fetches vs. `API_BASE_URL_INTERNAL` =
+  loopback for SSR/tooling — verified through the real public browser path.
+
+### 15.17 Anchored figures — PRESERVED (do not let these drift)
+
+The build's credibility rests on these verified anchors; every model trainer asserts them:
+- **A001 `revenue_ltm` = $387,293.22** (anchor check in `scripts/train/train_revenue_decline.py`
+  prints `anchor check OK — A001 revenue_ltm=387293.22`; `test roc_auc = 0.7755`, floor 0.65 → PASS).
+- **A001 MANAGED_MIX = 1.08**, **144** revenue-neutral status-transition vertices reproduce from CSV
+  alone (Section 14 graph-from-CSV verification).
+- Recommendation-completion propagation **+$47,053.23** verified visible at advisor / market /
+  division scopes (Section 13B cross-screen propagation).
+Any expansion must ADD entities/date-range/variety only — never regenerate or mutate an anchored
+advisor's figures. If a genuine reason ever requires changing one, state exactly what changed and
+why, prominently, in `PROGRESS.md`.
+
+### 15.18 Client hand-off configuration (Section 14, restated with the current PRIMARY modes)
+
+No mock anywhere, verified booting before hand-off:
+`GRAPH_CLIENT_MODE=real` (or `auto` for the tiered cascade / `local_real` for a local Docker TG),
+`LLM_CLIENT_MODE=cdao_openai` (PRIMARY; `claude` for spot-checks; `azure` fallback),
+`EMBEDDING_CLIENT_MODE=cdao_openai` (`EMBEDDING_DIM=3072`), `MODEL_CLIENT_MODE=real`,
+`STATE_STORE_MODE=tigergraph`, `LOG_SINK=stdout`. PCL AWS login first (cdao); then the Connection &
+Environment Health screen must be all-green before demoing. Follow `CLIENT_SETUP_RUNBOOK.md`
+top-to-bottom — it is the authoritative sequence.
