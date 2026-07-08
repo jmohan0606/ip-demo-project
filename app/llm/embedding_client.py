@@ -209,13 +209,81 @@ class AzureOpenAIDirectEmbeddingClient:
         return {"mode": "azure_openai", "model": f"azure:{self.deployment}"}
 
 
+class CdaoOpenAIEmbeddingClient:
+    """Azure OpenAI embeddings via the client's cdao SDK — the PRIMARY client-site embedding path
+    (EMBEDDING_CLIENT_MODE=cdao_openai). Mirrors CdaoOpenAILLMClient exactly: same cdao client
+    construction (shared `build_cdao_openai_client`, one PCL login serves both), standard OpenAI
+    embeddings shape. The SmartSDK AzureOpenAIEmbeddingClient (mode=azure) stays as the secondary
+    alternate.
+
+    Pattern (verified live in the client notebook — a real run returned a 3072-dim vector):
+        from cdao import openai_azure_client
+        client = openai_azure_client(api_version=..., workspace_id=...)
+        response = client.embeddings.create(model="text-embedding-3-large-1", input=<text|list>)
+        vectors = [row.embedding for row in response.data]
+
+    This is the standard `client.embeddings.create -> response.data[i].embedding` shape, so it maps
+    1:1 onto the EmbeddingClient interface (embed / embed_many) — the exact return shape every
+    consumer (RAG ingestion, similarity) already expects from LocalEmbeddingClient.
+
+    DIMENSION — CRITICAL: text-embedding-3-large returns 3072-dim vectors (confirmed by the
+    developer's real run). EMBEDDING_DIM must be set to 3072 when this model is active so the
+    TigerGraph EMBEDDING attribute DDL and the Chroma collection use the SAME dimension — otherwise
+    vector search silently breaks. _fit_dim() surfaces any mismatch loudly.
+
+    GUARDED IMPORT: cdao is imported only inside build_cdao_openai_client, only when this mode is
+    selected — the app boots normally in local/mock/claude/azure embedding modes without cdao.
+
+    PREREQUISITE (client machine): the SAME PCL AWS login already required for the cdao LLM adapter
+    (cdao authenticates from the ambient AWS session, not from code/.env). One login covers both.
+    """
+
+    def __init__(self) -> None:
+        settings = get_settings()
+        self.dimensions = int(settings.embedding_dim)
+        # Shared cdao client builder — same construction (and guarded import) as the LLM adapter.
+        from app.llm.client import LLMClientError, build_cdao_openai_client
+
+        try:
+            self._client = build_cdao_openai_client(
+                api_version=settings.cdao_api_version,
+                workspace_id=settings.cdao_workspace_id,
+            )
+        except LLMClientError as exc:
+            # Re-wrap so consumers of this module only ever see EmbeddingClientError.
+            raise EmbeddingClientError(str(exc)) from exc
+        self.model = settings.cdao_embedding_model
+
+    def _fit_dim(self, vector: list[float]) -> list[float]:
+        """Guard: the store DDL is fixed at EMBEDDING_DIM, so surface any mismatch loudly rather
+        than silently corrupting the vector space (text-embedding-3-large=3072)."""
+        if len(vector) != self.dimensions:
+            raise EmbeddingClientError(
+                f"cdao embedding returned dim {len(vector)} but EMBEDDING_DIM={self.dimensions}. "
+                f"Set EMBEDDING_DIM to match model '{self.model}' "
+                f"(text-embedding-3-large=3072, -3-small=1536)."
+            )
+        return list(vector)
+
+    def embed(self, text: str) -> list[float]:
+        return self.embed_many([text])[0]
+
+    def embed_many(self, texts: list[str]) -> list[list[float]]:
+        response = self._client.embeddings.create(model=self.model, input=list(texts))
+        return [self._fit_dim(list(row.embedding)) for row in response.data]
+
+    def describe(self) -> dict:
+        return {"mode": "cdao_openai", "model": f"cdao:{self.model}", "dimensions": self.dimensions}
+
+
 _embedding_client: EmbeddingClient | None = None
 
 
 def get_embedding_client() -> EmbeddingClient:
     """Select the EmbeddingClient per EMBEDDING_CLIENT_MODE:
-      local        → sentence-transformers (default, fully local)
-      azure        → SmartSDK / Fusion gateway (client site)
+      local        → sentence-transformers (default, fully local; build box)
+      cdao_openai  → cdao SDK Azure client (PRIMARY client-site path, confirmed-working)
+      azure        → SmartSDK / Fusion gateway (secondary alternate, client site)
       azure_openai → direct Azure OpenAI SDK (generic Azure, endpoint+key)
 
     Cached at module level — the local model load (~90MB) should happen once per
@@ -227,12 +295,15 @@ def get_embedding_client() -> EmbeddingClient:
     mode = get_settings().embedding_client_mode.lower()
     if mode == "local":
         _embedding_client = LocalEmbeddingClient()
+    elif mode == "cdao_openai":
+        _embedding_client = CdaoOpenAIEmbeddingClient()
     elif mode == "azure":
         _embedding_client = AzureOpenAIEmbeddingClient()
     elif mode == "azure_openai":
         _embedding_client = AzureOpenAIDirectEmbeddingClient()
     else:
         raise EmbeddingClientError(
-            f"Unknown EMBEDDING_CLIENT_MODE '{mode}' (expected local | azure | azure_openai)"
+            f"Unknown EMBEDDING_CLIENT_MODE '{mode}' "
+            "(expected local | cdao_openai | azure | azure_openai)"
         )
     return _embedding_client

@@ -973,3 +973,39 @@ Pending items: §13B.3 division/market journeys VERIFIED (exact cross-scope prop
 AUM waterfall VERIFIED; §10 mentor pairing + AGP ROI BUILT and live.
 Boot: backend 142 routes; 15/15 pages HTTP 200; frontend tsc PASS; no purple.
 Commits: e6f05df, 56963e3, 5090273, 5b5909e, ce92cc9, + sweep commits. All pushed.
+
+---
+
+## ITEM 9 — CdaoOpenAIEmbeddingClient (PRIMARY client embedding path)
+
+**What:** Built `CdaoOpenAIEmbeddingClient` mirroring `CdaoOpenAILLMClient`, behind the existing
+`EmbeddingClient` Protocol (embed / embed_many / describe). `EMBEDDING_CLIENT_MODE=cdao_openai` =
+recommended primary for the client env; `azure` (SmartSDK) = secondary alternate; `local` default.
+
+**Shared construction (no duplication):** extracted `build_cdao_openai_client(api_version,
+workspace_id)` in `app/llm/client.py` with the single guarded `from cdao import openai_azure_client`.
+Both `CdaoOpenAILLMClient` and `CdaoOpenAIEmbeddingClient` call it → one import, one PCL AWS login
+serves both adapters.
+
+**Pattern (verified live by developer — real run returned a 3072-dim vector):**
+`response = client.embeddings.create(model="text-embedding-3-large-1", input=<text|list>)` →
+`[row.embedding for row in response.data]`. Standard OpenAI embeddings shape → maps 1:1 onto
+embed/embed_many.
+
+**Dimension:** text-embedding-3-large-1 = **3072** (vs local 384). New setting `CDAO_EMBEDDING_MODEL`
+(default text-embedding-3-large-1). `EMBEDDING_DIM` must be 3072 for this mode; flows to TigerGraph
+`EMBEDDING` DDL + Chroma; `_fit_dim()` raises loudly on mismatch. Documented in .env.example +
+CLIENT_ENV_SETUP.md §1b/§5.
+
+**Deps:** `cdaosdk-all[openai]` already covers embeddings (same SDK as LLM) — no new dep; only the
+check_client_deps note was updated.
+
+**Evidence (codespace, cdao ABSENT):**
+- `app.api.main` imports → BOOT OK, 48 routes. `cdao present? False`.
+- `EMBEDDING_CLIENT_MODE=cdao_openai` + workspace set → clean guarded `EmbeddingClientError`
+  ("requires the client-only 'cdao' package…"), NOT an import crash.
+- Missing `CDAO_WORKSPACE_ID` → clean `EmbeddingClientError` naming the fix.
+- LLM `cdao_openai` still guards cleanly after the shared-helper refactor.
+- Consumer call path: `KnowledgeEmbeddingService` (RAG ingestion + similarity) calls
+  `.embed()->list[float]` / `.embed_many()->list[list[float]]` — exactly the adapter's return type.
+- Live cdao embedding calls only testable on the client machine post-PCL-login (noted).

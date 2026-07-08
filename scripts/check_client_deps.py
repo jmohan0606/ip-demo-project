@@ -76,8 +76,10 @@ AT_RISK_FALLBACKS: dict[str, str] = {
     ),
     "cdaosdk-all": (
         "Client-artifactory ONLY (cdao SDK; [tool.uv.sources] pins it to the 'artifacts' index). "
-        "Guarded import — required only for LLM_CLIENT_MODE=cdao_openai (the PRIMARY client LLM "
-        "path); if unavailable, fall back to LLM_CLIENT_MODE=azure (SmartSDK)."
+        "The [openai] extra serves BOTH the PRIMARY client LLM path (LLM_CLIENT_MODE=cdao_openai) "
+        "and the PRIMARY client embedding path (EMBEDDING_CLIENT_MODE=cdao_openai) — same SDK, one "
+        "install, one PCL login. Guarded imports; if unavailable, fall back to the azure (SmartSDK) "
+        "modes for both."
     ),
     "cdaosmart-sdk": (
         "Client-artifactory ONLY (pinned ==2.2.0 per the client reference project; "

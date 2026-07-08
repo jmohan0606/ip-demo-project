@@ -11,6 +11,37 @@ class LLMClientError(RuntimeError):
     pass
 
 
+def build_cdao_openai_client(api_version: str, workspace_id: str | None):
+    """Construct the shared cdao Azure OpenAI client used by BOTH the LLM adapter
+    (CdaoOpenAILLMClient) and the embedding adapter (CdaoOpenAIEmbeddingClient) — one
+    construction path so the confirmed-working notebook pattern lives in exactly one place.
+
+    GUARDED IMPORT: `cdao` exists only in the client artifactory (cdaosdk-all[openai]). It is
+    imported ONLY inside this function, called ONLY when a cdao_openai mode is selected — the app
+    boots normally in mock/claude/real/azure modes without it. The returned client exposes the
+    standard OpenAI SDK surface (`.chat.completions.create`, `.embeddings.create`).
+
+    PREREQUISITE (client machine): a PCL AWS login must be run BEFORE starting the app; cdao
+    authenticates from that ambient AWS session, not from code/.env credentials. One login covers
+    both the LLM and embedding adapters (same cdao client).
+    """
+    if not workspace_id:
+        raise LLMClientError(
+            "cdao_openai mode requires CDAO_WORKSPACE_ID in .env "
+            "(plus CDAO_API_VERSION — see CLIENT_ENV_SETUP.md §1b)"
+        )
+    try:
+        from cdao import openai_azure_client  # type: ignore  # guarded: client-only package
+    except ImportError as exc:  # pragma: no cover — depends on client-only package
+        raise LLMClientError(
+            "cdao_openai mode requires the client-only 'cdao' package "
+            "(cdaosdk-all[openai], JPMC artifactory). Install it in the client "
+            "environment (uv pip install 'cdaosdk-all[openai]'), or use a build-box "
+            "mode (mock|claude) here. Original error: " + str(exc)
+        ) from exc
+    return openai_azure_client(api_version=api_version, workspace_id=workspace_id)
+
+
 def _record_llm(mode: str, model: str, prompt_text: str, out_text: str, latency_ms: float, estimated: bool = True) -> None:
     """Record an LLM call to the observability recorder (Section 11.7). Never raises."""
     try:
@@ -314,23 +345,8 @@ class CdaoOpenAILLMClient:
 
     def __init__(self) -> None:
         settings = get_settings()
-        if not settings.cdao_workspace_id:
-            raise LLMClientError(
-                "LLM_CLIENT_MODE=cdao_openai requires CDAO_WORKSPACE_ID in .env "
-                "(plus CDAO_API_VERSION / CDAO_MODEL — see CLIENT_ENV_SETUP.md §1b)"
-            )
-        try:
-            from cdao import openai_azure_client  # type: ignore  # guarded: client-only package
-        except ImportError as exc:  # pragma: no cover — depends on client-only package
-            raise LLMClientError(
-                "LLM_CLIENT_MODE=cdao_openai requires the client-only 'cdao' package "
-                "(cdaosdk-all[openai], JPMC artifactory). Install it in the client "
-                "environment (uv pip install 'cdaosdk-all[openai]'), or use "
-                "LLM_CLIENT_MODE=mock|claude here. Original error: " + str(exc)
-            ) from exc
-
-        # Construct once; reused for every generate() call.
-        self._client = openai_azure_client(
+        # Construct once (shared cdao client builder); reused for every generate() call.
+        self._client = build_cdao_openai_client(
             api_version=settings.cdao_api_version,
             workspace_id=settings.cdao_workspace_id,
         )

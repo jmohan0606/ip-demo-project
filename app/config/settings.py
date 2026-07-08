@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     # Adapter selection (Section 2 of the rebuild brief)
     graph_client_mode: str = Field(default="mock", alias="GRAPH_CLIENT_MODE")  # mock | local_real | real
     llm_client_mode: str = Field(default="mock", alias="LLM_CLIENT_MODE")  # mock | claude | real
-    embedding_client_mode: str = Field(default="local", alias="EMBEDDING_CLIENT_MODE")  # local | azure | azure_openai
+    embedding_client_mode: str = Field(default="local", alias="EMBEDDING_CLIENT_MODE")  # local | cdao_openai | azure | azure_openai
     # Input/output AI guardrails (Security & Governance poster). local = regex/heuristic (default);
     # smartsdk = JPMC SmartSDK EvaluationService (toxicity/qa_correctness/hallucination) in client env.
     guardrail_client_mode: str = Field(default="local", alias="GUARDRAIL_CLIENT_MODE")  # local | smartsdk
@@ -89,6 +89,10 @@ class Settings(BaseSettings):
     cdao_api_version: str = Field(default="2024-02-01", alias="CDAO_API_VERSION")
     cdao_workspace_id: str | None = Field(default=None, alias="CDAO_WORKSPACE_ID")
     cdao_model: str = Field(default="gpt-4o-2024-08-06", alias="CDAO_MODEL")
+    # Embedding deployment via the SAME cdao client (EMBEDDING_CLIENT_MODE=cdao_openai — PRIMARY).
+    # text-embedding-3-large-1 returns 3072-dim vectors (confirmed by the developer's real run),
+    # so EMBEDDING_DIM must be set to 3072 when this model is active (vs local=384). See §1b.
+    cdao_embedding_model: str = Field(default="text-embedding-3-large-1", alias="CDAO_EMBEDDING_MODEL")
 
     # --- SmartSDK / Fusion (client env: LLM_CLIENT_MODE=azure, EMBEDDING_CLIENT_MODE=azure) ---
     # These back AzureOpenAILLMClient / AzureOpenAIEmbeddingClient, which route through JPMC's

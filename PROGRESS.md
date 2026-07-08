@@ -2485,3 +2485,25 @@ codespace = 4 (mock) under mode tiered:real, unambiguously logged (health active
 served_by_tier, Admin tier_status). MCP config fully env-driven (stdio subprocess, same TG_* env
 as tier 2, placeholders in .env.example). Client live-test checklist added: CLIENT_ENV_SETUP.md
 §3b. Full evidence in STATUS_CHECK.md ITEM 8.
+
+### ITEM 9 — CdaoOpenAIEmbeddingClient — PRIMARY client embedding path — COMPLETE
+Mirrors CdaoOpenAILLMClient exactly. New `CdaoOpenAIEmbeddingClient` (app/llm/embedding_client.py)
+behind the existing `EmbeddingClient` interface (embed/embed_many/describe), selectable via
+`EMBEDDING_CLIENT_MODE=cdao_openai` — RECOMMENDED primary for the client env; SmartSDK azure mode
+= secondary alternate. Uses the confirmed-live notebook pattern (`client.embeddings.create(model,
+input) -> [row.embedding for row in response.data]`). No duplication: extracted the shared
+`build_cdao_openai_client(api_version, workspace_id)` helper in app/llm/client.py and pointed BOTH
+the LLM and embedding adapters at it (one guarded `from cdao import openai_azure_client`, one PCL
+login serves both). Config: CDAO_EMBEDDING_MODEL (new, default text-embedding-3-large-1), shared
+CDAO_WORKSPACE_ID/CDAO_API_VERSION. DIMENSION: text-embedding-3-large-1 = 3072 (verified live);
+EMBEDDING_DIM flows to TigerGraph EMBEDDING DDL + Chroma; `_fit_dim` raises loudly on mismatch;
+docs state EMBEDDING_DIM=3072 required for this mode. Deps: cdaosdk-all[openai] already covers it
+(same SDK as the LLM adapter) — no new dep; check_client_deps note updated to say the one package
+serves both paths. Docs: CLIENT_ENV_SETUP.md §1b now covers LLM+embedding cdao together (one
+install, one login), 3072 note, azure fallback; table/§5/checklist updated. .env.example updated.
+Evidence: (a) backend boots with cdao ABSENT (app.api.main, 48 routes); (b) selecting cdao_openai
+without cdao → clean guarded EmbeddingClientError (not import crash); missing CDAO_WORKSPACE_ID →
+clean error; (c) LLM cdao_openai path still guards cleanly after the shared-helper refactor; (d)
+return shapes (list[float] / list[list[float]]) match the only consumer, KnowledgeEmbeddingService
+(RAG ingestion + similarity), by inspection. Live cdao embedding calls only testable on the client
+machine post-PCL-login (noted). No secrets committed; CLAUDE.md untouched.

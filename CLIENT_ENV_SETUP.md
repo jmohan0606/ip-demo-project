@@ -18,7 +18,7 @@ these env selectors. All service code depends on the adapter *interfaces*, never
 |----------|------------------|---------------|
 | `GRAPH_CLIENT_MODE` | `mock` | `real` (live TigerGraph via pyTigerGraph/getToken) |
 | `LLM_CLIENT_MODE` | `mock` / `claude` | `cdao_openai` (PRIMARY, cdao SDK) — fallback `azure` (SmartSDK/Fusion) |
-| `EMBEDDING_CLIENT_MODE` | `local` (sentence-transformers) | `azure` (SmartSDK) |
+| `EMBEDDING_CLIENT_MODE` | `local` (sentence-transformers) | `cdao_openai` (PRIMARY, cdao SDK) — fallback `azure` (SmartSDK) |
 | `MODEL_CLIENT_MODE` | `deterministic` | `real` (if the ML deps + data are present) |
 | `VECTOR_CLIENT_MODE` | `local` | `local` or `tigergraph` (once TigerVector confirmed) |
 
@@ -32,48 +32,71 @@ NEVER commit.
 ### Modes
 ```
 GRAPH_CLIENT_MODE=real
-LLM_CLIENT_MODE=cdao_openai     # PRIMARY (cdao SDK) — if it fails, fall back to azure (SmartSDK)
-EMBEDDING_CLIENT_MODE=azure
+LLM_CLIENT_MODE=cdao_openai       # PRIMARY (cdao SDK) — if it fails, fall back to azure (SmartSDK)
+EMBEDDING_CLIENT_MODE=cdao_openai # PRIMARY (cdao SDK) — if it fails, fall back to azure (SmartSDK)
 MODEL_CLIENT_MODE=real          # optional; falls back to deterministic if ML deps absent
 ```
 
-### 1b. cdao OpenAI Azure client — the PRIMARY LLM path (`LLM_CLIENT_MODE=cdao_openai`)
+### 1b. cdao OpenAI Azure client — the PRIMARY LLM **and embedding** path (`cdao_openai`)
 
 Confirmed working by the developer in the client's Jupyter environment (simpler than the
-SmartSDK path — try this FIRST):
+SmartSDK path — try this FIRST for BOTH LLM and embeddings). One cdao install
+(`cdaosdk-all[openai]`) and one PCL AWS login serve both adapters — they share the same
+`openai_azure_client` construction (`build_cdao_openai_client` in `app/llm/client.py`).
 
+**LLM** (`LLM_CLIENT_MODE=cdao_openai`) — verified pattern:
 ```python
 from cdao import openai_azure_client
 client = openai_azure_client(api_version="2024-02-01", workspace_id="906313")
 client.chat.completions.create(model="gpt-4o-2024-08-06", messages=[...])
 ```
-
 `CdaoOpenAILLMClient` (`app/llm/client.py`) wraps exactly this behind the standard `LLMClient`
 interface — every agent/chat/insight path consumes it through `get_llm_client().generate()`
 unchanged.
 
-**CRITICAL PREREQUISITE — PCL AWS login BEFORE starting the app.** The cdao client
-authenticates from the ambient AWS auth session established by the PCL login; there are NO
-credentials in code or `.env` for it. Run the PCL AWS login in the same shell/session, THEN
-start the backend. If the login has expired, cdao calls fail at request time — re-run the
-login and restart.
+**Embeddings** (`EMBEDDING_CLIENT_MODE=cdao_openai`) — verified live (a real run returned a
+3072-dim vector):
+```python
+response = client.embeddings.create(model="text-embedding-3-large-1", input=<text|list>)
+vectors = [row.embedding for row in response.data]
+```
+`CdaoOpenAIEmbeddingClient` (`app/llm/embedding_client.py`) wraps exactly this behind the
+standard `EmbeddingClient` interface — RAG ingestion and similarity consume it through
+`get_embedding_client().embed()/embed_many()` unchanged.
+
+**CRITICAL PREREQUISITE — PCL AWS login BEFORE starting the app (ONE login covers both
+adapters).** The cdao client authenticates from the ambient AWS auth session established by the
+PCL login; there are NO credentials in code or `.env` for it. Run the PCL AWS login in the same
+shell/session, THEN start the backend. If the login has expired, cdao calls fail at request
+time — re-run the login and restart.
+
+**DIMENSION — CRITICAL.** `text-embedding-3-large-1` returns **3072-dim** vectors (vs local
+sentence-transformers 384). When `EMBEDDING_CLIENT_MODE=cdao_openai`, `EMBEDDING_DIM` MUST be
+set to `3072` so the TigerGraph `EMBEDDING` attribute DDL and the Chroma collection use the same
+size — otherwise vector search silently breaks (see §5). The adapter raises loudly on a
+dim mismatch rather than corrupting the vector space.
 
 ```
 CDAO_API_VERSION=2024-02-01
-CDAO_WORKSPACE_ID=906313        # workspace id from the client console
+CDAO_WORKSPACE_ID=906313          # workspace id from the client console (shared: LLM + embed)
 CDAO_MODEL=gpt-4o-2024-08-06
+CDAO_EMBEDDING_MODEL=text-embedding-3-large-1
+EMBEDDING_DIM=3072                # REQUIRED for cdao text-embedding-3-large-1 (see §5)
 ```
 
 Install (client artifactory only — see §2): `uv pip install -e ".[cdao]"` (pulls
-`cdaosdk-all[openai]`, pinned to the `artifacts` index via `[tool.uv.sources]`).
+`cdaosdk-all[openai]`, pinned to the `artifacts` index via `[tool.uv.sources]`) — this single
+package covers both the LLM and embedding cdao adapters.
 
 **If cdao_openai fails** (package unavailable, PCL/AWS session issues, workspace errors):
-fall back to `LLM_CLIENT_MODE=azure` (SmartSDK/Fusion below) — same prompts, same interface,
-different transport. Selecting `cdao_openai` without the package installed raises a clean
-`LLMClientError` naming the fix; it never crashes the boot of other modes.
+fall back to `LLM_CLIENT_MODE=azure` / `EMBEDDING_CLIENT_MODE=azure` (SmartSDK/Fusion below) —
+same prompts/inputs, same interfaces, different transport. Selecting `cdao_openai` without the
+package installed raises a clean `LLMClientError`/`EmbeddingClientError` naming the fix; it never
+crashes the boot of other modes.
 
-### SmartSDK / Fusion — Azure OpenAI LLM + Embeddings (`smart_sdk`) — SECONDARY alternate LLM
-path (embeddings still use this regardless: `EMBEDDING_CLIENT_MODE=azure`)
+### SmartSDK / Fusion — Azure OpenAI LLM + Embeddings (`smart_sdk`) — SECONDARY alternate for
+BOTH LLM (`LLM_CLIENT_MODE=azure`) and embeddings (`EMBEDDING_CLIENT_MODE=azure`), used only if
+the PRIMARY cdao_openai path (§1b) is unavailable
 ```
 AZURE_AUTH_METHOD=key           # key (primary, confirmed) | certificate (alternate)
 AZURE_MODEL_NAME=gpt-4o-2024-08-06
@@ -176,7 +199,7 @@ uv pip install smart_sdk       # client-only; secondary LLM path + embeddings; n
 | `chromadb` | needs `onnxruntime` for its default embedder (unused — we pass our own vectors) | pin `onnxruntime` if the default build is unavailable. |
 | `pyTigerGraph[gds]` | `[gds]` extra adds torch/pandas GDS helpers | base `pyTigerGraph` still connects; GNN falls back to local PyG or deterministic projection. |
 | `smart_sdk` | client-artifactory only | guarded import — absence never blocks boot in mock/claude/real mode. Required only for `azure` modes. |
-| `cdaosdk-all[openai]` | client-artifactory only (pinned to the `artifacts` index via `[tool.uv.sources]`) | guarded import — required only for `LLM_CLIENT_MODE=cdao_openai` (PRIMARY LLM path); if unavailable, fall back to `LLM_CLIENT_MODE=azure` (SmartSDK). |
+| `cdaosdk-all[openai]` | client-artifactory only (pinned to the `artifacts` index via `[tool.uv.sources]`) | guarded import — one package serves the PRIMARY client LLM (`LLM_CLIENT_MODE=cdao_openai`) AND embedding (`EMBEDDING_CLIENT_MODE=cdao_openai`) paths; if unavailable, fall back to the `azure` (SmartSDK) modes for both. |
 
 ---
 
@@ -265,10 +288,13 @@ client-side confirmation point). The `Model(...)` construction itself is confirm
 
 `EMBEDDING_DIM` must match: the active embedding adapter's output, the TigerGraph `EMBEDDING`
 attribute DDL (`EMBEDDING(DIMENSION=EMBEDDING_DIM, METRIC="COSINE")`), and the Chroma collection.
-- Switching `local` (384) ↔ `azure` (1536): set `EMBEDDING_DIM` accordingly **and rebuild the
-  Chroma collection** (a fixed-dim collection cannot accept differently-sized vectors) — re-run
-  `scripts/ingest_sample_knowledge.py`. The embedding client raises loudly on a dim mismatch
-  rather than silently corrupting the vector space.
+Per active mode: `local` sentence-transformers = **384**; `cdao_openai` text-embedding-3-large-1
+= **3072** (PRIMARY client path); `azure`/`azure_openai` text-embedding-3-small = **1536**,
+-3-large = **3072**.
+- Switching modes (e.g. `local` 384 → `cdao_openai` 3072): set `EMBEDDING_DIM` accordingly **and
+  rebuild the Chroma collection** (a fixed-dim collection cannot accept differently-sized vectors)
+  — re-run `scripts/ingest_sample_knowledge.py`. The embedding client raises loudly on a dim
+  mismatch rather than silently corrupting the vector space.
 
 ---
 
@@ -282,8 +308,9 @@ attribute DDL (`EMBEDDING(DIMENSION=EMBEDDING_DIM, METRIC="COSINE")`), and the C
 4. Ensure `uv.toml` is present (it is committed). `uv pip install -e ".[cdao,ml,gds]"` then
    `uv pip install smart_sdk`. Frontend: `cp frontend/.npmrc.client-template frontend/.npmrc`
    (§2.0b) then `npm install` in `frontend/`.
-5. **Run the PCL AWS login** (required by the cdao LLM client, §1b) in the shell that will run
-   the backend — cdao has no credentials in `.env`; it uses this ambient session.
+5. **Run the PCL AWS login** (required by the cdao LLM + embedding clients, §1b — one login
+   covers both) in the shell that will run the backend — cdao has no credentials in `.env`; it
+   uses this ambient session.
 6. TigerGraph: `CREATE SECRET` (§3); install schema/queries and load the 192 manifest CSVs from
    `docs/tigergraph_foundation/` (see `CLAUDE.md` §8 / `scripts/install_tigergraph_source_of_truth.sh`;
    the app's Data Ingestion & Sync page "Run All Ingestion" loads the complete graph remotely).
