@@ -37,7 +37,7 @@ python scripts/check_client_deps.py
 python scripts/check_client_npm.py
 
 # 3. Install (§5)
-uv pip install -e ".[cdao,ml,gds]"
+uv pip install -e ".[cdao,ml]"                 # gds extra is future-only (see §6.4 / GRAPH_ML_AND_GDS.md)
 uv pip install smart_sdk                       # client-artifactory only (optional azure fallback)
 cd frontend && npm install && cd ..
 
@@ -171,7 +171,7 @@ app.api.main"` succeeds (fastapi 0.139.0). On the client machine the venv step a
 (names/paths are real):**
 
 ```bash
-python scripts/check_client_deps.py     # every pyproject group (core/dev/aws/ml/gds/cdao) + smart_sdk
+python scripts/check_client_deps.py     # every pyproject group (core/dev/aws/ml/cdao) + smart_sdk
 python scripts/check_client_npm.py      # frontend/package.json deps + devDeps
 ```
 
@@ -197,14 +197,17 @@ AVAILABLE`, exit 0. See §12.
 **PRE-REQ:** §4 passed; venv active. **Commands (real, from `CLIENT_ENV_SETUP.md` §2):**
 
 ```bash
-uv pip install -e ".[cdao,ml,gds]"    # core + cdao SDK (PRIMARY LLM/embeddings) + ML/GNN + pyTigerGraph[gds]
+uv pip install -e ".[cdao,ml]"        # core + cdao SDK (PRIMARY LLM/embeddings) + ML/GNN (local PyG)
 uv pip install smart_sdk              # client-artifactory only; azure fallback path (guarded import)
 cd frontend && npm install && cd ..   # uses frontend/.npmrc (client registry) from §2
 ```
 - `[cdao]` pulls `cdaosdk-all[openai]` (pinned to the `artifacts` index via `[tool.uv.sources]`) —
   serves **both** `cdao_openai` LLM and embedding paths.
-- `[ml,gds]` are optional: `app/ml/*` guard `torch`/`torch-geometric`/`xgboost`/`shap` imports and
-  fall back to deterministic scorers if absent. If `[gds]` fails, base `pyTigerGraph` still
+- `[ml]` is optional: `app/ml/*` guard `torch`/`torch-geometric`/`xgboost`/`shap` imports and
+  fall back to deterministic scorers if absent. The GNN uses **local PyTorch Geometric** (from
+  `[ml]`), **not** `pyTigerGraph[gds]` — that `gds` extra is commented out in `pyproject.toml` and
+  is needed only for the future native TigerGraph GDS/GNN conversion (see `GRAPH_ML_AND_GDS.md`
+  Part 2 and §6.4 below). If `[gds]` fails (when you later enable it), base `pyTigerGraph` still
   connects and the GNN falls back to the local PyG path.
 - `smart_sdk` is **intentionally not in `pyproject.toml`** (not on public PyPI); install it
   explicitly, and only if you need the `azure` fallback modes.
@@ -274,6 +277,13 @@ How native vectors / graph algorithms are actually handled (all in Python, adapt
   Position") and Louvain ("Peer Communities") with **networkx** over the in-memory store; the
   TigerGraph-native GDS `Featurizer.installAlgorithm` path is documented as a bigger-box fallback,
   not shipped as scripts.
+- The GNN (GraphSAGE) likewise runs on **local PyTorch Geometric**, not `pyTigerGraph[gds]`.
+
+> **Native-conversion guide:** `GRAPH_ML_AND_GDS.md` (repo root) is the authoritative reference for
+> what runs natively-in-TigerGraph vs. in-Python today (Part 1) and the exact step-by-step to
+> convert graph algorithms + GraphSAGE + vectors to native TigerGraph GDS/GNN on the client machine
+> (Part 2 — the only situation that needs the `pyTigerGraph[gds]` extra; it is commented out in
+> `pyproject.toml` until then).
 
 **What to do on the client machine (optional, deferred — not required for the demo):**
 ```bash
@@ -283,6 +293,36 @@ bash scripts/check_tg_vector_support.sh      # probes whether the engine accepts
 - **UNVERIFIED/FAIL** (expected on 2-core CE 4.2.3, same C++ INSTALL limit as elsewhere) → keep
   `VECTOR_CLIENT_MODE=local`. This is a fully supported, documented outcome — not a blocker.
 🔶 Not testable here (needs the Docker TigerGraph container).
+
+### 6.5 Reset / rebuild the schema (clean teardown + recreate)
+To tear the schema down completely and recreate it clean (e.g. a corrupted load, a schema change,
+or a fresh start on the client machine), use the real drop script (created for this repo):
+
+```bash
+# ⚠️ DELETES ALL SCHEMA + DATA for graph iperform_insights_coaching_demo — no undo.
+gsql docs/tigergraph_foundation/tigergraph/schema/99_drop_all.gsql
+```
+`99_drop_all.gsql` drops, in TigerGraph-correct order, the graph → all **133** forward edge types
+(each reverse edge auto-drops with its forward edge — reverse edges cannot be dropped alone) → all
+**60** vertex types, all at `USE GLOBAL` scope. The object lists were derived programmatically from
+the actual `01_vertices.gsql` / `02_edges.gsql` (not a hand-typed guess), so they stay complete and
+in sync. A `DROP ALL` one-liner alternative (nukes the entire TigerGraph catalog) is documented in
+the file header for single-purpose instances.
+
+**Recreate afterward — exact sequence** (in the schema dir, or via the §6.3 installer for steps
+1–3):
+```bash
+cd docs/tigergraph_foundation/tigergraph/schema
+gsql 01_vertices.gsql          # 60 vertex types
+gsql 02_edges.gsql             # 133 forward edges (+ reverse edges)
+gsql 03_create_graph.gsql      # CREATE GRAPH iperform_insights_coaching_demo
+gsql ../queries/install_all_queries.gsql   # reinstall GQ-### queries
+# then reload data: app "Run All Ingestion" (§8) or ../loading/run_all_loading_jobs.sh
+```
+Usable both in codespace-adjacent tooling (against a local Docker TigerGraph) and on the client
+machine. 🔶 The GSQL was **structurally validated** (complete + correctly ordered, drop lists match
+the CREATE scripts exactly) but not executed here — **verify live on the client machine / a real
+TigerGraph** (no reachable engine in the codespace).
 
 **CHECK for §6 overall:** schema/queries install without GSQL errors; the §7 health screen shows
 TigerGraph green with real vertex/edge type + row counts.
@@ -368,7 +408,8 @@ bash docs/tigergraph_foundation/tigergraph/loading/run_all_loading_jobs.sh /home
 
 ## 9. Train ML / GNN models
 
-**PRE-REQ:** `[ml,gds]` installed (§5); graph data available (mock is fine for training — the
+**PRE-REQ:** `[ml]` installed (§5) — the GNN trains on **local PyTorch Geometric**, not
+`pyTigerGraph[gds]`; graph data available (mock is fine for training — the
 trainers read the FoundationGraphStore / feature store); `MODEL_CLIENT_MODE=real` so artifacts are
 written. Set `ML_TIME_BOX_MINUTES` (default 10) as a per-step wall-clock cap on slow hardware.
 
@@ -397,9 +438,11 @@ re-runnable, prints real metrics, and asserts the anchored A001 figures — run 
 > **`PYTHONPATH=.` is mandatory** — without it the scripts fail with `ModuleNotFoundError: No
 > module named 'app'`. The orchestrator sets it for you.
 
-**GNN fallback:** if `torch-geometric` / `pyTigerGraph[gds]` are unavailable, steps 5 & 7 skip and
-the GNN falls back to the local PyG path or deterministic feature-projection — `MODEL_CLIENT_MODE`
-still works, just without the GraphSAGE artifact. The orchestrator reports which steps were skipped.
+**GNN fallback:** the GNN runs on **local `torch-geometric`** today (not `pyTigerGraph[gds]`). If
+`torch-geometric` is unavailable, steps 5 & 7 skip and similarity falls back to deterministic
+feature-projection — `MODEL_CLIENT_MODE` still works, just without the GraphSAGE artifact. The
+native `pyTigerGraph[gds]` `neighborLoader` path is a future client-machine conversion only
+(`GRAPH_ML_AND_GDS.md` Part 2). The orchestrator reports which steps were skipped.
 
 **Artifacts land in:** `models/artifacts/*.joblib | *.pt`; registry at `models/registry.json`.
 

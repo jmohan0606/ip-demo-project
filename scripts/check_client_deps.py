@@ -67,8 +67,10 @@ AT_RISK_FALLBACKS: dict[str, str] = {
         "onnxruntime if the default build is unavailable."
     ),
     "pytigergraph": (
-        "The [gds] extra adds torch/pandas GDS helpers. Base pyTigerGraph still connects; GNN "
-        "falls back to local PyG or deterministic projection."
+        "Base pyTigerGraph (this core dep) is all the app uses today — graph algorithms run in "
+        "networkx and GraphSAGE in local PyTorch Geometric. The pyTigerGraph[gds] extra is NOT "
+        "installed by default (its optional group is commented out in pyproject.toml); it is "
+        "needed only for the future native TigerGraph GDS/GNN conversion — see GRAPH_ML_AND_GDS.md."
     ),
     "smart-sdk": (
         "Client-artifactory ONLY (never on public PyPI). Guarded import — absence never blocks "

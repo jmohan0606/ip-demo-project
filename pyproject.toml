@@ -59,9 +59,12 @@ ml = [
     "xgboost>=2.0.0",
     "shap>=0.45.0",
 ]
-# TigerGraph GDS extra for pyTigerGraph[gds] (GraphSAGE loaders, Featurizer). Optional — base
-# pyTigerGraph connects without it; GNN falls back to the local PyG path.
-gds = ["pyTigerGraph[gds]>=1.8.0"]
+# TigerGraph GDS extra for pyTigerGraph[gds] (GraphSAGE neighborLoader, Featurizer).
+# Not used yet — required only for the native TigerGraph GDS/GNN conversion on the client
+# machine; see GRAPH_ML_AND_GDS.md Part 2. Uncomment when doing that conversion.
+# Today: graph algorithms run in networkx and GraphSAGE runs in local PyTorch Geometric (the
+# `ml` group's torch-geometric), so the app installs and boots fully WITHOUT this extra.
+# gds = ["pyTigerGraph[gds]>=1.8.0"]
 # cdao / cdaosmart SDKs (JPMC) — CLIENT-ARTIFACTORY ONLY (not on public PyPI); every import is
 # GUARDED, so the app installs and boots in the codespace WITHOUT this group (mock/claude mode).
 # Kept as an optional group precisely so `pip install -e .` works off the client network; on the
