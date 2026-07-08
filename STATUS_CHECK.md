@@ -1072,3 +1072,21 @@ check_client_deps note was updated.
 6. `AgenticResponse` extended: `confidence_breakdown`, `route_plan`, `graph_evidence`, `errors` (needed by the page and Part 2's live graph).
 
 Frontend typecheck clean. Backend re-verified live on 0.0.0.0:8000.
+
+## Session 18 — PART 2: Live agent system graph (2026-07-08)
+
+- **Supervisor routing rules refactored to declarative data** (`ROUTING_RULES`/`ALWAYS`/`INVARIANTS` on
+  `SupervisorAgent`) — run() routes from them AND the new topology endpoint reads them, so the graph is
+  grounded in the exact structures that route real requests (single source of truth, no parallel diagram).
+  Routing behavior verified unchanged (same coaching+compliance question reproduces the identical route).
+- **`GET /agentic-ai/topology`** (`app/agents/registry/topology.py`): 28 nodes / 33 edges — supervisor + the
+  12 real registry agents + 10 tools/services + 5 data sources, with per-agent "invoked when" derived from
+  the live routing rules (e.g. compliance: "invariant: always follows recommendation_agent") and
+  agent→tool→data-source edges mirroring each agent module's actual imports/calls.
+- **`AgentSystemGraph` component** (ReactFlow, same approach as Graph Explorer): layered
+  supervisor→agents→tools→data-sources layout in real execution order; click any node for purpose /
+  invoked-when / connections; after each real run the ACTUAL recorded route (`route_plan` + task
+  timestamps from the response) replays progressively — sequence-numbered nodes, per-agent real
+  durations, green "step n" edges along the executed linear LangGraph path, non-executed nodes dimmed.
+  Real instrumented path, not simulated.
+- Frontend typecheck clean; endpoint verified live.

@@ -8,6 +8,7 @@ import { resolveScope } from "@/lib/api/hierarchy";
 import { runAgenticWorkflow, type AgenticRun } from "@/lib/api/agentic";
 import { fetchAdapterStatus, type AdapterStatus } from "@/lib/api/admin";
 import { KpiStatCard } from "@/components/patterns/kpi-stat-card";
+import { AgentSystemGraph } from "@/components/observability/agent-system-graph";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,8 @@ export function SystemObservabilityWorkspace() {
           </Card>
         ))}
       </div>
+
+      <AgentSystemGraph run={run} />
 
       <div className="grid gap-3 xl:grid-cols-[1fr_1fr]">
         <Card>
