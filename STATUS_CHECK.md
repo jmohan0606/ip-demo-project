@@ -1009,3 +1009,42 @@ check_client_deps note was updated.
 - Consumer call path: `KnowledgeEmbeddingService` (RAG ingestion + similarity) calls
   `.embed()->list[float]` / `.embed_many()->list[list[float]]` — exactly the adapter's return type.
 - Live cdao embedding calls only testable on the client machine post-PCL-login (noted).
+
+---
+
+## Session 18 — Agent Orchestration page: FULL REAL-vs-STATIC AUDIT (Part 0 gate) (2026-07-08)
+
+**Method (definitive two-run test + a third route-coverage run), real Claude (`LLM_CLIENT_MODE=claude`), live backend `/agentic-ai/run`:**
+- Run A: "How can this advisor grow revenue?" / A001 → `agentrun_20260708050948_fdf9384f`
+- Run B: "What should I coach this advisor on, and are the recommended actions compliant?" / A020 → `agentrun_20260708051011_4853b036`
+- Run C: "...revenue decline risk... playbook policy... feedback learning?" / A007 (exercises prediction, RAG, feedback agents)
+
+### Section-by-section verdicts
+
+| Section | Verdict | Two-run evidence |
+|---|---|---|
+| Final Agent KPI | REAL (constant by design) | `ai_assistant_agent` both runs — it IS always the synthesizer; reflects real `final_agent` field |
+| Confidence KPI | **FAKE precision** | 0.85 in both runs. Source: `ai_assistant_agent.py` — literally `0.85 if state.evidence else 0.55`. A two-value hardcode, not a computed confidence |
+| Agent Tasks KPI | REAL | 6 (run A) vs 9 (run B) |
+| Evidence Items KPI | REAL | 3 (run A) vs 15 (run B) |
+| Adapter mode cards | REAL endpoint, **misleading display** | `/adapters/status` does live per-tier probes (real pyTigerGraph/RESTPP connection errors returned). But card shows configured mode `tiered:real` with a green badge while the run was actually served by tier 4 (mock) — active tier not surfaced |
+| Reasoning Route | REAL | Run A: 5 steps ending revenue analysis w/ real figures (`LTM $437,293, momentum +17.7%`); Run B: 8 steps incl. `Compliance Agent reviewed 4 recommendation(s)... NEEDS_REVIEW x4`. Routes differ per supervisor keyword routing (verified in `supervisor_agent.py`) |
+| Agent Tasks table | REAL | Different agents/rows per run; durations from real `started_at/completed_at` timestamps (ai_assistant 4.4s = real Claude latency; revenue_agent 3ms) |
+| Evidence: Context Memory | REAL | Different retrieved memory content per advisor (A001 household-risk history vs A020 next-actions history) |
+| Evidence: TigerGraph Graph Access | **FAKE-IN-EFFECT** | Content is a fixed string "Graph evidence retrieved through MCP-first access." both runs. Worse: underlying query `phx_dm_getInsightEvidenceForAdvisor` (mock tier) reads the STALE `tigergraph/sample_data/` dataset (ADV0001-style ids) → **all-zero metrics for every real advisor** (A001, A020 both `{revenue:0, nnm:0, ...}`) — not the verified 156,247-row foundation store |
+| Evidence: Opportunity Engine | **BROKEN RENDER** | 4 cards in run B with title "Opportunity" and EMPTY content — agent reads `o['title']`/`o['description']` but pipeline emits `opportunity_type`/`impact_summary`. Real data present in metadata, wrong keys rendered |
+| Evidence: Revenue Agent | REAL | A001: `LTM $437,293.22, +17.7%, peer gap -35.2%`; A007: `LTM $546,697.69, +15.7%` — real GQ-004/005/006/008 computation |
+| Evidence: Recommendation Engine | REAL | Run B: 4 distinct playbook actions w/ real action text, per-advisor |
+| Evidence: Compliance Agent | REAL | Run B: 4× COMP-003 NEEDS_REVIEW with the actual per-rec impact figures ($64,711.55 / $257,000.00 / ...) — real rule engine |
+| Evidence: Coaching Agent | REAL | Real Claude-authored card grounded in `FS_A020_20260703_v2.0` |
+| Evidence: Prediction Engine | REAL | Run C: REVENUE_DECLINE_RISK 54.5 (XGBoost, 6 households), AGP_OFF_TRACK_RISK 28.0 w/ real milestone figures |
+| Evidence: Feedback Learning | REAL | Run C: real learning-signal reward 0.78 |
+| Evidence: Knowledge RAG | REAL retrieval, **CORPUS DEFECT** | Run C returned 5 "different" chunks that are the SAME document ingested repeatedly — `/knowledge/documents` shows **138 docs = every doc duplicated 10×** (repeated re-ingestion). Retrieval is real; the index is polluted, making evidence look copy-pasted |
+| Footer "Live orchestration run <id>" | REAL | Distinct real run_ids per run |
+
+### Part 1 fix list (from the audit)
+1. TigerGraph agent → query the real foundation-backed graph client (not stale sample_data); evidence card renders the actual retrieved figures.
+2. Opportunity evidence key mapping (`opportunity_type`/`impact_summary`).
+3. Real computed confidence (replace the 0.85/0.55 hardcode) with the formula exposed.
+4. Adapter cards show the ACTIVE tier that served the run, not just configured mode.
+5. Knowledge index dedupe (10× duplicate ingestion) + retrieval-side dedupe guard.
