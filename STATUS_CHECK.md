@@ -1117,3 +1117,19 @@ grounding score), events persisted to `phx_dm_guardrail_event`, full results in 
   94% conf, coaching agent 7,648 ms real Claude call), 4 opportunity cards w/ real figures, 4 compliance
   NEEDS_REVIEW cards, coaching card evidence, steps 1-9 replayed.
 - Every section differs correctly between the two runs; adapter cards show honest "serving: mock" tier.
+
+## Session 18 — Workflow-runner UX polish (2026-07-08)
+
+- Question box rebuilt as the focal element: a wide, multi-line, resizable textarea (3 rows,
+  grows with content) in its own runner card, replacing the narrow one-line input squeezed into
+  the header row. Advisor selector (labeled) + Run Workflow button stacked beside it.
+- Guidance added: placeholder ("Ask a question about this advisor — e.g. 'How can this advisor
+  grow revenue?' or 'What should I coach them on, and are the recommendations compliant?' — then
+  press Run Workflow") + a one-line helper caption above the box explaining what the page does.
+  Question state now starts empty so the placeholder actually shows; runs fall back to the example
+  question until the user types one (auto-runs on advisor change unchanged).
+- Existing design tokens/primitives only (Card, Badge, Button, border/background classes); rest of
+  the page untouched. Frontend typecheck clean.
+- Verified: `docs/qa_screenshots/agents-runner-textarea.png` (new runner, placeholder visible) and
+  the full two-run + guardrail-block E2E script re-ran green against the new textarea
+  (agents-runA/B/C screenshots refreshed).

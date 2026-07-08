@@ -17,6 +17,8 @@ const STATUS_VARIANT: Record<string, "success" | "warning" | "destructive" | "gl
   completed: "success", running: "warning", pending: "glass", failed: "destructive",
 };
 
+const DEFAULT_QUESTION = "How can this advisor grow revenue?";
+
 function durationMs(a: string | null, b: string | null): string {
   if (!a || !b) return "—";
   const ms = new Date(b).getTime() - new Date(a).getTime();
@@ -48,7 +50,9 @@ export function SystemObservabilityWorkspace() {
   const shell = useShellContext();
   const [advisorId, setAdvisorId] = useState("A001");
   const [advisors, setAdvisors] = useState<Array<{ advisor_id: string; advisor_name: string | null }>>([]);
-  const [question, setQuestion] = useState("How can this advisor grow revenue?");
+  // Starts empty so the guidance placeholder shows; runs fall back to the example
+  // question until the user types their own.
+  const [question, setQuestion] = useState("");
   const [run, setRun] = useState<AgenticRun | null>(null);
   const [adapters, setAdapters] = useState<AdapterStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -73,7 +77,7 @@ export function SystemObservabilityWorkspace() {
     const seq = ++runSeq.current;
     setBusy(true);
     try {
-      const result = await runAgenticWorkflow(question, advisorId);
+      const result = await runAgenticWorkflow(question.trim() || DEFAULT_QUESTION, advisorId);
       if (seq === runSeq.current) setRun(result);
     } finally {
       if (seq === runSeq.current) setBusy(false);
@@ -109,37 +113,51 @@ export function SystemObservabilityWorkspace() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <Badge variant="glass">Agent Orchestration &amp; Observability</Badge>
-          <h2 className={`mt-2 ${type.pageTitle}`}>Live Multi-Agent Workflow Trace</h2>
-          <p className="text-[12px] text-muted-foreground">
-            Runs the real supervisor→agents orchestration (`/agentic-ai/run`) and shows the actual
-            route, per-agent tasks, evidence and confidence — plus live adapter modes. No simulated
-            metrics.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <select
-            className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
-            value={advisorId}
-            onChange={(e) => setAdvisorId(e.target.value)}
-          >
-            {advisors.length === 0 && <option value={advisorId}>{advisorId}</option>}
-            {advisors.map((a) => (
-              <option key={a.advisor_id} value={a.advisor_id}>{a.advisor_name ?? a.advisor_id}</option>
-            ))}
-          </select>
-          <input
-            className="h-8 w-64 rounded-lg border border-border bg-background px-2 text-[12px]"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <Button variant="premium" className="h-8 gap-2 text-[12px]" onClick={execute} disabled={busy}>
-            <PlayCircle className="h-4 w-4" /> {busy ? "Running…" : "Run Workflow"}
-          </Button>
-        </div>
+      <div>
+        <Badge variant="glass">Agent Orchestration &amp; Observability</Badge>
+        <h2 className={`mt-2 ${type.pageTitle}`}>Live Multi-Agent Workflow Trace</h2>
+        <p className="text-[12px] text-muted-foreground">
+          Runs the real supervisor→agents orchestration (`/agentic-ai/run`) and shows the actual
+          route, per-agent tasks, evidence and confidence — plus live adapter modes. No simulated
+          metrics.
+        </p>
       </div>
+
+      <Card>
+        <CardContent className="space-y-2 p-3">
+          <p className="text-[12px] text-muted-foreground">
+            Enter a question and run it through the live multi-agent system — the sections below
+            show the real agents, evidence, and reasoning that produce the answer.
+          </p>
+          <div className="flex flex-wrap items-stretch gap-2">
+            <textarea
+              rows={3}
+              className="min-h-[76px] flex-1 basis-[420px] resize-y rounded-lg border border-border bg-background px-3 py-2 text-[13px] leading-relaxed placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              placeholder={"Ask a question about this advisor — e.g. 'How can this advisor grow revenue?' or 'What should I coach them on, and are the recommendations compliant?' — then press Run Workflow"}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+            <div className="flex w-56 flex-col justify-between gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Advisor</span>
+                <select
+                  className="h-8 rounded-lg border border-border bg-background px-2 text-[12px]"
+                  value={advisorId}
+                  onChange={(e) => setAdvisorId(e.target.value)}
+                >
+                  {advisors.length === 0 && <option value={advisorId}>{advisorId}</option>}
+                  {advisors.map((a) => (
+                    <option key={a.advisor_id} value={a.advisor_id}>{a.advisor_name ?? a.advisor_id}</option>
+                  ))}
+                </select>
+              </div>
+              <Button variant="premium" className="h-9 w-full gap-2 text-[12px]" onClick={execute} disabled={busy}>
+                <PlayCircle className="h-4 w-4" /> {busy ? "Running…" : "Run Workflow"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiStatCard label="Final Agent" value={run ? run.final_agent.replace(/_/g, " ") : "—"} />

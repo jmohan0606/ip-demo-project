@@ -43,9 +43,9 @@ for (const run of RUNS) {
     await select.selectOption(run.advisorValue);
     await waitForNewRun(prev); // advisor change auto-triggers a run
   }
-  // The question input sits immediately before the Run Workflow button (the header
-  // has a global search input — do NOT grab the first input on the page).
-  const input = page.locator("input.w-64");
+  // The question box is the runner card's textarea (the header has a global
+  // search input — do NOT grab inputs by position).
+  const input = page.locator("textarea");
   await input.fill(run.question);
   const prev = await currentRunId();
   const btn = page.getByRole("button", { name: /Run Workflow/ });
