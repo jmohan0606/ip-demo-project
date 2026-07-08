@@ -78,9 +78,10 @@ export function AgentSystemGraph({ run }: { run: AgenticRun | null }) {
     apiClient.get<Topology>("/agentic-ai/topology").then(setTopo).catch(() => setTopo(null));
   }, []);
 
-  // The executed path for THIS run, from the real recorded route plan.
+  // The executed path for THIS run, from the real recorded route plan. A run the
+  // input guardrails blocked never reached the supervisor — highlight nothing.
   const executedPath = useMemo(
-    () => (run ? ["supervisor", ...run.route_plan] : []),
+    () => (run && run.final_agent !== "guardrails" ? ["supervisor", ...run.route_plan] : []),
     [run],
   );
 

@@ -1,6 +1,6 @@
 "use client";
 import { type } from "@/styles/tokens";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Bot, PlayCircle, Workflow, ShieldCheck, Network, Brain, Sparkles } from "lucide-react";
 import { useShellContext } from "@/components/layout/shell-context";
 import { apiClient } from "@/lib/api/client";
@@ -22,6 +22,27 @@ function durationMs(a: string | null, b: string | null): string {
   const ms = new Date(b).getTime() - new Date(a).getTime();
   return Number.isFinite(ms) && ms >= 0 ? `${ms} ms` : "—";
 }
+
+// Compact one-line rendering of an agent task's REAL result payload (what the
+// agent actually decided/produced this run) — scalars only, nested blobs skipped.
+function decisionSummary(result: Record<string, unknown> | undefined): string {
+  if (!result) return "—";
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(result)) {
+    if (v == null) continue;
+    if (Array.isArray(v)) parts.push(`${k}: ${v.length <= 4 && v.every((x) => typeof x === "string") ? v.join(" → ") : `${v.length} items`}`);
+    else if (typeof v === "object") continue;
+    else parts.push(`${k}: ${typeof v === "number" ? Number(v.toFixed ? v.toFixed(2) : v) : String(v)}`);
+  }
+  return parts.slice(0, 5).join(" · ") || "—";
+}
+
+const GUARDRAIL_ACTION_VARIANT: Record<string, "success" | "warning" | "destructive" | "glass"> = {
+  ALLOW: "success", FLAG: "warning", REDACT: "warning", BLOCK: "destructive",
+};
+const COMPLIANCE_VARIANT: Record<string, "success" | "warning" | "destructive" | "glass"> = {
+  PASSED: "success", NEEDS_REVIEW: "warning", NEEDS_DISCLOSURE: "warning", BLOCKED: "destructive",
+};
 
 export function SystemObservabilityWorkspace() {
   const shell = useShellContext();
@@ -45,12 +66,17 @@ export function SystemObservabilityWorkspace() {
     else resolveScope(shell.scopeType, shell.scopeId).then((r) => setAdvisorId(r.advisor_ids[0] ?? "A001")).catch(() => undefined);
   }, [shell.scopeType, shell.scopeId]);
 
+  // Monotonic sequence so an older in-flight run can never overwrite a newer one
+  // (advisor-change auto-runs and manual runs can overlap).
+  const runSeq = useRef(0);
   const execute = useCallback(async () => {
+    const seq = ++runSeq.current;
     setBusy(true);
     try {
-      setRun(await runAgenticWorkflow(question, advisorId));
+      const result = await runAgenticWorkflow(question, advisorId);
+      if (seq === runSeq.current) setRun(result);
     } finally {
-      setBusy(false);
+      if (seq === runSeq.current) setBusy(false);
     }
   }, [question, advisorId]);
 
@@ -184,6 +210,7 @@ export function SystemObservabilityWorkspace() {
                   <tr className="border-b text-left text-[10px] uppercase tracking-wide text-muted-foreground">
                     <th className="px-3 py-2">Agent</th>
                     <th className="px-3 py-2">Instruction</th>
+                    <th className="px-3 py-2">Decision / Output</th>
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2 text-right">Duration</th>
                   </tr>
@@ -193,6 +220,7 @@ export function SystemObservabilityWorkspace() {
                     <tr key={t.task_id} className="border-b last:border-0">
                       <td className="px-3 py-2 font-medium">{t.agent_name.replace(/_/g, " ")}</td>
                       <td className="px-3 py-2 text-muted-foreground">{t.instruction}</td>
+                      <td className="px-3 py-2 font-mono text-[10px] text-muted-foreground">{t.error ?? decisionSummary(t.result)}</td>
                       <td className="px-3 py-2"><Badge variant={STATUS_VARIANT[t.status] ?? "glass"}>{t.status}</Badge></td>
                       <td className="px-3 py-2 text-right font-mono text-muted-foreground">{durationMs(t.started_at, t.completed_at)}</td>
                     </tr>
@@ -223,6 +251,85 @@ export function SystemObservabilityWorkspace() {
           ))}
         </CardContent>
       </Card>
+
+      {run?.guardrails && (
+        <div className="grid gap-3 xl:grid-cols-2">
+          {(["input", "output"] as const).map((stage) => {
+            const g = run.guardrails?.[stage];
+            if (!g) return null;
+            return (
+              <Card key={stage}>
+                <CardHeader className="flex flex-row items-center justify-between p-3">
+                  <CardTitle className="flex items-center gap-2 text-[13px]">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    {stage === "input" ? "Input Guardrails (Question)" : "Output Guardrails (Answer)"}
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    {g.grounding_score != null && (
+                      <Badge variant="glass">grounding {(g.grounding_score * 100).toFixed(0)}%</Badge>
+                    )}
+                    <Badge variant={GUARDRAIL_ACTION_VARIANT[g.action] ?? "glass"}>{g.action}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-3 text-[12px]">
+                  {g.findings.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      No findings — this run&apos;s {stage === "input" ? "question passed injection/jailbreak/PII screening" : "answer passed PII/grounding screening"}.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {g.findings.map((f, i) => (
+                        <li key={i} className="rounded-lg border bg-background/60 p-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant={GUARDRAIL_ACTION_VARIANT[f.action] ?? "glass"} className="text-[9px]">{f.action}</Badge>
+                            <span className="font-semibold">{f.category}</span>
+                            <span className="text-[10px] text-muted-foreground">{f.severity} · {f.matched_rule}</span>
+                          </div>
+                          <p className="mt-1 text-muted-foreground">{f.detail}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {run?.compliance_review && run.compliance_review.reviews.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between p-3">
+            <CardTitle className="flex items-center gap-2 text-[13px]">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Compliance Review (This Run)
+            </CardTitle>
+            <div className="flex items-center gap-1.5">
+              {Object.entries(run.compliance_review.status_counts).map(([s, n]) => (
+                <Badge key={s} variant={COMPLIANCE_VARIANT[s] ?? "glass"}>{s.replace(/_/g, " ")} × {n}</Badge>
+              ))}
+            </div>
+          </CardHeader>
+          <CardContent className="p-3 text-[12px]">
+            <p className="mb-2 text-[11px] text-muted-foreground">
+              Rules evaluated on every generated recommendation: {run.compliance_review.rules_evaluated.join(", ")}.
+            </p>
+            <ul className="grid gap-2 md:grid-cols-2">
+              {run.compliance_review.reviews.map((r, i) => (
+                <li key={i} className="rounded-lg border bg-background/60 p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate font-mono text-[10px]">{r.recommendation_id}</span>
+                    <Badge variant={COMPLIANCE_VARIANT[r.status] ?? "glass"} className="text-[9px]">{r.status.replace(/_/g, " ")}</Badge>
+                  </div>
+                  {r.flags.map((f, j) => (
+                    <p key={j} className="mt-1 text-muted-foreground">[{f.rule}] {f.detail}</p>
+                  ))}
+                  {r.flags.length === 0 && <p className="mt-1 text-muted-foreground">All rules passed.</p>}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {run && (
         <div className="rounded-xl border bg-good-soft p-3 text-[11px] text-muted-foreground">

@@ -2507,3 +2507,24 @@ clean error; (c) LLM cdao_openai path still guards cleanly after the shared-help
 return shapes (list[float] / list[list[float]]) match the only consumer, KnowledgeEmbeddingService
 (RAG ingestion + similarity), by inspection. Live cdao embedding calls only testable on the client
 machine post-PCL-login (noted). No secrets committed; CLAUDE.md untouched.
+
+## Session 18 — 2026-07-08 (Fable 5): Agent Orchestration page — full real-vs-static audit + rebuild
+Completed:
+- PART 0 audit (STATUS_CHECK.md): section-by-section REAL/STATIC verdicts via two-run test with real
+  Claude. Found: TigerGraph evidence fake-in-effect (boilerplate + stale sample_data returning zeros),
+  Opportunity evidence rendering empty (key mismatch), confidence hardcoded 0.85/0.55, adapter card
+  hiding the active tier, RAG corpus duplicated 10× (138 docs).
+- PART 1 fixes, all re-proven with two runs: real get_advisor_360 traversal evidence via tiered client;
+  opportunity keys fixed; computed confidence w/ exposed formula; adapter card shows serving tier;
+  knowledge ingestion made idempotent (sha256) + dedupe endpoint, corpus repaired 138→15.
+- PART 2: /agentic-ai/topology grounded in AgentRegistry + declarative SupervisorAgent.ROUTING_RULES
+  (single source of truth, routing behavior unchanged); ReactFlow live agent graph with progressive
+  replay of the real recorded route (per-agent real durations), click-to-inspect nodes.
+- PART 3: guardrails wired into the agentic path (input block/output grounding, proven live both ways),
+  compliance-review + guardrail sections, per-agent Decision/Output column, run-race guard.
+Verified: 3 Playwright screenshots in docs/qa_screenshots/ (agents-runA/B/C), typecheck clean, backend
+boots, LLM_CLIENT_MODE=claude throughout.
+Known issues / notes: graph traversal counts are uniform across advisors BY SEED DESIGN (60×6
+households in foundation CSVs) — differentiation is at name/branch/figure level. Port 8000 currently
+not Public in the Codespaces panel; frontend dev run used loopback API base for verification.
+Next: none for this request — all four parts done and pushed.

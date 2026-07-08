@@ -50,6 +50,7 @@ class AgenticResponse(BaseModel):
     route_plan: list[str] = Field(default_factory=list)
     graph_evidence: dict[str, Any] | None = None
     errors: list[str] = Field(default_factory=list)
+    guardrails: dict[str, Any] | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class AgentWorkflowState(BaseModel):

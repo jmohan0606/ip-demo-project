@@ -42,6 +42,20 @@ export interface ComplianceReview {
   rules_evaluated: string[];
 }
 
+export interface GuardrailResult {
+  stage: string;
+  action: string;
+  blocked: boolean;
+  grounding_score: number | null;
+  findings: Array<{
+    category: string;
+    severity: string;
+    action: string;
+    matched_rule: string;
+    detail: string;
+  }>;
+}
+
 export interface AgenticRun {
   run_id: string;
   answer: string;
@@ -59,6 +73,7 @@ export interface AgenticRun {
     counts?: Record<string, number>;
   } | null;
   compliance_review: ComplianceReview | null;
+  guardrails: { input?: GuardrailResult; output?: GuardrailResult } | null;
   errors: string[];
   created_at: string;
 }
