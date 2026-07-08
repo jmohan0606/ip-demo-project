@@ -1273,3 +1273,35 @@ Created `CLIENT_SETUP_RUNBOOK.md` (top-to-bottom client-machine setup). Answers 
    need `PYTHONPATH=.` (else `ModuleNotFoundError: app`) → documented + baked into the orchestrator.
 
 Committed + pushed as `018ac8c` (CLIENT_SETUP_RUNBOOK.md + both scripts). CLAUDE.md untouched.
+
+## Tasks — pyTigerGraph[gds] clarification + schema DROP scripts (2026-07-08)
+
+**TASK 1 — clarified pyTigerGraph[gds] (not used yet).** Commented out the `gds` optional group in
+`pyproject.toml` with the required inline note ("Not used yet — required only for the native
+TigerGraph GDS/GNN conversion on the client machine; see GRAPH_ML_AND_GDS.md Part 2. Uncomment when
+doing that conversion."). Today graph algorithms run in networkx and GraphSAGE in local PyTorch
+Geometric (`[ml]`'s torch-geometric), so `pyTigerGraph[gds]` is unused. `scripts/check_client_deps.py`
+parses optional groups dynamically from the TOML, so the commented group no longer appears (no false
+MISSING) — verified: run now lists 43 reqs (was 44), exit 0, no `gds` row; also refined its
+`pytigergraph` at-risk note to say the gds extra is future-only. `GRAPH_ML_AND_GDS.md` was provided
+by the user (present at repo root, has PART 2 native-conversion plan) — left untouched, referenced
+from pyproject + the runbook's §6.4/§6.5. Updated `CLIENT_SETUP_RUNBOOK.md` install commands
+`.[cdao,ml,gds]` → `.[cdao,ml]` and the GNN-fallback wording. VERIFIED in codespace: TOML parses,
+`gds` gone from optional-dependencies, `import app.api.main` OK (app boots without the extra),
+dep-check exit 0.
+
+**TASK 2 — schema DROP scripts.** Created
+`docs/tigergraph_foundation/tigergraph/schema/99_drop_all.gsql` — full teardown in TigerGraph-correct
+order: `USE GLOBAL` → `DROP GRAPH iperform_insights_coaching_demo` → `DROP EDGE` (all **133** forward
+edges; reverse edges auto-drop with their forward edge — they can't be dropped alone) → `DROP VERTEX`
+(all **60** vertex types). Object lists were GENERATED programmatically from the real
+`01_vertices.gsql` / `02_edges.gsql` (not hand-typed), so they're complete and in sync; validated:
+lists match the CREATE scripts exactly, correct comma termination, no `rev_` edges listed, DROP GRAPH
+present. Header carries the WARNING (deletes schema + data, no undo), the recreate sequence
+(01_vertices → 02_edges → 03_create_graph → install_all_queries → reload data), and a `DROP ALL`
+nuclear alternative. NOTE: real counts are 60 vertices / **133** forward edges (+133 reverse) — the
+task's "132 edges" reflects the slightly-stale `schema_catalog.json`, which is missing one edge
+(`phx_dm_transaction_from_recommendation`) added in Section 13; the drop script uses the true gsql
+count. Documented in `CLIENT_SETUP_RUNBOOK.md` new §6.5 "Reset / rebuild the schema". 🔶 GSQL was
+STRUCTURALLY validated only — not executed (no reachable TigerGraph in the codespace); verify live on
+the client machine / a real TigerGraph.
