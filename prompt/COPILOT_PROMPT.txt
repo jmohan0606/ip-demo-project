@@ -1,0 +1,96 @@
+GOAL: Make the app truly connect to and use TigerGraph 4.2.2 — fix the auth so
+it connects, AND fix the bugs that hide TigerGraph failures / show mock data as
+if it were real. At the end, TigerGraph must genuinely work AND the app must
+honestly report which tier is serving. Analyze, fix, test, re-verify. TEST each
+change before moving on; do not assume. Backup all the files that you might
+change to a backup folder in the same hierarchy with a date appended,
+so that way we will have a backup. If there is question in between about 
+environment variable values or something that needs my attention you can
+ask otherwise continue to work.
+
+=== CONFIRMED CONTEXT (already diagnosed) ===
+- TigerGraph 4.2.2, SSL enabled. Host https://wh-110ecdf498.svr.us.jpmchase.net
+  (NO port in host — the doubled-port bug was already fixed by removing :14240
+  from TG_HOST). Ports: restppPort 9000, gsPort 14240, sslPort 14240. User
+  R757680. Secret VALID (SHOW SECRET shows alias iperform_insights_coaching_demo,
+  ending 9480).
+- AUTH FAILURE: conn.getToken(secret) returns HTTP 400 "User authentication
+  failed" from https://...:9000/requesttoken (RESTPP 3.x token endpoint). On
+  4.x + SSL, tokens should use the GSQL port (14240) /gsql/v1/tokens. The
+  TigerGraphConnection in app/graph/tiered_client.py PyTigerGraphClient.
+  _connection() does NOT pass gsqlVersion/version, so it defaults to the wrong
+  3.x token path.
+- HIDDEN-FAILURE BUGS: because TigerGraph auth fails, the TieredGraphClient
+  silently falls through to the mock tier (tier 4), which "succeeds" by writing
+  to / reading from an in-memory FoundationGraphStore. As a result:
+  (a) Data Ingestion "Run All" reports 192/192 completed, 0 failed, but writes
+      NOTHING to TigerGraph (it wrote to mock).
+  (b) The Environment Health screen shows TigerGraph "CONNECTED / tiered:real /
+      34,070 rows" even though TigerGraph is empty — because
+      environment_health_service._check_tigergraph() reads client.store (which
+      TieredGraphClient always exposes as the mock tier's store, tiered_client.py
+      ~line 527) instead of the real getVertexCount, and client.health() returns
+      healthy because the mock tier is healthy.
+
+=== PART A — FIX TIGERGRAPH AUTH (so it actually connects) ===
+1. Check installed pyTigerGraph version (uv run python -c "import pyTigerGraph;
+   print(pyTigerGraph.__version__)").
+2. In app/graph/tiered_client.py PyTigerGraphClient._connection(), determine and
+   apply the correct way to acquire a token with a secret on TigerGraph 4.2.2
+   over SSL. Investigate against the actual installed pyTigerGraph API (read the
+   package source; do NOT guess): does TigerGraphConnection need
+   gsqlVersion="4.2.2" (or version=)? Should the token request use the GSQL/SSL
+   port (14240) not RESTPP (9000)? Is there a different getToken path for 4.x?
+3. Keep the auth-precedence chain intact (JWT → API token → getToken(secret) →
+   user/pass). No hardcoded secrets — read from settings/.env.
+4. TEST until it passes:
+   uv run python -c "from app.graph.tiered_client import PyTigerGraphClient;
+   c=PyTigerGraphClient(); print(c.health())"  → must be {'healthy': True,
+   'mode': 'pytigergraph', ...} with NO auth error. Then upsert a test vertex
+   and read it back (getVertexCount) to prove real write+read works.
+
+=== PART B — FIX THE HIDDEN-FAILURE / MISLEADING-STATUS BUGS ===
+5. Environment Health screen must show REAL TigerGraph counts, not mock. In
+   app/services/environment_health_service.py _check_tigergraph(): when the
+   active/serving graph tier is the real pyTigerGraph tier (or GRAPH_CLIENT_MODE
+   is real/local_real), report the ACTUAL TigerGraph vertex counts via the
+   pyTigerGraph connection (getVertexCount("*")) — NOT client.store (the mock
+   store). Only report the mock store's counts if the real tier genuinely isn't
+   serving, and clearly LABEL it as mock/fallback in that case. The panel must
+   never show "CONNECTED / real" with mock counts while TigerGraph is actually
+   failing.
+6. Ingestion must not silently succeed against mock when TigerGraph was intended.
+   When GRAPH_CLIENT_MODE=real (or the user explicitly runs ingestion expecting
+   TigerGraph), if the write is served by the mock tier instead of the real
+   TigerGraph tier, the ingestion result must SURFACE this (fail loudly or clearly
+   flag "served_by: mock — NOT written to TigerGraph") rather than reporting
+   "completed / 0 failed". Use the existing tier log / served_by_tier to detect
+   which tier actually served, and reflect it honestly in the ingestion status +
+   the UI. Do not silently degrade a real-mode write to mock and call it success.
+7. Audit services that read get_graph_client().store directly (bypassing
+   run_query and thus reading the in-memory mock store instead of TigerGraph).
+   List them. For each, determine whether it should go through run_query (real
+   TigerGraph) in real mode. Fix the ones that should be TigerGraph-backed;
+   document any intentionally store-based.
+
+=== PART C — VERIFY END TO END ===
+8. With auth fixed (Part A) and data loaded via "Run All Ingestion":
+   - GraphStudio SELECT count of phx_dm_advisor returns 60 (data really in TG).
+   - Environment Health TigerGraph panel shows the REAL loaded counts (matching
+     what's in TigerGraph), served by tier 2 (pyTigerGraph), not mock.
+   - Data Ingestion loaded counts reconcile with the Health screen counts.
+   - The app's read queries (dashboard, etc.) are served by tier 2 (real
+     TigerGraph) — confirm via served_by_tier / tier log, not mock.
+
+=== REPORT ===
+State: pyTigerGraph version; the auth root cause + exact fix; the exact fixes for
+the health-screen and silent-fallback bugs; the list of services reading .store
+directly + how you handled them; and paste the passing health() output, a real
+vertex write+read proof, and confirmation the two screens now reconcile with real
+TigerGraph.
+
+DO NOT STOP until: health() returns healthy:True, a real vertex write+read against
+TigerGraph 4.2.2 succeeds, ingestion writes to REAL TigerGraph (and would report
+honestly if it fell back to mock), and the Environment Health screen shows real
+TigerGraph counts that match what's actually loaded. The whole point: the app runs
+on REAL TigerGraph data, and never again reports mock as if it were real.
