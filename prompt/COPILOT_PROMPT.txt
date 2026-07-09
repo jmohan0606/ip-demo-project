@@ -1,96 +1,158 @@
-GOAL: Make the app truly connect to and use TigerGraph 4.2.2 — fix the auth so
-it connects, AND fix the bugs that hide TigerGraph failures / show mock data as
-if it were real. At the end, TigerGraph must genuinely work AND the app must
-honestly report which tier is serving. Analyze, fix, test, re-verify. TEST each
-change before moving on; do not assume. Backup all the files that you might
-change to a backup folder in the same hierarchy with a date appended,
-so that way we will have a backup. If there is question in between about 
-environment variable values or something that needs my attention you can
-ask otherwise continue to work.
+GOAL: Make the ENTIRE application genuinely TigerGraph-backed. In
+GRAPH_CLIENT_MODE=real, ALL data must come from TigerGraph via real queries.
+The in-memory mock/foundation store must be used ONLY as a genuine fallback
+when TigerGraph actually fails — never as the default serving path in real mode,
+and never as a silent substitute. TigerGraph 4.2.2 auth is working (health
+healthy:true, tier 2 serving, 189/192 loaded). Build on that.
 
-=== CONFIRMED CONTEXT (already diagnosed) ===
-- TigerGraph 4.2.2, SSL enabled. Host https://wh-110ecdf498.svr.us.jpmchase.net
-  (NO port in host — the doubled-port bug was already fixed by removing :14240
-  from TG_HOST). Ports: restppPort 9000, gsPort 14240, sslPort 14240. User
-  R757680. Secret VALID (SHOW SECRET shows alias iperform_insights_coaching_demo,
-  ending 9480).
-- AUTH FAILURE: conn.getToken(secret) returns HTTP 400 "User authentication
-  failed" from https://...:9000/requesttoken (RESTPP 3.x token endpoint). On
-  4.x + SSL, tokens should use the GSQL port (14240) /gsql/v1/tokens. The
-  TigerGraphConnection in app/graph/tiered_client.py PyTigerGraphClient.
-  _connection() does NOT pass gsqlVersion/version, so it defaults to the wrong
-  3.x token path.
-- HIDDEN-FAILURE BUGS: because TigerGraph auth fails, the TieredGraphClient
-  silently falls through to the mock tier (tier 4), which "succeeds" by writing
-  to / reading from an in-memory FoundationGraphStore. As a result:
-  (a) Data Ingestion "Run All" reports 192/192 completed, 0 failed, but writes
-      NOTHING to TigerGraph (it wrote to mock).
-  (b) The Environment Health screen shows TigerGraph "CONNECTED / tiered:real /
-      34,070 rows" even though TigerGraph is empty — because
-      environment_health_service._check_tigergraph() reads client.store (which
-      TieredGraphClient always exposes as the mock tier's store, tiered_client.py
-      ~line 527) instead of the real getVertexCount, and client.health() returns
-      healthy because the mock tier is healthy.
+WORK CONTINUITY (important — this is a large migration):
+- Track everything in a dedicated file STORE_MIGRATION.md: a checklist of every
+  file to migrate, its status (DONE / IN-PROGRESS / REMAINING / BLOCKED-with-
+  reason), what was changed, and the verification result per file.
+- Update STORE_MIGRATION.md continuously as you go, and PROGRESS.md at
+  boundaries. Commit + push after each file or small group is migrated and
+  verified, so nothing is lost.
+- If you approach a session/usage limit before finishing, STOP at a clean,
+  committed checkpoint, write exactly what's DONE vs REMAINING and the precise
+  next file to resume from in STORE_MIGRATION.md, and tell me clearly to
+  continue. Do NOT rush or fake completion to appear done — an honest resumable
+  checkpoint is required. I will resume you from STORE_MIGRATION.md until every
+  file is done.
 
-=== PART A — FIX TIGERGRAPH AUTH (so it actually connects) ===
-1. Check installed pyTigerGraph version (uv run python -c "import pyTigerGraph;
-   print(pyTigerGraph.__version__)").
-2. In app/graph/tiered_client.py PyTigerGraphClient._connection(), determine and
-   apply the correct way to acquire a token with a secret on TigerGraph 4.2.2
-   over SSL. Investigate against the actual installed pyTigerGraph API (read the
-   package source; do NOT guess): does TigerGraphConnection need
-   gsqlVersion="4.2.2" (or version=)? Should the token request use the GSQL/SSL
-   port (14240) not RESTPP (9000)? Is there a different getToken path for 4.x?
-3. Keep the auth-precedence chain intact (JWT → API token → getToken(secret) →
-   user/pass). No hardcoded secrets — read from settings/.env.
-4. TEST until it passes:
-   uv run python -c "from app.graph.tiered_client import PyTigerGraphClient;
-   c=PyTigerGraphClient(); print(c.health())"  → must be {'healthy': True,
-   'mode': 'pytigergraph', ...} with NO auth error. Then upsert a test vertex
-   and read it back (getVertexCount) to prove real write+read works.
+=== PART A — FIX THE 3 FAILED EDGE TYPES (close 192/192) ===
+Run-All completed 189/192; 3 edge types FAILED (live TigerGraph rejected them —
+schema/install mismatch on the remote graph):
+- phx_dm_coaching_task_for_advisor
+- phx_dm_coaching_task_assigned_by
+- phx_dm_transition_of_recommendation
+1. Investigate: are they installed on the live graph (query getSchema) vs.
+   present in source-of-truth schema files
+   (docs/tigergraph_foundation/tigergraph/schema/)? Compare these 3 edge
+   definitions against edges that loaded successfully for a definition
+   difference (FROM/TO types, reverse-edge naming, attribute types) the live
+   4.2.2 engine rejects.
+2. Fix root cause: if not installed, generate correct GSQL and install on live
+   TigerGraph (or output exact GSQL for me to run — tell me which); if malformed
+   for 4.2.2, correct in schema files AND install.
+3. Re-run full "Run All"; confirm 192/192, 0 failed, the 3 edges now loading
+   rows. Show the real result.
 
-=== PART B — FIX THE HIDDEN-FAILURE / MISLEADING-STATUS BUGS ===
-5. Environment Health screen must show REAL TigerGraph counts, not mock. In
-   app/services/environment_health_service.py _check_tigergraph(): when the
-   active/serving graph tier is the real pyTigerGraph tier (or GRAPH_CLIENT_MODE
-   is real/local_real), report the ACTUAL TigerGraph vertex counts via the
-   pyTigerGraph connection (getVertexCount("*")) — NOT client.store (the mock
-   store). Only report the mock store's counts if the real tier genuinely isn't
-   serving, and clearly LABEL it as mock/fallback in that case. The panel must
-   never show "CONNECTED / real" with mock counts while TigerGraph is actually
-   failing.
-6. Ingestion must not silently succeed against mock when TigerGraph was intended.
-   When GRAPH_CLIENT_MODE=real (or the user explicitly runs ingestion expecting
-   TigerGraph), if the write is served by the mock tier instead of the real
-   TigerGraph tier, the ingestion result must SURFACE this (fail loudly or clearly
-   flag "served_by: mock — NOT written to TigerGraph") rather than reporting
-   "completed / 0 failed". Use the existing tier log / served_by_tier to detect
-   which tier actually served, and reflect it honestly in the ingestion status +
-   the UI. Do not silently degrade a real-mode write to mock and call it success.
-7. Audit services that read get_graph_client().store directly (bypassing
-   run_query and thus reading the in-memory mock store instead of TigerGraph).
-   List them. For each, determine whether it should go through run_query (real
-   TigerGraph) in real mode. Fix the ones that should be TigerGraph-backed;
-   document any intentionally store-based.
+=== PART B — MIGRATE EVERY DIRECT .store READER TO REAL TigerGraph ===
+Migrate ALL of the following (complete audited list). The hard rule for every
+one: in GRAPH_CLIENT_MODE=real, data comes from TigerGraph via run_query (or a
+typed repository/GraphClient method dispatching to tier 2); the store is touched
+ONLY if the real TigerGraph query genuinely fails (real fallback), and such a
+fallback must be LOGGED, never silent.
 
-=== PART C — VERIFY END TO END ===
-8. With auth fixed (Part A) and data loaded via "Run All Ingestion":
-   - GraphStudio SELECT count of phx_dm_advisor returns 60 (data really in TG).
-   - Environment Health TigerGraph panel shows the REAL loaded counts (matching
-     what's in TigerGraph), served by tier 2 (pyTigerGraph), not mock.
-   - Data Ingestion loaded counts reconcile with the Health screen counts.
-   - The app's read queries (dashboard, etc.) are served by tier 2 (real
-     TigerGraph) — confirm via served_by_tier / tier log, not mock.
+HIGH-IMPACT (demo-facing) — do FIRST:
+- app/scope/dashboard.py
+- app/scope/rollup.py
+- app/revenue/analytics.py
+- app/revenue/trend_explorer.py
+- app/api/routers/advisor360.py
+- app/client360/service.py
+- app/api/routers/hierarchy.py
+- app/peers/benchmarking.py
+- app/services/pipeline_trace_service.py
+
+REMAINING — migrate ALL of these too:
+- app/agp/mentorship.py
+- app/agp/service.py
+- app/api/routers/search_notifications.py
+- app/coaching/service.py
+- app/crm/service.py
+- app/embeddings/similar_entities.py
+- app/graph/neighborhood.py
+- app/graph/memory/memory_seeder.py
+- app/recommendations/lifecycle.py
+- app/recommendations/service.py
+- app/repositories/state_repository.py
+
+(Leave mock-tier internals in app/graph/client.py and app/graph/tiered_client.py
+as-is — those ARE the mock store implementation.)
+
+For each file:
+1. Identify every direct .store read and the data it fetches.
+2. Replace with the real TigerGraph query via run_query, using installed GQ-###
+   queries where they exist (get_advisor_360, get_org_hierarchy,
+   get_scope_descendants, get_household_360, get_account_holdings, etc.).
+3. If a needed read has NO matching query: create the appropriate GSQL query
+   (V1 syntax, matching the existing query conventions) and install it, rather
+   than falling back to store. Only if a real query genuinely cannot be created/
+   run, mark that specific read BLOCKED in STORE_MIGRATION.md with the reason —
+   do not silently leave it on store.
+   NEW QUERY FILE REQUIREMENT — whenever you create a new GSQL query (because a
+	.store read has no matching existing query):
+	- Save it as a proper query file in the source-of-truth queries folder
+	  (docs/tigergraph_foundation/tigergraph/queries/), following the EXISTING
+	  naming + format convention: next sequential GQ-### number, header comment
+	  block (name, purpose, outputs) matching the other query files, SYNTAX V1,
+	  correct V1 parameter order (TYPE name) and V1 traversal patterns (vertex-type
+	  targets, edge aliases, one hop per SELECT) — consistent with the 50 existing
+	  queries.
+	- Add it to the query catalog/manifest (query_catalog.json and any
+	  install_all_queries.gsql / test cases) so it's part of the installable set and
+	  reproduces on a fresh rebuild.
+	- Install it on the live TigerGraph AND confirm it installs cleanly (same V1
+	  rules that were needed for the existing queries).
+	- List every newly-created query (file name + purpose) in STORE_MIGRATION.md and
+	  the final report.
+	Do NOT create ad-hoc queries that only exist on the live graph — every new query
+	must be a committed file in the source-of-truth queries folder so it survives a
+	rebuild and lives in the base repo.
+4. Preserve behavior EXACTLY — same data shape to the UI; only change the SOURCE
+   (TigerGraph, not in-memory store).
+5. Fallback discipline: store fallback ONLY on real TigerGraph failure, and it
+   MUST be logged (so we can see when/why real failed). Never default to store
+   in real mode; never silently substitute mock for a working real path.
+6. app/repositories/state_repository.py already has a TigerGraph+SQLite adapter
+   (StateRepository) — make its reads TigerGraph-authoritative in real mode,
+   consistent with that pattern.
+
+VERIFY per file (real evidence, not assumption):
+- With GRAPH_CLIENT_MODE=real and data loaded, exercise the migrated screen/
+  endpoint; confirm it serves from TIER 2 (served_by_tier / tier log = tier 2
+  pyTigerGraph, not tier 4 mock), rendering real data.
+- Spot-check figures match TigerGraph (e.g. dashboard advisor count = 60).
+- Backend boots, frontend renders, no regressions.
+- Record the per-file verification in STORE_MIGRATION.md.
+
+=== FINAL VERIFICATION (when all done) ===
+- Grep the codebase: no application service (outside the mock-tier internals)
+  reads .store as its PRIMARY path in real mode. Every .store touch is either
+  the mock tier itself or a logged real-failure fallback.
+- End to end in real mode: dashboard, revenue, revenue-trend, advisor360,
+  client360, hierarchy, peer-benchmarking, scope/rollup, AGP, coaching, CRM,
+  recommendations, pipeline-trace all serve from TigerGraph (tier 2), verified.
+- 192/192 entities loaded in TigerGraph.
 
 === REPORT ===
-State: pyTigerGraph version; the auth root cause + exact fix; the exact fixes for
-the health-screen and silent-fallback bugs; the list of services reading .store
-directly + how you handled them; and paste the passing health() output, a real
-vertex write+read proof, and confirmation the two screens now reconcile with real
-TigerGraph.
+- Part A: root cause + fix + 192/192 proof.
+- Part B: STORE_MIGRATION.md with every file's status + per-file tier-2
+  verification; any BLOCKED items with precise reasons (no silent store
+  defaults).
+- Update PROGRESS.md.
+NEW QUERY FILE REQUIREMENT — whenever you create a new GSQL query (because a
+.store read has no matching existing query):
+- Save it as a proper query file in the source-of-truth queries folder
+  (docs/tigergraph_foundation/tigergraph/queries/), following the EXISTING
+  naming + format convention: next sequential GQ-### number, header comment
+  block (name, purpose, outputs) matching the other query files, SYNTAX V1,
+  correct V1 parameter order (TYPE name) and V1 traversal patterns (vertex-type
+  targets, edge aliases, one hop per SELECT) — consistent with the 50 existing
+  queries.
+- Add it to the query catalog/manifest (query_catalog.json and any
+  install_all_queries.gsql / test cases) so it's part of the installable set and
+  reproduces on a fresh rebuild.
+- Install it on the live TigerGraph AND confirm it installs cleanly (same V1
+  rules that were needed for the existing queries).
+- List every newly-created query (file name + purpose) in STORE_MIGRATION.md and
+  the final report.
+Do NOT create ad-hoc queries that only exist on the live graph — every new query
+must be a committed file in the source-of-truth queries folder so it survives a
+rebuild and lives in the base repo.
 
-DO NOT STOP until: health() returns healthy:True, a real vertex write+read against
-TigerGraph 4.2.2 succeeds, ingestion writes to REAL TigerGraph (and would report
-honestly if it fell back to mock), and the Environment Health screen shows real
-TigerGraph counts that match what's actually loaded. The whole point: the app runs
-on REAL TigerGraph data, and never again reports mock as if it were real.
+HARD REQUIREMENTS: TigerGraph is the source of truth for ALL reads in real mode.
+Mock/store is ONLY a genuine, logged fallback for real failures. No faked
+success. If bigger than one session, checkpoint honestly in STORE_MIGRATION.md
+and tell me to continue — never leave something half-migrated-but-marked-done.
