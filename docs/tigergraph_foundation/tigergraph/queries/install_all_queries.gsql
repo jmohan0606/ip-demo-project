@@ -61,3 +61,4 @@ USE GRAPH iperform_insights_coaching_demo
 @GQ-059_get_playbooks.gsql
 @GQ-060_get_recommendation_advisor.gsql
 @GQ-061_get_recommendation_status_counts.gsql
+@GQ-062_get_coaching_task.gsql

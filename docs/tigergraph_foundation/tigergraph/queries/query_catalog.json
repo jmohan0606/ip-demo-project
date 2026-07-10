@@ -547,5 +547,14 @@
     "outputs": "status_counts MapAccum: status -> count",
     "status": "created-batch2-NEEDS-LIVE-INSTALL",
     "file": "GQ-061_get_recommendation_status_counts.gsql"
+  },
+  {
+    "id": "GQ-062",
+    "name": "get_coaching_task",
+    "parameters": "task_id STRING",
+    "purpose": "Single coaching task by id \u2014 read-before-write for task status updates (no other query reads phx_dm_coaching_task by task_id).",
+    "outputs": "task vertex set (phx_dm_coaching_task)",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-062_get_coaching_task.gsql"
   }
 ]

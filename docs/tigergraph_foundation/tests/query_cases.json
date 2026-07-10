@@ -907,6 +907,19 @@
       "required_result_keys": [
         "status_counts"
       ]
+    },
+    {
+      "id": "GQ-062",
+      "query_name": "get_coaching_task",
+      "params": {
+        "task_id": "CTASK0001"
+      },
+      "expected_outputs": [
+        "task"
+      ],
+      "required_result_keys": [
+        "task"
+      ]
     }
   ]
 }

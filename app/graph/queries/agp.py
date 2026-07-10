@@ -261,3 +261,11 @@ def get_coaching_tasks(store: FoundationGraphStore, params: dict) -> list[dict]:
             "assigners": vset(store, "phx_dm_persona_user", assigner_ids),
         }
     ]
+
+
+@mock_query("get_coaching_task")
+def get_coaching_task(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-062 mock — one coaching task by id."""
+    task_id = str(params.get("task_id") or "")
+    task_ids = [task_id] if store.vertex("phx_dm_coaching_task", task_id) else []
+    return [{"task_id": task_id, "task": vset(store, "phx_dm_coaching_task", task_ids)}]

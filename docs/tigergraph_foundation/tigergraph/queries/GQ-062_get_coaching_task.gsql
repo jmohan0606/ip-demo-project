@@ -1,0 +1,20 @@
+/*
+ * GQ-062 — get_coaching_task
+ * Purpose: One coaching task by id — the read-before-write for status updates
+ *          (merge current attributes before upserting the new status), so the
+ *          update flow reads from the same tier it writes to in real mode.
+ * Outputs: task vertex set (phx_dm_coaching_task).
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_coaching_task(STRING task_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_tasks = {phx_dm_coaching_task.*};
+    task = SELECT t FROM all_tasks:t
+        WHERE t.task_id == task_id;
+
+    PRINT task_id, task;
+}
+
+INSTALL QUERY get_coaching_task

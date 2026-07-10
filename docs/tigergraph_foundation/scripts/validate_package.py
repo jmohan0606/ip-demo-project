@@ -139,7 +139,7 @@ for e in entries:
 
 # GSQL query static validation and semantic direction check
 qfiles=sorted((ROOT/'tigergraph/queries').glob('GQ-*.gsql'))
-if len(qfiles)!=61 or len(qcat)!=61 or len(cases.get('cases',[]))!=61: fail('QUERY_COUNT',f'Expected 61 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
+if len(qfiles)!=62 or len(qcat)!=62 or len(cases.get('cases',[]))!=62: fail('QUERY_COUNT',f'Expected 62 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
 else: ok('QUERY_COUNT','43 implemented queries and test cases',43)
 q_by_file={q['file']:q for q in qcat}; case_names={c['query_name'] for c in cases.get('cases',[])}
 placeholder=re.compile(r'PRINT\s+query_id|contract-template|\bTODO\b|\bPLACEHOLDER\b|dummy query',re.I)
