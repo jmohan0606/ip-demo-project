@@ -1,6 +1,6 @@
 # `.store` → `run_query` Migration — BATCH ONE Report
 
-**Date:** 2026-07-10 · **Branch:** `store-migration-batch1` · **Status:** in progress (updated continuously)
+**Date:** 2026-07-10 · **Branch:** `store-migration-batch1` · **Status:** COMPLETE (all 9 Batch One files + prerequisite migrated, verified, committed)
 
 ## Top summary
 
@@ -21,7 +21,13 @@ TIGERGRAPH_PREFLIGHT.md — GSE ID-store corrupt, do not attempt local TG).
 | 4 | `71d7b92` | `app/scope/rollup.py` (+ `scope_advisor_placements` helper in common.py) | Top/bottom via GQ-007, period-windowed, disjoint invariant |
 | 5 | `f3d1617` | `app/scope/dashboard.py` | Markets/peers/recent-tx/names via GQ-051/053; period wired to rollup |
 | 6 | `5c39f32` | `app/revenue/trend_explorer.py` | Byte-identical output across 6 dimension/granularity cases |
-| — | *(pending)* | hierarchy.py, benchmarking.py, advisor360.py, client360/service.py, pipeline_trace_service.py | Step-2 parallel agents |
+| 7 | `fe88894` | `MIGRATION_REPORT_BATCH1.md` | Interim report |
+| 8 | `3182912` | `app/peers/benchmarking.py` | GQ-002/008/053; identical A001/A020 across scopes |
+| 9 | `fc4194b` | `app/api/routers/hierarchy.py` | GQ-002/053; tree/entity-names/resolve identical |
+| 10 | `3986a3e` | `app/api/routers/advisor360.py` | GQ-024/009; identical A001/A020/A044 |
+| 11 | `505b514` | `app/services/pipeline_trace_service.py` | GQ-009/051; traces identical |
+| 12 | `9bb03af` | `app/client360/service.py` | GQ-010/011/012/024/029; identical except latent Prediction-lineage fix |
+| 13 | *(this commit)* | `MIGRATION_REPORT_BATCH1.md` | Final report |
 
 ### Parallelization actually used
 
@@ -233,7 +239,156 @@ path exists yet); they are Batch Two scope.
   FIRM) — **IDENTICAL** in all 6 (LLM_CLIENT_MODE=mock so driver text is deterministic). Zero
   fallback warnings. `py_compile` clean.
 
-### 5–9. Step-2 files — *(sections appended below as each agent's work is reviewed and committed)*
+### 5. `app/api/routers/hierarchy.py` — commit `fc4194b`
+
+- **`.store` calls found → mapping:**
+  - `/tree`: `all_vertices(phx_dm_firm)` + `in_ids` down the whole chain + `vertex` name lookups
+    → **GQ-053** with `scope_type="ALL"` (each advisor's ancestor chain reconstructs the identical
+    nested tree; verified against the data that no hierarchy node is advisor-less, so nothing is
+    lost vs the top-down walk — caveat recorded below).
+  - `/entity-names`: `all_vertices` × 7 types → **GQ-053 (ALL)** for
+    firm/division/region/market/branch/advisor names + **GQ-002** (`entity_type=HOUSEHOLD`) for
+    household names (coverage verified complete, count 466).
+  - `/resolve`: resolver → **GQ-002** via `resolve_scope_advisor_ids_graph`.
+- **Output keys unchanged:** `/tree {firms:[{scope_type, scope_id, label, children:[...]}]}`,
+  `/entity-names {names, count}`, `/resolve {scope_type, scope_id, advisor_count, advisor_ids}`.
+- **Fallbacks:** `_tree_from_store` / `_entity_names_from_store` preserved verbatim behind
+  `logger.warning` lines; `/resolve` fallback lives in the shared helper.
+- **Verification (agent + independent main-thread re-check):** old vs new `.data` payloads
+  IDENTICAL for tree, entity-names, and resolve at FIRM/DIVISION/ADVISOR/ALL; zero fallback
+  warnings; `py_compile` clean. (Full-envelope comparison differs only in per-call
+  `trace_id`/`generated_at`, which differ between any two calls including old-vs-old.)
+- **Caveat for the reviewer:** the query path rebuilds the tree from advisor placements, so a
+  hierarchy node with zero advisors beneath it (none exist in current data) would be omitted.
+  If such nodes are ever seeded, a "list all hierarchy vertices" query would be needed (GQ-001
+  can't serve it — it needs a concrete scope_id and returns flat vsets with no parent linkage).
+
+### 6. `app/peers/benchmarking.py` — commit `3182912`
+
+- **`.store` calls found → mapping:** resolver → **GQ-002**; advisor display names
+  (`vertex phx_dm_advisor .advisor_name`) → **GQ-053** for the scope (one call), similarity peers
+  outside the scope via **GQ-008 `get_peer_benchmark`** (`peer_method="SIMILARITY"`, open window)
+  then per-advisor GQ-053; store lookup only as the final logged fallback (`_name_store`).
+  SnapshotStore features and `EmbeddingSimilarityService` untouched (not graph reads).
+- **Output keys unchanged:** `advisor_id, advisor_name, scope_type, scope_id, peer_group_size,
+  dimensions[{metric, feature, advisor_percentile, peer_median_percentile, advisor_value,
+  peer_median_value}], nearest_peers[{advisor_id, advisor_name, similarity_score, reasons,
+  revenue_ltm}], evidence{source, peer_ids_resolved}`.
+- **Fallback log lines:** shared-helper warnings + `"advisor name for %s not resolved via
+  catalogued queries — falling back to local store traversal"` +
+  `"get_scope_advisor_placements unavailable for %s/%s — advisor names will use the logged
+  local store fallback"`.
+- **Verification (agent + independent re-check):** old vs new IDENTICAL for A001/A020 at
+  FIRM/F001, A001 at DIVISION/D01 (agent additionally: A005 MARKET/M01, A020 ADVISOR/A020);
+  zero fallback warnings; `py_compile` clean.
+- **GQ-008 nuance (existing, reported not fixed):** the GSQL drops zero-transaction peers from
+  its `peers` output while the mock includes them with revenue=0 — here GQ-008 is only a
+  secondary name source with per-advisor GQ-053 behind it, so membership drift cannot change
+  this reader's output.
+
+### 7. `app/api/routers/advisor360.py` — commit `3986a3e`
+
+- **`.store` calls found → mapping:** one `graph.store` handle feeding four reads inside
+  `advisor_360()`:
+  - `_embeddings_by_entity(store, "HOUSEHOLD"/"ACCOUNT")` (embedding-existence probe for the
+    similar-entities focus) → **GQ-024 `get_embeddings_for_entity`**, probed highest-value-first
+    per candidate (equivalence with the old attribute scan verified 60/60 for both entity types).
+  - `vertex(household).total_aum` / `vertex(account).current_value` (focus ranking) → read from
+    the vertex attributes already returned by the existing **GQ-009 `get_advisor_360`** call —
+    no new query needed.
+- **Output keys unchanged:** data keys `graph, feature_snapshot, agp_track, crm_summary,
+  crm_opportunities, revenue_trend, account_mix, segment_mix, similar` (+ envelope).
+- **Fallback:** pre-migration store scan preserved verbatim behind
+  `"get_embeddings_for_entity unavailable — falling back to local store embedding scan for
+  advisor %s similar-entity focus"`; agent additionally proved the fallback path produces
+  identical output under a simulated tier failure.
+- **Verification (agent + independent re-check):** old vs new `.data` IDENTICAL for A001, A020,
+  A044; zero fallback warnings; `py_compile` clean.
+- **Noted for Batch Two:** `app/embeddings/similar_entities.py` (used by `similar_entities()`)
+  still reads `graph.store` internally — out of scope for this file per the one-file rule; its
+  full-type embedding scan has no catalog fit (GQ-024 is per-entity; GQ-025 uses precomputed
+  matches, not live cosine). Candidate for a new query in Batch Two.
+
+### 8. `app/services/pipeline_trace_service.py` — commit `505b514`
+
+- **`.store` calls found → mapping** (all in Stage 1 "Data" of the pipeline trace):
+  - `vertex(phx_dm_advisor)` + `out_ids(advisor_serves_household)` + per-household
+    `out_ids(household_owns_account)` → **GQ-009 `get_advisor_360`** (advisor attributes,
+    households, accounts from one call).
+  - `len(in_ids(transaction_for_advisor))` → **GQ-051 `get_scope_transactions`**
+    (`scope_type=ADVISOR`, all-time window) → `len(transactions)`.
+  - Not migrated (correctly): SnapshotStore, PredictionService, RecommendationService,
+    RecommendationLifecycleService, observability spans — non-graph or other-file scope.
+    No writes existed in this file.
+- **Output keys unchanged:** `recommendation_id, advisor_id, total_ms, timing_basis,
+  stages[{key, label, summary, artifact, ms}]`.
+- **Fallbacks:** shared-helper warnings + `"get_advisor_360 returned no advisor/households entry
+  for %s — falling back to local store traversal"`, `"get_scope_transactions returned no
+  transactions entry for advisor %s — falling back to local store traversal"` (exact original
+  traversal preserved via `graph_fallback_store`).
+- **Verification (agent: REC_A001..REC_A005; independent re-check: REC_A001, REC_A020):**
+  IDENTICAL (timing fields excluded — nondeterministic between any two runs); zero fallback
+  warnings; `py_compile` clean. Pre-existing, unrelated: household-scoped rec ids (e.g.
+  REC_HH_H0030) crash identically on old and new code.
+
+### 9. `app/client360/service.py` — commit `9bb03af`
+
+- **`.store` calls found → mapping:**
+  - recommendation lineage (`out_ids` addresses_opportunity / based_on_prediction /
+    uses_feature_snapshot / uses_playbook + `in_ids` reasoning_for_recommendation + vertices)
+    → **GQ-029 `get_recommendation_detail`**.
+  - `households_for_advisor` (`out_ids advisor_serves_household` + household vertices) →
+    **GQ-010 `get_advisor_book_of_business`** (`result_limit=100000`, old code had no limit).
+  - household profile (household vertex, serving advisor, accounts, recommendations) →
+    **GQ-011 `get_household_360`**.
+  - per-account holdings (`out_ids account_holds_product` + product vertices) and household
+    transactions → **GQ-012 `get_account_holdings_and_activity`** per account; household
+    transactions = union of the accounts' transaction sets — equivalence verified empirically
+    for all 360/360 households (0 mismatches), including ordering.
+  - embedding-existence checks → **GQ-024 `get_embeddings_for_entity`** (equivalence verified
+    for all 360 households + 720 accounts).
+- **Output keys unchanged** (households rows + full profile structure incl.
+  `summary`, `accounts[…holdings…]`, `transactions`, `recommendations[…lineage…]`, `similar`).
+- **One intentional value enrichment (latent bug fixed, reported openly):** the old lineage code
+  looked up predictions under vertex type `phx_dm_prediction`, which does not exist (real type:
+  `phx_dm_prediction_result`) — so Prediction sources were silently always absent. GQ-029
+  returns the real prediction vertices, so the migrated path now emits them (verified as the
+  ONLY difference: with Prediction sources stripped, outputs are JSON-identical; independent
+  re-check H0001 identical-except-Prediction, H0100/H0360 fully identical, A001/A020 household
+  lists identical).
+- **Fallbacks:** per-path `logger.warning` "falling back to local store traversal" lines for
+  GQ-029/010/011/012/024 unavailability; original traversals preserved.
+- **Verification:** agent full sweep — 360/360 profiles, 60/60 advisors, 0 mismatches, 0
+  fallback warnings; `py_compile` clean.
+
+---
+
+## Final verification (Codespace, mock tier)
+
+- **Backend boots:** `app.api.main:app` imports cleanly (`LLM_CLIENT_MODE=mock`),
+  **146 OpenAPI paths** — matches the documented route count.
+- **Acceptance test (§7), end-to-end through the dashboard service:**
+  `dashboard('FIRM','F001',period='LTM')` → top = A049, A048, A047, A044, A050, A046, A045,
+  A059; bottom = A001, A002, A004, A003, A011, A005, A012, A013 — **overlap NONE, A001 in at
+  most one list**; Period control drives the ranking window (LTM vs YTD produce different
+  period_revenue values). Mock data was sufficient to confirm the invariant and period wiring;
+  live-data confirmation is client-machine follow-up #3.
+- **Every migrated file:** `python -m py_compile` clean; old-vs-new output comparison performed
+  against the pre-migration `git show HEAD:<file>` version (results per section above); zero
+  unexpected fallback warnings on the query paths.
+- **Foundation validator:** `docs/tigergraph_foundation/scripts/validate_package.py` → STATUS
+  PASS (53 queries; validator's expected count and allowed-status list updated as part of the
+  GQ-051..053 commit — same practice as the prior 43→50 extension).
+
+## What was intentionally NOT done
+
+- No writes/mutations migrated anywhere (rule 5); `app/recommendations/lifecycle.py` is Batch
+  Two and untouched.
+- `app/graph/client.py`, `app/graph/tiered_client.py`, `app/graph/foundation_store.py` untouched
+  (rule 6) apart from nothing — the mock-query registrations live in `app/graph/queries/*.py`.
+- No attempt to start/repair/connect to any local or remote TigerGraph (per TIGERGRAPH_PREFLIGHT
+  verdict); tier-2 serving is unverifiable here by design.
+- Batch Two files untouched; branch not merged.
 
 ---
 
