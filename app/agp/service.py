@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime
 from typing import Any
 
 from app.graph.client import GraphClient, get_graph_client
+from app.graph.queries.common import graph_fallback_store, run_catalog_query
+
+logger = logging.getLogger(__name__)
 
 # Severity bands per spec Section 7 (Severity_Model)
 SEVERITY_BANDS = [
@@ -135,40 +139,78 @@ class AgpService:
     def kpi_scorecard(self, advisor_id: str) -> dict:
         """Per-KPI Target vs Current, attainment %, on/off-track status and a time
         history, traversed advisor -> enrollment -> milestone_progress ->
-        kpi_measurement -> kpi. Backed by real phx_dm_agp_kpi_measurement rows."""
-        store = self.graph.store
-
-        def vattrs(vtype: str, vid: str) -> dict:
-            return store.vertex(vtype, vid) or {}
-
+        kpi_measurement -> kpi. Backed by real phx_dm_agp_kpi_measurement rows via
+        GQ-055 get_agp_kpi_scorecard (run_query); the direct store traversal below
+        survives only as the logged fallback."""
         kpi_rows: dict[str, dict] = {}
-        for enr in store.out_ids("phx_dm_advisor_has_agp_enrollment", advisor_id):
-            for prog in store.out_ids("phx_dm_enrollment_has_milestone_progress", enr):
-                ms_ids = store.out_ids("phx_dm_progress_for_milestone", prog)
-                month = vattrs("phx_dm_agp_milestone", ms_ids[0]).get("milestone_month") if ms_ids else None
-                for meas in store.out_ids("phx_dm_progress_has_kpi_measurement", prog):
-                    m = vattrs("phx_dm_agp_kpi_measurement", meas)
-                    kpi_ids = store.out_ids("phx_dm_measurement_for_kpi", meas)
-                    if not kpi_ids:
-                        continue
-                    kid = kpi_ids[0]
-                    kdef = vattrs("phx_dm_kpi", kid)
-                    row = kpi_rows.setdefault(kid, {
-                        "kpi_id": kid,
-                        "kpi_name": kdef.get("kpi_name", kid),
-                        "unit": kdef.get("unit"),
-                        "direction": kdef.get("direction"),
-                        "history": [],
-                    })
-                    row["history"].append({
-                        "label": f"M{month}" if month else str(m.get("measured_at"))[:7],
-                        "month": int(month or 0),
-                        "target": float(m.get("target_value") or 0),
-                        "actual": float(m.get("actual_value") or 0),
-                        "attainment_pct": float(m.get("attainment_pct") or 0),
-                        "status": m.get("status"),
-                        "measured_at": m.get("measured_at"),
-                    })
+        results = run_catalog_query(self.graph, "get_agp_kpi_scorecard", {"advisor_id": advisor_id})
+        rows = None
+        if results is not None:
+            for entry in results:
+                if entry.get("kpi_measurement_rows") is not None:
+                    rows = entry["kpi_measurement_rows"]
+                    break
+            if rows is None:
+                logger.warning(
+                    "get_agp_kpi_scorecard returned no kpi_measurement_rows entry for %s — "
+                    "falling back to local store traversal", advisor_id,
+                )
+        if rows is not None:
+            for raw in rows:
+                m = raw.get("attributes", raw)
+                kid = str(m.get("kpi_id") or "")
+                if not kid:
+                    continue  # measurement without a measured KPI — mirrors the store path's skip
+                month = m.get("milestone_month") or None
+                row = kpi_rows.setdefault(kid, {
+                    "kpi_id": kid,
+                    "kpi_name": m.get("kpi_name") or kid,
+                    "unit": m.get("unit") or None,
+                    "direction": m.get("direction") or None,
+                    "history": [],
+                })
+                row["history"].append({
+                    "label": f"M{month}" if month else str(m.get("measured_at"))[:7],
+                    "month": int(month or 0),
+                    "target": float(m.get("target_value") or 0),
+                    "actual": float(m.get("actual_value") or 0),
+                    "attainment_pct": float(m.get("attainment_pct") or 0),
+                    "status": m.get("status"),
+                    "measured_at": m.get("measured_at"),
+                })
+        else:
+            store = graph_fallback_store(self.graph)
+
+            def vattrs(vtype: str, vid: str) -> dict:
+                return store.vertex(vtype, vid) or {}
+
+            for enr in store.out_ids("phx_dm_advisor_has_agp_enrollment", advisor_id):
+                for prog in store.out_ids("phx_dm_enrollment_has_milestone_progress", enr):
+                    ms_ids = store.out_ids("phx_dm_progress_for_milestone", prog)
+                    month = vattrs("phx_dm_agp_milestone", ms_ids[0]).get("milestone_month") if ms_ids else None
+                    for meas in store.out_ids("phx_dm_progress_has_kpi_measurement", prog):
+                        m = vattrs("phx_dm_agp_kpi_measurement", meas)
+                        kpi_ids = store.out_ids("phx_dm_measurement_for_kpi", meas)
+                        if not kpi_ids:
+                            continue
+                        kid = kpi_ids[0]
+                        kdef = vattrs("phx_dm_kpi", kid)
+                        row = kpi_rows.setdefault(kid, {
+                            "kpi_id": kid,
+                            "kpi_name": kdef.get("kpi_name", kid),
+                            "unit": kdef.get("unit"),
+                            "direction": kdef.get("direction"),
+                            "history": [],
+                        })
+                        row["history"].append({
+                            "label": f"M{month}" if month else str(m.get("measured_at"))[:7],
+                            "month": int(month or 0),
+                            "target": float(m.get("target_value") or 0),
+                            "actual": float(m.get("actual_value") or 0),
+                            "attainment_pct": float(m.get("attainment_pct") or 0),
+                            "status": m.get("status"),
+                            "measured_at": m.get("measured_at"),
+                        })
 
         scorecard = []
         for row in kpi_rows.values():
