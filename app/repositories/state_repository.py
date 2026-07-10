@@ -279,12 +279,29 @@ class TigerGraphStateRepository(BaseRepository):
         self._linker.upsert_reasoning_trace(trace)
 
     def memory_counts_by_type(self) -> list[dict]:
-        # Count context-memory vertices grouped by memory_type via the graph store.
-        store = self._graph().store
-        counts: dict[str, int] = {}
-        for attrs in store.all_vertices("phx_dm_context_memory").values():
-            mt = str(attrs.get("memory_type") or "Unknown")
-            counts[mt] = counts.get(mt, 0) + 1
+        # Global context-memory counts grouped by memory_type via GQ-056
+        # get_memory_counts_by_type (run_query); the direct store scan below
+        # survives only as the logged fallback.
+        from app.graph.queries.common import graph_fallback_store, run_catalog_query
+
+        counts: dict[str, int] | None = None
+        results = run_catalog_query(self._graph(), "get_memory_counts_by_type", {})
+        if results is not None:
+            for entry in results:
+                if entry.get("memory_counts") is not None:
+                    counts = {str(k or "Unknown"): int(v) for k, v in entry["memory_counts"].items()}
+                    break
+            if counts is None:
+                _log.warning(
+                    "get_memory_counts_by_type returned no memory_counts entry — "
+                    "falling back to local store traversal",
+                )
+        if counts is None:
+            store = graph_fallback_store(self._graph())
+            counts = {}
+            for attrs in store.all_vertices("phx_dm_context_memory").values():
+                mt = str(attrs.get("memory_type") or "Unknown")
+                counts[mt] = counts.get(mt, 0) + 1
         return [{"memory_type": k, "memory_count": v}
                 for k, v in sorted(counts.items(), key=lambda kv: kv[1], reverse=True)]
 
