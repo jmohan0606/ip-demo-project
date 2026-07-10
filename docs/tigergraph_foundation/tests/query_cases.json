@@ -764,6 +764,47 @@
       "required_result_keys": [
         "start"
       ]
+    },
+    {
+      "id": "GQ-051",
+      "query_name": "get_scope_transactions",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001",
+        "start_date": "1900-01-01 00:00:00",
+        "end_date": "2100-01-01 00:00:00"
+      },
+      "expected_outputs": [
+        "transactions"
+      ],
+      "required_result_keys": [
+        "transactions"
+      ]
+    },
+    {
+      "id": "GQ-052",
+      "query_name": "get_product_category_map",
+      "params": {},
+      "expected_outputs": [
+        "products"
+      ],
+      "required_result_keys": [
+        "products"
+      ]
+    },
+    {
+      "id": "GQ-053",
+      "query_name": "get_scope_advisor_placements",
+      "params": {
+        "scope_type": "FIRM",
+        "scope_id": "F001"
+      },
+      "expected_outputs": [
+        "advisor_placements"
+      ],
+      "required_result_keys": [
+        "advisor_placements"
+      ]
     }
   ]
 }

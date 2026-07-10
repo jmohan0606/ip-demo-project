@@ -159,3 +159,50 @@ def get_persona_scope_assignments(store: FoundationGraphStore, params: dict) -> 
             "role_code": user_attrs.get("role_code"),
         }
     ]
+
+
+@mock_query("get_scope_advisor_placements")
+def get_scope_advisor_placements(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """Mirror of GQ-053: full ancestor placement (branch/market/region/division/
+    firm, ids + names + branch state) for every advisor in the scope. Same
+    aliased attribute keys as the GSQL PRINT."""
+    scope_type = (params.get("scope_type") or "").upper()
+    scope_id = str(params.get("scope_id") or "")
+
+    def first(ids: list[str]) -> str | None:
+        return ids[0] if ids else None
+
+    rows: list[dict] = []
+    for advisor_id in resolve_scope_advisor_ids(store, scope_type, scope_id):
+        advisor = store.vertex(ADVISOR, advisor_id) or {}
+        branch_id = first(store.out_ids("phx_dm_advisor_in_branch", advisor_id))
+        branch = store.vertex(BRANCH, branch_id) if branch_id else None
+        market_id = first(store.out_ids("phx_dm_advisor_in_market", advisor_id))
+        market = store.vertex(MARKET, market_id) if market_id else None
+        region_id = first(store.out_ids("phx_dm_market_in_region", market_id)) if market_id else None
+        region = store.vertex(REGION, region_id) if region_id else None
+        division_id = first(store.out_ids("phx_dm_region_in_division", region_id)) if region_id else None
+        division = store.vertex(DIVISION, division_id) if division_id else None
+        firm_id = first(store.out_ids("phx_dm_division_in_firm", division_id)) if division_id else None
+        firm = store.vertex(FIRM, firm_id) if firm_id else None
+        rows.append(
+            {
+                "v_id": str(advisor_id),
+                "v_type": ADVISOR,
+                "attributes": {
+                    "advisor_name": str(advisor.get("advisor_name") or ""),
+                    "branch_id": str(branch_id or ""),
+                    "branch_name": str((branch or {}).get("branch_name") or ""),
+                    "branch_state": str((branch or {}).get("state") or ""),
+                    "market_id": str(market_id or ""),
+                    "market_name": str((market or {}).get("market_name") or ""),
+                    "region_id": str(region_id or ""),
+                    "region_name": str((region or {}).get("region_name") or ""),
+                    "division_id": str(division_id or ""),
+                    "division_name": str((division or {}).get("division_name") or ""),
+                    "firm_id": str(firm_id or ""),
+                    "firm_name": str((firm or {}).get("firm_name") or ""),
+                },
+            }
+        )
+    return [{"advisor_placements": rows}]

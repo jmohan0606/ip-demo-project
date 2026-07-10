@@ -139,7 +139,7 @@ for e in entries:
 
 # GSQL query static validation and semantic direction check
 qfiles=sorted((ROOT/'tigergraph/queries').glob('GQ-*.gsql'))
-if len(qfiles)!=50 or len(qcat)!=50 or len(cases.get('cases',[]))!=50: fail('QUERY_COUNT',f'Expected 50 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
+if len(qfiles)!=53 or len(qcat)!=53 or len(cases.get('cases',[]))!=53: fail('QUERY_COUNT',f'Expected 53 query files/catalog/cases, found {len(qfiles)}/{len(qcat)}/{len(cases.get("cases",[]))}')
 else: ok('QUERY_COUNT','43 implemented queries and test cases',43)
 q_by_file={q['file']:q for q in qcat}; case_names={c['query_name'] for c in cases.get('cases',[])}
 placeholder=re.compile(r'PRINT\s+query_id|contract-template|\bTODO\b|\bPLACEHOLDER\b|dummy query',re.I)
@@ -162,7 +162,7 @@ for path in qfiles:
     stripped=re.sub(r'/\*.*?\*/|//.*?$|#.*?$','',text,flags=re.S|re.M)
     for left,right in [('(',')'),('{','}')]:
         if stripped.count(left)!=stripped.count(right): fail('QUERY_DELIMITER',f'Unbalanced {left}{right} in {path.name}')
-    if q.get('status')!='implemented-static-reviewed-live-compile-pending': fail('QUERY_STATUS',f'Incorrect honest validation status for {q["name"]}: {q.get("status")}')
+    if q.get('status') not in ('implemented-static-reviewed-live-compile-pending','created-batch1-NEEDS-LIVE-INSTALL'): fail('QUERY_STATUS',f'Incorrect honest validation status for {q["name"]}: {q.get("status")}')
 ok('QUERY_STATIC','Query placeholders, declarations, edge names, test cases and delimiters checked')
 
 # Install file contains each query once

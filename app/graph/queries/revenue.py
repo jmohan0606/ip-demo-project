@@ -208,3 +208,76 @@ def get_peer_benchmark(store: FoundationGraphStore, params: dict) -> list[dict]:
             "similar_matches": vset(store, "phx_dm_similarity_match", similarity_match_ids),
         }
     ]
+
+
+@mock_query("get_scope_transactions")
+def get_scope_transactions(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """Mirror of GQ-051: raw transaction rows for a scope, each carrying its
+    advisor/product/household context. Same aliased attribute keys as the GSQL
+    PRINT so tier 4 and tier 2 are indistinguishable to readers."""
+    scope_type = (params.get("scope_type") or "").upper()
+    scope_id = str(params.get("scope_id") or "")
+    start_date, end_date = params.get("start_date"), params.get("end_date")
+
+    rows: list[dict] = []
+    for advisor_id in resolve_scope_advisor_ids(store, scope_type, scope_id):
+        advisor = store.vertex(ADVISOR, advisor_id) or {}
+        for tx_id in store.in_ids("phx_dm_transaction_for_advisor", advisor_id):
+            attrs = store.vertex("phx_dm_revenue_transaction", tx_id)
+            if attrs is None:
+                continue
+            if start_date is not None and not in_window(attrs.get("transaction_date"), start_date, end_date):
+                continue
+            product_ids = store.out_ids("phx_dm_transaction_for_product", tx_id)
+            household_ids = store.out_ids("phx_dm_transaction_for_household", tx_id)
+            product = store.vertex("phx_dm_product", product_ids[0]) if product_ids else None
+            household = store.vertex("phx_dm_household", household_ids[0]) if household_ids else None
+            rows.append(
+                {
+                    "v_id": str(tx_id),
+                    "v_type": "phx_dm_revenue_transaction",
+                    "attributes": {
+                        "advisor_id": str(advisor_id),
+                        "advisor_name": str(advisor.get("advisor_name") or ""),
+                        "transaction_date": attrs.get("transaction_date"),
+                        "revenue_amount": attrs.get("revenue_amount"),
+                        "transaction_type": attrs.get("transaction_type"),
+                        "product_id": product_ids[0] if product_ids else "",
+                        "product_name": str((product or {}).get("product_name") or ""),
+                        "household_id": household_ids[0] if household_ids else "",
+                        "household_name": str((household or {}).get("household_name") or ""),
+                    },
+                }
+            )
+    return [{"transactions": rows}]
+
+
+@mock_query("get_product_category_map")
+def get_product_category_map(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """Mirror of GQ-052: product -> subcategory -> category mapping. Like the GSQL
+    version, products with no subcategory edge are absent (readers default them
+    to Unclassified)."""
+    categories = store.all_vertices("phx_dm_product_category")
+    subcategories = store.all_vertices("phx_dm_product_subcategory")
+    rows: list[dict] = []
+    for product_id, product in store.all_vertices("phx_dm_product").items():
+        sub_ids = store.out_ids("phx_dm_product_in_subcategory", product_id)
+        if not sub_ids:
+            continue
+        sub_id = sub_ids[0]
+        cat_ids = store.out_ids("phx_dm_subcategory_in_category", sub_id)
+        cat_id = cat_ids[0] if cat_ids else ""
+        rows.append(
+            {
+                "v_id": str(product_id),
+                "v_type": "phx_dm_product",
+                "attributes": {
+                    "product_name": str(product.get("product_name") or ""),
+                    "subcategory_id": str(sub_id),
+                    "subcategory_name": str((subcategories.get(sub_id) or {}).get("subcategory_name") or ""),
+                    "category_id": str(cat_id),
+                    "category_name": str((categories.get(cat_id) or {}).get("category_name") or ""),
+                },
+            }
+        )
+    return [{"products": rows}]

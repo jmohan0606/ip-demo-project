@@ -50,3 +50,6 @@ USE GRAPH iperform_insights_coaching_demo
 @GQ-048_advisor_reasoning_traversal.gsql
 @GQ-049_scope_reasoning_traversal.gsql
 @GQ-050_get_reasoning_traces_for_scope.gsql
+@GQ-051_get_scope_transactions.gsql
+@GQ-052_get_product_category_map.gsql
+@GQ-053_get_scope_advisor_placements.gsql

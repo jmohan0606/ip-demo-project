@@ -1,0 +1,45 @@
+/*
+ * GQ-052 — get_product_category_map
+ * Purpose: Return the product -> subcategory -> business-line category mapping in one
+ *          call, so revenue readers can classify transactions by business line from
+ *          real graph rows instead of walking the in-memory mock store per product.
+ *          Products with no subcategory edge are intentionally absent — readers
+ *          default missing products to "Unclassified".
+ * Outputs: products vertex set — per product: product_name, subcategory_id,
+ *          subcategory_name, category_id, category_name.
+ * Created: store->run_query migration BATCH ONE (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_product_category_map() FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    SumAccum<STRING> @subcategory_id;
+    SumAccum<STRING> @subcategory_name;
+    SumAccum<STRING> @category_id;
+    SumAccum<STRING> @category_name;
+
+    all_subcategories = {phx_dm_product_subcategory.*};
+    all_products = {phx_dm_product.*};
+
+    subs = SELECT s FROM all_subcategories:s
+        -(phx_dm_subcategory_in_category:e_c)- phx_dm_product_category:c
+        ACCUM s.@category_id += c.category_id,
+              s.@category_name += c.category_name;
+
+    products = SELECT p FROM all_products:p
+        -(phx_dm_product_in_subcategory:e_s)- phx_dm_product_subcategory:s
+        ACCUM p.@subcategory_id += s.subcategory_id,
+              p.@subcategory_name += s.subcategory_name,
+              p.@category_id += s.@category_id,
+              p.@category_name += s.@category_name;
+
+    PRINT products[
+        products.product_name AS product_name,
+        products.@subcategory_id AS subcategory_id,
+        products.@subcategory_name AS subcategory_name,
+        products.@category_id AS category_id,
+        products.@category_name AS category_name
+    ] AS products;
+}
+
+INSTALL QUERY get_product_category_map

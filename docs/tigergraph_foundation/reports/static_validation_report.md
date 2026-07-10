@@ -7,7 +7,7 @@
 - Reverse edges: 132
 - Manifest files: 192
 - Sample rows: 156247
-- GSQL queries: 50
+- GSQL queries: 53
 
 ## Checks
 - PASS — VERTEX_COUNT: 57 vertex types catalogued

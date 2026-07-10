@@ -448,5 +448,32 @@
     "outputs": "traversal path + entities",
     "status": "implemented-static-reviewed-live-compile-pending",
     "file": "GQ-050_get_reasoning_traces_for_scope.gsql"
+  },
+  {
+    "id": "GQ-051",
+    "name": "get_scope_transactions",
+    "parameters": "scope_type STRING, scope_id STRING, start_date DATETIME, end_date DATETIME",
+    "purpose": "Raw revenue-transaction rows for a scope with advisor/product/household context (revenue analytics, trend explorer, dashboard readers).",
+    "outputs": "transactions vertex set: advisor_id, advisor_name, transaction_date, revenue_amount, transaction_type, product_id, product_name, household_id, household_name",
+    "status": "created-batch1-NEEDS-LIVE-INSTALL",
+    "file": "GQ-051_get_scope_transactions.gsql"
+  },
+  {
+    "id": "GQ-052",
+    "name": "get_product_category_map",
+    "parameters": "",
+    "purpose": "Product -> subcategory -> business-line category mapping for transaction classification.",
+    "outputs": "products vertex set: product_name, subcategory_id, subcategory_name, category_id, category_name",
+    "status": "created-batch1-NEEDS-LIVE-INSTALL",
+    "file": "GQ-052_get_product_category_map.gsql"
+  },
+  {
+    "id": "GQ-053",
+    "name": "get_scope_advisor_placements",
+    "parameters": "scope_type STRING, scope_id STRING",
+    "purpose": "Full ancestor placement (branch+state/market/region/division/firm ids and names) for every advisor in a scope.",
+    "outputs": "advisor_placements vertex set: advisor_name, branch_id, branch_name, branch_state, market_id, market_name, region_id, region_name, division_id, division_name, firm_id, firm_name",
+    "status": "created-batch1-NEEDS-LIVE-INSTALL",
+    "file": "GQ-053_get_scope_advisor_placements.gsql"
   }
 ]

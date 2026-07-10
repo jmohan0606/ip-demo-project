@@ -1,0 +1,154 @@
+/*
+ * GQ-053 — get_scope_advisor_placements
+ * Purpose: For every advisor in a hierarchy scope, return the advisor's full ancestor
+ *          placement (branch + state, market, region, division, firm — ids and display
+ *          names) in one call. Powers geography (branch.state), per-child scope
+ *          breakdowns, market rankings, peer-sibling resolution and dimension slice
+ *          maps in the revenue/scope readers from real graph rows instead of the
+ *          in-memory mock store.
+ * Outputs: advisor_placements vertex set — per advisor: advisor_name, branch_id,
+ *          branch_name, branch_state, market_id, market_name, region_id, region_name,
+ *          division_id, division_name, firm_id, firm_name.
+ * Created: store->run_query migration BATCH ONE (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_scope_advisor_placements(STRING scope_type, STRING scope_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    SumAccum<STRING> @branch_id;
+    SumAccum<STRING> @branch_name;
+    SumAccum<STRING> @branch_state;
+    SumAccum<STRING> @market_id;
+    SumAccum<STRING> @market_name;
+    SumAccum<STRING> @region_id;
+    SumAccum<STRING> @region_name;
+    SumAccum<STRING> @division_id;
+    SumAccum<STRING> @division_name;
+    SumAccum<STRING> @firm_id;
+    SumAccum<STRING> @firm_name;
+
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    direct_advisors = SELECT a
+        FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+
+    selected_branches = SELECT b
+        FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a
+        FROM selected_branches:b
+            -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a;
+
+    selected_markets = SELECT m
+        FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a
+        FROM selected_markets:m
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
+
+    selected_regions = SELECT r
+        FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m
+        FROM selected_regions:r
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
+    region_advisors = SELECT a
+        FROM region_markets:m
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
+
+    selected_divisions = SELECT d
+        FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r
+        FROM selected_divisions:d
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
+    division_markets = SELECT m
+        FROM division_regions:r
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
+    division_advisors = SELECT a
+        FROM division_markets:m
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
+
+    selected_firms = SELECT f
+        FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d
+        FROM selected_firms:f
+            -(rev_phx_dm_division_in_firm:e_d)- phx_dm_division:d;
+    firm_regions = SELECT r
+        FROM firm_divisions:d
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
+    firm_markets = SELECT m
+        FROM firm_regions:r
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
+    firm_advisors = SELECT a
+        FROM firm_markets:m
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
+
+    advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+
+    // bottom-up ancestor propagation: firm -> division -> region -> market, then
+    // market context + branch context onto each advisor (one hop per SELECT).
+    divs = SELECT d FROM all_divisions:d
+        -(phx_dm_division_in_firm:e_f)- phx_dm_firm:f
+        ACCUM d.@firm_id += f.firm_id,
+              d.@firm_name += f.firm_name;
+
+    regs = SELECT r FROM all_regions:r
+        -(phx_dm_region_in_division:e_d)- phx_dm_division:d
+        ACCUM r.@division_id += d.division_id,
+              r.@division_name += d.division_name,
+              r.@firm_id += d.@firm_id,
+              r.@firm_name += d.@firm_name;
+
+    mkts = SELECT m FROM all_markets:m
+        -(phx_dm_market_in_region:e_r)- phx_dm_region:r
+        ACCUM m.@region_id += r.region_id,
+              m.@region_name += r.region_name,
+              m.@division_id += r.@division_id,
+              m.@division_name += r.@division_name,
+              m.@firm_id += r.@firm_id,
+              m.@firm_name += r.@firm_name;
+
+    placed = SELECT a FROM advisors:a
+        -(phx_dm_advisor_in_market:e_m)- phx_dm_market:m
+        ACCUM a.@market_id += m.market_id,
+              a.@market_name += m.market_name,
+              a.@region_id += m.@region_id,
+              a.@region_name += m.@region_name,
+              a.@division_id += m.@division_id,
+              a.@division_name += m.@division_name,
+              a.@firm_id += m.@firm_id,
+              a.@firm_name += m.@firm_name;
+
+    branched = SELECT a FROM advisors:a
+        -(phx_dm_advisor_in_branch:e_b)- phx_dm_branch:b
+        ACCUM a.@branch_id += b.branch_id,
+              a.@branch_name += b.branch_name,
+              a.@branch_state += b.state;
+
+    PRINT advisors[
+        advisors.advisor_name AS advisor_name,
+        advisors.@branch_id AS branch_id,
+        advisors.@branch_name AS branch_name,
+        advisors.@branch_state AS branch_state,
+        advisors.@market_id AS market_id,
+        advisors.@market_name AS market_name,
+        advisors.@region_id AS region_id,
+        advisors.@region_name AS region_name,
+        advisors.@division_id AS division_id,
+        advisors.@division_name AS division_name,
+        advisors.@firm_id AS firm_id,
+        advisors.@firm_name AS firm_name
+    ] AS advisor_placements;
+}
+
+INSTALL QUERY get_scope_advisor_placements
