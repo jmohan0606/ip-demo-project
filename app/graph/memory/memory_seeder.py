@@ -37,17 +37,52 @@ def seed_for_advisor(advisor_id: str, svc: MemoryService | None = None) -> dict:
     # --- Episodic: specific recorded events (from real feedback/outcome history) ---
     try:
         from app.graph.client import get_graph_client
+        from app.graph.queries.common import graph_fallback_store, run_catalog_query
         import json as _json
-        store = get_graph_client().store
-        events = 0
-        for lid, ls in list(store.all_vertices("phx_dm_learning_signal").items()):
-            recs = store.out_ids("phx_dm_learning_updates_recommendation", lid)
-            if not recs:
-                continue
-            advs = store.out_ids("phx_dm_recommendation_for_advisor", recs[0])
-            if advisor_id not in advs:
-                continue
-            sj = _json.loads(ls.get("signal_json", "{}"))
+        graph = get_graph_client()
+
+        # Preferred path: installed GQ-028 get_recommendations (advisor -> recommendations)
+        # + GQ-030 get_feedback_learning_history (recommendation -> learning_links signals).
+        signals: list[dict] | None = None
+        rec_results = run_catalog_query(
+            graph, "get_recommendations", {"target_type": "ADVISOR", "target_id": advisor_id})
+        if rec_results is not None:
+            rec_ids: list[str] = []
+            for entry in rec_results:
+                for row in entry.get("recommendations", []) or []:
+                    if row.get("v_id") is not None:
+                        rec_ids.append(str(row["v_id"]))
+            signals = []
+            for rec_id in rec_ids:
+                if len(signals) >= 3:
+                    break
+                hist = run_catalog_query(
+                    graph, "get_feedback_learning_history", {"recommendation_id": rec_id})
+                if hist is None:
+                    signals = None
+                    break
+                for entry in hist:
+                    for row in entry.get("learning_links", []) or []:
+                        signals.append(row.get("attributes", {}) or {})
+
+        if signals is None:
+            # fallback: the original local-store traversal (logged by run_catalog_query)
+            store = graph_fallback_store(graph)
+            signals = []
+            for lid, ls in list(store.all_vertices("phx_dm_learning_signal").items()):
+                recs = store.out_ids("phx_dm_learning_updates_recommendation", lid)
+                if not recs:
+                    continue
+                advs = store.out_ids("phx_dm_recommendation_for_advisor", recs[0])
+                if advisor_id not in advs:
+                    continue
+                signals.append(ls)
+                if len(signals) >= 3:
+                    break
+
+        for ls in signals[:3]:
+            raw = ls.get("signal_json", "{}")
+            sj = _json.loads(raw) if isinstance(raw, str) else (raw or {})
             written.append(svc.create_memory(ContextMemoryCreateRequest(
                 memory_type=MemoryType.EPISODIC, scope_type=MemoryScopeType.ADVISOR, scope_id=advisor_id,
                 title=f"Recorded outcome · {sj.get('family', '')}",
@@ -55,9 +90,6 @@ def seed_for_advisor(advisor_id: str, svc: MemoryService | None = None) -> dict:
                          f"{sj.get('action', '')}ed (label {sj.get('label', '')}, outcome "
                          f"{sj.get('outcome_value', 0)})."),
                 confidence=0.85, source="episodic_seed")))
-            events += 1
-            if events >= 3:
-                break
     except Exception:  # noqa: BLE001
         pass
 
