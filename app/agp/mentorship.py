@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 
 from app.graph.client import get_graph_client
-from app.graph.queries.common import advisor_transactions
+from app.graph.queries.common import (
+    advisor_transactions,
+    graph_fallback_store,
+    resolve_scope_advisor_ids_graph,
+    run_catalog_query,
+    scope_advisor_placements,
+)
 from app.features.snapshot_store import SnapshotStore
+
+logger = logging.getLogger(__name__)
+
+_ALL_TIME_START = "1900-01-01 00:00:00"
+_ALL_TIME_END = "2100-01-01 00:00:00"
 
 """Section 10 — AGP mentor/mentee pairing (GNN-similarity constrained matching) and
 AGP program ROI (fair peer-baseline methodology).
@@ -35,23 +47,64 @@ class AgpMentorshipService:
     OUTPERFORM_RATIO = 1.2
 
     def __init__(self) -> None:
-        self._store = get_graph_client().store
+        self._graph = get_graph_client()
+        # Logged fallback path only — reads go through run_catalog_query first.
+        self._store = graph_fallback_store(self._graph)
         self._snaps = SnapshotStore()
+        self._advisor_ids_cache: list[str] | None = None
+        self._names_cache: dict[str, str] | None = None
+        self._names_tried = False
 
     # ---- shared lookups -----------------------------------------------------
+    def _advisor_ids(self) -> list[str]:
+        """All advisor ids via GQ-002 get_scope_descendants (ALL scope); the
+        helper itself falls back to the local store traversal when the query
+        is unavailable."""
+        if self._advisor_ids_cache is None:
+            self._advisor_ids_cache = resolve_scope_advisor_ids_graph(self._graph, "ALL", "")
+        return self._advisor_ids_cache
+
     def _features(self, advisor_id: str) -> dict:
         snap = self._snaps.latest_for_entity("ADVISOR", advisor_id)
         return (snap or {}).get("features", {}) if snap else {}
 
     def _name(self, advisor_id: str) -> str:
+        # GQ-053 get_scope_advisor_placements (ALL scope) → advisor_name map, built once.
+        if not self._names_tried:
+            self._names_tried = True
+            placements = scope_advisor_placements(self._graph, "ALL", "")
+            if placements is not None:
+                self._names_cache = {
+                    aid: str(attrs.get("advisor_name") or aid) for aid, attrs in placements.items()
+                }
+        if self._names_cache is not None and advisor_id in self._names_cache:
+            return self._names_cache[advisor_id]
+        # fallback: local store vertex read (logged by the helper when the query failed)
         return str((self._store.vertex("phx_dm_advisor", advisor_id) or {}).get("advisor_name") or advisor_id)
 
     def _enrollments(self) -> dict[str, dict]:
-        """advisor_id -> enrollment attrs (ACTIVE only)."""
+        """advisor_id -> enrollment attrs (ACTIVE only) via GQ-013
+        get_agp_enrollment_summary per advisor."""
         out: dict[str, dict] = {}
-        for aid in self._store.all_vertices("phx_dm_advisor"):
-            for enr_id in self._store.out_ids("phx_dm_advisor_has_agp_enrollment", aid):
-                attrs = self._store.vertex("phx_dm_agp_enrollment", enr_id) or {}
+        for aid in self._advisor_ids():
+            attrs_list: list[dict] | None = None
+            results = run_catalog_query(self._graph, "get_agp_enrollment_summary", {"advisor_id": aid})
+            if results is not None:
+                entry = next((e for e in results if e.get("enrollments") is not None), None)
+                if entry is not None:
+                    attrs_list = [row.get("attributes", {}) for row in entry["enrollments"]]
+                else:
+                    logger.warning(
+                        "get_agp_enrollment_summary returned no enrollments entry for advisor %s — "
+                        "falling back to local store traversal", aid,
+                    )
+            if attrs_list is None:
+                # fallback: the original store traversal
+                attrs_list = [
+                    self._store.vertex("phx_dm_agp_enrollment", enr_id) or {}
+                    for enr_id in self._store.out_ids("phx_dm_advisor_has_agp_enrollment", aid)
+                ]
+            for attrs in attrs_list:
                 if str(attrs.get("status")) == "ACTIVE":
                     out[aid] = attrs
         return out
@@ -62,7 +115,7 @@ class AgpMentorshipService:
         vc = get_vector_client()
         model = registry.active_embedding_model()
         vecs: dict[str, list[float]] = {}
-        for aid in self._store.all_vertices("phx_dm_advisor"):
+        for aid in self._advisor_ids():
             v = vc.get("ADVISOR", aid, model_name=model)
             if v is not None:
                 vecs[aid] = v
@@ -79,7 +132,7 @@ class AgpMentorshipService:
     # ---- mentor / mentee pairing -------------------------------------------
     def mentor_pairing(self) -> dict:
         enrollments = self._enrollments()
-        feats = {aid: self._features(aid) for aid in self._store.all_vertices("phx_dm_advisor")}
+        feats = {aid: self._features(aid) for aid in self._advisor_ids()}
         feats = {aid: f for aid, f in feats.items() if f}
 
         def risk(aid: str) -> float:
@@ -165,7 +218,27 @@ class AgpMentorshipService:
     # ---- program ROI ---------------------------------------------------------
     def _monthly_revenue(self, advisor_id: str) -> dict[str, float]:
         out: dict[str, float] = defaultdict(float)
-        for _tx, attrs in advisor_transactions(self._store, [advisor_id]):
+        # GQ-051 get_scope_transactions (scope=ADVISOR, all-time window).
+        rows: list[dict] | None = None
+        results = run_catalog_query(
+            self._graph,
+            "get_scope_transactions",
+            {"scope_type": "ADVISOR", "scope_id": advisor_id,
+             "start_date": _ALL_TIME_START, "end_date": _ALL_TIME_END},
+        )
+        if results is not None:
+            entry = next((e for e in results if e.get("transactions") is not None), None)
+            if entry is not None:
+                rows = [t.get("attributes", {}) for t in entry["transactions"]]
+            else:
+                logger.warning(
+                    "get_scope_transactions returned no transactions entry for advisor %s — "
+                    "falling back to local store traversal", advisor_id,
+                )
+        if rows is None:
+            # fallback: the original store traversal
+            rows = [attrs for _tx, attrs in advisor_transactions(self._store, [advisor_id])]
+        for attrs in rows:
             m = str(attrs.get("transaction_date") or "")[:7]
             if m:
                 out[m] += float(attrs.get("revenue_amount") or 0.0)
@@ -201,7 +274,7 @@ class AgpMentorshipService:
             return {"available": False, "note": "no transaction months found"}
         latest = all_months[-1]
 
-        non_enrolled = [a for a in self._store.all_vertices("phx_dm_advisor")
+        non_enrolled = [a for a in self._advisor_ids()
                         if a not in enrollments and a in vecs]
 
         rows = []
