@@ -41,7 +41,6 @@ class CoachingReviewService:
 
     def __init__(self) -> None:
         self._graph = get_graph_client()
-        self._store = self._graph.store
 
     def _name(self, advisor_id: str) -> str:
         return str((graph_fallback_store(self._graph).vertex("phx_dm_advisor", advisor_id) or {})
