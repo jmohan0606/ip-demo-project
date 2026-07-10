@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.graph.client import get_graph_client
+from app.graph.queries.common import graph_fallback_store, run_catalog_query
 
 # Curated one-hop neighborhood around a focal advisor: (edge, direction, cap,
 # group, node vertex type). Direction "out" = advisor is the edge source, "in" =
@@ -57,12 +58,86 @@ _DATE_KEYS = {
 }
 
 
+# GQ-009 get_advisor_360 result-set key per _SPEC edge (all one-hop from the advisor).
+# phx_dm_advisor_has_goal is the one edge GQ-009 does not traverse — it is served by
+# GQ-013 get_agp_enrollment_summary's `goals` set instead.
+_GQ009_SET = {
+    "phx_dm_advisor_in_market": "market",
+    "phx_dm_advisor_serves_household": "households",
+    "phx_dm_advisor_has_crm_opportunity": "crm_opportunities",
+    "phx_dm_advisor_has_crm_lead": "crm_leads",
+    "phx_dm_advisor_has_agp_enrollment": "enrollments",
+    "phx_dm_prediction_for_advisor": "predictions",
+    "phx_dm_opportunity_for_advisor": "opportunities",
+    "phx_dm_recommendation_for_advisor": "recommendations",
+}
+
+
+def _neighbors_via_queries(graph, advisor_id: str):
+    """Fetch the focal advisor + per-edge neighbor rows via installed catalog queries
+    (GQ-009 get_advisor_360 for eight of the nine _SPEC edges, GQ-013
+    get_agp_enrollment_summary for phx_dm_advisor_has_goal). Returns
+    (adv_attrs, {edge: [(vid, attrs), ...]}) or None when the graph query path failed —
+    the caller then uses the original local-store traversal (logged fallback)."""
+    results = run_catalog_query(graph, "get_advisor_360", {"advisor_id": advisor_id})
+    if not results:
+        return None
+    entry = results[0]
+
+    def rows(vset) -> list[tuple[str, dict]]:
+        out = []
+        for row in vset or []:
+            vid = str(row.get("v_id") or "")
+            if vid:
+                out.append((vid, row.get("attributes") or {}))
+        return out
+
+    advisor_rows = rows(entry.get("advisor"))
+    adv_attrs = advisor_rows[0][1] if advisor_rows else {}
+
+    neighbors: dict[str, list[tuple[str, dict]]] = {
+        edge: rows(entry.get(set_key)) for edge, set_key in _GQ009_SET.items()
+    }
+
+    goal_results = run_catalog_query(
+        graph, "get_agp_enrollment_summary", {"advisor_id": advisor_id}
+    )
+    if goal_results:
+        neighbors["phx_dm_advisor_has_goal"] = rows(goal_results[0].get("goals"))
+    else:
+        # GQ-013 failed while GQ-009 succeeded — serve just the goal edge from the
+        # local store (run_catalog_query already logged the fallback warning).
+        store = graph_fallback_store(graph)
+        neighbors["phx_dm_advisor_has_goal"] = [
+            (vid, store.vertex("phx_dm_goal", vid) or {})
+            for vid in store.out_ids("phx_dm_advisor_has_goal", advisor_id)
+        ]
+    return adv_attrs, neighbors
+
+
 def advisor_neighborhood(advisor_id: str, as_of: str | None = None) -> dict:
     """Real one-hop subgraph around an advisor for the graph explorer canvas. With `as_of`
     (YYYY-MM-DD), only entities that existed on that date are included — a temporal traversal
     showing how the advisor's graph (esp. the AI pipeline artifacts) grew over time."""
-    store = get_graph_client().store
-    adv_attrs = store.vertex("phx_dm_advisor", advisor_id) or {}
+    graph = get_graph_client()
+    fetched = _neighbors_via_queries(graph, advisor_id)
+    if fetched is not None:
+        adv_attrs, neighbor_map = fetched
+    else:
+        # fallback: original local-store traversal (reached only when the catalog
+        # queries returned None; run_catalog_query already logged the warning)
+        store = graph_fallback_store(graph)
+        adv_attrs = store.vertex("phx_dm_advisor", advisor_id) or {}
+        neighbor_map = {}
+        for edge, direction, _cap, _group, vtype in _SPEC:
+            neighbor_ids = (
+                store.out_ids(edge, advisor_id)
+                if direction == "out"
+                else store.in_ids(edge, advisor_id)
+            )
+            neighbor_map[edge] = [
+                (vid, store.vertex(vtype, vid) or {}) for vid in neighbor_ids
+            ]
     focal_label = str(adv_attrs.get("advisor_name") or advisor_id)
 
     nodes = [{
@@ -77,11 +152,7 @@ def advisor_neighborhood(advisor_id: str, as_of: str | None = None) -> dict:
     hidden = 0
 
     for edge, direction, cap, group, vtype in _SPEC:
-        neighbor_ids = (
-            store.out_ids(edge, advisor_id) if direction == "out" else store.in_ids(edge, advisor_id)
-        )
-        for vid in list(neighbor_ids)[:cap]:
-            attrs = store.vertex(vtype, vid) or {}
+        for vid, attrs in list(neighbor_map.get(edge, []))[:cap]:
             if as_of:
                 date_key = _DATE_KEYS.get(vtype)
                 created = str(attrs.get(date_key, "")) if date_key else ""
