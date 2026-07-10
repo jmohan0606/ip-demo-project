@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import logging
+
 from app.graph.client import get_graph_client
-from app.graph.queries.common import resolve_scope_advisor_ids
+from app.graph.queries.common import (
+    resolve_scope_advisor_ids_graph,
+    run_catalog_query,
+    scope_advisor_placements,
+)
 from app.features.snapshot_store import SnapshotStore
 from app.scope.rollup import ScopeRollupService
 from app.revenue.analytics import RevenueAnalyticsService
+
+logger = logging.getLogger(__name__)
+
+# Wide DATETIME bounds for GQ-051 (required params; cover the full data range).
+_DATE_MIN = "1900-01-01 00:00:00"
+_DATE_MAX = "2100-01-01 00:00:00"
 
 
 class ScopeDashboardService:
@@ -17,8 +29,27 @@ class ScopeDashboardService:
     Every number is a real sum/mean over resolved advisors — no hardcoded totals."""
 
     def __init__(self) -> None:
-        self._store = get_graph_client().store
+        self._graph = get_graph_client()
+        self._store = self._graph.store  # logged fallback path only — reads go via run_query
         self._snaps = SnapshotStore()
+        self._pl_cache: dict[tuple[str, str], dict[str, dict] | None] = {}
+        self._scope_labels: dict[tuple[str, str], str] = {}
+
+    def _pl(self, scope_type: str, scope_id: str) -> dict[str, dict] | None:
+        """Cached GQ-053 placements per (scope_type, scope_id); also feeds the
+        scope-label cache used by _name_for_scope."""
+        key = (scope_type.upper(), str(scope_id))
+        if key not in self._pl_cache:
+            placements = scope_advisor_placements(self._graph, key[0], key[1])
+            if placements:
+                for aid, p in placements.items():
+                    self._scope_labels[("ADVISOR", aid)] = str(p.get("advisor_name") or aid)
+                    for level in ("market", "region", "division", "firm"):
+                        lid = str(p.get(f"{level}_id") or "")
+                        if lid:
+                            self._scope_labels[(level.upper(), lid)] = str(p.get(f"{level}_name") or lid)
+            self._pl_cache[key] = placements
+        return self._pl_cache[key]
 
     # ---- helpers -----------------------------------------------------------
     def _rev_ltm(self, advisor_id: str) -> float:
@@ -31,7 +62,14 @@ class ScopeDashboardService:
         return str((self._store.vertex(vtype, vid) or {}).get(attr) or vid)
 
     def _firm_id(self) -> str:
-        firms = list(self._store.all_vertices("phx_dm_firm").keys())
+        for key, _ in self._scope_labels.items():
+            if key[0] == "FIRM":
+                return key[1]
+        for placements in self._pl_cache.values():
+            for p in (placements or {}).values():
+                if p.get("firm_id"):
+                    return str(p["firm_id"])
+        firms = list(self._store.all_vertices("phx_dm_firm").keys())  # logged-fallback store
         return firms[0] if firms else "F001"
 
     def _markets_under(self, scope_type: str, scope_id: str) -> list[str]:
@@ -65,18 +103,70 @@ class ScopeDashboardService:
         }
 
     def _markets(self, scope_type: str, scope_id: str, limit: int = 5) -> dict:
-        """Top & bottom markets under the scope, ranked by aggregate LTM revenue."""
-        market_ids = self._markets_under(scope_type, scope_id)
-        rows = [self._market_row(m) for m in market_ids]
-        rows = [r for r in rows if r["advisor_count"] > 0]
+        """Top & bottom markets under the scope, ranked by aggregate LTM revenue.
+        Markets and their advisors come from the GQ-053 placements of the scope;
+        direct store traversal only on the logged fallback path."""
+        if scope_type.upper() not in ("FIRM", "DIVISION", "REGION"):
+            return {"top": [], "bottom": []}  # no markets *under* market/advisor scope
+        placements = self._pl(scope_type, scope_id)
+        if placements is not None:
+            groups: dict[str, dict] = {}
+            for aid, p in placements.items():
+                mid = str(p.get("market_id") or "")
+                if not mid:
+                    continue
+                g = groups.setdefault(mid, {"label": str(p.get("market_name") or mid), "advisors": []})
+                g["advisors"].append(aid)
+            rows = []
+            for mid, g in groups.items():
+                rev = sum(self._rev_ltm(a) for a in g["advisors"])
+                rows.append({
+                    "scope_type": "Market",
+                    "scope_id": mid,
+                    "label": g["label"],
+                    "revenue_ltm": round(rev, 2),
+                    "advisor_count": len(g["advisors"]),
+                    "rev_per_advisor": round(rev / len(g["advisors"]), 2) if g["advisors"] else 0.0,
+                })
+            # placements only include markets that have advisors, matching the
+            # advisor_count > 0 filter of the traversal path below
+        else:
+            logger.warning("markets ranking for %s/%s using local store traversal fallback",
+                           scope_type, scope_id)
+            market_ids = self._markets_under(scope_type, scope_id)
+            rows = [self._market_row(m) for m in market_ids]
+            rows = [r for r in rows if r["advisor_count"] > 0]
         rows.sort(key=lambda r: r["revenue_ltm"], reverse=True)
         return {"top": rows[:limit], "bottom": rows[-limit:][::-1] if len(rows) > limit else []}
 
     def _peer_scope_ids(self, scope_type: str, scope_id: str) -> tuple[str, list[str]]:
         """The peer group for 'Benchmarking (vs Peers)': same-type siblings under the
-        same parent. Firm has no same-type peer, so it benchmarks its divisions."""
-        s = self._store
+        same parent, resolved from GQ-053 placements (current scope's rows locate the
+        parent; the parent scope's rows enumerate the siblings). Direct store
+        traversal only on the logged fallback path."""
         st = scope_type.upper()
+        my = self._pl(st, scope_id)
+        if my is not None:
+            def ids_under(parent_type: str, parent_id: str, level: str) -> list[str]:
+                placements = self._pl(parent_type, parent_id) or {}
+                return sorted({str(p.get(f"{level}_id")) for p in placements.values() if p.get(f"{level}_id")})
+
+            first = next(iter(my.values()), {})
+            if st == "FIRM":
+                return "Division", ids_under("FIRM", scope_id, "division")
+            if st == "DIVISION":
+                firm = str(first.get("firm_id") or "") or self._firm_id()
+                return "Division", ids_under("FIRM", firm, "division")
+            if st == "REGION":
+                div = str(first.get("division_id") or "")
+                return "Region", (ids_under("DIVISION", div, "region") if div else [])
+            if st == "MARKET":
+                reg = str(first.get("region_id") or "")
+                return "Market", (ids_under("REGION", reg, "market") if reg else [])
+            return "Advisor", []
+        logger.warning("peer-scope resolution for %s/%s using local store traversal fallback",
+                       st, scope_id)
+        s = self._store
         if st == "FIRM":
             return "Division", list(s.in_ids("phx_dm_division_in_firm", scope_id))
         if st == "DIVISION":
@@ -92,7 +182,7 @@ class ScopeDashboardService:
         return "Advisor", []
 
     def _per_advisor_rev(self, scope_type: str, scope_id: str) -> tuple[float, int]:
-        advisors = resolve_scope_advisor_ids(self._store, scope_type.upper(), scope_id)
+        advisors = resolve_scope_advisor_ids_graph(self._graph, scope_type.upper(), scope_id)
         rev = sum(self._rev_ltm(a) for a in advisors)
         return (round(rev / len(advisors), 2) if advisors else 0.0), len(advisors)
 
@@ -104,6 +194,9 @@ class ScopeDashboardService:
             "MARKET": ("phx_dm_market", "market_name"),
             "ADVISOR": ("phx_dm_advisor", "advisor_name"),
         }.get(scope_type.upper())
+        label = self._scope_labels.get((scope_type.upper(), str(scope_id)))
+        if label:
+            return label
         return self._name(attr[0], scope_id, attr[1]) if attr else scope_id
 
     # ---- advisor-scope GNN peer benchmark (REQ-2: the similarity engine IS the
@@ -144,9 +237,14 @@ class ScopeDashboardService:
         feats_by_peer: dict[str, dict] = {}
         for p in peers:
             f = (self._snaps.latest_for_entity("ADVISOR", p["advisor_id"]) or {}).get("features", {})
-            p["advisor_name"] = self._name("phx_dm_advisor", p["advisor_id"], "advisor_name")
-            markets = self._store.out_ids("phx_dm_advisor_in_market", p["advisor_id"])
-            p["market"] = self._name("phx_dm_market", markets[0], "market_name") if markets else None
+            peer_pl = (self._pl("ADVISOR", p["advisor_id"]) or {}).get(p["advisor_id"])
+            if peer_pl is not None:
+                p["advisor_name"] = str(peer_pl.get("advisor_name") or p["advisor_id"])
+                p["market"] = str(peer_pl.get("market_name")) if peer_pl.get("market_name") else None
+            else:  # logged-fallback store path
+                p["advisor_name"] = self._name("phx_dm_advisor", p["advisor_id"], "advisor_name")
+                markets = self._store.out_ids("phx_dm_advisor_in_market", p["advisor_id"])
+                p["market"] = self._name("phx_dm_market", markets[0], "market_name") if markets else None
             if f:
                 feats_by_peer[p["advisor_id"]] = f
         peer_feats = list(feats_by_peer.values())
@@ -210,10 +308,45 @@ class ScopeDashboardService:
             ),
         }
 
-    def _recent_transactions(self, advisor_ids: list[str], limit: int = 8) -> list[dict]:
+    def _recent_transactions(self, scope_type: str, scope_id: str,
+                             advisor_ids: list[str], limit: int = 8) -> list[dict]:
         """Recent Transaction Highlights (mockup bottom-left): the latest real
-        revenue transactions in scope, joined to household + product by edge
-        traversal. Leadership scopes surface the largest recent movers."""
+        revenue transactions in scope with their household + product context, via
+        GQ-051 get_scope_transactions. Leadership scopes surface the largest
+        recent movers. Per-advisor store traversal only on the logged fallback."""
+        results = run_catalog_query(
+            self._graph,
+            "get_scope_transactions",
+            {"scope_type": scope_type.upper(), "scope_id": str(scope_id),
+             "start_date": _DATE_MIN, "end_date": _DATE_MAX},
+        )
+        if results is not None:
+            for entry in results:
+                txs = entry.get("transactions")
+                if txs is None:
+                    continue
+                ranked = sorted(
+                    (t for t in txs),
+                    key=lambda t: (str(t.get("attributes", {}).get("transaction_date") or ""),
+                                   abs(float(t.get("attributes", {}).get("revenue_amount") or 0.0))),
+                    reverse=True,
+                )
+                out = []
+                for t in ranked[:limit]:
+                    a = t.get("attributes", {})
+                    out.append({
+                        "transaction_id": str(t.get("v_id")),
+                        "date": str(a.get("transaction_date") or ""),
+                        "household": str(a.get("household_name")) if a.get("household_name") else None,
+                        "household_id": str(a.get("household_id")) if a.get("household_id") else None,
+                        "product": str(a.get("product_name")) if a.get("product_name") else None,
+                        "revenue_impact": round(float(a.get("revenue_amount") or 0.0), 2),
+                        "type": str(a.get("transaction_type") or "—"),
+                        "advisor_name": str(a.get("advisor_name") or ""),
+                    })
+                return out
+        logger.warning("recent transactions for %s/%s using local store traversal fallback",
+                       scope_type, scope_id)
         rows: list[dict] = []
         for aid in advisor_ids:
             aname = self._name("phx_dm_advisor", aid, "advisor_name")
@@ -301,7 +434,8 @@ class ScopeDashboardService:
     def dashboard(self, scope_type: str = "FIRM", scope_id: str = "F001",
                   period: str = "LTM", compare_to: str = "Prior Year") -> dict:
         st = (scope_type or "FIRM").upper()
-        rollup = ScopeRollupService().summary(scope_type=st, scope_id=scope_id)
+        # period passes through so top/bottom advisors rank over the selected window
+        rollup = ScopeRollupService().summary(scope_type=st, scope_id=scope_id, period=period)
         revenue = RevenueAnalyticsService().analytics(st, scope_id, period=period)
         markets = self._markets(st, scope_id)
         benchmark = self._benchmark(st, scope_id)
@@ -315,7 +449,7 @@ class ScopeDashboardService:
         else:
             tiles = leadership_tiles(rollup["totals"], revenue, headline, rollup["comparison"])
 
-        advisor_ids = resolve_scope_advisor_ids(self._store, st, scope_id)
+        advisor_ids = resolve_scope_advisor_ids_graph(self._graph, st, scope_id)
         return {
             "scope_type": st,
             "scope_id": scope_id,
@@ -328,7 +462,7 @@ class ScopeDashboardService:
             "top_advisors": rollup["top_advisors"],
             "bottom_advisors": rollup["bottom_advisors"],
             "child_breakdown": rollup["child_breakdown"],
-            "recent_transactions": self._recent_transactions(advisor_ids),
+            "recent_transactions": self._recent_transactions(st, scope_id, advisor_ids),
             "revenue": {
                 "monthly_trend": revenue.get("monthly_trend", []),
                 "monthly_trend_prior": revenue.get("monthly_trend_prior", []),
