@@ -1,0 +1,22 @@
+/*
+ * GQ-058 — get_documents
+ * Purpose: List phx_dm_document vertices (knowledge/RAG corpus metadata) so the
+ *          global-search reader can match titles client-side. No existing query
+ *          reads phx_dm_document as a listing (GQ-034 has no document root).
+ * Outputs: documents vertex set (document_id, title, document_type, source,
+ *          version, status, published_date), bounded by result_limit.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_documents(INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_documents = {phx_dm_document.*};
+    documents = SELECT d FROM all_documents:d
+        ORDER BY d.document_id ASC
+        LIMIT result_limit;
+
+    PRINT documents;
+}
+
+INSTALL QUERY get_documents

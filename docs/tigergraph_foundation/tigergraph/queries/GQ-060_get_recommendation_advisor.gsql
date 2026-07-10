@@ -1,0 +1,24 @@
+/*
+ * GQ-060 — get_recommendation_advisor
+ * Purpose: The advisor a recommendation belongs to, given a recommendation_id.
+ *          GQ-029's PRINT excludes the advisor and the recommendation vertex has
+ *          no advisor attribute, so the rec->advisor hop needs its own query.
+ * Outputs: advisor vertex set (phx_dm_advisor) reached via
+ *          phx_dm_recommendation_for_advisor from the recommendation.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_recommendation_advisor(STRING recommendation_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_recommendations = {phx_dm_recommendation.*};
+    focal = SELECT r FROM all_recommendations:r
+        WHERE r.recommendation_id == recommendation_id;
+
+    advisor = SELECT a FROM focal:r
+        -(phx_dm_recommendation_for_advisor:e_a)- phx_dm_advisor:a;
+
+    PRINT recommendation_id, advisor;
+}
+
+INSTALL QUERY get_recommendation_advisor

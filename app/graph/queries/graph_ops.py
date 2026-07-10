@@ -187,3 +187,11 @@ def get_data_quality_issues(store: FoundationGraphStore, params: dict) -> list[d
             "recommendations_missing_reasoning": vset(store, "phx_dm_recommendation", recommendations_missing_reasoning),
         }
     ]
+
+
+@mock_query("get_documents")
+def get_documents(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-058 mock — bounded phx_dm_document listing ordered by document_id."""
+    result_limit = int(params.get("result_limit") or 1000)
+    doc_ids = sorted(store.all_vertices("phx_dm_document").keys())[:result_limit]
+    return [{"documents": vset(store, "phx_dm_document", doc_ids)}]

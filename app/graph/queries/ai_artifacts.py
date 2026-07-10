@@ -290,3 +290,66 @@ def get_recommendation_adoption_learning_summary(store: FoundationGraphStore, pa
             "learning": vset(store, "phx_dm_learning_signal", learning_ids),
         }
     ]
+
+
+@mock_query("get_embeddings_by_type")
+def get_embeddings_by_type(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-054 mock — every embedding vertex for one entity type plus that type's
+    display vertices (exactly one of households/accounts/advisors non-empty), in
+    the real vset row shape, mirroring the GSQL's exact-match filter + ORDER BY."""
+    entity_type = str(params.get("entity_type") or "")
+    embedding_ids = sorted(
+        (
+            emb_id
+            for emb_id, attrs in store.all_vertices("phx_dm_embedding").items()
+            if str(attrs.get("entity_type", "")) == entity_type
+        ),
+        key=lambda emb_id: str((store.vertex("phx_dm_embedding", emb_id) or {}).get("entity_id") or ""),
+    )
+    return [
+        {
+            "entity_type": entity_type,
+            "embeddings": vset(store, "phx_dm_embedding", embedding_ids),
+            "households": vset(
+                store, "phx_dm_household", store.all_vertices("phx_dm_household") if entity_type == "HOUSEHOLD" else []
+            ),
+            "accounts": vset(
+                store, "phx_dm_account", store.all_vertices("phx_dm_account") if entity_type == "ACCOUNT" else []
+            ),
+            "advisors": vset(
+                store, "phx_dm_advisor", store.all_vertices("phx_dm_advisor") if entity_type == "ADVISOR" else []
+            ),
+        }
+    ]
+
+
+@mock_query("get_playbooks")
+def get_playbooks(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-059 mock — full phx_dm_playbook listing ordered by playbook_id."""
+    playbook_ids = sorted(store.all_vertices("phx_dm_playbook").keys())
+    return [{"playbooks": vset(store, "phx_dm_playbook", playbook_ids)}]
+
+
+@mock_query("get_recommendation_advisor")
+def get_recommendation_advisor(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-060 mock — the advisor a recommendation points at via
+    phx_dm_recommendation_for_advisor."""
+    recommendation_id = str(params.get("recommendation_id") or "")
+    advisor_ids = store.out_ids("phx_dm_recommendation_for_advisor", recommendation_id)
+    return [
+        {
+            "recommendation_id": recommendation_id,
+            "advisor": vset(store, "phx_dm_advisor", advisor_ids),
+        }
+    ]
+
+
+@mock_query("get_recommendation_status_counts")
+def get_recommendation_status_counts(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-061 mock — per-status counts over ALL recommendation vertices
+    (MapAccum print shape), household-level recs included."""
+    counts: dict[str, int] = {}
+    for attrs in store.all_vertices("phx_dm_recommendation").values():
+        status = str(attrs.get("status") or "")
+        counts[status] = counts.get(status, 0) + 1
+    return [{"status_counts": counts}]

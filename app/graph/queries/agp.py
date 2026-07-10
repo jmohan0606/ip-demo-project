@@ -199,3 +199,65 @@ def get_agp_program_cohort_summary(store: FoundationGraphStore, params: dict) ->
             "progress": vset(store, "phx_dm_agp_milestone_progress", progress_ids),
         }
     ]
+
+
+@mock_query("get_agp_kpi_scorecard")
+def get_agp_kpi_scorecard(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-055 mock — flat per-measurement scorecard rows: each KPI measurement
+    joined to its KPI identity (measurement_for_kpi) and milestone month
+    (progress_for_milestone). Rows use the aliased-attribute vset shape the GSQL
+    PRINT measurements[... AS alias] produces."""
+    advisor_id = str(params.get("advisor_id") or "")
+    rows: list[dict] = []
+    for enrollment_id in store.out_ids("phx_dm_advisor_has_agp_enrollment", advisor_id):
+        for progress_id in store.out_ids("phx_dm_enrollment_has_milestone_progress", enrollment_id):
+            milestone_month = 0
+            for milestone_id in store.out_ids("phx_dm_progress_for_milestone", progress_id):
+                milestone = store.vertex("phx_dm_agp_milestone", milestone_id) or {}
+                milestone_month = int(milestone.get("milestone_month") or 0)
+            for measurement_id in store.out_ids("phx_dm_progress_has_kpi_measurement", progress_id):
+                measurement = store.vertex("phx_dm_agp_kpi_measurement", measurement_id) or {}
+                kpi_attrs: dict = {}
+                for kpi_id in store.out_ids("phx_dm_measurement_for_kpi", measurement_id):
+                    kpi_attrs = {"kpi_id": kpi_id, **(store.vertex("phx_dm_kpi", kpi_id) or {})}
+                rows.append(
+                    {
+                        "v_id": str(measurement_id),
+                        "v_type": "phx_dm_agp_kpi_measurement",
+                        "attributes": {
+                            "kpi_id": str(kpi_attrs.get("kpi_id") or ""),
+                            "kpi_name": str(kpi_attrs.get("kpi_name") or ""),
+                            "unit": str(kpi_attrs.get("unit") or ""),
+                            "direction": str(kpi_attrs.get("direction") or ""),
+                            "milestone_month": milestone_month,
+                            "target_value": measurement.get("target_value"),
+                            "actual_value": measurement.get("actual_value"),
+                            "attainment_pct": measurement.get("attainment_pct"),
+                            "status": measurement.get("status"),
+                            "measured_at": measurement.get("measured_at"),
+                        },
+                    }
+                )
+    return [{"kpi_measurement_rows": rows}]
+
+
+@mock_query("get_coaching_tasks")
+def get_coaching_tasks(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-057 mock — coaching tasks for an advisor plus assigning persona users,
+    tasks ordered by created_date DESC as in the GSQL."""
+    advisor_id = str(params.get("advisor_id") or "")
+    task_ids = sorted(
+        store.in_ids("phx_dm_coaching_task_for_advisor", advisor_id),
+        key=lambda tid: str((store.vertex("phx_dm_coaching_task", tid) or {}).get("created_date") or ""),
+        reverse=True,
+    )
+    assigner_ids: list[str] = []
+    for task_id in task_ids:
+        assigner_ids.extend(store.out_ids("phx_dm_coaching_task_assigned_by", task_id))
+    return [
+        {
+            "advisor_id": advisor_id,
+            "tasks": vset(store, "phx_dm_coaching_task", task_ids),
+            "assigners": vset(store, "phx_dm_persona_user", assigner_ids),
+        }
+    ]

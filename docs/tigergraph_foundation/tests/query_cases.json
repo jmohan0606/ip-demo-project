@@ -805,6 +805,108 @@
       "required_result_keys": [
         "advisor_placements"
       ]
+    },
+    {
+      "id": "GQ-054",
+      "query_name": "get_embeddings_by_type",
+      "params": {
+        "entity_type": "HOUSEHOLD"
+      },
+      "expected_outputs": [
+        "embeddings",
+        "households",
+        "accounts",
+        "advisors"
+      ],
+      "required_result_keys": [
+        "embeddings"
+      ]
+    },
+    {
+      "id": "GQ-055",
+      "query_name": "get_agp_kpi_scorecard",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "kpi_measurement_rows"
+      ],
+      "required_result_keys": [
+        "kpi_measurement_rows"
+      ]
+    },
+    {
+      "id": "GQ-056",
+      "query_name": "get_memory_counts_by_type",
+      "params": {},
+      "expected_outputs": [
+        "memory_counts"
+      ],
+      "required_result_keys": [
+        "memory_counts"
+      ]
+    },
+    {
+      "id": "GQ-057",
+      "query_name": "get_coaching_tasks",
+      "params": {
+        "advisor_id": "A001"
+      },
+      "expected_outputs": [
+        "tasks",
+        "assigners"
+      ],
+      "required_result_keys": [
+        "tasks"
+      ]
+    },
+    {
+      "id": "GQ-058",
+      "query_name": "get_documents",
+      "params": {
+        "result_limit": 1000
+      },
+      "expected_outputs": [
+        "documents"
+      ],
+      "required_result_keys": [
+        "documents"
+      ]
+    },
+    {
+      "id": "GQ-059",
+      "query_name": "get_playbooks",
+      "params": {},
+      "expected_outputs": [
+        "playbooks"
+      ],
+      "required_result_keys": [
+        "playbooks"
+      ]
+    },
+    {
+      "id": "GQ-060",
+      "query_name": "get_recommendation_advisor",
+      "params": {
+        "recommendation_id": "REC_A001"
+      },
+      "expected_outputs": [
+        "advisor"
+      ],
+      "required_result_keys": [
+        "advisor"
+      ]
+    },
+    {
+      "id": "GQ-061",
+      "query_name": "get_recommendation_status_counts",
+      "params": {},
+      "expected_outputs": [
+        "status_counts"
+      ],
+      "required_result_keys": [
+        "status_counts"
+      ]
     }
   ]
 }

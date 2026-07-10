@@ -1,0 +1,23 @@
+/*
+ * GQ-056 — get_memory_counts_by_type
+ * Purpose: Global count of phx_dm_context_memory vertices grouped by memory_type,
+ *          across ALL scopes — the StateRepository's memory-coverage panel read.
+ *          GQ-047 is per-scope (would need an N+1 sweep over every scope entity)
+ *          and GQ-036 only counts whole vertex types, so neither serves this.
+ * Outputs: memory_counts — MapAccum<STRING, INT>: memory_type -> vertex count.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_memory_counts_by_type() FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    MapAccum<STRING, SumAccum<INT>> @@memory_counts;
+
+    all_memories = {phx_dm_context_memory.*};
+    counted = SELECT cm FROM all_memories:cm
+        ACCUM @@memory_counts += (cm.memory_type -> 1);
+
+    PRINT @@memory_counts AS memory_counts;
+}
+
+INSTALL QUERY get_memory_counts_by_type

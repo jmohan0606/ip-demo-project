@@ -53,3 +53,11 @@ USE GRAPH iperform_insights_coaching_demo
 @GQ-051_get_scope_transactions.gsql
 @GQ-052_get_product_category_map.gsql
 @GQ-053_get_scope_advisor_placements.gsql
+@GQ-054_get_embeddings_by_type.gsql
+@GQ-055_get_agp_kpi_scorecard.gsql
+@GQ-056_get_memory_counts_by_type.gsql
+@GQ-057_get_coaching_tasks.gsql
+@GQ-058_get_documents.gsql
+@GQ-059_get_playbooks.gsql
+@GQ-060_get_recommendation_advisor.gsql
+@GQ-061_get_recommendation_status_counts.gsql

@@ -1,0 +1,30 @@
+/*
+ * GQ-057 — get_coaching_tasks
+ * Purpose: Manager-assigned coaching tasks for one advisor, plus the persona users
+ *          who assigned them. No GQ-001..056 query touches phx_dm_coaching_task at
+ *          all (it was added by the Section-9 coaching CRUD feature after the
+ *          original 43-query catalog). Task->assigner pairing is recoverable from
+ *          the task's own created_by_user_id attribute, so disjoint sets suffice.
+ * Outputs: tasks (phx_dm_coaching_task vset) and assigners (phx_dm_persona_user
+ *          vset) for the advisor.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_coaching_tasks(STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_advisors = {phx_dm_advisor.*};
+    focal = SELECT a FROM all_advisors:a
+        WHERE a.advisor_id == advisor_id;
+
+    tasks = SELECT t FROM focal:a
+        -(rev_phx_dm_coaching_task_for_advisor:e_t)- phx_dm_coaching_task:t
+        ORDER BY t.created_date DESC;
+
+    assigners = SELECT u FROM tasks:t
+        -(phx_dm_coaching_task_assigned_by:e_u)- phx_dm_persona_user:u;
+
+    PRINT advisor_id, tasks, assigners;
+}
+
+INSTALL QUERY get_coaching_tasks

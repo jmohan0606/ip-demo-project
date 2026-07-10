@@ -1,0 +1,24 @@
+/*
+ * GQ-059 — get_playbooks
+ * Purpose: List phx_dm_playbook vertices so the recommendation generator can pick
+ *          the playbook backing a recommendation category. Existing queries only
+ *          reach playbooks as lineage of already-persisted recommendations
+ *          (GQ-028/029) — unusable at generation time; GQ-031 requires a persona
+ *          user + intent. Category matching stays client-side (case-insensitive
+ *          contains), so the full bounded list is returned.
+ * Outputs: playbooks vertex set (playbook_id, playbook_name, category, version,
+ *          status, summary).
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_playbooks() FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_playbooks = {phx_dm_playbook.*};
+    playbooks = SELECT p FROM all_playbooks:p
+        ORDER BY p.playbook_id ASC;
+
+    PRINT playbooks;
+}
+
+INSTALL QUERY get_playbooks

@@ -1,0 +1,39 @@
+/*
+ * GQ-054 — get_embeddings_by_type
+ * Purpose: Return EVERY persisted embedding vertex for one entity type (ADVISOR /
+ *          HOUSEHOLD / ACCOUNT) in a single call, plus the display vertices of that
+ *          entity type, so the similar-entities reader can compute live cosine
+ *          nearest-neighbours over real graph rows instead of scanning the in-memory
+ *          mock store. GQ-024 is per-entity and GQ-025 uses precomputed similarity
+ *          matches — neither serves a full-type live scan.
+ * Outputs: embeddings vertex set (phx_dm_embedding rows for the type: entity_type,
+ *          entity_id, vector_preview, dimensions, model_name, generated_at) and the
+ *          matching display vertex set — exactly one of households / accounts /
+ *          advisors is non-empty for a given entity_type parameter.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_embeddings_by_type(STRING entity_type) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_embeddings = {phx_dm_embedding.*};
+    embeddings = SELECT e FROM all_embeddings:e
+        WHERE e.entity_type == entity_type
+        ORDER BY e.entity_id ASC;
+
+    all_households = {phx_dm_household.*};
+    households = SELECT h FROM all_households:h
+        WHERE entity_type == "HOUSEHOLD";
+
+    all_accounts = {phx_dm_account.*};
+    accounts = SELECT ac FROM all_accounts:ac
+        WHERE entity_type == "ACCOUNT";
+
+    all_advisors = {phx_dm_advisor.*};
+    advisors = SELECT a FROM all_advisors:a
+        WHERE entity_type == "ADVISOR";
+
+    PRINT entity_type, embeddings, households, accounts, advisors;
+}
+
+INSTALL QUERY get_embeddings_by_type

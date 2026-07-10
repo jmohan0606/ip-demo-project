@@ -1,0 +1,24 @@
+/*
+ * GQ-061 — get_recommendation_status_counts
+ * Purpose: Per-status counts across ALL phx_dm_recommendation vertices (advisor-
+ *          attached AND household-level). GQ-041 with scope_type=ALL traverses
+ *          advisor-attached recommendations only, silently missing household-level
+ *          REC_HH_* vertices — verified undercount in mock data (12 vs 24 per
+ *          status), so a direct vertex-set aggregation is required.
+ * Outputs: status_counts — MapAccum<STRING, INT>: status -> recommendation count.
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_recommendation_status_counts() FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    MapAccum<STRING, SumAccum<INT>> @@status_counts;
+
+    all_recommendations = {phx_dm_recommendation.*};
+    counted = SELECT r FROM all_recommendations:r
+        ACCUM @@status_counts += (r.status -> 1);
+
+    PRINT @@status_counts AS status_counts;
+}
+
+INSTALL QUERY get_recommendation_status_counts

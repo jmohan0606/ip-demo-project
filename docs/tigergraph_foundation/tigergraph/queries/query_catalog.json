@@ -475,5 +475,77 @@
     "outputs": "advisor_placements vertex set: advisor_name, branch_id, branch_name, branch_state, market_id, market_name, region_id, region_name, division_id, division_name, firm_id, firm_name",
     "status": "created-batch1-NEEDS-LIVE-INSTALL",
     "file": "GQ-053_get_scope_advisor_placements.gsql"
+  },
+  {
+    "id": "GQ-054",
+    "name": "get_embeddings_by_type",
+    "parameters": "entity_type STRING",
+    "purpose": "All persisted embedding vertices for one entity type (ADVISOR/HOUSEHOLD/ACCOUNT) plus that type's display vertices, for live cosine similar-entities computation (GQ-024 is per-entity; GQ-025 uses precomputed matches).",
+    "outputs": "embeddings vertex set (entity_type, entity_id, vector_preview, dimensions, model_name, generated_at); households / accounts / advisors display vertex sets (exactly one non-empty per call)",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-054_get_embeddings_by_type.gsql"
+  },
+  {
+    "id": "GQ-055",
+    "name": "get_agp_kpi_scorecard",
+    "parameters": "advisor_id STRING",
+    "purpose": "Flat per-measurement KPI scorecard rows for one advisor's AGP enrollment \u2014 each measurement joined to its KPI (measurement_for_kpi) and milestone month (progress_for_milestone); GQ-014/015 print these as disjoint sets with no pairing.",
+    "outputs": "kpi_measurement_rows vertex set: kpi_id, kpi_name, unit, direction, milestone_month, target_value, actual_value, attainment_pct, status, measured_at",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-055_get_agp_kpi_scorecard.gsql"
+  },
+  {
+    "id": "GQ-056",
+    "name": "get_memory_counts_by_type",
+    "parameters": "",
+    "purpose": "Global count of phx_dm_context_memory vertices grouped by memory_type across ALL scopes (StateRepository memory-coverage read; GQ-047 is per-scope, GQ-036 counts whole vertex types only).",
+    "outputs": "memory_counts MapAccum: memory_type -> count",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-056_get_memory_counts_by_type.gsql"
+  },
+  {
+    "id": "GQ-057",
+    "name": "get_coaching_tasks",
+    "parameters": "advisor_id STRING",
+    "purpose": "Manager-assigned coaching tasks for an advisor plus assigning persona users (no prior query touches phx_dm_coaching_task; pairing recoverable via task.created_by_user_id).",
+    "outputs": "tasks (phx_dm_coaching_task) and assigners (phx_dm_persona_user) vertex sets",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-057_get_coaching_tasks.gsql"
+  },
+  {
+    "id": "GQ-058",
+    "name": "get_documents",
+    "parameters": "result_limit INT",
+    "purpose": "Bounded listing of phx_dm_document vertices for global search title matching (no existing query lists documents).",
+    "outputs": "documents vertex set: document_id, title, document_type, source, version, status, published_date",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-058_get_documents.gsql"
+  },
+  {
+    "id": "GQ-059",
+    "name": "get_playbooks",
+    "parameters": "",
+    "purpose": "Full playbook listing for recommendation generation (existing queries reach playbooks only as lineage of persisted recommendations, unusable at generation time).",
+    "outputs": "playbooks vertex set: playbook_id, playbook_name, category, version, status, summary",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-059_get_playbooks.gsql"
+  },
+  {
+    "id": "GQ-060",
+    "name": "get_recommendation_advisor",
+    "parameters": "recommendation_id STRING",
+    "purpose": "The advisor a recommendation belongs to (rec->advisor hop via phx_dm_recommendation_for_advisor); GQ-029 excludes the advisor and the rec vertex has no advisor attribute.",
+    "outputs": "advisor vertex set (phx_dm_advisor)",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-060_get_recommendation_advisor.gsql"
+  },
+  {
+    "id": "GQ-061",
+    "name": "get_recommendation_status_counts",
+    "parameters": "",
+    "purpose": "Per-status counts across ALL phx_dm_recommendation vertices including household-level REC_HH_* (GQ-041 scope=ALL reaches advisor-attached recs only \u2014 verified undercount).",
+    "outputs": "status_counts MapAccum: status -> count",
+    "status": "created-batch2-NEEDS-LIVE-INSTALL",
+    "file": "GQ-061_get_recommendation_status_counts.gsql"
   }
 ]

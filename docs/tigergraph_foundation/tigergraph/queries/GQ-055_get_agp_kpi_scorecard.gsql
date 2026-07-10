@@ -1,0 +1,67 @@
+/*
+ * GQ-055 — get_agp_kpi_scorecard
+ * Purpose: Flat per-measurement KPI scorecard rows for one advisor's AGP enrollment:
+ *          each KPI measurement joined to the KPI it measures (via
+ *          phx_dm_measurement_for_kpi) and to its milestone month (via
+ *          phx_dm_progress_for_milestone). GQ-014/GQ-015 print measurements, KPIs
+ *          and milestones as DISJOINT sets with no edge pairing, so the per-KPI
+ *          measurement history is unrecoverable from them — this query preserves
+ *          the pairing.
+ * Outputs: kpi_measurement_rows vertex set (phx_dm_agp_kpi_measurement rows with:
+ *          kpi_id, kpi_name, unit, direction, milestone_month, target_value,
+ *          actual_value, attainment_pct, status, measured_at).
+ * Created: store->run_query migration BATCH TWO (2026-07-10). NEEDS LIVE INSTALL.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_agp_kpi_scorecard(STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    MaxAccum<INT> @milestone_month;
+    SumAccum<STRING> @kpi_id;
+    SumAccum<STRING> @kpi_name;
+    SumAccum<STRING> @unit;
+    SumAccum<STRING> @direction;
+
+    all_advisors = {phx_dm_advisor.*};
+    focal = SELECT a FROM all_advisors:a
+        WHERE a.advisor_id == advisor_id;
+
+    enrollments = SELECT en FROM focal:a
+        -(phx_dm_advisor_has_agp_enrollment:e_en)- phx_dm_agp_enrollment:en;
+
+    progress = SELECT mp FROM enrollments:en
+        -(phx_dm_enrollment_has_milestone_progress:e_mp)- phx_dm_agp_milestone_progress:mp;
+
+    // attach the milestone month onto each progress vertex (one hop)
+    progress_with_month = SELECT mp FROM progress:mp
+        -(phx_dm_progress_for_milestone:e_m)- phx_dm_agp_milestone:m
+        ACCUM mp.@milestone_month += m.milestone_month;
+
+    // fan out to measurements, carrying the month down (one hop)
+    measurements = SELECT ms FROM progress:mp
+        -(phx_dm_progress_has_kpi_measurement:e_ms)- phx_dm_agp_kpi_measurement:ms
+        ACCUM ms.@milestone_month += mp.@milestone_month;
+
+    // attach the measured KPI's identity onto each measurement (one hop)
+    measurements_with_kpi = SELECT ms FROM measurements:ms
+        -(phx_dm_measurement_for_kpi:e_k)- phx_dm_kpi:k
+        ACCUM ms.@kpi_id += k.kpi_id,
+              ms.@kpi_name += k.kpi_name,
+              ms.@unit += k.unit,
+              ms.@direction += k.direction;
+
+    PRINT measurements[
+        measurements.@kpi_id AS kpi_id,
+        measurements.@kpi_name AS kpi_name,
+        measurements.@unit AS unit,
+        measurements.@direction AS direction,
+        measurements.@milestone_month AS milestone_month,
+        measurements.target_value AS target_value,
+        measurements.actual_value AS actual_value,
+        measurements.attainment_pct AS attainment_pct,
+        measurements.status AS status,
+        measurements.measured_at AS measured_at
+    ] AS kpi_measurement_rows;
+}
+
+INSTALL QUERY get_agp_kpi_scorecard

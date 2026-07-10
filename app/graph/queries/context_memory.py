@@ -250,3 +250,14 @@ def get_agent_execution_trace(store: FoundationGraphStore, params: dict) -> list
             "reasoning": vset(store, "phx_dm_reasoning_trace", store.out_ids("phx_dm_execution_generated_reasoning", execution_id)),
         }
     ]
+
+
+@mock_query("get_memory_counts_by_type")
+def get_memory_counts_by_type(store: FoundationGraphStore, params: dict) -> list[dict]:
+    """GQ-056 mock — global phx_dm_context_memory counts grouped by memory_type
+    (MapAccum print shape: one entry, memory_counts -> {type: count})."""
+    counts: dict[str, int] = {}
+    for attrs in store.all_vertices("phx_dm_context_memory").values():
+        memory_type = str(attrs.get("memory_type") or "")
+        counts[memory_type] = counts.get(memory_type, 0) + 1
+    return [{"memory_counts": counts}]
