@@ -150,28 +150,70 @@ class CrmService:
 
     def activities(self, advisor_id: str, limit: int = 60) -> dict:
         """CRM activities for an advisor with the household they were with, a weekly
-        breakdown by type, recent meetings and per-activity notes — read straight
-        from phx_dm_crm_activity via activity_for_advisor / activity_for_household."""
-        store = self.graph.store
+        breakdown by type, recent meetings and per-activity notes — read via
+        GQ-009 get_advisor_360 (crm_activities) + GQ-011 get_household_360
+        (activity->household attribution); local store traversal is the logged
+        fallback only."""
+        from app.graph.queries.common import graph_fallback_store, run_catalog_query
+
         rows: list[dict] = []
-        for aid in store.in_ids("phx_dm_activity_for_advisor", advisor_id):
-            a = store.vertex("phx_dm_crm_activity", aid) or {}
-            hh_ids = store.out_ids("phx_dm_activity_for_household", aid)
-            with_name = None
-            if hh_ids:
-                with_name = (store.vertex("phx_dm_household", hh_ids[0]) or {}).get("household_name")
-            rows.append({
-                "activity_id": a.get("activity_id", aid),
-                "activity_type": a.get("activity_type"),
-                "activity_date": a.get("activity_date"),
-                "status": a.get("status"),
-                "subject": a.get("subject"),
-                "with": with_name or "—",
-                "notes_summary": a.get("notes_summary"),
-                "next_action": a.get("next_action"),
-                "next_action_date": a.get("next_action_date"),
-                "sentiment": a.get("sentiment"),
-            })
+        results = run_catalog_query(self.graph, "get_advisor_360", {"advisor_id": advisor_id})
+        if results is not None:
+            merged: dict = {}
+            for entry in results:
+                merged.update(entry)
+            # activity_id -> household_name via GQ-011 per served household
+            # (rev_phx_dm_activity_for_household traversal, mirrors the old
+            # activity_for_household edge read).
+            activity_household: dict[str, str] = {}
+            for hh in merged.get("households", []):
+                hh_name = _attrs(hh).get("household_name")
+                hh_results = run_catalog_query(
+                    self.graph, "get_household_360", {"household_id": hh.get("v_id")}
+                )
+                if hh_results is None or not hh_name:
+                    continue
+                for hh_entry in hh_results:
+                    for act in hh_entry.get("activities", []):
+                        aid = str(act.get("v_id"))
+                        if aid not in activity_household:
+                            activity_household[aid] = str(hh_name)
+            for act in merged.get("crm_activities", []):
+                aid = str(act.get("v_id"))
+                a = _attrs(act)
+                rows.append({
+                    "activity_id": a.get("activity_id", aid),
+                    "activity_type": a.get("activity_type"),
+                    "activity_date": a.get("activity_date"),
+                    "status": a.get("status"),
+                    "subject": a.get("subject"),
+                    "with": activity_household.get(aid) or "—",
+                    "notes_summary": a.get("notes_summary"),
+                    "next_action": a.get("next_action"),
+                    "next_action_date": a.get("next_action_date"),
+                    "sentiment": a.get("sentiment"),
+                })
+        else:
+            # fallback: original local-store traversal (logged by run_catalog_query)
+            store = graph_fallback_store(self.graph)
+            for aid in store.in_ids("phx_dm_activity_for_advisor", advisor_id):
+                a = store.vertex("phx_dm_crm_activity", aid) or {}
+                hh_ids = store.out_ids("phx_dm_activity_for_household", aid)
+                with_name = None
+                if hh_ids:
+                    with_name = (store.vertex("phx_dm_household", hh_ids[0]) or {}).get("household_name")
+                rows.append({
+                    "activity_id": a.get("activity_id", aid),
+                    "activity_type": a.get("activity_type"),
+                    "activity_date": a.get("activity_date"),
+                    "status": a.get("status"),
+                    "subject": a.get("subject"),
+                    "with": with_name or "—",
+                    "notes_summary": a.get("notes_summary"),
+                    "next_action": a.get("next_action"),
+                    "next_action_date": a.get("next_action_date"),
+                    "sentiment": a.get("sentiment"),
+                })
         rows.sort(key=lambda r: str(r.get("activity_date") or ""), reverse=True)
         rows = rows[:limit]
 
