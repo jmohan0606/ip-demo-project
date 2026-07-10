@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Iterable
 
 from app.graph.foundation_store import FoundationGraphStore
+
+logger = logging.getLogger(__name__)
 
 # Vertex type constants (schema prefix phx_dm_)
 FIRM = "phx_dm_firm"
@@ -78,6 +81,73 @@ def resolve_scope_advisor_ids(store: FoundationGraphStore, scope_type: str, scop
     for market_id in market_ids:
         advisor_ids.extend(store.in_ids("phx_dm_advisor_in_market", market_id))
     return sorted(set(advisor_ids))
+
+
+def run_catalog_query(graph: Any, query_name: str, params: dict) -> list[dict] | None:
+    """Dispatch a catalogued GQ-### query through the active GraphClient.
+
+    Returns the `results` list on success, or None when the query raised or came
+    back as an error envelope — callers treat None as "use the local-store
+    fallback" and that fallback is always logged (never silent). Also logs when
+    a real graph mode is configured but the mock tier (4) served the request.
+    """
+    try:
+        result = graph.run_query(query_name, params)
+    except Exception as exc:  # noqa: BLE001 — any tier failure funnels to the logged fallback
+        logger.warning(
+            "run_query(%s) raised %s: %s — falling back to local store traversal",
+            query_name, type(exc).__name__, exc,
+        )
+        return None
+    if not isinstance(result, dict) or result.get("error"):
+        logger.warning(
+            "run_query(%s) returned an error envelope (%s) — falling back to local store traversal",
+            query_name,
+            (result or {}).get("message") if isinstance(result, dict) else type(result).__name__,
+        )
+        return None
+    from app.config.settings import get_settings
+
+    mode = (get_settings().graph_client_mode or "mock").lower()
+    if result.get("served_by_tier") == 4 and mode != "mock":
+        logger.warning(
+            "run_query(%s) served by MOCK tier (4) while GRAPH_CLIENT_MODE=%s — "
+            "expected in the Codespace (no reachable TigerGraph); must be tier 2 on the client machine",
+            query_name, mode,
+        )
+    return result.get("results", [])
+
+
+def graph_fallback_store(graph: Any) -> FoundationGraphStore:
+    """The FoundationGraphStore used for the logged local fallback path."""
+    store = getattr(graph, "store", None)
+    if store is not None:
+        return store
+    from app.graph.foundation_store import get_foundation_store
+
+    return get_foundation_store()
+
+
+def resolve_scope_advisor_ids_graph(graph: Any, scope_type: str, scope_id: str) -> list[str]:
+    """Scope -> advisor ids via the installed GQ-002 get_scope_descendants query
+    (real TigerGraph in real mode, identical-shape mock in mock mode). The direct
+    store traversal below remains ONLY as the logged fallback."""
+    st = (scope_type or "").upper()
+    results = run_catalog_query(
+        graph,
+        "get_scope_descendants",
+        {"scope_type": st, "scope_id": str(scope_id), "entity_type": "ADVISOR"},
+    )
+    if results is not None:
+        for entry in results:
+            advisors = entry.get("advisor_descendants")
+            if advisors is not None:
+                return sorted({str(v.get("v_id")) for v in advisors if v.get("v_id") is not None})
+        logger.warning(
+            "get_scope_descendants returned no advisor_descendants entry for %s/%s — "
+            "falling back to local store traversal", st, scope_id,
+        )
+    return resolve_scope_advisor_ids(graph_fallback_store(graph), st, scope_id)
 
 
 def advisor_transactions(
