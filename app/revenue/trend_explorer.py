@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 
 from app.graph.client import get_graph_client
-from app.graph.queries.common import advisor_transactions, resolve_scope_advisor_ids
+from app.graph.queries.common import (
+    advisor_transactions,
+    resolve_scope_advisor_ids_graph,
+    run_catalog_query,
+    scope_advisor_placements,
+)
 from app.llm.client import get_llm_client
+
+logger = logging.getLogger(__name__)
+
+# Wide DATETIME bounds for GQ-051 (required params; cover the full data range).
+_DATE_MIN = "1900-01-01 00:00:00"
+_DATE_MAX = "2100-01-01 00:00:00"
 
 # dimension -> how an advisor (or transaction) maps to a slice of that dimension.
 # Hierarchy dimensions resolve advisor -> member via the same edges the scope
@@ -44,12 +56,60 @@ class RevenueTrendExplorerService:
     """
 
     def __init__(self) -> None:
-        self._store = get_graph_client().store
+        self._graph = get_graph_client()
+        self._store = self._graph.store  # logged fallback path only — reads go via run_query
+        self._tx_product: dict[str, str] = {}  # tx_id -> product_id, filled from GQ-051 rows
+
+    # ---- graph readers ---------------------------------------------------------
+    def _scope_tx_rows(self, scope_type: str, scope_id: str,
+                       advisor_ids: list[str]) -> dict[str, list[tuple[str, dict]]]:
+        """advisor_id -> [(tx_id, attrs)] for the whole scope via GQ-051
+        get_scope_transactions; per-advisor store traversal only as the logged
+        fallback. Also fills the tx->product map used by the business_line slice."""
+        results = run_catalog_query(
+            self._graph,
+            "get_scope_transactions",
+            {"scope_type": scope_type, "scope_id": str(scope_id),
+             "start_date": _DATE_MIN, "end_date": _DATE_MAX},
+        )
+        if results is not None:
+            for entry in results:
+                txs = entry.get("transactions")
+                if txs is not None:
+                    adv_rows: dict[str, list[tuple[str, dict]]] = {aid: [] for aid in advisor_ids}
+                    for row in txs:
+                        attrs = row.get("attributes", {})
+                        aid = str(attrs.get("advisor_id") or "")
+                        tx_id = str(row.get("v_id"))
+                        self._tx_product[tx_id] = str(attrs.get("product_id") or "")
+                        adv_rows.setdefault(aid, []).append((tx_id, attrs))
+                    return adv_rows
+        logger.warning(
+            "get_scope_transactions unavailable for %s/%s — falling back to local store traversal",
+            scope_type, scope_id,
+        )
+        return {aid: advisor_transactions(self._store, [aid]) for aid in advisor_ids}
+
+    def _tx_product_ids(self, tx_id: str) -> list[str]:
+        if tx_id in self._tx_product:  # populated from GQ-051 rows
+            pid = self._tx_product[tx_id]
+            return [pid] if pid else []
+        return self._store.out_ids("phx_dm_transaction_for_product", tx_id)  # fallback rows
 
     # ---- slice resolution ----------------------------------------------------
-    def _advisor_slice_map(self, advisor_ids: list[str], dimension: str) -> dict[str, str]:
+    def _advisor_slice_map(self, advisor_ids: list[str], dimension: str,
+                           placements: dict[str, dict] | None) -> dict[str, str]:
         """advisor_id -> slice label for hierarchy dimensions (division/region/
-        market/branch/advisor), resolved once via the real hierarchy edges."""
+        market/branch/advisor), from the scope's GQ-053 placements; per-advisor
+        hierarchy-edge walking only on the logged fallback path."""
+        if placements is not None:
+            out: dict[str, str] = {}
+            name_key = "advisor_name" if dimension == "advisor" else f"{dimension}_name"
+            for aid in advisor_ids:
+                p = placements.get(aid) or {}
+                out[aid] = str(p.get(name_key)) if p.get(name_key) else "Unassigned"
+            return out
+        logger.warning("slice map for dimension %s using local store traversal fallback", dimension)
         s = self._store
         vtype, name_attr = _DIM_VERTEX[dimension]
 
@@ -77,8 +137,18 @@ class RevenueTrendExplorerService:
         return out
 
     def _product_category_map(self) -> dict[str, str]:
-        """product_id -> business-line category_name via product_in_subcategory ->
-        subcategory_in_category (same chain RevenueAnalyticsService uses)."""
+        """product_id -> business-line category_name via GQ-052
+        get_product_category_map; local store traversal only as the logged fallback."""
+        results = run_catalog_query(self._graph, "get_product_category_map", {})
+        if results is not None:
+            for entry in results:
+                products = entry.get("products")
+                if products is not None:
+                    return {
+                        str(p.get("v_id")): str(p.get("attributes", {}).get("category_name") or "Unclassified")
+                        for p in products
+                    }
+        logger.warning("get_product_category_map unavailable — building product map from local store traversal")
         s = self._store
         cats = s.all_vertices("phx_dm_product_category")
         out: dict[str, str] = {}
@@ -185,22 +255,25 @@ class RevenueTrendExplorerService:
             raise ValueError(f"Unknown dimension '{dimension}'")
         granularity = "quarterly" if (granularity or "").lower() == "quarterly" else "monthly"
 
-        advisor_ids = resolve_scope_advisor_ids(self._store, (scope_type or "FIRM").upper(), scope_id)
+        st = (scope_type or "FIRM").upper()
+        advisor_ids = resolve_scope_advisor_ids_graph(self._graph, st, scope_id)
 
         # -- single pass over real transactions: (month, slice) -> Σ revenue_amount
         by_line = dimension == "business_line"
-        adv_slice = {} if by_line else self._advisor_slice_map(advisor_ids, dimension)
+        placements = None if by_line else scope_advisor_placements(self._graph, st, scope_id)
+        adv_slice = {} if by_line else self._advisor_slice_map(advisor_ids, dimension, placements)
         cat_by_product = self._product_category_map() if by_line else {}
+        adv_rows = self._scope_tx_rows(st, scope_id, advisor_ids)
         month_slice: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
         tx_count = 0
         for aid in advisor_ids:
-            for tx_id, attrs in advisor_transactions(self._store, [aid]):
+            for tx_id, attrs in adv_rows.get(aid, []):
                 month = str(attrs.get("transaction_date"))[:7]
                 if not month or month == "None":
                     continue
                 rev = float(attrs.get("revenue_amount") or 0.0)
                 if by_line:
-                    pids = self._store.out_ids("phx_dm_transaction_for_product", tx_id)
+                    pids = self._tx_product_ids(tx_id)
                     label = cat_by_product.get(pids[0], "Unclassified") if pids else "Unclassified"
                 else:
                     label = adv_slice.get(aid, "Unassigned")
