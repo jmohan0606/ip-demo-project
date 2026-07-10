@@ -8,6 +8,7 @@ from pathlib import Path
 from app.config.settings import get_settings
 from app.graph.artifacts import upsert_edge, upsert_vertex, write_reasoning_trace
 from app.graph.client import GraphClient, get_graph_client
+from app.graph.queries.common import graph_fallback_store, run_catalog_query
 from app.opportunities.service import OpportunityDetectionService
 from app.shared.ids import new_id
 
@@ -98,17 +99,27 @@ class RecommendationService:
         merged: dict = {}
         for entry in self.graph.run_query("get_data_health_summary", {}).get("results", []):
             merged.update(entry)
-        # playbooks are few; fetch directly from the store via a subgraph-free scan
-        # (GraphClient has no playbook query in the catalog, so we filter client-side)
-        from app.graph.client import MockGraphClient
-
-        if isinstance(self.graph, MockGraphClient):
-            for playbook_id, attrs in self.graph.store.all_vertices("phx_dm_playbook").items():
-                if str(attrs.get("category", "")).upper() == category.upper():
-                    return {"playbook_id": playbook_id, **attrs}
-            first = next(iter(self.graph.store.all_vertices("phx_dm_playbook").items()), None)
-            return {"playbook_id": first[0], **first[1]} if first else None
-        return None  # live mode: playbook selection via installed query once added to the catalog
+        # Playbook listing via GQ-059 get_playbooks (run_query — real TigerGraph in
+        # real mode, previously impossible: live mode returned None here). Category
+        # matching stays client-side. The direct store scan below survives only as
+        # the logged fallback.
+        results = run_catalog_query(self.graph, "get_playbooks", {})
+        if results is not None:
+            for entry in results:
+                if entry.get("playbooks") is None:
+                    continue
+                rows = [(str(r.get("v_id")), r.get("attributes", {})) for r in entry["playbooks"]]
+                for playbook_id, attrs in rows:
+                    if str(attrs.get("category", "")).upper() == category.upper():
+                        return {"playbook_id": playbook_id, **attrs}
+                return {"playbook_id": rows[0][0], **rows[0][1]} if rows else None
+        # fallback: original store scan (run_catalog_query already logged it)
+        store = graph_fallback_store(self.graph)
+        for playbook_id, attrs in store.all_vertices("phx_dm_playbook").items():
+            if str(attrs.get("category", "")).upper() == category.upper():
+                return {"playbook_id": playbook_id, **attrs}
+        first = next(iter(store.all_vertices("phx_dm_playbook").items()), None)
+        return {"playbook_id": first[0], **first[1]} if first else None
 
     @staticmethod
     def _outcome_affinities(advisor_id: str) -> dict[str, float]:
@@ -226,29 +237,70 @@ class RecommendationService:
         }
 
     def list_for_advisor(self, advisor_id: str) -> dict:
-        """Read the persisted recommendation vertices for an advisor (via
-        recommendation_for_advisor) — includes engine-generated recs AND ones saved
-        from the What-If Simulator, since both go through the same real pipeline."""
-        store = getattr(self.graph, "store", None)
+        """Read the persisted recommendation vertices for an advisor via the installed
+        GQ-028 get_recommendations query (recommendation_for_advisor traversal) —
+        includes engine-generated recs AND ones saved from the What-If Simulator,
+        since both go through the same real pipeline. The direct store read below
+        survives ONLY as the logged fallback path."""
+        from app.graph.queries.common import graph_fallback_store, run_catalog_query
+
+        def _row(rid: str, r: dict) -> dict:
+            return {
+                "recommendation_id": r.get("recommendation_id", rid),
+                "recommendation_type": r.get("recommendation_type"),
+                "title": r.get("title"),
+                "action_text": r.get("action_text"),
+                "severity": r.get("severity"),
+                "priority_score": r.get("priority_score"),
+                "confidence": r.get("confidence"),
+                "estimated_revenue_impact": r.get("estimated_revenue_impact"),
+                "impact_summary": r.get("impact_summary"),
+                "status": r.get("status"),
+                "generated_at": r.get("generated_at"),
+            }
+
         recs: list[dict] = []
-        if store is not None:
+        results = run_catalog_query(
+            self.graph, "get_recommendations", {"target_type": "ADVISOR", "target_id": advisor_id}
+        )
+        if results is not None:
+            for entry in results:
+                for row in entry.get("recommendations") or []:
+                    recs.append(_row(str(row.get("v_id")), row.get("attributes", {}) or {}))
+        else:
+            store = graph_fallback_store(self.graph)
             for rid in store.in_ids("phx_dm_recommendation_for_advisor", advisor_id):
-                r = store.vertex("phx_dm_recommendation", rid) or {}
-                recs.append({
-                    "recommendation_id": r.get("recommendation_id", rid),
-                    "recommendation_type": r.get("recommendation_type"),
-                    "title": r.get("title"),
-                    "action_text": r.get("action_text"),
-                    "severity": r.get("severity"),
-                    "priority_score": r.get("priority_score"),
-                    "confidence": r.get("confidence"),
-                    "estimated_revenue_impact": r.get("estimated_revenue_impact"),
-                    "impact_summary": r.get("impact_summary"),
-                    "status": r.get("status"),
-                    "generated_at": r.get("generated_at"),
-                })
+                recs.append(_row(rid, store.vertex("phx_dm_recommendation", rid) or {}))
         recs.sort(key=lambda r: float(r.get("priority_score") or 0), reverse=True)
         return {"advisor_id": advisor_id, "recommendations": recs}
+
+    def _latest_snapshot_id(self, advisor_id: str) -> str | None:
+        """Latest feature-snapshot id for the advisor via the installed GQ-022
+        get_feature_snapshot query (snapshot_time DESC in GSQL; sorted defensively
+        here for the mock). The direct advisor_has_feature_snapshot edge read
+        survives ONLY as the logged fallback path."""
+        from app.graph.queries.common import run_catalog_query
+
+        results = run_catalog_query(
+            self.graph, "get_feature_snapshot", {"entity_type": "ADVISOR", "entity_id": advisor_id}
+        )
+        if results is not None:
+            for entry in results:
+                snaps = entry.get("feature_snapshots") or []
+                if snaps:
+                    snaps = sorted(
+                        snaps,
+                        key=lambda s: str((s.get("attributes") or {}).get("snapshot_time", "")),
+                        reverse=True,
+                    )
+                    return str(snaps[0].get("v_id"))
+            return None
+        # fallback: the original direct-store edge read (only when the query failed)
+        store = getattr(self.graph, "store", None)
+        if store is not None:
+            ids = store.out_ids("phx_dm_advisor_has_feature_snapshot", advisor_id)
+            return str(ids[0]) if ids else None
+        return None
 
     def save_scenario_as_recommendation(
         self,
@@ -266,9 +318,7 @@ class RecommendationService:
         uses_feature_snapshot edges + reasoning trace) — NOT a separate table
         (CLAUDE.md 9.5). Also stores the scenario itself for provenance."""
         when = created_date or self.as_of.isoformat()
-        snapshot_id = snapshot_id or (
-            self.graph.store.out_ids("phx_dm_advisor_has_feature_snapshot", advisor_id)[:1] or [None]
-        )[0] if hasattr(self.graph, "store") else snapshot_id
+        snapshot_id = snapshot_id or self._latest_snapshot_id(advisor_id)
 
         # 1) persist the saved scenario for provenance
         scenario_id = new_id("SCENW")
