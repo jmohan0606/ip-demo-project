@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from app.feature_store.sqlite_manager import SQLiteManager
 from app.graph.client import get_graph_client
 from app.graph.artifacts import upsert_vertex, upsert_edge
+from app.graph.queries.common import run_catalog_query, graph_fallback_store
 from app.shared.ids import new_id
 
 # The allowed-transition table — the single source of truth for the state machine.
@@ -114,15 +115,45 @@ class RecommendationLifecycleService:
         return list(TRANSITIONS.get(canonical(status), {}).keys())
 
     def _rec_attrs(self, recommendation_id: str) -> dict:
-        """Rec attributes from the graph vertex first, SQLite mirror as fallback."""
-        store = get_graph_client().store
-        v = store.vertex("phx_dm_recommendation", recommendation_id) or {}
+        """Rec attributes via GQ-029 get_recommendation_detail first (installed query in
+        real mode, identical-shape mock in mock mode), SQLite mirror as fallback. The
+        rec->advisor edge lookup stays a direct store traversal — no catalog query does
+        the reverse recommendation->advisor hop (see migration report)."""
+        graph = get_graph_client()
+        v: dict = {}
+        graph_opp_id = None
+        results = run_catalog_query(graph, "get_recommendation_detail",
+                                    {"recommendation_id": recommendation_id})
+        if results is not None:
+            entry = results[0] if results else {}
+            recs = entry.get("recommendation") or []
+            v = (recs[0].get("attributes", recs[0]) or {}) if recs else {}
+            opps = entry.get("opportunities") or []
+            if opps:
+                graph_opp_id = opps[0].get("v_id")
+        else:
+            # fallback: original direct store traversal (logged by run_catalog_query)
+            store = graph_fallback_store(graph)
+            v = store.vertex("phx_dm_recommendation", recommendation_id) or {}
+            graph_opp_id = (store.out_ids("phx_dm_recommendation_addresses_opportunity", recommendation_id) or [None])[0]
+        # rec -> advisor via GQ-060 get_recommendation_advisor (run_query); the
+        # direct store edge read below survives only as the logged fallback.
         advisor = None
-        ids = store.in_ids("phx_dm_recommendation_for_advisor", recommendation_id)  # to-advisor
-        if not ids:
-            ids = store.out_ids("phx_dm_recommendation_for_advisor", recommendation_id)
-        if ids:
-            advisor = ids[0]
+        adv_results = run_catalog_query(graph, "get_recommendation_advisor",
+                                        {"recommendation_id": recommendation_id})
+        if adv_results is not None:
+            for entry in adv_results:
+                advisors = entry.get("advisor")
+                if advisors:
+                    advisor = str(advisors[0].get("v_id"))
+                    break
+        else:
+            store = graph_fallback_store(graph)
+            ids = store.in_ids("phx_dm_recommendation_for_advisor", recommendation_id)  # to-advisor
+            if not ids:
+                ids = store.out_ids("phx_dm_recommendation_for_advisor", recommendation_id)
+            if ids:
+                advisor = ids[0]
         with self.db.connect() as conn:
             row = conn.execute(
                 "SELECT advisor_id, action_family, estimated_revenue_impact, opportunity_id, title "
@@ -135,8 +166,7 @@ class RecommendationLifecycleService:
                                               if v.get("estimated_revenue_impact") is not None
                                               else (mirror.get("estimated_revenue_impact") or 0.0)),
             "action_family": v.get("recommendation_type") or mirror.get("action_family"),
-            "opportunity_id": mirror.get("opportunity_id")
-                              or (store.out_ids("phx_dm_recommendation_addresses_opportunity", recommendation_id) or [None])[0],
+            "opportunity_id": mirror.get("opportunity_id") or graph_opp_id,
         }
 
     # ---- mirror upsert (status-preserving) --------------------------------
@@ -337,16 +367,29 @@ class RecommendationLifecycleService:
         """Status counts across the advisor's recommendations — derived from the graph rec
         vertices' status attribute (set via the adapter), with the SQLite mirror as fallback."""
         counts = {k: 0 for k in ["open", "accepted", "in_progress", "completed", "rejected", "ignored", "modified"]}
-        store = get_graph_client().store
-        rec_ids = store.in_ids("phx_dm_recommendation_for_advisor", advisor_id) or \
-            store.out_ids("phx_dm_recommendation_for_advisor", advisor_id)
+        graph = get_graph_client()
         seen = False
-        for rid in rec_ids:
-            st = (store.vertex("phx_dm_recommendation", rid) or {}).get("status")
-            if st:
-                seen = True
-                key = canonical(st).lower()
-                counts[key] = counts.get(key, 0) + 1
+        results = run_catalog_query(graph, "get_recommendations",
+                                    {"target_type": "ADVISOR", "target_id": advisor_id})
+        if results is not None:
+            for entry in results:
+                for row in entry.get("recommendations") or []:
+                    st = (row.get("attributes", row) or {}).get("status")
+                    if st:
+                        seen = True
+                        key = canonical(st).lower()
+                        counts[key] = counts.get(key, 0) + 1
+        else:
+            # fallback: original direct store traversal (logged by run_catalog_query)
+            store = graph_fallback_store(graph)
+            rec_ids = store.in_ids("phx_dm_recommendation_for_advisor", advisor_id) or \
+                store.out_ids("phx_dm_recommendation_for_advisor", advisor_id)
+            for rid in rec_ids:
+                st = (store.vertex("phx_dm_recommendation", rid) or {}).get("status")
+                if st:
+                    seen = True
+                    key = canonical(st).lower()
+                    counts[key] = counts.get(key, 0) + 1
         if not seen:  # fallback to the SQLite rec-attr cache
             with self.db.connect() as conn:
                 for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation "
@@ -355,13 +398,27 @@ class RecommendationLifecycleService:
         return counts
 
     def recent_activity_for_advisor(self, advisor_id: str, limit: int = 5) -> dict:
-        # Impact history from the graph (traversal); rec titles/status from the graph vertex.
+        # Impact history from the graph (traversal); rec titles/status via GQ-028
+        # get_recommendations (one call for the advisor's recs), store vertex as fallback.
         entries = self.state.impact_entries_for_advisor(advisor_id)
-        store = get_graph_client().store
+        graph = get_graph_client()
+        rec_attrs_map: dict[str, dict] | None = None
+        results = run_catalog_query(graph, "get_recommendations",
+                                    {"target_type": "ADVISOR", "target_id": advisor_id})
+        if results is not None:
+            rec_attrs_map = {}
+            for entry in results:
+                for row in entry.get("recommendations") or []:
+                    rec_attrs_map[str(row.get("v_id"))] = row.get("attributes", row) or {}
+        # fallback store used only when the query path returned None (logged already)
+        store = graph_fallback_store(graph)
         events = []
         for e in entries[:limit]:
             rid = e.get("recommendation_id")
-            v = store.vertex("phx_dm_recommendation", rid) or {}
+            if rec_attrs_map is not None:
+                v = rec_attrs_map.get(str(rid), {})
+            else:
+                v = store.vertex("phx_dm_recommendation", rid) or {}
             events.append({
                 "recommendation_id": rid, "title": v.get("title") or e.get("note") or rid,
                 "status": canonical(v.get("status") or "COMPLETED"), "note": e.get("note"),
@@ -373,11 +430,30 @@ class RecommendationLifecycleService:
 
     # ---- ledger reads (for the Impact Ledger page) ------------------------
     def _advisor_name(self, advisor_id: str) -> str:
-        v = get_graph_client().store.vertex("phx_dm_advisor", advisor_id) or {}
+        graph = get_graph_client()
+        results = run_catalog_query(graph, "get_advisor_360", {"advisor_id": str(advisor_id)})
+        if results is not None:
+            for entry in results:
+                for row in entry.get("advisor") or []:
+                    name = (row.get("attributes", row) or {}).get("advisor_name")
+                    if name:
+                        return str(name)
+            return str(advisor_id)
+        # fallback: original direct store read (logged by run_catalog_query)
+        v = graph_fallback_store(graph).vertex("phx_dm_advisor", advisor_id) or {}
         return str(v.get("advisor_name") or advisor_id)
 
     def _rec_title(self, recommendation_id: str) -> str:
-        v = get_graph_client().store.vertex("phx_dm_recommendation", recommendation_id) or {}
+        graph = get_graph_client()
+        results = run_catalog_query(graph, "get_recommendation_detail",
+                                    {"recommendation_id": str(recommendation_id)})
+        if results is not None:
+            entry = results[0] if results else {}
+            recs = entry.get("recommendation") or []
+            v = (recs[0].get("attributes", recs[0]) or {}) if recs else {}
+        else:
+            # fallback: original direct store read (logged by run_catalog_query)
+            v = graph_fallback_store(graph).vertex("phx_dm_recommendation", recommendation_id) or {}
         if v.get("title"):
             return str(v["title"])
         with self.db.connect() as conn:
@@ -399,17 +475,33 @@ class RecommendationLifecycleService:
 
     def lifecycle_totals(self) -> dict:
         """Per-status recommendation counts across ALL advisors — for real
-        acceptance/completion rates on the Business Impact page (13B.4). Derived from the
-        graph rec vertices' status (adapter authority), SQLite mirror as fallback."""
+        acceptance/completion rates on the Business Impact page (13B.4). Served by
+        GQ-061 get_recommendation_status_counts (direct vertex-set aggregation —
+        GQ-041 scope=ALL misses the 60 household-level REC_HH_* recs); the store
+        scan below survives only as the logged fallback, SQLite mirror after that."""
         counts = {k: 0 for k in ["open", "accepted", "in_progress", "completed", "rejected", "ignored", "modified"]}
-        store = get_graph_client().store
         seen = False
-        for attrs in store.all_vertices("phx_dm_recommendation").values():
-            st = attrs.get("status")
-            if st:
-                seen = True
-                key = canonical(st).lower()
-                counts[key] = counts.get(key, 0) + 1
+        results = run_catalog_query(get_graph_client(), "get_recommendation_status_counts", {})
+        status_map: dict | None = None
+        if results is not None:
+            for entry in results:
+                if entry.get("status_counts") is not None:
+                    status_map = entry["status_counts"]
+                    break
+        if status_map is not None:
+            for st, n in status_map.items():
+                if st:
+                    seen = True
+                    key = canonical(st).lower()
+                    counts[key] = counts.get(key, 0) + int(n)
+        else:
+            store = graph_fallback_store(get_graph_client())
+            for attrs in store.all_vertices("phx_dm_recommendation").values():
+                st = attrs.get("status")
+                if st:
+                    seen = True
+                    key = canonical(st).lower()
+                    counts[key] = counts.get(key, 0) + 1
         if not seen:
             with self.db.connect() as conn:
                 for status, n in conn.execute("SELECT status, COUNT(*) FROM phx_dm_local_recommendation GROUP BY status"):
