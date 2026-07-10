@@ -1,9 +1,21 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 
 from app.graph.client import get_graph_client
-from app.graph.queries.common import advisor_transactions, resolve_scope_advisor_ids
+from app.graph.queries.common import (
+    advisor_transactions,
+    resolve_scope_advisor_ids_graph,
+    run_catalog_query,
+)
+
+logger = logging.getLogger(__name__)
+
+# Wide DATETIME bounds for GQ-051 (the GSQL parameters are required; these cover
+# the full data range so "no filter" behaves identically on tier 2 and tier 4).
+_DATE_MIN = "1900-01-01 00:00:00"
+_DATE_MAX = "2100-01-01 00:00:00"
 
 # one drill-down level: child scope type + parent->child edge + child vertex +
 # its name attr (same hierarchy the scope rollup uses).
@@ -35,8 +47,10 @@ class RevenueAnalyticsService:
     """
 
     def __init__(self) -> None:
-        self._store = get_graph_client().store
-        self._cat_by_product = self._build_product_category_map()
+        self._graph = get_graph_client()
+        self._store = self._graph.store  # logged fallback path only — reads go via run_query
+        self._tx_product: dict[str, str] = {}  # tx_id -> product_id, filled from GQ-051 rows
+        self._cat_by_product = self._load_product_category_map()
 
     # ---- lookups -----------------------------------------------------------
     def _name(self, vtype: str, vid: str, attr: str) -> str:
@@ -45,6 +59,69 @@ class RevenueAnalyticsService:
     @staticmethod
     def _rev(attrs: dict) -> float:
         return float(attrs.get("revenue_amount") or 0.0)
+
+    def _load_product_category_map(self) -> dict[str, str]:
+        """product_id -> business-line category_name via GQ-052 get_product_category_map
+        (real graph in real mode); local-store traversal only as the logged fallback."""
+        results = run_catalog_query(self._graph, "get_product_category_map", {})
+        if results is not None:
+            for entry in results:
+                products = entry.get("products")
+                if products is not None:
+                    return {
+                        str(p.get("v_id")): str(p.get("attributes", {}).get("category_name") or "Unclassified")
+                        for p in products
+                    }
+        logger.warning("get_product_category_map unavailable — building product map from local store traversal")
+        return self._build_product_category_map()
+
+    def _scope_tx_rows(self, scope_type: str, scope_id: str, advisor_ids: list[str]) -> dict[str, list[tuple[str, dict]]]:
+        """advisor_id -> [(tx_id, attrs)] for the whole scope via GQ-051
+        get_scope_transactions; per-advisor store traversal only as the logged
+        fallback. Also fills the tx->product map used for business-line classing."""
+        results = run_catalog_query(
+            self._graph,
+            "get_scope_transactions",
+            {"scope_type": scope_type, "scope_id": str(scope_id),
+             "start_date": _DATE_MIN, "end_date": _DATE_MAX},
+        )
+        if results is not None:
+            for entry in results:
+                txs = entry.get("transactions")
+                if txs is not None:
+                    adv_rows: dict[str, list[tuple[str, dict]]] = {aid: [] for aid in advisor_ids}
+                    for row in txs:
+                        attrs = row.get("attributes", {})
+                        aid = str(attrs.get("advisor_id") or "")
+                        tx_id = str(row.get("v_id"))
+                        self._tx_product[tx_id] = str(attrs.get("product_id") or "")
+                        adv_rows.setdefault(aid, []).append((tx_id, attrs))
+                    return adv_rows
+        logger.warning(
+            "get_scope_transactions unavailable for %s/%s — falling back to local store traversal",
+            scope_type, scope_id,
+        )
+        return {aid: advisor_transactions(self._store, [aid]) for aid in advisor_ids}
+
+    def _scope_placements(self, scope_type: str, scope_id: str) -> dict[str, dict] | None:
+        """advisor_id -> placement attributes (branch/market/region/division ids,
+        names, branch_state) via GQ-053; None signals the caller to use the logged
+        store-traversal fallback."""
+        results = run_catalog_query(
+            self._graph,
+            "get_scope_advisor_placements",
+            {"scope_type": scope_type, "scope_id": str(scope_id)},
+        )
+        if results is not None:
+            for entry in results:
+                placements = entry.get("advisor_placements")
+                if placements is not None:
+                    return {str(p.get("v_id")): p.get("attributes", {}) for p in placements}
+        logger.warning(
+            "get_scope_advisor_placements unavailable for %s/%s — falling back to local store traversal",
+            scope_type, scope_id,
+        )
+        return None
 
     def _build_product_category_map(self) -> dict[str, str]:
         """product_id -> business-line category_name, resolved once via
@@ -62,12 +139,18 @@ class RevenueAnalyticsService:
             out[pid] = name
         return out
 
-    def _tx_category(self, tx_id: str) -> str:
-        for pid in self._store.out_ids("phx_dm_transaction_for_product", tx_id):
-            return self._cat_by_product.get(pid, "Unclassified")
+    def _tx_category(self, tx_id: str, attrs: dict | None = None) -> str:
+        if tx_id in self._tx_product:  # populated from GQ-051 rows
+            pid = self._tx_product[tx_id]
+            if pid:
+                return self._cat_by_product.get(pid, "Unclassified")
+        else:  # fallback rows (store traversal) — resolve the product edge locally
+            for pid in self._store.out_ids("phx_dm_transaction_for_product", tx_id):
+                return self._cat_by_product.get(pid, "Unclassified")
         # §13.2 impact-ledger transactions carry no product edge — they are the measured
         # consequence of completed recommendations. Label them as what they are.
-        attrs = self._store.vertex("phx_dm_revenue_transaction", tx_id) or {}
+        if attrs is None:
+            attrs = self._store.vertex("phx_dm_revenue_transaction", tx_id) or {}
         if str(attrs.get("transaction_type") or "") == "RECOMMENDATION_IMPACT":
             return "AI-Recommended Actions"
         return "Unclassified"
@@ -98,12 +181,11 @@ class RevenueAnalyticsService:
     # ---- main --------------------------------------------------------------
     def analytics(self, scope_type: str = "FIRM", scope_id: str = "F001", period: str = "ALL") -> dict:
         st = (scope_type or "FIRM").upper()
-        advisor_ids = resolve_scope_advisor_ids(self._store, st, scope_id)
+        advisor_ids = resolve_scope_advisor_ids_graph(self._graph, st, scope_id)
 
-        # single traversal per advisor -> keeps advisor identity for the geo map
-        adv_rows: dict[str, list[tuple[str, dict]]] = {
-            aid: advisor_transactions(self._store, [aid]) for aid in advisor_ids
-        }
+        # single scope-wide query -> keeps advisor identity for the geo map
+        adv_rows = self._scope_tx_rows(st, scope_id, advisor_ids)
+        placements = self._scope_placements(st, scope_id)
         all_rows = [(tx, a) for rows in adv_rows.values() for tx, a in rows]
         all_months = [str(a.get("transaction_date"))[:7] for _, a in all_rows]
 
@@ -146,14 +228,14 @@ class RevenueAnalyticsService:
             if month in prior_months:
                 prior_total += rev
                 by_month_prior[month] += rev
-                by_line_prior[self._tx_category(tx)] += rev
+                by_line_prior[self._tx_category(tx, a)] += rev
             if month not in cur_months:
                 continue
             kept_count += 1
             total += rev
             by_month[month] += rev
             by_type[str(a.get("transaction_type") or "OTHER")] += rev
-            by_line[self._tx_category(tx)] += rev
+            by_line[self._tx_category(tx, a)] += rev
 
         monthly_trend = [{"month": m, "revenue": round(v, 2)} for m, v in sorted(by_month.items())]
         # Prior-year comparison line for the trend chart (mockup: solid current + dashed
@@ -193,16 +275,19 @@ class RevenueAnalyticsService:
                 })
             revenue_drivers.sort(key=lambda r: abs(r["change"]), reverse=True)
 
-        # geographic distribution: advisor -> branch.state
+        # geographic distribution: advisor -> branch.state (GQ-053 placements;
+        # store traversal only on the logged fallback path)
         state_rev: dict[str, float] = defaultdict(float)
         state_adv: dict[str, set[str]] = defaultdict(set)
         for aid, rows in adv_rows.items():
-            branch_ids = self._store.out_ids("phx_dm_advisor_in_branch", aid)
-            state = None
-            for bid in branch_ids:
-                state = (self._store.vertex("phx_dm_branch", bid) or {}).get("state")
-                if state:
-                    break
+            if placements is not None:
+                state = (placements.get(aid) or {}).get("branch_state") or None
+            else:
+                state = None
+                for bid in self._store.out_ids("phx_dm_advisor_in_branch", aid):
+                    state = (self._store.vertex("phx_dm_branch", bid) or {}).get("state")
+                    if state:
+                        break
             if not state:
                 continue
             adv_rev = sum(self._rev(a) for _, a in rows if in_cur(a))
@@ -221,20 +306,47 @@ class RevenueAnalyticsService:
         by_child = []
         if st != "ADVISOR" and st in _CHILDREN:
             child_type, edge, child_vtype, name_attr = _CHILDREN[st]
-            for child_id in sorted(self._store.in_ids(edge, scope_id)):
-                child_ids = resolve_scope_advisor_ids(self._store, child_type, child_id)
-                child_rev = sum(
-                    self._rev(attrs)
-                    for _, attrs in advisor_transactions(self._store, child_ids)
-                    if in_cur(attrs)
-                )
-                by_child.append({
-                    "scope_type": child_type,
-                    "scope_id": child_id,
-                    "label": self._name(child_vtype, child_id, name_attr),
-                    "revenue": round(child_rev, 2),
-                    "advisor_count": len(child_ids),
-                })
+            if placements is not None:
+                # group the scope's advisors (and their already-fetched rows) by the
+                # immediate child scope each advisor is placed under (GQ-053)
+                child_key = {"FIRM": "division", "DIVISION": "region", "REGION": "market"}.get(st)
+                groups: dict[str, dict] = {}
+                for aid in advisor_ids:
+                    p = placements.get(aid) or {}
+                    if child_key is None:  # MARKET -> children are the advisors themselves
+                        cid, label = aid, str(p.get("advisor_name") or aid)
+                    else:
+                        cid = str(p.get(f"{child_key}_id") or "")
+                        label = str(p.get(f"{child_key}_name") or cid)
+                    if not cid:
+                        continue
+                    g = groups.setdefault(cid, {"label": label, "advisors": [], "revenue": 0.0})
+                    g["advisors"].append(aid)
+                    g["revenue"] += sum(self._rev(a) for _, a in adv_rows.get(aid, []) if in_cur(a))
+                for cid in sorted(groups):
+                    g = groups[cid]
+                    by_child.append({
+                        "scope_type": child_type,
+                        "scope_id": cid,
+                        "label": g["label"],
+                        "revenue": round(g["revenue"], 2),
+                        "advisor_count": len(g["advisors"]),
+                    })
+            else:  # logged fallback: local store traversal (placements warning already emitted)
+                for child_id in sorted(self._store.in_ids(edge, scope_id)):
+                    child_ids = resolve_scope_advisor_ids_graph(self._graph, child_type, child_id)
+                    child_rev = sum(
+                        self._rev(attrs)
+                        for _, attrs in advisor_transactions(self._store, child_ids)
+                        if in_cur(attrs)
+                    )
+                    by_child.append({
+                        "scope_type": child_type,
+                        "scope_id": child_id,
+                        "label": self._name(child_vtype, child_id, name_attr),
+                        "revenue": round(child_rev, 2),
+                        "advisor_count": len(child_ids),
+                    })
             by_child.sort(key=lambda r: r["revenue"], reverse=True)
 
         top_channel = by_channel[0]["channel"] if by_channel else None
