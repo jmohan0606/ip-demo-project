@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_context_for_agent(persona_user_id STRING, subject_id STRING, query_intent STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_context_for_agent(STRING persona_user_id, STRING subject_id, STRING query_intent) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     OrAccum @authorized;
     OrAccum @@privileged_user;
 
@@ -20,48 +20,48 @@ CREATE QUERY get_context_for_agent(persona_user_id STRING, subject_id STRING, qu
               OR u.role_code == "COMPLIANCE" THEN @@privileged_user += TRUE END;
 
     represented_advisors = SELECT a FROM user:u
-        -(phx_dm_user_represents_advisor)- all_advisors:a
+        -(phx_dm_user_represents_advisor:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
     user_firms = SELECT f FROM user:u
-        -(phx_dm_user_scoped_to_firm)- phx_dm_firm:f;
+        -(phx_dm_user_scoped_to_firm:e_f)- phx_dm_firm:f;
     firm_divisions = SELECT d FROM user_firms:f
-        -(rev_phx_dm_division_in_firm)- phx_dm_division:d;
+        -(rev_phx_dm_division_in_firm:e_d)- phx_dm_division:d;
     firm_regions = SELECT r FROM firm_divisions:d
-        -(rev_phx_dm_region_in_division)- phx_dm_region:r;
+        -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     firm_markets = SELECT m FROM firm_regions:r
-        -(rev_phx_dm_market_in_region)- phx_dm_market:m;
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     firm_advisors = SELECT a FROM firm_markets:m
-        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
 
     user_divisions = SELECT d FROM user:u
-        -(phx_dm_user_scoped_to_division)- phx_dm_division:d;
+        -(phx_dm_user_scoped_to_division:e_d)- phx_dm_division:d;
     division_regions = SELECT r FROM user_divisions:d
-        -(rev_phx_dm_region_in_division)- phx_dm_region:r;
+        -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     division_markets = SELECT m FROM division_regions:r
-        -(rev_phx_dm_market_in_region)- phx_dm_market:m;
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     division_advisors = SELECT a FROM division_markets:m
-        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
 
     user_regions = SELECT r FROM user:u
-        -(phx_dm_user_scoped_to_region)- phx_dm_region:r;
+        -(phx_dm_user_scoped_to_region:e_r)- phx_dm_region:r;
     region_markets = SELECT m FROM user_regions:r
-        -(rev_phx_dm_market_in_region)- phx_dm_market:m;
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     region_advisors = SELECT a FROM region_markets:m
-        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
 
     user_markets = SELECT m FROM user:u
-        -(phx_dm_user_scoped_to_market)- phx_dm_market:m;
+        -(phx_dm_user_scoped_to_market:e_m)- phx_dm_market:m;
     market_advisors = SELECT a FROM user_markets:m
-        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
 
     user_branches = SELECT b FROM user:u
-        -(phx_dm_user_scoped_to_branch)- phx_dm_branch:b;
+        -(phx_dm_user_scoped_to_branch:e_b)- phx_dm_branch:b;
     branch_advisors = SELECT a FROM user_branches:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         ACCUM a.@authorized += TRUE;
 
     subject = SELECT a FROM all_advisors:a
@@ -69,31 +69,31 @@ CREATE QUERY get_context_for_agent(persona_user_id STRING, subject_id STRING, qu
           AND (a.@authorized == TRUE OR @@privileged_user == TRUE);
 
     features = SELECT f FROM subject:a
-        -(phx_dm_advisor_has_feature_snapshot)- phx_dm_feature_snapshot:f
+        -(phx_dm_advisor_has_feature_snapshot:e_f)- phx_dm_feature_snapshot:f
         WHERE query_intent == "ALL" OR query_intent == "FEATURE"
            OR query_intent == "PREDICTION" OR query_intent == "OPPORTUNITY"
            OR query_intent == "RECOMMENDATION" OR query_intent == "COACHING";
     memories = SELECT m FROM subject:a
-        -(rev_phx_dm_memory_for_advisor)- phx_dm_context_memory:m
+        -(rev_phx_dm_memory_for_advisor:e_m)- phx_dm_context_memory:m
         WHERE m.status == "ACTIVE"
           AND (query_intent == "ALL" OR query_intent == "MEMORY"
             OR query_intent == "COACHING" OR query_intent == "RECOMMENDATION");
     predictions = SELECT p FROM subject:a
-        -(rev_phx_dm_prediction_for_advisor)- phx_dm_prediction_result:p
+        -(rev_phx_dm_prediction_for_advisor:e_p)- phx_dm_prediction_result:p
         WHERE p.status == "ACTIVE"
           AND (query_intent == "ALL" OR query_intent == "PREDICTION"
             OR query_intent == "COACHING" OR query_intent == "RECOMMENDATION");
     opportunities = SELECT o FROM subject:a
-        -(rev_phx_dm_opportunity_for_advisor)- phx_dm_opportunity:o
+        -(rev_phx_dm_opportunity_for_advisor:e_o)- phx_dm_opportunity:o
         WHERE o.status == "OPEN"
           AND (query_intent == "ALL" OR query_intent == "OPPORTUNITY"
             OR query_intent == "COACHING" OR query_intent == "RECOMMENDATION");
     recommendations = SELECT r FROM subject:a
-        -(rev_phx_dm_recommendation_for_advisor)- phx_dm_recommendation:r
+        -(rev_phx_dm_recommendation_for_advisor:e_r)- phx_dm_recommendation:r
         WHERE query_intent == "ALL" OR query_intent == "RECOMMENDATION"
            OR query_intent == "COACHING";
     activities = SELECT x FROM subject:a
-        -(rev_phx_dm_activity_for_advisor)- phx_dm_crm_activity:x
+        -(rev_phx_dm_activity_for_advisor:e_x)- phx_dm_crm_activity:x
         WHERE query_intent == "ALL" OR query_intent == "CRM"
            OR query_intent == "COACHING" OR query_intent == "RECOMMENDATION"
         ORDER BY x.activity_date DESC LIMIT 20;

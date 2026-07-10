@@ -6,20 +6,20 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_management_chain(user_id STRING, advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_management_chain(STRING user_id, STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_users = {phx_dm_persona_user.*};
     all_advisors = {phx_dm_advisor.*};
 
     requester = SELECT u FROM all_users:u WHERE u.user_id == user_id;
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     mdw = SELECT u FROM advisor:a
-        -(rev_phx_dm_mdw_manages_advisor)- all_users:u
+        -(rev_phx_dm_mdw_manages_advisor:e_u)- phx_dm_persona_user:u
         WHERE u.role_code == "MDW";
     rdw = SELECT u FROM mdw:m
-        -(rev_phx_dm_rdw_manages_mdw)- all_users:u
+        -(rev_phx_dm_rdw_manages_mdw:e_u)- phx_dm_persona_user:u
         WHERE u.role_code == "RDW";
     ddw = SELECT u FROM rdw:r
-        -(rev_phx_dm_ddw_manages_rdw)- all_users:u
+        -(rev_phx_dm_ddw_manages_rdw:e_u)- phx_dm_persona_user:u
         WHERE u.role_code == "DDW";
 
     PRINT requester, ddw, rdw, mdw, advisor;

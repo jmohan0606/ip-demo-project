@@ -6,20 +6,20 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_crm_opportunities(advisor_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_crm_opportunities(STRING advisor_id, STRING status, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     opportunities = SELECT o FROM advisor:a
-        -(phx_dm_advisor_has_crm_opportunity)- phx_dm_crm_opportunity:o
+        -(phx_dm_advisor_has_crm_opportunity:e_o)- phx_dm_crm_opportunity:o
         WHERE status == "ALL" OR o.status == status OR o.stage == status
         ORDER BY o.expected_close_date ASC, o.amount DESC
         LIMIT result_limit;
     households = SELECT h FROM opportunities:o
-        -(phx_dm_crm_opportunity_for_household)- phx_dm_household:h;
+        -(phx_dm_crm_opportunity_for_household:e_h)- phx_dm_household:h;
     accounts = SELECT ac FROM opportunities:o
-        -(phx_dm_crm_opportunity_for_account)- phx_dm_account:ac;
+        -(phx_dm_crm_opportunity_for_account:e_ac)- phx_dm_account:ac;
     products = SELECT p FROM opportunities:o
-        -(phx_dm_crm_opportunity_for_product)- phx_dm_product:p;
+        -(phx_dm_crm_opportunity_for_product:e_p)- phx_dm_product:p;
 
     PRINT advisor, opportunities, households, accounts, products;
 }

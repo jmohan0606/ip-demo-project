@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_peer_benchmark(advisor_id STRING, peer_method STRING, start_date DATETIME, end_date DATETIME) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_peer_benchmark(STRING advisor_id, STRING peer_method, DATETIME start_date, DATETIME end_date) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     SumAccum<DOUBLE> @revenue;
     SumAccum<INT> @transaction_count;
     SumAccum<DOUBLE> @@peer_revenue_sum;
@@ -16,21 +16,21 @@ CREATE QUERY get_peer_benchmark(advisor_id STRING, peer_method STRING, start_dat
     all_advisors = {phx_dm_advisor.*};
     selected = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     markets = SELECT m FROM selected:a
-        -(phx_dm_advisor_in_market)- phx_dm_market:m;
+        -(phx_dm_advisor_in_market:e_m)- phx_dm_market:m;
     market_peers = SELECT a FROM markets:m
-        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a
         WHERE (peer_method == "MARKET" OR peer_method == "HYBRID")
           AND a.advisor_id != advisor_id;
     similar_matches = SELECT s FROM selected:a
-        -(phx_dm_advisor_has_similarity_match)- phx_dm_similarity_match:s
+        -(phx_dm_advisor_has_similarity_match:e_s)- phx_dm_similarity_match:s
         WHERE peer_method == "SIMILARITY" OR peer_method == "HYBRID";
     similar_peers = SELECT a FROM similar_matches:s
-        -(phx_dm_similarity_match_targets_advisor)- all_advisors:a
+        -(phx_dm_similarity_match_targets_advisor:e_a)- phx_dm_advisor:a
         WHERE a.advisor_id != advisor_id;
     peers = market_peers UNION similar_peers;
 
     scored_peers = SELECT a FROM peers:a
-        -(rev_phx_dm_transaction_for_advisor)- phx_dm_revenue_transaction:tx
+        -(rev_phx_dm_transaction_for_advisor:e_tx)- phx_dm_revenue_transaction:tx
         WHERE tx.transaction_date >= start_date AND tx.transaction_date <= end_date
         ACCUM a.@revenue += tx.revenue_amount,
               a.@transaction_count += 1;
@@ -38,7 +38,7 @@ CREATE QUERY get_peer_benchmark(advisor_id STRING, peer_method STRING, start_dat
         ACCUM @@peer_revenue_sum += a.@revenue,
               @@peer_count += 1;
     selected_scored = SELECT a FROM selected:a
-        -(rev_phx_dm_transaction_for_advisor)- phx_dm_revenue_transaction:tx
+        -(rev_phx_dm_transaction_for_advisor:e_tx)- phx_dm_revenue_transaction:tx
         WHERE tx.transaction_date >= start_date AND tx.transaction_date <= end_date
         ACCUM a.@revenue += tx.revenue_amount,
               a.@transaction_count += 1;

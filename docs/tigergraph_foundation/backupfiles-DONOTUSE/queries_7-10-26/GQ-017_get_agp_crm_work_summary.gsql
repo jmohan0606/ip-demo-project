@@ -1,0 +1,35 @@
+/*
+ * GQ-017 — get_agp_crm_work_summary
+ * Purpose: Aggregate AGP advisor lead, referral and CRM opportunity work.
+ * Outputs: CRM work summary, pipeline and item sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_agp_crm_work_summary(advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    GroupByAccum<STRING work_type, STRING status,
+        SumAccum<INT> item_count,
+        SumAccum<DOUBLE> estimated_value> @@work_summary;
+    GroupByAccum<STRING stage,
+        SumAccum<INT> opportunity_count,
+        SumAccum<DOUBLE> pipeline_amount,
+        SumAccum<DOUBLE> weighted_amount> @@pipeline;
+
+    all_advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
+    leads = SELECT l FROM advisor:a
+        -(phx_dm_advisor_has_crm_lead)- phx_dm_crm_lead:l
+        ACCUM @@work_summary += ("LEAD", l.status -> 1, l.estimated_value);
+    referrals = SELECT r FROM advisor:a
+        -(phx_dm_advisor_has_crm_referral)- phx_dm_crm_referral:r
+        ACCUM @@work_summary += ("REFERRAL", r.status -> 1, r.estimated_value);
+    opportunities = SELECT o FROM advisor:a
+        -(phx_dm_advisor_has_crm_opportunity)- phx_dm_crm_opportunity:o
+        ACCUM @@work_summary += ("CRM_OPPORTUNITY", o.status -> 1, o.amount),
+              @@pipeline += (o.stage -> 1, o.amount, o.amount * o.probability);
+
+    PRINT advisor, @@work_summary AS crm_work_summary,
+        @@pipeline AS crm_pipeline, leads, referrals, opportunities;
+}
+
+INSTALL QUERY get_agp_crm_work_summary

@@ -1,0 +1,19 @@
+/*
+ * GQ-045 — get_impact_ledger
+ * Purpose: Impact-ledger entries by graph traversal (StateRepository durable state).
+ * Filter by advisor (phx_dm_impact_for_advisor) or recommendation
+ * (phx_dm_impact_from_recommendation), else all. Newest first.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_impact_ledger(STRING advisor_id, STRING recommendation_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_ledger = {phx_dm_impact_ledger.*};
+    result = SELECT l FROM all_ledger:l
+             WHERE (advisor_id == "" OR l.advisor_id == advisor_id)
+               AND (recommendation_id == "" OR l.recommendation_id == recommendation_id)
+             ORDER BY l.created_ts DESC;
+    PRINT result;
+}
+
+INSTALL QUERY get_impact_ledger

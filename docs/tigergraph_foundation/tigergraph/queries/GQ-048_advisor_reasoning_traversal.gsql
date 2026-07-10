@@ -4,6 +4,8 @@
  * successful actions. Authoritative traversal semantics: app/graph/queries/reasoning.py (the mock
  * impl records the full hop-by-hop path). This GSQL mirrors the first hops for real TigerGraph.
  * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ * NOTE: V1 allows one hop per SELECT, so the advisor->similarity_match->advisor traversal is
+ * split into two single-hop SELECT statements (V1-compliant).
  */
 USE GRAPH iperform_insights_coaching_demo
 
@@ -11,8 +13,8 @@ CREATE QUERY advisor_reasoning_traversal(STRING advisor_id, INT similar_limit) F
     seed = {phx_dm_advisor.*};
     advisor = SELECT a FROM seed:a WHERE a.advisor_id == advisor_id;
     households = SELECT h FROM advisor:a -(phx_dm_advisor_serves_household:e)- phx_dm_household:h;
-    similar = SELECT t FROM advisor:a -(phx_dm_advisor_has_similarity_match:e1)- phx_dm_similarity_match:m
-                         -(phx_dm_similarity_match_targets_advisor:e2)- phx_dm_advisor:t
+    match_nodes = SELECT m FROM advisor:a -(phx_dm_advisor_has_similarity_match:e1)- phx_dm_similarity_match:m;
+    similar = SELECT t FROM match_nodes:m -(phx_dm_similarity_match_targets_advisor:e2)- phx_dm_advisor:t
               LIMIT similar_limit;
     PRINT households;
     PRINT similar;

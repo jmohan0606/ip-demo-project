@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_similar_entities(entity_type STRING, entity_id STRING, result_limit INT, min_score DOUBLE) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_similar_entities(STRING entity_type, STRING entity_id, INT result_limit, DOUBLE min_score) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_matches = {phx_dm_similarity_match.*};
     matches = SELECT s FROM all_matches:s
         WHERE s.entity_type == entity_type
@@ -15,13 +15,13 @@ CREATE QUERY get_similar_entities(entity_type STRING, entity_id STRING, result_l
         ORDER BY s.similarity_score DESC
         LIMIT result_limit;
     advisors = SELECT a FROM matches:s
-        -(phx_dm_similarity_match_targets_advisor)- phx_dm_advisor:a;
+        -(phx_dm_similarity_match_targets_advisor:e_a)- phx_dm_advisor:a;
     households = SELECT h FROM matches:s
-        -(phx_dm_similarity_match_targets_household)- phx_dm_household:h;
+        -(phx_dm_similarity_match_targets_household:e_h)- phx_dm_household:h;
     accounts = SELECT ac FROM matches:s
-        -(phx_dm_similarity_match_targets_account)- phx_dm_account:ac;
+        -(phx_dm_similarity_match_targets_account:e_ac)- phx_dm_account:ac;
     products = SELECT p FROM matches:s
-        -(phx_dm_similarity_match_targets_product)- phx_dm_product:p;
+        -(phx_dm_similarity_match_targets_product:e_p)- phx_dm_product:p;
 
     PRINT entity_type, entity_id, matches,
         advisors AS similar_advisors,

@@ -6,22 +6,22 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_agp_coaching_history(advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_agp_coaching_history(STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     enrollments = SELECT e FROM advisor:a
-        -(phx_dm_advisor_has_agp_enrollment)- phx_dm_agp_enrollment:e;
+        -(phx_dm_advisor_has_agp_enrollment:e_e)- phx_dm_agp_enrollment:e;
     coaching = SELECT c FROM advisor:a
-        -(rev_phx_dm_coaching_for_advisor)- phx_dm_coaching_session:c
+        -(rev_phx_dm_coaching_for_advisor:e_c)- phx_dm_coaching_session:c
         ORDER BY c.session_date DESC;
     enrollment_coaching = SELECT c FROM enrollments:e
-        -(rev_phx_dm_coaching_for_enrollment)- phx_dm_coaching_session:c
+        -(rev_phx_dm_coaching_for_enrollment:e_c)- phx_dm_coaching_session:c
         ORDER BY c.session_date DESC;
     reviews = SELECT r FROM advisor:a
-        -(rev_phx_dm_review_for_advisor)- phx_dm_manager_review:r
+        -(rev_phx_dm_review_for_advisor:e_r)- phx_dm_manager_review:r
         ORDER BY r.review_date DESC;
     enrollment_reviews = SELECT r FROM enrollments:e
-        -(rev_phx_dm_review_for_enrollment)- phx_dm_manager_review:r
+        -(rev_phx_dm_review_for_enrollment:e_r)- phx_dm_manager_review:r
         ORDER BY r.review_date DESC;
 
     PRINT advisor, enrollments, coaching, enrollment_coaching,

@@ -1,0 +1,134 @@
+/*
+ * GQ-040 — get_insight_coaching_context
+ * Purpose: Return authorization-enforced business and AI context used for insight/coaching cards.
+ * Outputs: user, authorized subject and supporting insight/coaching context
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_insight_coaching_context(persona_user_id STRING, scope_type STRING, scope_id STRING, subject_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    OrAccum @authorized;
+    OrAccum @@privileged_user;
+
+    all_users = {phx_dm_persona_user.*};
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    user = SELECT u FROM all_users:u
+        WHERE u.user_id == persona_user_id
+        ACCUM IF u.role_code == "ADMIN" OR u.role_code == "AI_OPS"
+              OR u.role_code == "COMPLIANCE" THEN @@privileged_user += TRUE END;
+
+    represented_advisors = SELECT a FROM user:u
+        -(phx_dm_user_represents_advisor)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+    authorized_branches = SELECT b FROM user:u
+        -(phx_dm_user_scoped_to_branch)- all_branches:b;
+    authorized_branch_advisors = SELECT a FROM authorized_branches:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+    authorized_markets = SELECT m FROM user:u
+        -(phx_dm_user_scoped_to_market)- all_markets:m;
+    authorized_market_advisors = SELECT a FROM authorized_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+    authorized_regions = SELECT r FROM user:u
+        -(phx_dm_user_scoped_to_region)- all_regions:r;
+    authorized_region_markets = SELECT m FROM authorized_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    authorized_region_advisors = SELECT a FROM authorized_region_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+    authorized_divisions = SELECT d FROM user:u
+        -(phx_dm_user_scoped_to_division)- all_divisions:d;
+    authorized_division_regions = SELECT r FROM authorized_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r;
+    authorized_division_markets = SELECT m FROM authorized_division_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    authorized_division_advisors = SELECT a FROM authorized_division_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+    authorized_firms = SELECT f FROM user:u
+        -(phx_dm_user_scoped_to_firm)- all_firms:f;
+    authorized_firm_divisions = SELECT d FROM authorized_firms:f
+        -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    authorized_firm_regions = SELECT r FROM authorized_firm_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r;
+    authorized_firm_markets = SELECT m FROM authorized_firm_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    authorized_firm_advisors = SELECT a FROM authorized_firm_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a
+        ACCUM a.@authorized += TRUE;
+
+    direct_advisors = SELECT a FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+    selected_branches = SELECT b FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a FROM selected_branches:b
+        -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+    selected_markets = SELECT m FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a FROM selected_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+    selected_regions = SELECT r FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m FROM selected_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    region_advisors = SELECT a FROM region_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+    selected_divisions = SELECT d FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r FROM selected_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r;
+    division_markets = SELECT m FROM division_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    division_advisors = SELECT a FROM division_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+    selected_firms = SELECT f FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d FROM selected_firms:f
+        -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    firm_regions = SELECT r FROM firm_divisions:d
+        -(rev_phx_dm_region_in_division)- all_regions:r;
+    firm_markets = SELECT m FROM firm_regions:r
+        -(rev_phx_dm_market_in_region)- all_markets:m;
+    firm_advisors = SELECT a FROM firm_markets:m
+        -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    requested_advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+    subject = SELECT a FROM requested_advisors:a
+        WHERE (subject_id == "" OR a.advisor_id == subject_id)
+          AND (a.@authorized == TRUE OR @@privileged_user == TRUE);
+
+    features = SELECT f FROM subject:a
+        -(phx_dm_advisor_has_feature_snapshot)- phx_dm_feature_snapshot:f;
+    predictions = SELECT p FROM subject:a
+        -(rev_phx_dm_prediction_for_advisor)- phx_dm_prediction_result:p
+        WHERE p.status == "ACTIVE";
+    opportunities = SELECT o FROM subject:a
+        -(rev_phx_dm_opportunity_for_advisor)- phx_dm_opportunity:o
+        WHERE o.status == "OPEN";
+    recommendations = SELECT r FROM subject:a
+        -(rev_phx_dm_recommendation_for_advisor)- phx_dm_recommendation:r;
+    memories = SELECT m FROM subject:a
+        -(rev_phx_dm_memory_for_advisor)- phx_dm_context_memory:m
+        WHERE m.status == "ACTIVE";
+    crm_activities = SELECT x FROM subject:a
+        -(rev_phx_dm_activity_for_advisor)- phx_dm_crm_activity:x
+        ORDER BY x.activity_date DESC LIMIT 20;
+    enrollments = SELECT e FROM subject:a
+        -(phx_dm_advisor_has_agp_enrollment)- phx_dm_agp_enrollment:e;
+
+    PRINT user, scope_type, scope_id, subject,
+        features, predictions, opportunities, recommendations,
+        memories, crm_activities, enrollments,
+        @@privileged_user AS privileged_user;
+}
+
+INSTALL QUERY get_insight_coaching_context

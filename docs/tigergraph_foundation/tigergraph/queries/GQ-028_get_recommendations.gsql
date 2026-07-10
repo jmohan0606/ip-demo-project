@@ -6,32 +6,32 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_recommendations(target_type STRING, target_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_recommendations(STRING target_type, STRING target_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_recommendations = {phx_dm_recommendation.*};
     all_advisors = {phx_dm_advisor.*};
     all_households = {phx_dm_household.*};
     all_accounts = {phx_dm_account.*};
     advisor_recommendations = SELECT r FROM all_advisors:a
-        -(rev_phx_dm_recommendation_for_advisor)- all_recommendations:r
+        -(rev_phx_dm_recommendation_for_advisor:e_r)- phx_dm_recommendation:r
         WHERE target_type == "ADVISOR" AND a.advisor_id == target_id;
     household_recommendations = SELECT r FROM all_households:h
-        -(rev_phx_dm_recommendation_for_household)- all_recommendations:r
+        -(rev_phx_dm_recommendation_for_household:e_r)- phx_dm_recommendation:r
         WHERE target_type == "HOUSEHOLD" AND h.household_id == target_id;
     account_recommendations = SELECT r FROM all_accounts:ac
-        -(rev_phx_dm_recommendation_for_account)- all_recommendations:r
+        -(rev_phx_dm_recommendation_for_account:e_r)- phx_dm_recommendation:r
         WHERE target_type == "ACCOUNT" AND ac.account_id == target_id;
     recommendations = advisor_recommendations UNION household_recommendations
         UNION account_recommendations;
     opportunities = SELECT o FROM recommendations:r
-        -(phx_dm_recommendation_addresses_opportunity)- phx_dm_opportunity:o;
+        -(phx_dm_recommendation_addresses_opportunity:e_o)- phx_dm_opportunity:o;
     predictions = SELECT p FROM recommendations:r
-        -(phx_dm_recommendation_based_on_prediction)- phx_dm_prediction_result:p;
+        -(phx_dm_recommendation_based_on_prediction:e_p)- phx_dm_prediction_result:p;
     features = SELECT f FROM recommendations:r
-        -(phx_dm_recommendation_uses_feature_snapshot)- phx_dm_feature_snapshot:f;
+        -(phx_dm_recommendation_uses_feature_snapshot:e_f)- phx_dm_feature_snapshot:f;
     playbooks = SELECT p FROM recommendations:r
-        -(phx_dm_recommendation_uses_playbook)- phx_dm_playbook:p;
+        -(phx_dm_recommendation_uses_playbook:e_p)- phx_dm_playbook:p;
     reasoning = SELECT x FROM recommendations:r
-        -(rev_phx_dm_reasoning_for_recommendation)- phx_dm_reasoning_trace:x;
+        -(rev_phx_dm_reasoning_for_recommendation:e_x)- phx_dm_reasoning_trace:x;
 
     PRINT target_type, target_id, recommendations,
         opportunities, predictions, features, playbooks, reasoning;

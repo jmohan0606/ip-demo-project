@@ -1,0 +1,17 @@
+/*
+ * GQ-024 — get_embeddings_for_entity
+ * Purpose: Return embedding metadata for an entity.
+ * Outputs: embeddings
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_embeddings_for_entity(entity_type STRING, entity_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_embeddings = {phx_dm_embedding.*};
+    embeddings = SELECT e FROM all_embeddings:e
+        WHERE e.entity_type == entity_type AND e.entity_id == entity_id
+        ORDER BY e.generated_at DESC;
+    PRINT entity_type, entity_id, embeddings;
+}
+
+INSTALL QUERY get_embeddings_for_entity

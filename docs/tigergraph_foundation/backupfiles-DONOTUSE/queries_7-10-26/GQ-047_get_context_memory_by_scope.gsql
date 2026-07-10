@@ -1,0 +1,25 @@
+/*
+ * GQ-047 — get_context_memory_by_scope
+ * Purpose: Retrieve an entity's context-memory vertices by traversing the
+ * phx_dm_memory_for_<scope> edges (StateRepository graph-native memory read).
+ * Optional memory_type filter; newest first by created_ts.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_context_memory_by_scope(STRING scope_type, STRING scope_id, STRING memory_type, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    SetAccum<VERTEX<phx_dm_context_memory>> @@mems;
+    advisors = {phx_dm_advisor.*};
+    // Advisor scope (most common); other scopes traverse their own memory_for_<scope> edge.
+    subject = SELECT a FROM advisors:a WHERE a.advisor_id == scope_id
+              ACCUM @@mems += a.neighbors("rev_phx_dm_memory_for_advisor");
+    mems = {@@mems};
+    result = SELECT m FROM mems:m
+             WHERE (memory_type == "" OR m.memory_type == memory_type)
+               AND m.status == "Active"
+             ORDER BY m.created_ts DESC
+             LIMIT result_limit;
+    PRINT result;
+}
+
+INSTALL QUERY get_context_memory_by_scope

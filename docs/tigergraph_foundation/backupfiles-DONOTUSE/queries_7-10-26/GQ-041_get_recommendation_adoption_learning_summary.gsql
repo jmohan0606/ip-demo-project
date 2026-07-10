@@ -1,0 +1,107 @@
+/*
+ * GQ-041 — get_recommendation_adoption_learning_summary
+ * Purpose: Aggregate recommendation adoption, impact and feedback learning for a scope.
+ * Outputs: adoption, feedback and learning aggregates with source sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_recommendation_adoption_learning_summary(scope_type STRING, scope_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    GroupByAccum<STRING recommendation_status,
+        SumAccum<INT> recommendation_count,
+        SumAccum<DOUBLE> estimated_impact> @@adoption;
+    GroupByAccum<STRING feedback_action,
+        SumAccum<INT> feedback_count> @@feedback_summary;
+    SumAccum<DOUBLE> @@total_reward;
+    SumAccum<DOUBLE> @@total_score_delta;
+
+    all_advisors = {phx_dm_advisor.*};
+    all_branches = {phx_dm_branch.*};
+    all_markets = {phx_dm_market.*};
+    all_regions = {phx_dm_region.*};
+    all_divisions = {phx_dm_division.*};
+    all_firms = {phx_dm_firm.*};
+
+    direct_advisors = SELECT a
+        FROM all_advisors:a
+        WHERE (scope_type == "ADVISOR" AND a.advisor_id == scope_id)
+           OR scope_type == "ALL";
+
+    selected_branches = SELECT b
+        FROM all_branches:b
+        WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
+    branch_advisors = SELECT a
+        FROM selected_branches:b
+            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+
+    selected_markets = SELECT m
+        FROM all_markets:m
+        WHERE scope_type == "MARKET" AND m.market_id == scope_id;
+    market_advisors = SELECT a
+        FROM selected_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_regions = SELECT r
+        FROM all_regions:r
+        WHERE scope_type == "REGION" AND r.region_id == scope_id;
+    region_markets = SELECT m
+        FROM selected_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    region_advisors = SELECT a
+        FROM region_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_divisions = SELECT d
+        FROM all_divisions:d
+        WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
+    division_regions = SELECT r
+        FROM selected_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    division_markets = SELECT m
+        FROM division_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    division_advisors = SELECT a
+        FROM division_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    selected_firms = SELECT f
+        FROM all_firms:f
+        WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
+    firm_divisions = SELECT d
+        FROM selected_firms:f
+            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+    firm_regions = SELECT r
+        FROM firm_divisions:d
+            -(rev_phx_dm_region_in_division)- all_regions:r;
+    firm_markets = SELECT m
+        FROM firm_regions:r
+            -(rev_phx_dm_market_in_region)- all_markets:m;
+    firm_advisors = SELECT a
+        FROM firm_markets:m
+            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+
+    advisors = direct_advisors UNION branch_advisors UNION market_advisors
+        UNION region_advisors UNION division_advisors UNION firm_advisors;
+
+    recommendations = SELECT r FROM advisors:a
+        -(rev_phx_dm_recommendation_for_advisor)- phx_dm_recommendation:r
+        ACCUM @@adoption += (r.status -> 1, r.estimated_revenue_impact);
+    feedback = SELECT f FROM recommendations:r
+        -(rev_phx_dm_feedback_for_recommendation)- phx_dm_feedback_event:f
+        ACCUM @@feedback_summary += (f.action -> 1);
+    outcomes = SELECT o FROM feedback:f
+        -(rev_phx_dm_outcome_for_feedback)- phx_dm_outcome_event:o;
+    learning = SELECT l FROM outcomes:o
+        -(rev_phx_dm_learning_from_outcome)- phx_dm_learning_signal:l
+        ACCUM @@total_reward += l.reward,
+              @@total_score_delta += l.score_delta;
+
+    PRINT scope_type, scope_id,
+        @@adoption AS recommendation_adoption,
+        @@feedback_summary AS feedback_summary,
+        @@total_reward AS total_reward,
+        @@total_score_delta AS total_score_delta,
+        recommendations, feedback, outcomes, learning;
+}
+
+INSTALL QUERY get_recommendation_adoption_learning_summary

@@ -1,0 +1,29 @@
+/*
+ * GQ-033 — get_reasoning_trace
+ * Purpose: Return reasoning trace and direct evidence objects for an AI artifact.
+ * Outputs: reasoning records and direct graph evidence
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_reasoning_trace(artifact_type STRING, artifact_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_reasoning = {phx_dm_reasoning_trace.*};
+    reasoning = SELECT r FROM all_reasoning:r
+        WHERE r.artifact_type == artifact_type AND r.artifact_id == artifact_id
+        ORDER BY r.created_at DESC;
+    memories = SELECT m FROM reasoning:r
+        -(phx_dm_reasoning_uses_memory)- phx_dm_context_memory:m;
+    features = SELECT f FROM reasoning:r
+        -(phx_dm_reasoning_uses_feature_snapshot)- phx_dm_feature_snapshot:f;
+    document_chunks = SELECT c FROM reasoning:r
+        -(phx_dm_reasoning_uses_document_chunk)- phx_dm_document_chunk:c;
+    crm_activities = SELECT a FROM reasoning:r
+        -(phx_dm_reasoning_uses_crm_activity)- phx_dm_crm_activity:a;
+    transactions = SELECT t FROM reasoning:r
+        -(phx_dm_reasoning_uses_transaction)- phx_dm_revenue_transaction:t;
+
+    PRINT artifact_type, artifact_id, reasoning, memories, features,
+        document_chunks, crm_activities, transactions;
+}
+
+INSTALL QUERY get_reasoning_trace

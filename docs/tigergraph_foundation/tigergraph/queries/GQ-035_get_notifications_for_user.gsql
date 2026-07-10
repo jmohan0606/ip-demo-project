@@ -6,11 +6,11 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_notifications_for_user(user_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_notifications_for_user(STRING user_id, STRING status, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_users = {phx_dm_persona_user.*};
     user = SELECT u FROM all_users:u WHERE u.user_id == user_id;
     notifications = SELECT n FROM user:u
-        -(rev_phx_dm_notification_for_user)- phx_dm_notification:n
+        -(rev_phx_dm_notification_for_user:e_n)- phx_dm_notification:n
         WHERE status == "ALL" OR n.status == status
         ORDER BY n.due_date ASC, n.created_at DESC
         LIMIT result_limit;

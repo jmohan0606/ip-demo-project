@@ -6,26 +6,26 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_feature_lineage(feature_snapshot_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_feature_lineage(STRING feature_snapshot_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_features = {phx_dm_feature_snapshot.*};
     feature_snapshot = SELECT f FROM all_features:f
         WHERE f.feature_snapshot_id == feature_snapshot_id;
     predictions = SELECT p FROM feature_snapshot:f
-        -(rev_phx_dm_prediction_uses_feature_snapshot)- phx_dm_prediction_result:p;
+        -(rev_phx_dm_prediction_uses_feature_snapshot:e_p)- phx_dm_prediction_result:p;
     opportunities = SELECT o FROM feature_snapshot:f
-        -(rev_phx_dm_opportunity_uses_feature_snapshot)- phx_dm_opportunity:o;
+        -(rev_phx_dm_opportunity_uses_feature_snapshot:e_o)- phx_dm_opportunity:o;
     recommendations = SELECT r FROM feature_snapshot:f
-        -(rev_phx_dm_recommendation_uses_feature_snapshot)- phx_dm_recommendation:r;
+        -(rev_phx_dm_recommendation_uses_feature_snapshot:e_r)- phx_dm_recommendation:r;
     reasoning = SELECT x FROM feature_snapshot:f
-        -(rev_phx_dm_reasoning_uses_feature_snapshot)- phx_dm_reasoning_trace:x;
+        -(rev_phx_dm_reasoning_uses_feature_snapshot:e_x)- phx_dm_reasoning_trace:x;
     advisors = SELECT a FROM feature_snapshot:f
-        -(rev_phx_dm_advisor_has_feature_snapshot)- phx_dm_advisor:a;
+        -(rev_phx_dm_advisor_has_feature_snapshot:e_a)- phx_dm_advisor:a;
     households = SELECT h FROM feature_snapshot:f
-        -(rev_phx_dm_household_has_feature_snapshot)- phx_dm_household:h;
+        -(rev_phx_dm_household_has_feature_snapshot:e_h)- phx_dm_household:h;
     accounts = SELECT ac FROM feature_snapshot:f
-        -(rev_phx_dm_account_has_feature_snapshot)- phx_dm_account:ac;
+        -(rev_phx_dm_account_has_feature_snapshot:e_ac)- phx_dm_account:ac;
     products = SELECT p FROM feature_snapshot:f
-        -(rev_phx_dm_product_has_feature_snapshot)- phx_dm_product:p;
+        -(rev_phx_dm_product_has_feature_snapshot:e_p)- phx_dm_product:p;
 
     PRINT feature_snapshot, advisors, households, accounts, products,
         predictions, opportunities, recommendations, reasoning;

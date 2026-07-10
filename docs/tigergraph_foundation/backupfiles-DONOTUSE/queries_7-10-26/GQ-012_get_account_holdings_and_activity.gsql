@@ -1,0 +1,38 @@
+/*
+ * GQ-012 — get_account_holdings_and_activity
+ * Purpose: Return holdings, activities, transactions and AI artifacts for an account.
+ * Outputs: account, holdings, activity, transactions and AI artifacts
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_account_holdings_and_activity(account_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_accounts = {phx_dm_account.*};
+    account = SELECT ac FROM all_accounts:ac WHERE ac.account_id == account_id;
+    households = SELECT h FROM account:ac
+        -(rev_phx_dm_household_owns_account)- phx_dm_household:h;
+    products = SELECT p FROM account:ac
+        -(phx_dm_account_holds_product)- phx_dm_product:p;
+    activities = SELECT x FROM account:ac
+        -(rev_phx_dm_activity_for_account)- phx_dm_crm_activity:x;
+    transactions = SELECT x FROM account:ac
+        -(rev_phx_dm_transaction_for_account)- phx_dm_revenue_transaction:x;
+    crm_opportunities = SELECT x FROM account:ac
+        -(rev_phx_dm_crm_opportunity_for_account)- phx_dm_crm_opportunity:x;
+    predictions = SELECT x FROM account:ac
+        -(rev_phx_dm_prediction_for_account)- phx_dm_prediction_result:x;
+    opportunities = SELECT x FROM account:ac
+        -(rev_phx_dm_opportunity_for_account)- phx_dm_opportunity:x;
+    recommendations = SELECT x FROM account:ac
+        -(rev_phx_dm_recommendation_for_account)- phx_dm_recommendation:x;
+    features = SELECT x FROM account:ac
+        -(phx_dm_account_has_feature_snapshot)- phx_dm_feature_snapshot:x;
+    embeddings = SELECT x FROM account:ac
+        -(phx_dm_account_has_embedding)- phx_dm_embedding:x;
+
+    PRINT account, households, products, activities, transactions,
+        crm_opportunities, predictions, opportunities, recommendations,
+        features, embeddings;
+}
+
+INSTALL QUERY get_account_holdings_and_activity

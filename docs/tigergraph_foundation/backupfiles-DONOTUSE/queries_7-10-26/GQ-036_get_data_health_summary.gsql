@@ -1,0 +1,23 @@
+/*
+ * GQ-036 — get_data_health_summary
+ * Purpose: Return vertex cardinalities and connected-edge traversal counts by type.
+ * Outputs: vertex counts and edge traversal counts
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_data_health_summary() FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    GroupByAccum<STRING vertex_type, SumAccum<INT> vertex_count> @@vertex_counts;
+    GroupByAccum<STRING edge_type, SumAccum<INT> traversal_count> @@edge_traversals;
+
+    all_vertices = {ANY};
+    counted_vertices = SELECT v FROM all_vertices:v
+        ACCUM @@vertex_counts += (v.type -> 1);
+    connected = SELECT t FROM all_vertices:s -(:e)- :t
+        ACCUM @@edge_traversals += (e.type -> 1);
+
+    PRINT @@vertex_counts AS vertex_counts,
+        @@edge_traversals AS connected_edge_traversals;
+}
+
+INSTALL QUERY get_data_health_summary

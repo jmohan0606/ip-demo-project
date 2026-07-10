@@ -1,0 +1,17 @@
+/*
+ * GQ-046 — get_rec_status_transitions
+ * Purpose: Status-transition audit trail for a recommendation, by traversing
+ * phx_dm_transition_of_recommendation. Oldest first (chronological).
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_rec_status_transitions(STRING recommendation_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    transitions = {phx_dm_rec_status_transition.*};
+    result = SELECT t FROM transitions:t
+             WHERE t.recommendation_id == recommendation_id
+             ORDER BY t.created_ts ASC;
+    PRINT result;
+}
+
+INSTALL QUERY get_rec_status_transitions

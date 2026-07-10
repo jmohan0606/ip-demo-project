@@ -1,0 +1,18 @@
+/*
+ * GQ-049 — scope_reasoning_traversal
+ * Purpose: Scope subgraph reasoning — advisors → households → aggregated outcomes with the real
+ * contributing entities. Authoritative traversal: app/graph/queries/reasoning.py. This GSQL walks
+ * advisor→household within the scope for real TigerGraph.
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY scope_reasoning_traversal(STRING scope_type, STRING scope_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    advisors = {phx_dm_advisor.*};
+    households = SELECT h FROM advisors:a -(phx_dm_advisor_serves_household:e)- phx_dm_household:h;
+    opportunities = SELECT o FROM households:h -(rev_phx_dm_opportunity_for_household:e)- phx_dm_opportunity:o;
+    PRINT households;
+    PRINT opportunities;
+}
+
+INSTALL QUERY scope_reasoning_traversal

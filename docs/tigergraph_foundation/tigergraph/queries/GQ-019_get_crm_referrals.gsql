@@ -6,18 +6,18 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_crm_referrals(advisor_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_crm_referrals(STRING advisor_id, STRING status, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     referrals = SELECT r FROM advisor:a
-        -(phx_dm_advisor_has_crm_referral)- phx_dm_crm_referral:r
+        -(phx_dm_advisor_has_crm_referral:e_r)- phx_dm_crm_referral:r
         WHERE status == "ALL" OR r.status == status
         ORDER BY r.due_date ASC, r.estimated_value DESC
         LIMIT result_limit;
     households = SELECT h FROM referrals:r
-        -(phx_dm_referral_for_household)- phx_dm_household:h;
+        -(phx_dm_referral_for_household:e_h)- phx_dm_household:h;
     opportunities = SELECT o FROM referrals:r
-        -(phx_dm_referral_generates_crm_opportunity)- phx_dm_crm_opportunity:o;
+        -(phx_dm_referral_generates_crm_opportunity:e_o)- phx_dm_crm_opportunity:o;
 
     PRINT advisor, referrals, households, opportunities;
 }

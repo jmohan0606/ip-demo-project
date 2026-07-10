@@ -1,0 +1,34 @@
+/*
+ * GQ-029 — get_recommendation_detail
+ * Purpose: Return one recommendation with evidence, feedback and downstream learning.
+ * Outputs: one recommendation and full explainability/learning chain
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_recommendation_detail(recommendation_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_recommendations = {phx_dm_recommendation.*};
+    recommendation = SELECT r FROM all_recommendations:r
+        WHERE r.recommendation_id == recommendation_id;
+    opportunities = SELECT o FROM recommendation:r
+        -(phx_dm_recommendation_addresses_opportunity)- phx_dm_opportunity:o;
+    predictions = SELECT p FROM recommendation:r
+        -(phx_dm_recommendation_based_on_prediction)- phx_dm_prediction_result:p;
+    features = SELECT f FROM recommendation:r
+        -(phx_dm_recommendation_uses_feature_snapshot)- phx_dm_feature_snapshot:f;
+    playbooks = SELECT p FROM recommendation:r
+        -(phx_dm_recommendation_uses_playbook)- phx_dm_playbook:p;
+    reasoning = SELECT x FROM recommendation:r
+        -(rev_phx_dm_reasoning_for_recommendation)- phx_dm_reasoning_trace:x;
+    feedback = SELECT f FROM recommendation:r
+        -(rev_phx_dm_feedback_for_recommendation)- phx_dm_feedback_event:f;
+    outcomes = SELECT o FROM feedback:f
+        -(rev_phx_dm_outcome_for_feedback)- phx_dm_outcome_event:o;
+    learning = SELECT l FROM outcomes:o
+        -(rev_phx_dm_learning_from_outcome)- phx_dm_learning_signal:l;
+
+    PRINT recommendation, opportunities, predictions, features,
+        playbooks, reasoning, feedback, outcomes, learning;
+}
+
+INSTALL QUERY get_recommendation_detail

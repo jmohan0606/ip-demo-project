@@ -6,21 +6,21 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_ai_opportunities(target_type STRING, target_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_ai_opportunities(STRING target_type, STRING target_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_opportunities = {phx_dm_opportunity.*};
     opportunities = SELECT o FROM all_opportunities:o
         WHERE o.target_type == target_type AND o.target_id == target_id
         ORDER BY o.score DESC, o.generated_at DESC;
     predictions = SELECT p FROM opportunities:o
-        -(phx_dm_opportunity_derived_from_prediction)- phx_dm_prediction_result:p;
+        -(phx_dm_opportunity_derived_from_prediction:e_p)- phx_dm_prediction_result:p;
     crm_opportunities = SELECT c FROM opportunities:o
-        -(phx_dm_ai_opportunity_derived_from_crm_opportunity)- phx_dm_crm_opportunity:c;
+        -(phx_dm_ai_opportunity_derived_from_crm_opportunity:e_c)- phx_dm_crm_opportunity:c;
     features = SELECT f FROM opportunities:o
-        -(phx_dm_opportunity_uses_feature_snapshot)- phx_dm_feature_snapshot:f;
+        -(phx_dm_opportunity_uses_feature_snapshot:e_f)- phx_dm_feature_snapshot:f;
     recommendations = SELECT r FROM opportunities:o
-        -(rev_phx_dm_recommendation_addresses_opportunity)- phx_dm_recommendation:r;
+        -(rev_phx_dm_recommendation_addresses_opportunity:e_r)- phx_dm_recommendation:r;
     reasoning = SELECT x FROM opportunities:o
-        -(rev_phx_dm_reasoning_for_opportunity)- phx_dm_reasoning_trace:x;
+        -(rev_phx_dm_reasoning_for_opportunity:e_x)- phx_dm_reasoning_trace:x;
 
     PRINT target_type, target_id, opportunities, predictions,
         crm_opportunities, features, recommendations, reasoning;

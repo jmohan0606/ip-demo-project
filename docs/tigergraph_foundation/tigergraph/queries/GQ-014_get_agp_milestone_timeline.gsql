@@ -6,19 +6,19 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_agp_milestone_timeline(enrollment_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_agp_milestone_timeline(STRING enrollment_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_enrollments = {phx_dm_agp_enrollment.*};
     enrollment = SELECT e FROM all_enrollments:e WHERE e.enrollment_id == enrollment_id;
     progress = SELECT x FROM enrollment:e
-        -(phx_dm_enrollment_has_milestone_progress)- phx_dm_agp_milestone_progress:x
+        -(phx_dm_enrollment_has_milestone_progress:e_x)- phx_dm_agp_milestone_progress:x
         ORDER BY x.due_date ASC;
     milestones = SELECT m FROM progress:x
-        -(phx_dm_progress_for_milestone)- phx_dm_agp_milestone:m
+        -(phx_dm_progress_for_milestone:e_m)- phx_dm_agp_milestone:m
         ORDER BY m.sequence_no ASC;
     measurements = SELECT z FROM progress:x
-        -(phx_dm_progress_has_kpi_measurement)- phx_dm_agp_kpi_measurement:z;
+        -(phx_dm_progress_has_kpi_measurement:e_z)- phx_dm_agp_kpi_measurement:z;
     kpis = SELECT k FROM measurements:z
-        -(phx_dm_measurement_for_kpi)- phx_dm_kpi:k;
+        -(phx_dm_measurement_for_kpi:e_k)- phx_dm_kpi:k;
 
     PRINT enrollment, progress, milestones, measurements, kpis;
 }

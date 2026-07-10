@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_org_hierarchy(scope_type STRING, scope_id STRING, max_depth INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_org_hierarchy(STRING scope_type, STRING scope_id, INT max_depth) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_firms = {phx_dm_firm.*};
     all_divisions = {phx_dm_division.*};
     all_regions = {phx_dm_region.*};
@@ -28,59 +28,59 @@ CREATE QUERY get_org_hierarchy(scope_type STRING, scope_id STRING, max_depth INT
         WHERE scope_type == "ADVISOR" AND a.advisor_id == scope_id;
 
     firm_divisions = SELECT d FROM root_firms:f
-        -(rev_phx_dm_division_in_firm)- all_divisions:d
+        -(rev_phx_dm_division_in_firm:e_d)- phx_dm_division:d
         WHERE max_depth >= 1;
     divisions = root_divisions UNION firm_divisions;
 
     regions_from_root_division = SELECT r FROM root_divisions:d
-        -(rev_phx_dm_region_in_division)- all_regions:r
+        -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r
         WHERE max_depth >= 1;
     regions_from_firm = SELECT r FROM firm_divisions:d
-        -(rev_phx_dm_region_in_division)- all_regions:r
+        -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r
         WHERE max_depth >= 2;
     regions = root_regions UNION regions_from_root_division UNION regions_from_firm;
 
     markets_from_root_region = SELECT m FROM root_regions:r
-        -(rev_phx_dm_market_in_region)- all_markets:m
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m
         WHERE max_depth >= 1;
     markets_from_division = SELECT m FROM regions_from_root_division:r
-        -(rev_phx_dm_market_in_region)- all_markets:m
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m
         WHERE max_depth >= 2;
     markets_from_firm = SELECT m FROM regions_from_firm:r
-        -(rev_phx_dm_market_in_region)- all_markets:m
+        -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m
         WHERE max_depth >= 3;
     markets = root_markets UNION markets_from_root_region
         UNION markets_from_division UNION markets_from_firm;
 
     branches_from_root_market = SELECT b FROM root_markets:m
-        -(rev_phx_dm_branch_in_market)- all_branches:b
+        -(rev_phx_dm_branch_in_market:e_b)- phx_dm_branch:b
         WHERE max_depth >= 1;
     branches_from_region = SELECT b FROM markets_from_root_region:m
-        -(rev_phx_dm_branch_in_market)- all_branches:b
+        -(rev_phx_dm_branch_in_market:e_b)- phx_dm_branch:b
         WHERE max_depth >= 2;
     branches_from_division = SELECT b FROM markets_from_division:m
-        -(rev_phx_dm_branch_in_market)- all_branches:b
+        -(rev_phx_dm_branch_in_market:e_b)- phx_dm_branch:b
         WHERE max_depth >= 3;
     branches_from_firm = SELECT b FROM markets_from_firm:m
-        -(rev_phx_dm_branch_in_market)- all_branches:b
+        -(rev_phx_dm_branch_in_market:e_b)- phx_dm_branch:b
         WHERE max_depth >= 4;
     branches = root_branches UNION branches_from_root_market
         UNION branches_from_region UNION branches_from_division UNION branches_from_firm;
 
     advisors_from_root_branch = SELECT a FROM root_branches:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         WHERE max_depth >= 1;
     advisors_from_market_branch = SELECT a FROM branches_from_root_market:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         WHERE max_depth >= 2;
     advisors_from_region_branch = SELECT a FROM branches_from_region:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         WHERE max_depth >= 3;
     advisors_from_division_branch = SELECT a FROM branches_from_division:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         WHERE max_depth >= 4;
     advisors_from_firm_branch = SELECT a FROM branches_from_firm:b
-        -(rev_phx_dm_advisor_in_branch)- all_advisors:a
+        -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a
         WHERE max_depth >= 5;
     advisors = root_advisors UNION advisors_from_root_branch
         UNION advisors_from_market_branch UNION advisors_from_region_branch

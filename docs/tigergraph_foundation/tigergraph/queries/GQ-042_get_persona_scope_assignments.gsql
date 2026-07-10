@@ -6,21 +6,21 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_persona_scope_assignments(user_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_persona_scope_assignments(STRING user_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_users = {phx_dm_persona_user.*};
     user = SELECT u FROM all_users:u WHERE u.user_id == user_id;
-    firms = SELECT f FROM user:u -(phx_dm_user_scoped_to_firm)- phx_dm_firm:f;
-    divisions = SELECT d FROM user:u -(phx_dm_user_scoped_to_division)- phx_dm_division:d;
-    regions = SELECT r FROM user:u -(phx_dm_user_scoped_to_region)- phx_dm_region:r;
-    markets = SELECT m FROM user:u -(phx_dm_user_scoped_to_market)- phx_dm_market:m;
-    branches = SELECT b FROM user:u -(phx_dm_user_scoped_to_branch)- phx_dm_branch:b;
-    advisors = SELECT a FROM user:u -(phx_dm_user_represents_advisor)- phx_dm_advisor:a;
+    firms = SELECT f FROM user:u -(phx_dm_user_scoped_to_firm:e_f)- phx_dm_firm:f;
+    divisions = SELECT d FROM user:u -(phx_dm_user_scoped_to_division:e_d)- phx_dm_division:d;
+    regions = SELECT r FROM user:u -(phx_dm_user_scoped_to_region:e_r)- phx_dm_region:r;
+    markets = SELECT m FROM user:u -(phx_dm_user_scoped_to_market:e_m)- phx_dm_market:m;
+    branches = SELECT b FROM user:u -(phx_dm_user_scoped_to_branch:e_b)- phx_dm_branch:b;
+    advisors = SELECT a FROM user:u -(phx_dm_user_represents_advisor:e_a)- phx_dm_advisor:a;
     managed_rdws = SELECT r FROM user:u
-        -(rev_phx_dm_ddw_manages_rdw)- all_users:r WHERE r.role_code == "RDW";
+        -(rev_phx_dm_ddw_manages_rdw:e_r)- phx_dm_persona_user:r WHERE r.role_code == "RDW";
     managed_mdws = SELECT m FROM user:u
-        -(rev_phx_dm_rdw_manages_mdw)- all_users:m WHERE m.role_code == "MDW";
+        -(rev_phx_dm_rdw_manages_mdw:e_m)- phx_dm_persona_user:m WHERE m.role_code == "MDW";
     managed_advisors = SELECT a FROM user:u
-        -(phx_dm_mdw_manages_advisor)- phx_dm_advisor:a;
+        -(phx_dm_mdw_manages_advisor:e_a)- phx_dm_advisor:a;
 
     PRINT user, firms, divisions, regions, markets, branches, advisors,
         managed_rdws, managed_mdws, managed_advisors;

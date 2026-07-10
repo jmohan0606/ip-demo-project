@@ -6,16 +6,16 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_memory_timeline(subject_type STRING, subject_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_memory_timeline(STRING subject_type, STRING subject_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_memories = {phx_dm_context_memory.*};
     memories = SELECT m FROM all_memories:m
         WHERE m.subject_type == subject_type AND m.subject_id == subject_id
         ORDER BY m.effective_date DESC;
     conversation_turns = SELECT t FROM memories:m
-        -(rev_phx_dm_conversation_creates_memory)- phx_dm_conversation_turn:t
+        -(rev_phx_dm_conversation_creates_memory:e_t)- phx_dm_conversation_turn:t
         ORDER BY t.created_at DESC;
     reasoning = SELECT r FROM memories:m
-        -(rev_phx_dm_reasoning_uses_memory)- phx_dm_reasoning_trace:r
+        -(rev_phx_dm_reasoning_uses_memory:e_r)- phx_dm_reasoning_trace:r
         ORDER BY r.created_at DESC;
 
     PRINT subject_type, subject_id, memories, conversation_turns, reasoning;

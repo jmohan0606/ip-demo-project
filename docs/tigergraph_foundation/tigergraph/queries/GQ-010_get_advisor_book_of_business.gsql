@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_advisor_book_of_business(advisor_id STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_advisor_book_of_business(STRING advisor_id, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     GroupByAccum<STRING household_id, STRING household_name,
         SumAccum<DOUBLE> revenue,
         SumAccum<INT> transaction_count> @@household_summary;
@@ -14,13 +14,13 @@ CREATE QUERY get_advisor_book_of_business(advisor_id STRING, result_limit INT) F
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     households = SELECT h FROM advisor:a
-        -(phx_dm_advisor_serves_household)- phx_dm_household:h
+        -(phx_dm_advisor_serves_household:e_h)- phx_dm_household:h
         ORDER BY h.total_aum DESC
         LIMIT result_limit;
     accounts = SELECT ac FROM households:h
-        -(phx_dm_household_owns_account)- phx_dm_account:ac;
+        -(phx_dm_household_owns_account:e_ac)- phx_dm_account:ac;
     transactions = SELECT tx FROM households:h
-        -(rev_phx_dm_transaction_for_household)- phx_dm_revenue_transaction:tx
+        -(rev_phx_dm_transaction_for_household:e_tx)- phx_dm_revenue_transaction:tx
         ACCUM @@household_summary +=
             (h.household_id, h.household_name -> tx.revenue_amount, 1);
 

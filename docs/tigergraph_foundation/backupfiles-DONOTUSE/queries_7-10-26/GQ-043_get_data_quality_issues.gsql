@@ -1,0 +1,87 @@
+/*
+ * GQ-043 — get_data_quality_issues
+ * Purpose: Detect missing mandatory graph relationships for core domains.
+ * Outputs: issue counts by severity and typed issue vertex sets
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    OrAccum @has_branch;
+    OrAccum @has_advisor;
+    OrAccum @has_household;
+    OrAccum @has_feature;
+    OrAccum @has_reasoning;
+    SumAccum<INT> @@issue_count;
+    GroupByAccum<STRING issue_severity, SumAccum<INT> issue_count> @@issues_by_severity;
+
+    all_advisors = {phx_dm_advisor.*};
+    linked_advisors = SELECT a FROM all_advisors:a
+        -(phx_dm_advisor_in_branch)- phx_dm_branch:b
+        ACCUM a.@has_branch += TRUE;
+    advisors_missing_branch = SELECT a FROM all_advisors:a
+        WHERE (domain == "ALL" OR domain == "ORGANIZATION")
+          AND (severity == "ALL" OR severity == "CRITICAL")
+          AND a.@has_branch == FALSE
+        ACCUM @@issue_count += 1,
+              @@issues_by_severity += ("CRITICAL" -> 1)
+        LIMIT result_limit;
+
+    all_households = {phx_dm_household.*};
+    linked_households = SELECT h FROM all_households:h
+        -(rev_phx_dm_advisor_serves_household)- phx_dm_advisor:a
+        ACCUM h.@has_advisor += TRUE;
+    households_missing_advisor = SELECT h FROM all_households:h
+        WHERE (domain == "ALL" OR domain == "HOUSEHOLD")
+          AND (severity == "ALL" OR severity == "CRITICAL")
+          AND h.@has_advisor == FALSE
+        ACCUM @@issue_count += 1,
+              @@issues_by_severity += ("CRITICAL" -> 1)
+        LIMIT result_limit;
+
+    all_accounts = {phx_dm_account.*};
+    linked_accounts = SELECT ac FROM all_accounts:ac
+        -(rev_phx_dm_household_owns_account)- phx_dm_household:h
+        ACCUM ac.@has_household += TRUE;
+    accounts_missing_household = SELECT ac FROM all_accounts:ac
+        WHERE (domain == "ALL" OR domain == "ACCOUNT")
+          AND (severity == "ALL" OR severity == "CRITICAL")
+          AND ac.@has_household == FALSE
+        ACCUM @@issue_count += 1,
+              @@issues_by_severity += ("CRITICAL" -> 1)
+        LIMIT result_limit;
+
+    all_predictions = {phx_dm_prediction_result.*};
+    linked_predictions = SELECT p FROM all_predictions:p
+        -(phx_dm_prediction_uses_feature_snapshot)- phx_dm_feature_snapshot:f
+        ACCUM p.@has_feature += TRUE;
+    predictions_missing_features = SELECT p FROM all_predictions:p
+        WHERE (domain == "ALL" OR domain == "AI")
+          AND (severity == "ALL" OR severity == "URGENT")
+          AND p.@has_feature == FALSE
+        ACCUM @@issue_count += 1,
+              @@issues_by_severity += ("URGENT" -> 1)
+        LIMIT result_limit;
+
+    all_recommendations = {phx_dm_recommendation.*};
+    linked_recommendations = SELECT r FROM all_recommendations:r
+        -(rev_phx_dm_reasoning_for_recommendation)- phx_dm_reasoning_trace:x
+        ACCUM r.@has_reasoning += TRUE;
+    recommendations_missing_reasoning = SELECT r FROM all_recommendations:r
+        WHERE (domain == "ALL" OR domain == "AI")
+          AND (severity == "ALL" OR severity == "URGENT")
+          AND r.@has_reasoning == FALSE
+        ACCUM @@issue_count += 1,
+              @@issues_by_severity += ("URGENT" -> 1)
+        LIMIT result_limit;
+
+    PRINT domain, severity, @@issue_count AS issue_count,
+        @@issues_by_severity AS issues_by_severity,
+        advisors_missing_branch,
+        households_missing_advisor,
+        accounts_missing_household,
+        predictions_missing_features,
+        recommendations_missing_reasoning;
+}
+
+INSTALL QUERY get_data_quality_issues

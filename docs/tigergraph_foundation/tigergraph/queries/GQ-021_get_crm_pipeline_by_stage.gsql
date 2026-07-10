@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_crm_pipeline_by_stage(advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_crm_pipeline_by_stage(STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     GroupByAccum<STRING stage,
         SumAccum<INT> opportunity_count,
         SumAccum<DOUBLE> pipeline_amount,
@@ -15,7 +15,7 @@ CREATE QUERY get_crm_pipeline_by_stage(advisor_id STRING) FOR GRAPH iperform_ins
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     opportunities = SELECT o FROM advisor:a
-        -(phx_dm_advisor_has_crm_opportunity)- phx_dm_crm_opportunity:o
+        -(phx_dm_advisor_has_crm_opportunity:e_o)- phx_dm_crm_opportunity:o
         ACCUM @@pipeline += (o.stage -> 1, o.amount, o.amount * o.probability);
 
     PRINT advisor, @@pipeline AS pipeline_by_stage, opportunities;

@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_scope_descendants(scope_type STRING, scope_id STRING, entity_type STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_scope_descendants(STRING scope_type, STRING scope_id, STRING entity_type) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_advisors = {phx_dm_advisor.*};
     all_branches = {phx_dm_branch.*};
     all_markets = {phx_dm_market.*};
@@ -24,61 +24,61 @@ CREATE QUERY get_scope_descendants(scope_type STRING, scope_id STRING, entity_ty
         WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
     branch_advisors = SELECT a
         FROM selected_branches:b
-            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a;
 
     selected_markets = SELECT m
         FROM all_markets:m
         WHERE scope_type == "MARKET" AND m.market_id == scope_id;
     market_advisors = SELECT a
         FROM selected_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_regions = SELECT r
         FROM all_regions:r
         WHERE scope_type == "REGION" AND r.region_id == scope_id;
     region_markets = SELECT m
         FROM selected_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     region_advisors = SELECT a
         FROM region_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_divisions = SELECT d
         FROM all_divisions:d
         WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
     division_regions = SELECT r
         FROM selected_divisions:d
-            -(rev_phx_dm_region_in_division)- all_regions:r;
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     division_markets = SELECT m
         FROM division_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     division_advisors = SELECT a
         FROM division_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_firms = SELECT f
         FROM all_firms:f
         WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
     firm_divisions = SELECT d
         FROM selected_firms:f
-            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+            -(rev_phx_dm_division_in_firm:e_d)- phx_dm_division:d;
     firm_regions = SELECT r
         FROM firm_divisions:d
-            -(rev_phx_dm_region_in_division)- all_regions:r;
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     firm_markets = SELECT m
         FROM firm_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     firm_advisors = SELECT a
         FROM firm_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     advisors = direct_advisors UNION branch_advisors UNION market_advisors
         UNION region_advisors UNION division_advisors UNION firm_advisors;
 
     households = SELECT h FROM advisors:a
-        -(phx_dm_advisor_serves_household)- phx_dm_household:h;
+        -(phx_dm_advisor_serves_household:e_h)- phx_dm_household:h;
     accounts = SELECT ac FROM households:h
-        -(phx_dm_household_owns_account)- phx_dm_account:ac;
+        -(phx_dm_household_owns_account:e_ac)- phx_dm_account:ac;
 
     advisor_output = SELECT a FROM advisors:a
         WHERE entity_type == "ALL" OR entity_type == "ADVISOR";

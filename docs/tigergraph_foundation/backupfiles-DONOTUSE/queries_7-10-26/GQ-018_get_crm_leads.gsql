@@ -1,0 +1,25 @@
+/*
+ * GQ-018 — get_crm_leads
+ * Purpose: Return advisor CRM leads filtered by status and urgency.
+ * Outputs: advisor, leads, related households and CRM opportunities
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_crm_leads(advisor_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
+    leads = SELECT l FROM advisor:a
+        -(phx_dm_advisor_has_crm_lead)- phx_dm_crm_lead:l
+        WHERE status == "ALL" OR l.status == status
+        ORDER BY l.due_date ASC, l.estimated_value DESC
+        LIMIT result_limit;
+    households = SELECT h FROM leads:l
+        -(phx_dm_lead_for_household)- phx_dm_household:h;
+    opportunities = SELECT o FROM leads:l
+        -(phx_dm_lead_generates_crm_opportunity)- phx_dm_crm_opportunity:o;
+
+    PRINT advisor, leads, households, opportunities;
+}
+
+INSTALL QUERY get_crm_leads

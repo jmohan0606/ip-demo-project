@@ -1,0 +1,25 @@
+/*
+ * GQ-019 — get_crm_referrals
+ * Purpose: Return advisor CRM referrals filtered by status.
+ * Outputs: advisor, referrals, related households and CRM opportunities
+ * Compatibility target: TigerGraph 4.2.x, classic GSQL SYNTAX V1.
+ */
+USE GRAPH iperform_insights_coaching_demo
+
+CREATE QUERY get_crm_referrals(advisor_id STRING, status STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+    all_advisors = {phx_dm_advisor.*};
+    advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
+    referrals = SELECT r FROM advisor:a
+        -(phx_dm_advisor_has_crm_referral)- phx_dm_crm_referral:r
+        WHERE status == "ALL" OR r.status == status
+        ORDER BY r.due_date ASC, r.estimated_value DESC
+        LIMIT result_limit;
+    households = SELECT h FROM referrals:r
+        -(phx_dm_referral_for_household)- phx_dm_household:h;
+    opportunities = SELECT o FROM referrals:r
+        -(phx_dm_referral_generates_crm_opportunity)- phx_dm_crm_opportunity:o;
+
+    PRINT advisor, referrals, households, opportunities;
+}
+
+INSTALL QUERY get_crm_referrals

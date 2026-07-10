@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_revenue_trend_by_scope(scope_type STRING, scope_id STRING, period_grain STRING, start_date DATETIME, end_date DATETIME) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_revenue_trend_by_scope(STRING scope_type, STRING scope_id, STRING period_grain, DATETIME start_date, DATETIME end_date) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     GroupByAccum<STRING period_id, STRING label,
         SumAccum<DOUBLE> revenue,
         SumAccum<INT> transaction_count> @@trend;
@@ -28,62 +28,62 @@ CREATE QUERY get_revenue_trend_by_scope(scope_type STRING, scope_id STRING, peri
         WHERE scope_type == "BRANCH" AND b.branch_id == scope_id;
     branch_advisors = SELECT a
         FROM selected_branches:b
-            -(rev_phx_dm_advisor_in_branch)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_branch:e_a)- phx_dm_advisor:a;
 
     selected_markets = SELECT m
         FROM all_markets:m
         WHERE scope_type == "MARKET" AND m.market_id == scope_id;
     market_advisors = SELECT a
         FROM selected_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_regions = SELECT r
         FROM all_regions:r
         WHERE scope_type == "REGION" AND r.region_id == scope_id;
     region_markets = SELECT m
         FROM selected_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     region_advisors = SELECT a
         FROM region_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_divisions = SELECT d
         FROM all_divisions:d
         WHERE scope_type == "DIVISION" AND d.division_id == scope_id;
     division_regions = SELECT r
         FROM selected_divisions:d
-            -(rev_phx_dm_region_in_division)- all_regions:r;
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     division_markets = SELECT m
         FROM division_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     division_advisors = SELECT a
         FROM division_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     selected_firms = SELECT f
         FROM all_firms:f
         WHERE scope_type == "FIRM" AND f.firm_id == scope_id;
     firm_divisions = SELECT d
         FROM selected_firms:f
-            -(rev_phx_dm_division_in_firm)- all_divisions:d;
+            -(rev_phx_dm_division_in_firm:e_d)- phx_dm_division:d;
     firm_regions = SELECT r
         FROM firm_divisions:d
-            -(rev_phx_dm_region_in_division)- all_regions:r;
+            -(rev_phx_dm_region_in_division:e_r)- phx_dm_region:r;
     firm_markets = SELECT m
         FROM firm_regions:r
-            -(rev_phx_dm_market_in_region)- all_markets:m;
+            -(rev_phx_dm_market_in_region:e_m)- phx_dm_market:m;
     firm_advisors = SELECT a
         FROM firm_markets:m
-            -(rev_phx_dm_advisor_in_market)- all_advisors:a;
+            -(rev_phx_dm_advisor_in_market:e_a)- phx_dm_advisor:a;
 
     advisors = direct_advisors UNION branch_advisors UNION market_advisors
         UNION region_advisors UNION division_advisors UNION firm_advisors;
 
     transactions = SELECT tx FROM advisors:a
-        -(rev_phx_dm_transaction_for_advisor)- phx_dm_revenue_transaction:tx
+        -(rev_phx_dm_transaction_for_advisor:e_tx)- phx_dm_revenue_transaction:tx
         WHERE tx.transaction_date >= start_date AND tx.transaction_date <= end_date;
     periods = SELECT p FROM transactions:tx
-        -(phx_dm_transaction_in_period)- phx_dm_time_period:p
+        -(phx_dm_transaction_in_period:e_p)- phx_dm_time_period:p
         WHERE period_grain == "ALL" OR p.period_type == period_grain
         ACCUM @@trend += (p.period_id, p.label -> tx.revenue_amount, 1);
 

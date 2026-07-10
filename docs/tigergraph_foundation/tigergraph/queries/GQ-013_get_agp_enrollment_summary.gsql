@@ -6,19 +6,19 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_agp_enrollment_summary(advisor_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_agp_enrollment_summary(STRING advisor_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_advisors = {phx_dm_advisor.*};
     advisor = SELECT a FROM all_advisors:a WHERE a.advisor_id == advisor_id;
     enrollments = SELECT e FROM advisor:a
-        -(phx_dm_advisor_has_agp_enrollment)- phx_dm_agp_enrollment:e;
+        -(phx_dm_advisor_has_agp_enrollment:e_e)- phx_dm_agp_enrollment:e;
     programs = SELECT p FROM enrollments:e
-        -(phx_dm_enrollment_in_agp_program)- phx_dm_agp_program:p;
+        -(phx_dm_enrollment_in_agp_program:e_p)- phx_dm_agp_program:p;
     progress = SELECT x FROM enrollments:e
-        -(phx_dm_enrollment_has_milestone_progress)- phx_dm_agp_milestone_progress:x;
+        -(phx_dm_enrollment_has_milestone_progress:e_x)- phx_dm_agp_milestone_progress:x;
     milestones = SELECT m FROM progress:x
-        -(phx_dm_progress_for_milestone)- phx_dm_agp_milestone:m;
-    goals = SELECT g FROM advisor:a -(phx_dm_advisor_has_goal)- phx_dm_goal:g;
-    kpis = SELECT k FROM advisor:a -(phx_dm_advisor_has_kpi)- phx_dm_kpi:k;
+        -(phx_dm_progress_for_milestone:e_m)- phx_dm_agp_milestone:m;
+    goals = SELECT g FROM advisor:a -(phx_dm_advisor_has_goal:e_g)- phx_dm_goal:g;
+    kpis = SELECT k FROM advisor:a -(phx_dm_advisor_has_kpi:e_k)- phx_dm_kpi:k;
 
     PRINT advisor, enrollments, programs, progress, milestones, goals, kpis;
 }

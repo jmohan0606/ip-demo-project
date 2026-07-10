@@ -6,21 +6,21 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_feedback_learning_history(recommendation_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_feedback_learning_history(STRING recommendation_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_recommendations = {phx_dm_recommendation.*};
     recommendation = SELECT r FROM all_recommendations:r
         WHERE r.recommendation_id == recommendation_id;
     feedback = SELECT f FROM recommendation:r
-        -(rev_phx_dm_feedback_for_recommendation)- phx_dm_feedback_event:f
+        -(rev_phx_dm_feedback_for_recommendation:e_f)- phx_dm_feedback_event:f
         ORDER BY f.created_at ASC;
     outcomes = SELECT o FROM feedback:f
-        -(rev_phx_dm_outcome_for_feedback)- phx_dm_outcome_event:o
+        -(rev_phx_dm_outcome_for_feedback:e_o)- phx_dm_outcome_event:o
         ORDER BY o.observed_at ASC;
     learning = SELECT l FROM outcomes:o
-        -(rev_phx_dm_learning_from_outcome)- phx_dm_learning_signal:l
+        -(rev_phx_dm_learning_from_outcome:e_l)- phx_dm_learning_signal:l
         ORDER BY l.created_at ASC;
     learning_links = SELECT l FROM recommendation:r
-        -(rev_phx_dm_learning_updates_recommendation)- phx_dm_learning_signal:l;
+        -(rev_phx_dm_learning_updates_recommendation:e_l)- phx_dm_learning_signal:l;
 
     PRINT recommendation, feedback, outcomes, learning, learning_links;
 }

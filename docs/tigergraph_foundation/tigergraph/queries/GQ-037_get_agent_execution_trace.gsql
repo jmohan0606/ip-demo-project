@@ -6,17 +6,17 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_agent_execution_trace(execution_id STRING) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_agent_execution_trace(STRING execution_id) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     all_executions = {phx_dm_agent_execution.*};
     execution = SELECT e FROM all_executions:e WHERE e.execution_id == execution_id;
     tool_calls = SELECT t FROM execution:e
-        -(phx_dm_execution_has_tool_call)- phx_dm_tool_call:t;
+        -(phx_dm_execution_has_tool_call:e_t)- phx_dm_tool_call:t;
     evaluations = SELECT v FROM execution:e
-        -(phx_dm_execution_has_evaluation)- phx_dm_evaluation_result:v;
+        -(phx_dm_execution_has_evaluation:e_v)- phx_dm_evaluation_result:v;
     guardrails = SELECT g FROM execution:e
-        -(phx_dm_execution_has_guardrail_event)- phx_dm_guardrail_event:g;
+        -(phx_dm_execution_has_guardrail_event:e_g)- phx_dm_guardrail_event:g;
     reasoning = SELECT r FROM execution:e
-        -(phx_dm_execution_generated_reasoning)- phx_dm_reasoning_trace:r;
+        -(phx_dm_execution_generated_reasoning:e_r)- phx_dm_reasoning_trace:r;
 
     PRINT execution, tool_calls, evaluations, guardrails, reasoning;
 }

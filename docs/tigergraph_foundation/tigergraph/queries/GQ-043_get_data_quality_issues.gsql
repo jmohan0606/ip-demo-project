@@ -6,7 +6,7 @@
  */
 USE GRAPH iperform_insights_coaching_demo
 
-CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limit INT) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
+CREATE QUERY get_data_quality_issues(STRING domain, STRING severity, INT result_limit) FOR GRAPH iperform_insights_coaching_demo SYNTAX V1 {
     OrAccum @has_branch;
     OrAccum @has_advisor;
     OrAccum @has_household;
@@ -17,7 +17,7 @@ CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limi
 
     all_advisors = {phx_dm_advisor.*};
     linked_advisors = SELECT a FROM all_advisors:a
-        -(phx_dm_advisor_in_branch)- phx_dm_branch:b
+        -(phx_dm_advisor_in_branch:e_b)- phx_dm_branch:b
         ACCUM a.@has_branch += TRUE;
     advisors_missing_branch = SELECT a FROM all_advisors:a
         WHERE (domain == "ALL" OR domain == "ORGANIZATION")
@@ -29,7 +29,7 @@ CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limi
 
     all_households = {phx_dm_household.*};
     linked_households = SELECT h FROM all_households:h
-        -(rev_phx_dm_advisor_serves_household)- phx_dm_advisor:a
+        -(rev_phx_dm_advisor_serves_household:e_a)- phx_dm_advisor:a
         ACCUM h.@has_advisor += TRUE;
     households_missing_advisor = SELECT h FROM all_households:h
         WHERE (domain == "ALL" OR domain == "HOUSEHOLD")
@@ -41,7 +41,7 @@ CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limi
 
     all_accounts = {phx_dm_account.*};
     linked_accounts = SELECT ac FROM all_accounts:ac
-        -(rev_phx_dm_household_owns_account)- phx_dm_household:h
+        -(rev_phx_dm_household_owns_account:e_h)- phx_dm_household:h
         ACCUM ac.@has_household += TRUE;
     accounts_missing_household = SELECT ac FROM all_accounts:ac
         WHERE (domain == "ALL" OR domain == "ACCOUNT")
@@ -53,7 +53,7 @@ CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limi
 
     all_predictions = {phx_dm_prediction_result.*};
     linked_predictions = SELECT p FROM all_predictions:p
-        -(phx_dm_prediction_uses_feature_snapshot)- phx_dm_feature_snapshot:f
+        -(phx_dm_prediction_uses_feature_snapshot:e_f)- phx_dm_feature_snapshot:f
         ACCUM p.@has_feature += TRUE;
     predictions_missing_features = SELECT p FROM all_predictions:p
         WHERE (domain == "ALL" OR domain == "AI")
@@ -65,7 +65,7 @@ CREATE QUERY get_data_quality_issues(domain STRING, severity STRING, result_limi
 
     all_recommendations = {phx_dm_recommendation.*};
     linked_recommendations = SELECT r FROM all_recommendations:r
-        -(rev_phx_dm_reasoning_for_recommendation)- phx_dm_reasoning_trace:x
+        -(rev_phx_dm_reasoning_for_recommendation:e_x)- phx_dm_reasoning_trace:x
         ACCUM r.@has_reasoning += TRUE;
     recommendations_missing_reasoning = SELECT r FROM all_recommendations:r
         WHERE (domain == "ALL" OR domain == "AI")
