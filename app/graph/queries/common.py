@@ -150,6 +150,28 @@ def resolve_scope_advisor_ids_graph(graph: Any, scope_type: str, scope_id: str) 
     return resolve_scope_advisor_ids(graph_fallback_store(graph), st, scope_id)
 
 
+def scope_advisor_placements(graph: Any, scope_type: str, scope_id: str) -> dict[str, dict] | None:
+    """advisor_id -> full ancestor placement (branch/market/region/division/firm
+    ids + names + branch_state) via GQ-053 get_scope_advisor_placements. Returns
+    None when the query is unavailable — callers then use their logged local-store
+    fallback path."""
+    results = run_catalog_query(
+        graph,
+        "get_scope_advisor_placements",
+        {"scope_type": (scope_type or "").upper(), "scope_id": str(scope_id)},
+    )
+    if results is not None:
+        for entry in results:
+            placements = entry.get("advisor_placements")
+            if placements is not None:
+                return {str(p.get("v_id")): p.get("attributes", {}) for p in placements}
+        logger.warning(
+            "get_scope_advisor_placements returned no advisor_placements entry for %s/%s",
+            scope_type, scope_id,
+        )
+    return None
+
+
 def advisor_transactions(
     store: FoundationGraphStore, advisor_ids: Iterable[str], start_date: Any = None, end_date: Any = None
 ) -> list[tuple[str, dict]]:
