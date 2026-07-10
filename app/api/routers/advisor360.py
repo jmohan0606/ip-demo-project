@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 
 from fastapi import APIRouter
@@ -5,20 +6,56 @@ from fastapi import APIRouter
 from app.agp.service import AgpService
 from app.ai.insights.structured_view import structured_insight_coaching
 from app.crm.service import CrmService
-from app.embeddings.similar_entities import _embeddings_by_entity, similar_entities
+from app.embeddings.similar_entities import _embeddings_by_entity, _parse_vector, similar_entities
 from app.features.snapshot_store import SnapshotStore
 from app.graph.client import get_graph_client
+from app.graph.queries.common import graph_fallback_store, run_catalog_query
 from app.models.insights_coaching import InsightRequest, InsightScopeType
 from app.services.insights_coaching_service import InsightsCoachingService
 from app.shared.responses import ok
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/advisor", tags=["Advisor 360"])
+
+
+def _has_embedding(graph, entity_type: str, entity_id: str) -> bool | None:
+    """Whether the entity has a persisted embedding vector, resolved via the
+    catalogued GQ-024 get_embeddings_for_entity query (real TigerGraph in real
+    mode). Returns None when the query is unavailable — the caller then uses the
+    logged local-store fallback."""
+    rows = run_catalog_query(
+        graph,
+        "get_embeddings_for_entity",
+        {"entity_type": entity_type, "entity_id": str(entity_id)},
+    )
+    if rows is None:
+        return None
+    for entry in rows:
+        for emb in entry.get("embeddings") or []:
+            attrs = emb.get("attributes", emb)
+            if _parse_vector(attrs.get("vector_preview")):
+                return True
+    return False
+
+
+def _focus_entity_via_graph(graph, entity_type: str, candidates: list[tuple[str, float]]) -> tuple[str | None, bool]:
+    """Largest-value candidate that has a persisted embedding, checked via
+    GQ-024 (highest value first, so typically one query). Returns
+    (focus_id | None, resolved) — resolved False means the catalogued query was
+    unavailable and the caller must use the logged store fallback instead."""
+    for entity_id, _value in sorted(candidates, key=lambda c: c[1], reverse=True):
+        found = _has_embedding(graph, entity_type, entity_id)
+        if found is None:
+            return None, False
+        if found:
+            return entity_id, True
+    return None, True
 
 
 @router.get("/360/{advisor_id}")
 def advisor_360(advisor_id: str):
     graph = get_graph_client()
-    store = graph.store
     merged: dict = {}
     for entry in graph.run_query("get_advisor_360", {"advisor_id": advisor_id}).get("results", []):
         merged.update(entry)
@@ -77,16 +114,47 @@ def advisor_360(advisor_id: str):
     # Similar households / accounts — extends advisor similarity to other entity
     # types via real cosine NN over persisted embedding vectors (CLAUDE.md 9.5).
     similar: dict = {"households": None, "accounts": None}
-    hh_emb = _embeddings_by_entity(store, "HOUSEHOLD")
-    acct_emb = _embeddings_by_entity(store, "ACCOUNT")
-    adv_hh = [h.get("v_id") for h in merged.get("households", []) if h.get("v_id") in hh_emb]
-    adv_acct = [a.get("v_id") for a in merged.get("accounts", []) if a.get("v_id") in acct_emb]
-    if adv_hh:
+    # Candidate (id, value) pairs from the GQ-009 vertex attributes already fetched
+    # above — no direct store read needed for the value ranking.
+    hh_candidates = [
+        (h.get("v_id"), float((h.get("attributes", h) or {}).get("total_aum") or 0))
+        for h in merged.get("households", [])
+        if h.get("v_id") is not None
+    ]
+    acct_candidates = [
+        (a.get("v_id"), float((a.get("attributes", a) or {}).get("current_value") or 0))
+        for a in merged.get("accounts", [])
+        if a.get("v_id") is not None
+    ]
+    # Focus entity = largest-value household/account with a persisted embedding,
+    # resolved via catalogued GQ-024 (real TigerGraph in real mode).
+    focus_hh, hh_resolved = _focus_entity_via_graph(graph, "HOUSEHOLD", hh_candidates)
+    focus_acct, acct_resolved = _focus_entity_via_graph(graph, "ACCOUNT", acct_candidates)
+    if not (hh_resolved and acct_resolved):
+        # Logged fallback: the pre-migration direct store traversal, kept verbatim.
+        logger.warning(
+            "get_embeddings_for_entity unavailable — falling back to local store "
+            "embedding scan for advisor %s similar-entity focus", advisor_id,
+        )
+        store = graph_fallback_store(graph)
+        if not hh_resolved:
+            hh_emb = _embeddings_by_entity(store, "HOUSEHOLD")
+            adv_hh = [h.get("v_id") for h in merged.get("households", []) if h.get("v_id") in hh_emb]
+            focus_hh = (
+                max(adv_hh, key=lambda h: float((store.vertex("phx_dm_household", h) or {}).get("total_aum") or 0))
+                if adv_hh else None
+            )
+        if not acct_resolved:
+            acct_emb = _embeddings_by_entity(store, "ACCOUNT")
+            adv_acct = [a.get("v_id") for a in merged.get("accounts", []) if a.get("v_id") in acct_emb]
+            focus_acct = (
+                max(adv_acct, key=lambda a: float((store.vertex("phx_dm_account", a) or {}).get("current_value") or 0))
+                if adv_acct else None
+            )
+    if focus_hh is not None:
         # focus on the advisor's largest-AUM household that has an embedding
-        focus_hh = max(adv_hh, key=lambda h: float((store.vertex("phx_dm_household", h) or {}).get("total_aum") or 0))
         similar["households"] = similar_entities("HOUSEHOLD", focus_hh, 3)
-    if adv_acct:
-        focus_acct = max(adv_acct, key=lambda a: float((store.vertex("phx_dm_account", a) or {}).get("current_value") or 0))
+    if focus_acct is not None:
         similar["accounts"] = similar_entities("ACCOUNT", focus_acct, 3)
 
     return ok(data={
