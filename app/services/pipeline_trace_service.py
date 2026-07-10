@@ -8,14 +8,23 @@ assembly timing). Reuses existing services — no new computation invented.
 """
 from __future__ import annotations
 
+import logging
 import time
 
 from app.graph.client import get_graph_client
+from app.graph.queries.common import graph_fallback_store, run_catalog_query
 from app.features.snapshot_store import SnapshotStore
 from app.recommendations.lifecycle import RecommendationLifecycleService
 from app.recommendations.service import RecommendationService
 from app.prediction.service import PredictionService
 from app.observability import recorder
+
+logger = logging.getLogger(__name__)
+
+# GQ-051 is date-windowed in GSQL (DATETIME params are required); this wide window
+# means "all transactions" on both the real tier and the identical-shape mock.
+_ALL_TIME_START = "1900-01-01 00:00:00"
+_ALL_TIME_END = "2100-01-01 00:00:00"
 
 
 def _usd(v) -> str:
@@ -31,18 +40,58 @@ class PipelineTraceService:
 
     def trace(self, recommendation_id: str) -> dict:
         t0 = time.perf_counter()
-        store = get_graph_client().store
+        graph = get_graph_client()
         attrs = self.lifecycle._rec_attrs(recommendation_id)
         advisor_id = attrs["advisor_id"]
         stages: list[dict] = []
 
         # --- Stage 1: Data --------------------------------------------------
-        adv = store.vertex("phx_dm_advisor", advisor_id) or {}
-        households = store.out_ids("phx_dm_advisor_serves_household", advisor_id)
-        accounts = []
-        for h in households:
-            accounts.extend(store.out_ids("phx_dm_household_owns_account", h))
-        tx_count = len(store.in_ids("phx_dm_transaction_for_advisor", advisor_id))
+        # GQ-009 get_advisor_360: advisor attrs + household/account sets.
+        adv: dict = {}
+        households: list[str] = []
+        accounts: list[str] = []
+        data_from_graph = False
+        adv_results = run_catalog_query(graph, "get_advisor_360", {"advisor_id": advisor_id})
+        if adv_results is not None:
+            entry = next((e for e in adv_results if "advisor" in e or "households" in e), None)
+            if entry is not None:
+                adv_rows = entry.get("advisor") or []
+                adv = (adv_rows[0].get("attributes", adv_rows[0]) if adv_rows else {}) or {}
+                households = [str(r.get("v_id")) for r in (entry.get("households") or [])]
+                accounts = [str(r.get("v_id")) for r in (entry.get("accounts") or [])]
+                data_from_graph = True
+            else:
+                logger.warning(
+                    "get_advisor_360 returned no advisor/households entry for %s — "
+                    "falling back to local store traversal", advisor_id,
+                )
+        if not data_from_graph:
+            store = graph_fallback_store(graph)
+            adv = store.vertex("phx_dm_advisor", advisor_id) or {}
+            households = store.out_ids("phx_dm_advisor_serves_household", advisor_id)
+            accounts = []
+            for h in households:
+                accounts.extend(store.out_ids("phx_dm_household_owns_account", h))
+
+        # GQ-051 get_scope_transactions (scope=ADVISOR, all-time window): tx count.
+        tx_count: int | None = None
+        tx_results = run_catalog_query(
+            graph,
+            "get_scope_transactions",
+            {"scope_type": "ADVISOR", "scope_id": advisor_id,
+             "start_date": _ALL_TIME_START, "end_date": _ALL_TIME_END},
+        )
+        if tx_results is not None:
+            entry = next((e for e in tx_results if e.get("transactions") is not None), None)
+            if entry is not None:
+                tx_count = len(entry["transactions"])
+            else:
+                logger.warning(
+                    "get_scope_transactions returned no transactions entry for advisor %s — "
+                    "falling back to local store traversal", advisor_id,
+                )
+        if tx_count is None:
+            tx_count = len(graph_fallback_store(graph).in_ids("phx_dm_transaction_for_advisor", advisor_id))
         stages.append({
             "key": "data", "label": "Data",
             "summary": f"Advisor {advisor_id} · {tx_count} transactions · {len(households)} households · {len(accounts)} accounts",
